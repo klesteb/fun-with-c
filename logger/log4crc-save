@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE log4c SYSTEM "">
+
+<log4c>
+
+	<config>
+		<bufsize>0</bufsize>
+		<debug level="0"/>
+		<nocleanup>0</nocleanup>
+	</config>
+
+	<!-- root category ========================================= -->
+	<category name="root" priority="trace" appender="stderr" />
+	<category name="test3" priority="trace" appender="logstash" />
+
+	<!-- default appenders ===================================== -->
+	<appender name="stdout" type="stream" layout="basic"/>
+	<appender name="stderr" type="stream" layout="dated"/>
+	<appender name="syslog" type="syslog" layout="basic"/>
+	<appender name="logstash" type="stream" layout="logstash"/>
+
+	<!-- default layouts ======================================= -->
+	<layout name="basic" type="basic"/>
+	<layout name="dated" type="dated"/>
+    <layout name="logstash" type="logstash"/>
+
+</log4c>
+

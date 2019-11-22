@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE log4c SYSTEM "">
+
+<log4c>
+
+	<config>
+		<bufsize>1024</bufsize>
+		<debug level="0"/>
+		<nocleanup>0</nocleanup>
+	</config>
+
+	<!-- root category ========================================= -->
+	<category name="root"  priority="trace" appender="stderr" />
+	<category name="test3" priority="trace" appender="testing1" />
+	<category name="test4" priority="trace" appender="testing2" />
+
+	<!-- default appenders ===================================== -->
+	<appender name="stdout" type="stream" layout="basic"/>
+	<appender name="stderr" type="stream" layout="dated"/>
+	<appender name="syslog" type="syslog" layout="basic"/>
+	<appender name="testing1" logdir="." prefix="testing.log" type="staticfile" layout="logstash"/>
+	<appender name="testing2" type="domain" layout="logstash"/>
+
+	<rollingpolicy name="myrollingpolicy" type="sizewin" maxsize="1024" maxnum="10" />
+	<appender name="myrollingfile" type="rollingfile" logdir="." prefix="myprefix" layout="logstash" rollingpolicy="myrollingpolicy" />
+
+	<!-- default layouts ======================================= -->
+	<layout name="basic"    type="basic"/>
+	<layout name="dated"    type="dated"/>
+    <layout name="logstash" type="logstash"/>
+
+</log4c>
+

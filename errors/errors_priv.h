@@ -1,0 +1,31 @@
+
+/*---------------------------------------------------------------------------*/
+/*                Copyright (c) 2019 by Kevin L. Esteb                       */
+/*                                                                           */
+/*  Permission to use, copy, modify, and distribute this software and its    */
+/*  documentation for any purpose and without fee is hereby granted,         */
+/*  provided that the above copyright notice appears in all copies. The      */
+/*  author makes no representations about the suitability of this software   */
+/*  for any purpose. It is provided "as is" without express or implied       */
+/*  warranty.                                                                */
+/*---------------------------------------------------------------------------*/
+
+#ifndef _ERROR_CODES_DEF_H_
+#define _ERROR_CODES_DEF_H_
+
+#include "error_codes.h"
+
+/*-------------------------------------------------------------*/
+/* error code definations                                      */
+/*-------------------------------------------------------------*/
+
+error_code_t error_codes[] = {
+    { E_OK,      "E_OK",      "everything is AOK" },
+    { E_INVPARM, "E_INVPARM", "invalid parameters" },
+    { E_NODATA,  "E_NODATA",  "no data available" },
+    { E_INVOPS,  "E_INVOPS",  "an invalid operation was performed" },
+    { E_INVOBJ,  "E_INVOBJ",  "invalid object" },
+    { E_NOLOAD,  "E_NOLOAD",  "unable to load data" }
+};
+
+#endif

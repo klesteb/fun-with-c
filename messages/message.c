@@ -458,7 +458,7 @@ int _message_dtor(object_t *object) {
 
 int _message_override(message_t *self, item_list_t *items) {
 
-    int stat = -1;
+    int stat = ERR;
 
     if (items != NULL) {
 
@@ -471,7 +471,32 @@ int _message_override(message_t *self, item_list_t *items) {
             switch(items[x].item_code) {
                 case MESSAGE_M_DESTRUCTOR: {
                     self->dtor = items[x].buffer_address;
-                    stat = 0;
+                    stat = OK;
+                    break;
+                }
+                case MESSAGE_M_ADD_MESSAGE: {
+                    self->_add_message = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case MESSAGE_M_DEL_MESSAGE: {
+                    self->_del_message = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case MESSAGE_M_GET_MESSAGE: {
+                    self->_get_message = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case MESSAGE_M_SET_MESSAGE: {
+                    self->_set_message = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case MESSAGE_M_LOAD_MESSAGES: {
+                    self->_load_messages = items[x].buffer_address;
+                    stat = OK;
                     break;
                 }
             }

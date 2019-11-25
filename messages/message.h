@@ -46,7 +46,12 @@ struct _message_s {
 
 #define MESSAGE_K_MESSAGES 1
 
-#define MESSAGE_M_DESTRUCTOR 1
+#define MESSAGE_M_DESTRUCTOR    1
+#define MESSAGE_M_ADD_MESSAGE   2
+#define MESSAGE_M_DEL_MESSAGE   3
+#define MESSAGE_M_GET_MESSAGE   4
+#define MESSAGE_M_SET_MESSAGE   5
+#define MESSAGE_M_LOAD_MESSAGES 6
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */

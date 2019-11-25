@@ -23,7 +23,8 @@ messages_t defaults[] = {
     { M_STARTUP,  "Starting up" },
     { M_SHUTDOWN, "Shutting down" },
     { M_STARTRUN, "Start run" },
-    { M_STOPRUN,  "Stop run" }
+    { M_STOPRUN,  "Stop run" },
+    { M_ERRORS,   "%s" }
 };
 
 #endif

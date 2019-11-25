@@ -44,17 +44,19 @@ struct _message_s {
 
 #define MESSAGE(x) ((message_t *)(x))
 
+#define MESSAGE_K_MESSAGES 1
+
 #define MESSAGE_M_DESTRUCTOR 1
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern message_t *message_create(item_list_t *);
+extern message_t *message_create(messages_t *, int);
 extern int message_destroy(message_t *);
 extern int message_compare(message_t *, message_t *);
 extern int message_override(message_t *, item_list_t *);
-extern int message_del(message_t *, int);
+extern int message_remove(message_t *, int);
 extern int message_add(message_t *, int, char *);
 extern int message_set(message_t *, int, char *);
 extern int message_get(message_t *, int, char *, int);

@@ -48,10 +48,23 @@ declare_klass(MESSAGE_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-message_t *message_create(item_list_t *items) {
+message_t *message_create(messages_t *messages, int msg_size) {
 
     int stat = ERR;
+    item_list_t items[2];
     message_t *self = NULL;
+
+    if (messages != NULL) {
+
+        SET_ITEM(items[0], MESSAGE_K_MESSAGES, messages, msg_size, NULL);
+        SET_ITEM(items[1], 0, 0, 0, 0);
+
+    } else {
+
+        SET_ITEM(items[0], 0, 0, 0, 0);
+        SET_ITEM(items[1], 0, 0, 0, 0);
+
+    }
 
     self = (message_t *)object_create(MESSAGE_KLASS, items, &stat);
 
@@ -338,7 +351,9 @@ int message_load(message_t *self, messages_t *messages, int size) {
 int _message_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
+    int msg_size = 0;
     message_t *self = NULL;
+    messages_t *messages = NULL;
 
     if (object != NULL) {
 
@@ -352,14 +367,13 @@ int _message_ctor(object_t *object, item_list_t *items) {
                 if ((items[x].buffer_length == 0) &&
                     (items[x].item_code == 0)) break;
 
-                /* switch(items[x].item_code) { */
-                /*     case message_K_TYPE: { */
-                /*         memcpy(&type,  */
-                /*                items[x].buffer_address,  */
-                /*                items[x].buffer_length); */
-                /*         break; */
-                /*     } */
-                /* } */
+                switch(items[x].item_code) {
+                    case MESSAGE_K_MESSAGES: {
+                        messages = items[x].buffer_address;
+                        msg_size = items[x].buffer_length;
+                        break;
+                    }
+                }
 
             }
 
@@ -388,10 +402,25 @@ int _message_ctor(object_t *object, item_list_t *items) {
 
         que_init(&self->messages);
 
+        /* load default messages */
+
         stat = self->_load_messages(self, defaults, sizeof(defaults));
         if (stat != OK) {
 
             object_set_error(OBJECT(self), E_NOLOAD);
+
+        }
+
+        /* load any user defined messages */
+
+        if (messages != NULL) {
+
+            stat = self->_load_messages(self, messages, msg_size);
+            if (stat != OK) {
+
+                object_set_error(OBJECT(self), E_NOLOAD);
+
+            }
 
         }
 

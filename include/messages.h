@@ -26,6 +26,7 @@ typedef struct _messages_s {
 #define M_SHUTDOWN 2
 #define M_STARTRUN 3
 #define M_STOPRUN  4
+#define M_ERRORS   5
 
 #endif
 

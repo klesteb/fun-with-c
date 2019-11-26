@@ -14,7 +14,7 @@
 #define _MESSAGES_H_
 
 typedef struct _messages_s {
-    int nemonic;
+    int code;
     char *text;
 } messages_t;
 

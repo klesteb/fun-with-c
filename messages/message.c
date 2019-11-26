@@ -511,15 +511,20 @@ int _message_override(message_t *self, item_list_t *items) {
 
 int _message_compare(message_t *self, message_t *other) {
 
-    int stat = -1;
+    int stat = ERR;
 
     if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
         (self->ctor == other->ctor) &&
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        (self->_override == other->_override) &&
+        (self->_get_message == other->_get_message) &&
+        (self->_set_message == other->_set_message) &&
+        (self->_add_message == other->_add_message) &&
+        (self->_del_message == other->_del_message) &&
+        (self->_load_messages == other->_load_messages)) {
 
-        stat = 0;
+        stat = OK;
 
     }
 
@@ -534,7 +539,7 @@ int _message_add(message_t *self, int nemonic, char *text) {
 
     if ((message = calloc(1, sizeof(messages_t)))) {
 
-        message->nemonic = nemonic;
+        message->code = nemonic;
         message->text = strdup(text);
 
         stat = que_push_tail(&self->messages, message);
@@ -554,7 +559,7 @@ int _message_del(message_t *self, int nemonic) {
          message != NULL;
          message = que_next(&self->messages)) {
 
-        if (message->nemonic == nemonic) {
+        if (message->code == nemonic) {
 
             message = que_delete(&self->messages);
 
@@ -588,7 +593,7 @@ int _message_get(message_t *self, int nemonic, char *buffer, int size) {
          message != NULL;
          message = que_next(&self->messages)) {
 
-        if (message->nemonic == nemonic) {
+        if (message->code == nemonic) {
 
             strncpy(buffer, message->text, size);
             stat = OK;
@@ -611,13 +616,13 @@ int _message_set(message_t *self, int nemonic, char *text) {
          message != NULL;
          message = que_next(&self->messages)) {
 
-        if (message->nemonic == nemonic) {
+        if (message->code == nemonic) {
 
             free(message->text);
             message->text = strdup(text);
 
             stat = que_put(&self->messages, message);
-            
+
             break;
 
         }
@@ -636,12 +641,12 @@ int _message_load(message_t *self, messages_t *messages, int size) {
 
     for (x = 0; x < count; x++) {
 
-        stat = self->_add_message(self, messages[x].nemonic, messages[x].text);
+        stat = self->_add_message(self, messages[x].code, messages[x].text);
         if (stat != OK) break;
 
     }
-    
+
     return stat;
-    
+
 }
 

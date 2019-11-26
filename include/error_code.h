@@ -10,28 +10,14 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERROR_TRACE_H_
-#define _ERROR_TRACE_H_
+#ifndef _ERROR_CODE_H_
+#define _ERROR_CODE_H_
 
-/**
- * @file error_trace.h
- * @author Kevin L. Esteb (kevin@kesteb.us)
- * @date 15-Nov-2019
- * 
- * @brief define an error trace structure
- *
- * @par Description
- * This is used to keep track of errors and where they happened. 
- * 
- * @struct error_trace_t error_trace.h "include/error_trace.h"
- * 
- **/
-typedef struct _error_trace_s {
-    int errnum;                 /**< the error number                   */
-    int lineno;                 /**< the line number in the source file */ 
-    char *filename;             /**< the source file name               */
-    char *function;             /**< the function name                  */
-} error_trace_t;
+typedef struct _error_code_s {
+    int ec;
+    char *text;
+    char *message;
+} error_code_t;
 
 #endif
 

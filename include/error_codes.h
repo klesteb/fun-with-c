@@ -13,12 +13,6 @@
 #ifndef _ERROR_CODES_H_
 #define _ERROR_CODES_H_
 
-typedef struct _error_code_s {
-    int ec;
-    char *text;
-    char *message;
-} error_code_t;
-
 /*-------------------------------------------------------------*/
 /* error code constants                                        */
 /*-------------------------------------------------------------*/

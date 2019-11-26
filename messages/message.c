@@ -13,8 +13,8 @@
 #include "when.h"
 #include "object.h"
 #include "message.h"
-#include "message_priv.h"
 #include "error_codes.h"
+#include "message_priv.h"
 
 require_klass(OBJECT_KLASS);
 

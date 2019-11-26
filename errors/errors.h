@@ -15,6 +15,7 @@
 
 #include "object.h"
 #include "que_util.h"
+#include "error_code.h"
 #include "error_codes.h"
 
 /*----------------------------------------------------------------*/

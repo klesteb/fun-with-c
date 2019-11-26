@@ -13,6 +13,7 @@
 #ifndef _ERROR_CODES_DEF_H_
 #define _ERROR_CODES_DEF_H_
 
+#include "error_code.h"
 #include "error_codes.h"
 
 /*-------------------------------------------------------------*/
@@ -29,3 +30,4 @@ error_code_t error_codes[] = {
 };
 
 #endif
+

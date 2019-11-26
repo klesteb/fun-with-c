@@ -13,20 +13,25 @@
 #ifndef _MESSAGES_H_
 #define _MESSAGES_H_
 
+/**
+ * @file messages.h
+ * @author Kevin L. Esteb (kevin@kesteb.us)
+ * @date 15-Nov-2019
+ * 
+ * @brief A data structure used to hold messages.
+ * 
+ * @par Description
+ * This data structure is used to messages and there associated
+ * codes. This is used for displaying messages within applications. 
+ * 
+ * @struct messages_t messages.h "include/messages.h"
+ * 
+ **/
+
 typedef struct _messages_s {
-    int code;
-    char *text;
+    int code;                  /**< the message code */
+    char *text;                /**< the message text */
 } messages_t;
-
-/*-------------------------------------------------------------*/
-/* default message nemonics                                    */
-/*-------------------------------------------------------------*/
-
-#define M_STARTUP  1
-#define M_SHUTDOWN 2
-#define M_STARTRUN 3
-#define M_STOPRUN  4
-#define M_ERRORS   5
 
 #endif
 

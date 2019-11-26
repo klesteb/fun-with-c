@@ -17,6 +17,7 @@
 #include "que_util.h"
 #include "item_list.h"
 #include "messages.h"
+#include "message_codes.h"
 
 /*----------------------------------------------------------------*/
 /* klass defination                                               */

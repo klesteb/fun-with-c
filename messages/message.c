@@ -87,13 +87,13 @@ int message_destroy(message_t *self) {
 
             } else {
 
-                object_set_error(OBJECT(self), E_INVOBJ);
+                cause_error(E_INVOBJ);
 
             }
 
         } else {
 
-            object_set_error(OBJECT(self), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 
@@ -125,7 +125,7 @@ int message_override(message_t *self, item_list_t *items) {
 
         } else {
 
-            object_set_error(OBJECT(self), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 
@@ -159,13 +159,13 @@ int message_compare(message_t *us, message_t *them) {
 
             } else {
 
-                object_set_error(OBJECT(us), E_INVOBJ);
+                cause_error(E_INVOBJ);
 
             }
 
         } else {
 
-            object_set_error(OBJECT(us), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 
@@ -197,7 +197,7 @@ int message_add(message_t *self, int nemonic, char *message) {
 
         } else {
 
-            object_set_error(OBJECT(self), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 
@@ -229,7 +229,7 @@ int message_set(message_t *self, int nemonic, char *text) {
 
         } else {
 
-            object_set_error(OBJECT(self), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 
@@ -261,7 +261,7 @@ int message_get(message_t *self, int nemonic, char *buffer, int size) {
 
         } else {
 
-            object_set_error(OBJECT(self), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 
@@ -293,7 +293,7 @@ int message_remove(message_t *self, int nemonic) {
 
         } else {
 
-            object_set_error(OBJECT(self), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 
@@ -325,7 +325,7 @@ int message_load(message_t *self, messages_t *messages, int size) {
 
         } else {
 
-            object_set_error(OBJECT(self), E_INVPARM);
+            cause_error(E_INVPARM);
 
         }
 

@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERROR_CODES_DEF_H_
-#define _ERROR_CODES_DEF_H_
+#ifndef _ERRORS_PRIV_H_
+#define _ERRORS_PRIV_H_
 
 #include "error_code.h"
 #include "error_codes.h"
@@ -21,12 +21,12 @@
 /*-------------------------------------------------------------*/
 
 error_code_t error_codes[] = {
-    { E_OK,      "E_OK",      "everything is AOK" },
-    { E_INVPARM, "E_INVPARM", "invalid parameters" },
-    { E_NODATA,  "E_NODATA",  "no data available" },
-    { E_INVOPS,  "E_INVOPS",  "an invalid operation was performed" },
-    { E_INVOBJ,  "E_INVOBJ",  "invalid object" },
-    { E_NOLOAD,  "E_NOLOAD",  "unable to load data" }
+    { E_OK,      "E_OK",      "Everything is AOK" },
+    { E_INVPARM, "E_INVPARM", "Invalid parameters" },
+    { E_NODATA,  "E_NODATA",  "No data available" },
+    { E_INVOPS,  "E_INVOPS",  "An invalid operation was tried" },
+    { E_INVOBJ,  "E_INVOBJ",  "Invalid object" },
+    { E_NOLOAD,  "E_NOLOAD",  "Unable to load data" }
 };
 
 #endif

@@ -19,6 +19,28 @@
 #include "object.h"
 #include "error_trace.h"
 
+/**
+ * @file when.h
+ * @author Kevin L. Esteb (kevin@kesteb.us)
+ * @date 15-Nov-2019
+ * 
+ * @brief A macro package to implement structured error handling.
+ * 
+ * @par Description
+ * This is a macro package to implement a structured error handling
+ * solution. This takes a different path from the more common 
+ * "try catch" approach. This emulates the DEC/HP Basic "when error"
+ * blocks for error handling. 
+ * 
+ * There are some caveats; you can't nest blocks, you can't easily 
+ * propagate an error up the call chain, there is no retry logic. 
+ * 
+ * But it does handle the chore of checking return codes and then
+ * branching to an error handler when an error occurs. Errors are 
+ * determined if an OK, ERR or NULL is returned.
+ * 
+ **/
+
 #define when_error { static error_trace_t _er_trace;
 #define error_handler handler:
 #define end_when } exit_handler: 

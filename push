@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# File: push
+# Date: 2019-11-27
+# By  : Kevin L. Esteb
+#
+# push a commit to githb
+#
+unset SSH_ASKPASS
+git push github master
+

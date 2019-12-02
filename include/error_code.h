@@ -30,7 +30,7 @@
  **/
 
 typedef struct _error_code_s {
-    int ec;                    /**< the error code                      */
+    int errnum;                /**< the error code                      */
     char *text;                /**< the text nemonic for the error code */
     char *message;             /**< message text to explain the error   */
 } error_code_t;

@@ -26,13 +26,14 @@ typedef struct _errors_s errors_t;
 
 struct _errors_s {
     object_t parent_klass;
-    int   (*ctor)(object_t *, item_list_t *);
-    int   (*dtor)(object_t *);
-    char *(*_get_text)(errors_t *, int);
-    char *(*_get_message)(errors_t *, int);
-    int   (*_remove_error_code)(errors_t *, int);
-    int   (*_add_error_code)(errors_t *, int, char *, char *);
-    int   (*_add_error_codes)(errors_t *, error_code_t *, int);
+    int (*ctor)(object_t *, item_list_t *);
+    int (*dtor)(object_t *);
+    int (*_del_error)(errors_t *, int);
+    int (*_get_text)(errors_t *, int, char *, int);
+    int (*_get_message)(errors_t *, int, char *, int);
+    int (*_add_error)(errors_t *, int, char *, char *);
+    int (*_set_error)(errors_t *, int, char *, char *);
+    int (*_load_errors)(errors_t *, error_code_t *, int);
     queue error_codes;
 };
 
@@ -50,11 +51,12 @@ struct _errors_s {
 
 extern errors_t *errors_create(void);
 extern int errors_destroy(errors_t *);
-extern char *errors_get_text(errors_t *, int);
-extern char *errors_get_message(errors_t *, int);
-extern int errors_remove_error_code(errors_t *, int);
-extern int errors_add_error_code(errors_t *, int, char *, char *);
-extern int errors_add_error_codes(errors_t *, error_code_t *, int);
+extern int errors_remove(errors_t *, int);
+extern int errors_add(errors_t *, int, char *, char *);
+extern int errors_set(errors_t *, int, char *, char *);
+extern int errors_load(errors_t *, error_code_t *, int);
+extern int errors_get_text(errors_t *, int, char *, int);
+extern int errors_get_message(errors_t *, int, char *, int);
 
 #endif
 

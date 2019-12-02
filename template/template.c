@@ -136,7 +136,7 @@ int template_compare(template_t *us, template_t *them) {
             if (object_assert(them, template_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, E_INVOPS);
+                check_status(stat, E_NOTSAME);
 
             } else {
 

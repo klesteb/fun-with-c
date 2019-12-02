@@ -155,7 +155,7 @@ int message_compare(message_t *us, message_t *them) {
             if (object_assert(them, message_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, E_INVOPS);
+                check_status(stat, E_NOTSAME);
 
             } else {
 

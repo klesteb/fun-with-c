@@ -23,6 +23,7 @@
 #define E_INVOPS  1003
 #define E_INVOBJ  1004
 #define E_NOLOAD  1005
+#define E_NOTSAME 1006
 
 #endif
 

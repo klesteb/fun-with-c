@@ -5,21 +5,22 @@
 
 int main(void) {
 
-    char *message;
+    char message[1024];
     errors_t *errors = errors_create();
 
-    message = errors_get_message(errors, E_OK);
+    errors_get_message(errors, E_OK, message, 1023);
     printf("%s\n", message);
 
-    message = errors_get_message(errors, EAGAIN);
+    errors_get_message(errors, EAGAIN, message, 1023);
     printf("%s\n", message);
 
-    errors_remove_error_code(errors, EAGAIN);
-    message = errors_get_message(errors, EAGAIN);
+    memset(message, '\0', 1024);
+    errors_remove(errors, EAGAIN);
+    errors_get_message(errors, EAGAIN, message, 1023);
     printf("%s\n", message);
 
-    errors_add_error_code(errors, EAGAIN, "EAGAIN", strerror(EAGAIN));
-    message = errors_get_message(errors, EAGAIN);
+    errors_add(errors, EAGAIN, "EAGAIN", strerror(EAGAIN));
+    errors_get_message(errors, EAGAIN, message, 1023);
     printf("%s\n", message);
 
     errors_destroy(errors);

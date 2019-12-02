@@ -5,15 +5,15 @@
 
 int main(void) {
 
-    char *text;
-    char *message;
+    char text[1024];
+    char message[1024];
     errors_t *errors = errors_create();
     
-    message = errors_get_message(errors, E_OK);
+    errors_get_message(errors, E_OK, message, 1023);
     printf("%s\n", message);
 
-    text = errors_get_text(errors, EAGAIN);
-    message = errors_get_message(errors, EAGAIN);
+    errors_get_text(errors, EAGAIN, text, 1023);
+    errors_get_message(errors, EAGAIN, message, 1023);
     printf("%s: %s\n", text, message);
 
     errors_destroy(errors);

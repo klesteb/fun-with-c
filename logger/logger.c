@@ -14,9 +14,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "when.h"
 #include "object.h"
 #include "logger.h"
 #include "logger_priv.h"
+#include "error_codes.h"
 #include "log4c_extensions.h"
 
 require_klass(OBJECT_KLASS);
@@ -60,17 +62,39 @@ logger_t *log_create(char *facility, char *category, char *process) {
 
 int log_destroy(logger_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        if (object_assert(self, logger_t)) {
+        if (self != NULL) {
 
-            stat = self->dtor((object_t *)self);
+            if (object_assert(self, logger_t)) {
+
+                stat = self->dtor((object_t *)self);
+                check_status(stat, E_INVOPS);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
 
         }
 
-    }
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -78,16 +102,31 @@ int log_destroy(logger_t *self) {
 
 int log_set_category(logger_t *self, char *category) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (category != NULL)) {
+    when_error {
 
-        free(self->category);
-        self->category = strdup(category);
+        if ((self != NULL) && (category != NULL)) {
 
-        stat = OK;
+            free(self->category);
+            self->category = strdup(category);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -95,16 +134,31 @@ int log_set_category(logger_t *self, char *category) {
 
 int log_get_category(logger_t *self, char *category, int size) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (category != NULL) && (size > 0)) {
+    when_error {
 
-        strncpy(category, self->category, size);
-        category[size] = '\0';
+        if ((self != NULL) && (category != NULL) && (size > 0)) {
 
-        stat = OK;
+            strncpy(category, self->category, size);
+            category[size] = '\0';
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -112,16 +166,31 @@ int log_get_category(logger_t *self, char *category, int size) {
 
 int log_set_facility(logger_t *self, char *facility) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (facility != NULL)) {
+    when_error {
 
-        free(self->facility);
-        self->facility = strdup(facility);
+        if ((self != NULL) && (facility != NULL)) {
 
-        stat = OK;
+            free(self->facility);
+            self->facility = strdup(facility);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -131,14 +200,29 @@ int log_get_facility(logger_t *self, char *facility, int size) {
 
     int stat = ERR;
 
-    if ((self != NULL) && (facility != NULL) && (size > 0)) {
+    when_error {
 
-        strncpy(facility, self->facility, size);
-        facility[size] = '\0';
+        if ((self != NULL) && (facility != NULL) && (size > 0)) {
 
-        stat = OK;
+            strncpy(facility, self->facility, size);
+            facility[size] = '\0';
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -146,16 +230,31 @@ int log_get_facility(logger_t *self, char *facility, int size) {
 
 int log_set_process(logger_t *self, char *process) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (process != NULL)) {
+    when_error {
 
-        free(self->process);
-        self->process = strdup(process);
+        if ((self != NULL) && (process != NULL)) {
 
-        stat = OK;
+            free(self->process);
+            self->process = strdup(process);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -163,16 +262,31 @@ int log_set_process(logger_t *self, char *process) {
 
 int log_get_process(logger_t *self, char *process, int size) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (process != NULL) && (size > 0)) {
+    when_error {
 
-        strncpy(process, self->process, size);
-        process[size] = '\0';
+        if ((self != NULL) && (process != NULL) && (size > 0)) {
 
-        stat = OK;
+            strncpy(process, self->process, size);
+            process[size] = '\0';
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -181,18 +295,36 @@ int log_get_process(logger_t *self, char *process, int size) {
 int log_dispatch(logger_t *self, int type, int lineno, char *filename, const char *function, char *fmt, ...) {
 
     va_list aptr;
-    int stat = ERR;
+    int stat = OK;
     char buffer[2048];
 
-    if (self != NULL) {
+    when_error {
 
-        va_start(aptr, fmt);
-        vsnprintf(buffer, 2047, fmt, aptr);
-        va_end(aptr);
+        if (self != NULL) {
 
-        stat = self->_dispatch(self, type, lineno, filename, function, buffer);
+            va_start(aptr, fmt);
+            vsnprintf(buffer, 2047, fmt, aptr);
+            va_end(aptr);
 
-    }
+            stat = self->_dispatch(self, type, lineno, filename, function, buffer);
+            check_status(stat, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } error_handler {
+
+        stat = ERR;
+
+        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 

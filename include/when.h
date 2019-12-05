@@ -66,8 +66,12 @@
     free(_er_trace.function);               \
 }
 
-#define check_status(status, error) {           \
-    if ((status) != OK) {                       \
+#define retrieve_error(self) {                  \
+    object_get_error(OBJECT(self), &_er_trace); \
+}
+
+#define check_status(status, expected, error) { \
+    if ((status) != (expected)) {               \
         _er_trace.errnum = (error);             \
         _er_trace.lineno = __LINE__ - 1;        \
         _er_trace.filename = strdup(__FILE__);  \
@@ -76,23 +80,18 @@
     }                                           \
 }
 
-#define check_return(status, self) {            \
-    if ((status) != OK) {                       \
-        object_get_error((self), &_er_trace);   \
+#define check_return(status, expected, self) {  \
+    if ((status) != (expected)) {               \
+        retrieve_error((self));                 \
         goto handler;                           \
     }                                           \
 }
 
-#define check_creation(self) {                      \
-    if ((self) == NULL) {                           \
-        object_get_error(OBJECT(self), &_er_trace); \
-        goto handler;                               \
-    }                                               \
-}
-
-#define retrieve_error(self) {                  \
-    object_get_error(OBJECT(self), &_er_trace); \
-    goto handler;                               \
+#define check_object(self) {                    \
+    if ((self) == NULL) {                       \
+        retrieve_error((self));                 \
+        goto handler;                           \
+    }                                           \
 }
 
 #endif

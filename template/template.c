@@ -64,7 +64,7 @@ int template_destroy(template_t *self) {
             if (object_assert(self, template_t)) {
 
                 stat = self->dtor(OBJECT(self));
-                check_status(stat, E_INVOPS);
+                check_status(stat, OK, E_INVOPS);
 
             } else {
 
@@ -102,7 +102,7 @@ int template_override(template_t *self, item_list_t *items) {
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -136,7 +136,7 @@ int template_compare(template_t *us, template_t *them) {
             if (object_assert(them, template_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, E_NOTSAME);
+                check_status(stat, OK, E_NOTSAME);
 
             } else {
 

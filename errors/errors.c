@@ -68,7 +68,7 @@ int errors_destroy(errors_t *self) {
             if (object_assert(self, errors_t)) {
 
                 stat = self->dtor(OBJECT(self));
-                check_status(stat, E_INVOPS);
+                check_status(stat, OK, E_INVOPS);
 
             } else {
 
@@ -106,7 +106,7 @@ int errors_get_text(errors_t *self, int errnum, char *buffer, int size) {
         if ((self != NULL) && (buffer != NULL)) {
 
             stat = self->_get_text(self, errnum, buffer, size);
-            check_status(stat, E_NODATA);
+            check_status(stat, OK, E_NODATA);
 
         } else {
 
@@ -138,7 +138,7 @@ int errors_get_message(errors_t *self, int errnum, char *buffer, int size) {
         if ((self != NULL) && (buffer != NULL)) {
 
             stat = self->_get_message(self, errnum, buffer, size);
-            check_status(stat, E_NODATA);
+            check_status(stat, OK, E_NODATA);
 
         } else {
 
@@ -170,7 +170,7 @@ int errors_add(errors_t *self, int errnum, char *text, char *message) {
         if ((self != NULL) && (errnum != 0) && (text != NULL) && (message != NULL)) {
 
             stat = self->_add_error(self, errnum, text, message);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -202,7 +202,7 @@ int errors_remove(errors_t *self, int errnum) {
         if ((self != NULL) && (errnum != 0)) {
 
             stat = self->_del_error(self, errnum);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -234,7 +234,7 @@ int errors_set(errors_t *self, int errnum, char *text, char *message) {
         if ((self != NULL) && (errnum != 0)) {
 
             stat = self->_set_error(self, errnum, text, message);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -266,7 +266,7 @@ int errors_load(errors_t *self, error_code_t *codes, int size) {
         if ((self != NULL) && (codes != NULL)) {
 
             stat = self->_load_errors(self, codes, size);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 

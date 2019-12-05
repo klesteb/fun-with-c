@@ -71,7 +71,7 @@ int log_destroy(logger_t *self) {
             if (object_assert(self, logger_t)) {
 
                 stat = self->dtor((object_t *)self);
-                check_status(stat, E_INVOPS);
+                check_status(stat, OK, E_INVOPS);
 
             } else {
 
@@ -307,7 +307,7 @@ int log_dispatch(logger_t *self, int type, int lineno, char *filename, const cha
             va_end(aptr);
 
             stat = self->_dispatch(self, type, lineno, filename, function, buffer);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 

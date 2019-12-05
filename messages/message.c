@@ -83,7 +83,7 @@ int message_destroy(message_t *self) {
             if (object_assert(self, message_t)) {
 
                 stat = self->dtor(OBJECT(self));
-                check_status(stat, E_INVOPS);
+                check_status(stat, OK, E_INVOPS);
 
             } else {
 
@@ -121,7 +121,7 @@ int message_override(message_t *self, item_list_t *items) {
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -155,7 +155,7 @@ int message_compare(message_t *us, message_t *them) {
             if (object_assert(them, message_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, E_NOTSAME);
+                check_status(stat, OK, E_NOTSAME);
 
             } else {
 
@@ -193,7 +193,7 @@ int message_add(message_t *self, int nemonic, char *message) {
         if ((self != NULL) && (nemonic != 0) && (message != NULL)) {
 
             stat = self->_add_message(self, nemonic, message);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -225,7 +225,7 @@ int message_set(message_t *self, int nemonic, char *text) {
         if ((self != NULL) && (nemonic != 0) && (text != NULL)) {
 
             stat = self->_set_message(self, nemonic, text);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -257,7 +257,7 @@ int message_get(message_t *self, int nemonic, char *buffer, int size) {
         if ((self != NULL) && (nemonic != 0) && (buffer != NULL)) {
 
             stat = self->_get_message(self, nemonic, buffer, size);
-            check_status(stat, E_NODATA);
+            check_status(stat, OK, E_NODATA);
 
         } else {
 
@@ -289,7 +289,7 @@ int message_remove(message_t *self, int nemonic) {
         if ((self != NULL) && (nemonic != 0)) {
 
             stat = self->_del_message(self, nemonic);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 
@@ -321,7 +321,7 @@ int message_load(message_t *self, messages_t *messages, int size) {
         if ((self != NULL) && (messages != NULL)) {
 
             stat = self->_load_messages(self, messages, size);
-            check_status(stat, E_INVOPS);
+            check_status(stat, OK, E_INVOPS);
 
         } else {
 

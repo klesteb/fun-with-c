@@ -88,7 +88,7 @@ int errors_destroy(errors_t *self) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -120,7 +120,7 @@ int errors_get_text(errors_t *self, int errnum, char *buffer, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -152,7 +152,7 @@ int errors_get_message(errors_t *self, int errnum, char *buffer, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -184,7 +184,7 @@ int errors_add(errors_t *self, int errnum, char *text, char *message) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -216,7 +216,7 @@ int errors_remove(errors_t *self, int errnum) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -248,7 +248,7 @@ int errors_set(errors_t *self, int errnum, char *text, char *message) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -280,7 +280,7 @@ int errors_load(errors_t *self, error_code_t *codes, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;

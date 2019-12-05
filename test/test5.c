@@ -64,10 +64,10 @@ int main(int argc, char **argv) {
     when_error {
 
         stat = setup();
-        check_status(stat, 10);
+        check_status(stat, OK, 10);
 
         stat = test();
-        check_status(stat, 11);
+        check_status(stat, OK, 11);
 
         exit_when;
 

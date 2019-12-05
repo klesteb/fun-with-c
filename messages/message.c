@@ -103,7 +103,7 @@ int message_destroy(message_t *self) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -135,7 +135,7 @@ int message_override(message_t *self, item_list_t *items) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -175,7 +175,7 @@ int message_compare(message_t *us, message_t *them) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(us), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -207,7 +207,7 @@ int message_add(message_t *self, int nemonic, char *message) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -239,7 +239,7 @@ int message_set(message_t *self, int nemonic, char *text) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -271,7 +271,7 @@ int message_get(message_t *self, int nemonic, char *buffer, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -303,7 +303,7 @@ int message_remove(message_t *self, int nemonic) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -335,7 +335,7 @@ int message_load(message_t *self, messages_t *messages, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -407,7 +407,7 @@ int _message_ctor(object_t *object, item_list_t *items) {
         stat = self->_load_messages(self, defaults, sizeof(defaults));
         if (stat != OK) {
 
-            object_set_error(OBJECT(self), E_NOLOAD);
+            object_set_error(self, E_NOLOAD);
 
         }
 
@@ -418,7 +418,7 @@ int _message_ctor(object_t *object, item_list_t *items) {
             stat = self->_load_messages(self, messages, msg_size);
             if (stat != OK) {
 
-                object_set_error(OBJECT(self), E_NOLOAD);
+                object_set_error(self, E_NOLOAD);
 
             }
 

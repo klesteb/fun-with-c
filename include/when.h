@@ -87,7 +87,7 @@
     }                                           \
 }
 
-#define check_object(self) {                    \
+#define check_creation(self) {                  \
     if ((self) == NULL) {                       \
         retrieve_error((self));                 \
         goto handler;                           \

@@ -66,10 +66,10 @@ struct _object_s {
             _klass_clone((klass))
 
 #define object_set_error(object, error) \
-            _klass_set_error((object), (error), __LINE__, __FILE__, __func__)
+            _klass_set_error(OBJECT((object)), (error), __LINE__, __FILE__, __func__)
 
 #define object_set_error2(object, error, lineno, file, func) \
-            _klass_set_error((object), (error), (lineno), (file), (func))
+            _klass_set_error(OBJECT((object)), (error), (lineno), (file), (func))
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

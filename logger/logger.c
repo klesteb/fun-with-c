@@ -91,7 +91,7 @@ int log_destroy(logger_t *self) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -123,7 +123,7 @@ int log_set_category(logger_t *self, char *category) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -155,7 +155,7 @@ int log_get_category(logger_t *self, char *category, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -187,7 +187,7 @@ int log_set_facility(logger_t *self, char *facility) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -219,7 +219,7 @@ int log_get_facility(logger_t *self, char *facility, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -251,7 +251,7 @@ int log_set_process(logger_t *self, char *process) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -283,7 +283,7 @@ int log_get_process(logger_t *self, char *process, int size) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -321,7 +321,7 @@ int log_dispatch(logger_t *self, int type, int lineno, char *filename, const cha
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;

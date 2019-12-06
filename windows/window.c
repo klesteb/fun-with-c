@@ -33,7 +33,6 @@ int _window_dtor(object_t *);
 int _window_draw(window_t *);
 int _window_erase(window_t *);
 int _window_refresh(window_t *);
-int _window_get_last_error(window_t *);
 int _window_event(window_t *, event_t *);
 int _window_compare(window_t *, window_t *);
 int _window_override(window_t *, item_list_t *);
@@ -379,6 +378,7 @@ int _window_ctor(object_t *object, item_list_t *items) {
             }
 
             wbkgd(self->outer, setcolor(self->fg, self->bg));
+            wbkgd(self->inner, setcolor(self->fg, self->bg));
 
         }
 

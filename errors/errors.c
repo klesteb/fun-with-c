@@ -84,7 +84,7 @@ int errors_destroy(errors_t *self) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -116,7 +116,7 @@ int errors_get_text(errors_t *self, int errnum, char *buffer, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -148,7 +148,7 @@ int errors_get_message(errors_t *self, int errnum, char *buffer, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -180,7 +180,7 @@ int errors_add(errors_t *self, int errnum, char *text, char *message) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -198,7 +198,7 @@ int errors_remove(errors_t *self, int errnum) {
     int stat = ERR;
 
     when_error {
-        
+
         if ((self != NULL) && (errnum != 0)) {
 
             stat = self->_del_error(self, errnum);
@@ -212,7 +212,7 @@ int errors_remove(errors_t *self, int errnum) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -244,7 +244,7 @@ int errors_set(errors_t *self, int errnum, char *text, char *message) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -276,7 +276,7 @@ int errors_load(errors_t *self, error_code_t *codes, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 

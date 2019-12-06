@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
        stat = test();
        check_status(stat, OK, 10);
 
-    error_handler;
+    use;
 
        printf("Error: %d, line: %d, file: %s, function: %s\n",
               _er_trace.errnum, _er_trace.lineno, _er_trace.filename,

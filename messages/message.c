@@ -99,7 +99,7 @@ int message_destroy(message_t *self) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -131,7 +131,7 @@ int message_override(message_t *self, item_list_t *items) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -171,7 +171,7 @@ int message_compare(message_t *us, message_t *them) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -203,7 +203,7 @@ int message_add(message_t *self, int nemonic, char *message) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -235,7 +235,7 @@ int message_set(message_t *self, int nemonic, char *text) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -267,7 +267,7 @@ int message_get(message_t *self, int nemonic, char *buffer, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -299,7 +299,7 @@ int message_remove(message_t *self, int nemonic) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -331,7 +331,7 @@ int message_load(message_t *self, messages_t *messages, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 

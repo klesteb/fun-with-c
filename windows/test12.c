@@ -1,5 +1,6 @@
 
 #include <ncurses.h>
+#include <unistd.h>
 #include "window.h"
 #include "colors.h"
 
@@ -14,6 +15,7 @@ int main(int argc, char **argv) {
 
     initscr();
     cbreak();
+    noecho();
     keypad(stdscr, TRUE);
 
     if (has_colors() == FALSE) {
@@ -36,18 +38,9 @@ int main(int argc, char **argv) {
 
         window_output(window, 1, 1, "testing...");
         curs_set(1);
-        
-        if ((stat = window_draw(window)) != OK) {
-
-            printw("unable to draw window\n");
-            goto fini;
-
-        }
 
         doupdate();
-        printw("press any key\n");
-        refresh();
-        getch();
+        sleep(10);
 
     } else {
 

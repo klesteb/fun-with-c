@@ -87,7 +87,7 @@ int log_destroy(logger_t *self) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -119,7 +119,7 @@ int log_set_category(logger_t *self, char *category) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -151,7 +151,7 @@ int log_get_category(logger_t *self, char *category, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -183,7 +183,7 @@ int log_set_facility(logger_t *self, char *facility) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -215,7 +215,7 @@ int log_get_facility(logger_t *self, char *facility, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -247,7 +247,7 @@ int log_set_process(logger_t *self, char *process) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -279,7 +279,7 @@ int log_get_process(logger_t *self, char *process, int size) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -317,7 +317,7 @@ int log_dispatch(logger_t *self, int type, int lineno, char *filename, const cha
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 

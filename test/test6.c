@@ -24,7 +24,7 @@ int setup(void) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         printf("Error: %d, line: %d, file: %s, function: %s\n",
                trace_errnum, trace_lineno, trace_filename, trace_function);
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         printf("Error: %d, line: %d, file: %s, function: %s\n",
                trace_errnum, trace_lineno, trace_filename, trace_function);

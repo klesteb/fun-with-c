@@ -80,7 +80,7 @@ int template_destroy(template_t *self) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -112,7 +112,7 @@ int template_override(template_t *self, item_list_t *items) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 
@@ -152,7 +152,7 @@ int template_compare(template_t *us, template_t *them) {
 
         exit_when;
 
-    } error_handler {
+    } use {
 
         stat = ERR;
 

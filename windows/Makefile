@@ -28,7 +28,7 @@ OBJS = container.o colors.o component.o window.o \
        components/forms/form_textarea.o components/forms/form_header.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-     test10 test11
+     test10 test11 test12
 #
 libs: $(OBJS)
 #
@@ -56,6 +56,7 @@ clean:
 	rm -f test9
 	rm -f test10
 	rm -f test11
+	rm -f test12
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -102,6 +103,9 @@ test11: test11.o
 	$(CC) $(CFLAGS) test11.c
 	$(LINK) -o test11 test11.o  $(OLBS)
 #
+test12: test12.o
+	$(CC) $(CFLAGS) test12.c
+	$(LINK) -o test12 test12.o  $(OLBS)
 #
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c

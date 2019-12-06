@@ -56,7 +56,7 @@ int setcolor(int fg, int bg) {
 
     if (is_bold(fg)) {
 
-        attr | A_BOLD;
+        attr = (attr | A_BOLD);
 
     }
 
@@ -65,16 +65,16 @@ int setcolor(int fg, int bg) {
 }
 
 int unsetcolor(int fg, int bg) {
-    
+
     int attr = 0;
-    
+
     /* unset the color pair (colornum) and bold/bright (A_BOLD) */
 
     attr = COLOR_PAIR(colornum(fg, bg));
 
     if (is_bold(fg)) {
 
-        attr | A_BOLD;
+        attr = (attr & A_BOLD);
 
     }
 

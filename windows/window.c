@@ -11,6 +11,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <ncurses.h>
+#include <stdarg.h>
 
 #include "object.h"
 #include "window.h"
@@ -244,6 +245,27 @@ int window_set_colors(window_t *self, int fg, int bg) {
         self->bg = bg;
 
         stat = OK;
+
+    }
+
+    return stat;
+
+}
+
+int window_output(window_t *self, int row, int col, char *fmt, ...) {
+
+    va_list aptr;
+    int stat = ERR;
+    char buffer[2048];
+
+    if ((self != NULL) && (row >= 0) && (col >= 0) && (fmt != NULL)) {
+
+        va_start(aptr, fmt);
+        vsnprintf(buffer, 2047, fmt, aptr);
+        va_end(aptr);
+
+        stat = mvwprintw(self->inner, row, col, buffer);
+        wnoutrefresh(self->inner);
 
     }
 

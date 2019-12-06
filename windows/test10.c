@@ -96,11 +96,13 @@ int main(int argc, char **argv) {
 
         }
 
+        component_set_focus(field1, TRUE);
+
         field_fd2.row = 1;
         field_fd2.col = 17;
         field_fd2.width = 15;
         field_fd2.height = 1;
-        field_fd2.value = "current value";
+        field_fd2.value = "another value";
 
         if ((field2 = form_field_create(&field_fd2, sizeof(field_data_t))) == NULL) {
 

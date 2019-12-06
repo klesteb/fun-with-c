@@ -80,6 +80,7 @@ extern int window_set_colors(window_t *, int, int);
 extern int window_override(window_t *, item_list_t *);
 extern int window_get_colors(window_t *, int *, int *);
 extern int window_add_container(window_t *, container_t *);
+extern int window_output(window_t *, int, int, char *, ...);
 extern int window_remove_container(window_t *, container_t *);
 
 #endif

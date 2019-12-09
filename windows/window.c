@@ -13,12 +13,14 @@
 #include <ncurses.h>
 #include <stdarg.h>
 
+#include "when.h"
 #include "object.h"
 #include "window.h"
-#include "container.h"
-#include "item_list.h"
 #include "events.h"
 #include "colors.h"
+#include "container.h"
+#include "item_list.h"
+#include "error_codes.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -263,7 +265,11 @@ int window_output(window_t *self, int row, int col, char *fmt, ...) {
         vsnprintf(buffer, 2047, fmt, aptr);
         va_end(aptr);
 
+        wattrset(self->inner, self->attribute); 
+        wsetcolor(self->inner, self->fg, self->bg);
         stat = mvwprintw(self->inner, row, col, buffer);
+        wstandend(self->inner);
+
         wnoutrefresh(self->inner);
 
     }
@@ -377,9 +383,6 @@ int _window_ctor(object_t *object, item_list_t *items) {
 
             }
 
-            wbkgd(self->outer, setcolor(self->fg, self->bg));
-            wbkgd(self->inner, setcolor(self->fg, self->bg));
-
         }
 
     }
@@ -475,7 +478,8 @@ int _window_draw(window_t *self) {
     int stat = OK;
     container_t *container = NULL;
 
-    wattrset(self->inner, self->attribute | setcolor(self->fg, self->bg));
+    wattrset(self->inner, self->attribute);
+    wsetcolor(self->inner, self->fg, self->bg);
 
     for (container = que_first(&self->containers);
          container != NULL;
@@ -550,9 +554,6 @@ int _window_refresh(window_t *self) {
 
     int stat = ERR;
     container_t *container = NULL;
-
-    wattrset(self->inner, self->attribute);
-    wattrset(self->inner, setcolor(self->fg, self->bg));
 
     for (container = que_first(&self->containers);
          container != NULL;

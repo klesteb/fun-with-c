@@ -6,7 +6,6 @@
 
 int main(int argc, char **argv) {
 
-    int stat = ERR;
     int row = 5;
     int col = 5;
     int width = 40;
@@ -17,6 +16,8 @@ int main(int argc, char **argv) {
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
+    erase();
+    refresh();
 
     if (has_colors() == FALSE) {
 
@@ -27,17 +28,14 @@ int main(int argc, char **argv) {
     }
 
     init_colorpairs();
-    erase();
-    refresh();
+
     curs_set(0);
 
     if ((window = window_create(row, col, height, width))) {
 
-        window_set_colors(window, COLOR_WHITE, COLOR_BLUE);
+        window_set_colors(window, COLOR_BLUE, COLOR_WHITE);
         window_box(window, "test12");
-
-        window_output(window, 1, 1, "testing...");
-        curs_set(1);
+        window_refresh(window);
 
         doupdate();
         sleep(10);
@@ -47,8 +45,6 @@ int main(int argc, char **argv) {
         printw("unable to create window\n");
 
     }
-
-    fini:
 
     printw("press any key to exit\n");
     refresh();

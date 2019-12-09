@@ -214,7 +214,7 @@ static int _data_display(component_t *self) {
     if (data != NULL) {
 
 	    wattron(self->area, self->attribute);
-	    wattron(self->area, setcolor(self->fg, self->bg));
+	    wsetcolor(self->area, self->fg, self->bg);
 
         for (x = data->cur_pos; x < data->size; x++) {
 

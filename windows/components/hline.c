@@ -27,7 +27,7 @@ int _hline_draw(component_t *self) {
     int stat = OK;
 
     wattron(self->area, self->attribute);
-    wattron(self->area, setcolor(self->fg, self->bg));
+    wsetcolor(self->area, self->fg, self->bg);
     mvwhline(self->area, self->row, self->col, ACS_HLINE, self->width);
     wstandend(self->area);
 

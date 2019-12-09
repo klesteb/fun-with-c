@@ -47,7 +47,7 @@ int _label_draw(component_t *self) {
         memcpy(value, self->data, count);
 
         wattron(self->area, self->attribute);
-        wattron(self->area, setcolor(self->fg, self->bg));
+        wsetcolor(self->area, self->fg, self->bg);
         mvwaddstr(self->area, self->row, self->col, value);
         wstandend(self->area);
 

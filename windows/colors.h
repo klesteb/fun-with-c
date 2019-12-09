@@ -13,8 +13,14 @@
 #ifndef _COLORS_H
 #define _COLORS_H
 
-extern int setcolor(int, int);
-extern int unsetcolor(int, int);
+#include <ncurses.h>
+
+#define setcolor(row, col)   wsetcolor((stdscr), (row), (col))
+#define unsetcolor(row, col) wunsetcolor((stdscr), (row), (col))
+
+extern int  colornum(int, int);
+extern void wsetcolor(WINDOW *, int, int);
+extern void wunsetcolor(WINDOW *, int, int);
 extern void init_colorpairs(void);
 
 #endif

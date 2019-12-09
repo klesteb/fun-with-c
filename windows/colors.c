@@ -20,25 +20,26 @@
 
 /*---------------------------------------------------------------------------*/
 
-static int is_bold(int);
-static int colornum(int, int);
-static short xcurs_color(int);
+static int   _is_bold(int);
+static short _curs_color(int);
 
 /*---------------------------------------------------------------------------*/
 
 void init_colorpairs(void) {
-    
-    int fg, bg;
-    int colorpair;
+
+    int bg = 0;
+    int fg = 0;
+    int colorpair = 0;
 
     start_color();
-    
+    use_default_colors();
+
     for (bg = 0; bg <= 7; bg++) {
 
         for (fg = 0; fg <= 7; fg++) {
 
             colorpair = colornum(fg, bg);
-            init_pair(colorpair, xcurs_color(fg), xcurs_color(bg));
+            init_pair(colorpair, _curs_color(fg), _curs_color(bg));
 
         }
 
@@ -46,39 +47,45 @@ void init_colorpairs(void) {
 
 }
 
-int setcolor(int fg, int bg) {
-    
-    int attr = 0;
-    
+void wsetcolor(WINDOW *win, int fg, int bg) {
+
     /* set the color pair (colornum) and bold/bright (A_BOLD) */
 
-    attr = COLOR_PAIR(colornum(fg, bg));
+    if (_is_bold(fg)) {
 
-    if (is_bold(fg)) {
-
-        attr = (attr | A_BOLD);
+        wattron(win, A_BOLD);
 
     }
 
-    return attr;
+    wattron(win, COLOR_PAIR(colornum(fg, bg)));
 
 }
 
-int unsetcolor(int fg, int bg) {
-
-    int attr = 0;
+void wunsetcolor(WINDOW *win, int fg, int bg) {
 
     /* unset the color pair (colornum) and bold/bright (A_BOLD) */
 
-    attr = COLOR_PAIR(colornum(fg, bg));
+    if (_is_bold(fg)) {
 
-    if (is_bold(fg)) {
-
-        attr = (attr & A_BOLD);
+        wattroff(win, A_BOLD);
 
     }
 
-    return attr;
+    wattroff(win, COLOR_PAIR(colornum(fg, bg)));
+
+}
+
+int colornum(int fg, int bg) {
+
+    /* must return a number between 1 and 64 */
+
+    int B, bbb, ffff;
+
+    B = 1 << 7;
+    bbb = (7 & bg) << 3;
+    ffff = 7 & fg;
+
+    return ((B | bbb | ffff) - 128);
 
 }
 
@@ -86,7 +93,7 @@ int unsetcolor(int fg, int bg) {
 /* private methods                                         */
 /*---------------------------------------------------------*/
 
-static short xcurs_color(int fg) {
+static short _curs_color(int fg) {
     
     int color = COLOR_BLACK;
 
@@ -121,19 +128,7 @@ static short xcurs_color(int fg) {
 
 }
 
-static int colornum(int fg, int bg) {
-
-    int B, bbb, ffff;
-
-    B = 1 << 7;
-    bbb = (7 & bg) << 4;
-    ffff = 7 & fg;
-
-    return (B | bbb | ffff);
-
-}
-
-static int is_bold(int fg) {
+static int _is_bold(int fg) {
     
     /* return the intensity bit */
 

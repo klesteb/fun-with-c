@@ -32,7 +32,7 @@ int _text_draw(component_t *self) {
         memcpy(value, (char *)self->data, self->size);
 
         wattron(self->area, self->attribute);
-        wattron(self->area, setcolor(self->fg, self->bg));
+        wsetcolor(self->area, self->fg, self->bg);
         mvwaddstr(self->area, self->row, self->col, value);
         wstandend(self->area);
 

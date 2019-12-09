@@ -7,7 +7,7 @@
 #
 CC = gcc
 CFLAGS = -Wall -c -I. -I../include -I../cclibs -I../objects
-OLBS = ../libs/libwindows.a ../libs/libobjects.a ../cclibs/libcclibs.a -lncurses -lpanel -lform
+OLBS = ../libs/libwindows.a ../libs/libobjects.a ../cclibs/libcclibs.a -lncurses -lpanel -lform -lmenu
 LINK = gcc
 LFLAGS = -o test
 LIBS = ../libs/libwindows.a
@@ -28,7 +28,7 @@ OBJS = container.o colors.o component.o window.o \
        components/forms/form_textarea.o components/forms/form_header.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-     test10 test11 test12
+     test10 test11 test12 test13 test14
 #
 libs: $(OBJS)
 #
@@ -57,6 +57,8 @@ clean:
 	rm -f test10
 	rm -f test11
 	rm -f test12
+	rm -f test13
+	rm -f test14
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -106,6 +108,14 @@ test11: test11.o
 test12: test12.o
 	$(CC) $(CFLAGS) test12.c
 	$(LINK) -o test12 test12.o  $(OLBS)
+#
+test13: test13.o
+	$(CC) $(CFLAGS) test13.c
+	$(LINK) -o test13 test13.o  $(OLBS)
+#
+test14: test14.o
+	$(CC) $(CFLAGS) test14.c
+	$(LINK) -o test14 test14.o  $(OLBS)
 #
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c

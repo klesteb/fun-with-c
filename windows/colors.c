@@ -77,7 +77,7 @@ void wunsetcolor(WINDOW *win, int fg, int bg) {
 
 int colornum(int fg, int bg) {
 
-    /* must return a number between 1 and 64 */
+    /* must return a number between 0 and 63 */
 
     int B, bbb, ffff;
 

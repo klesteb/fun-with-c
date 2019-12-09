@@ -15,8 +15,8 @@
 
 #include <ncurses.h>
 
-#define setcolor(row, col)   wsetcolor((stdscr), (row), (col))
-#define unsetcolor(row, col) wunsetcolor((stdscr), (row), (col))
+#define setcolor(fg, bg)   wsetcolor((stdscr), (fg), (bg))
+#define unsetcolor(fg, bg) wunsetcolor((stdscr), (fg), (bg))
 
 extern int  colornum(int, int);
 extern void wsetcolor(WINDOW *, int, int);

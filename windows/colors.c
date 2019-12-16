@@ -14,6 +14,19 @@
  * Taken from: https://www.linuxjournal.com/content/about-ncurses-colors-0
  * With modifications.
  * 
+ * The articule is incorrect about the origination of the 8 
+ * foreground/background colors. They were based on existing "color" 
+ * terminals, such as DECs VT241, which were "graphic" terminals with a
+ * 16 color palette. IBM coopted this color scheme and that became the 
+ * basis of CGA. 
+ * 
+ * To be fair, the 8-bit home computers at this time also didn't support 
+ * more colors, so IBM didn't have a high hurdle to vault.
+ *
+ * In IBMs thinking the PC with CGA colors was a replacement for "graphic" 
+ * terminals. Which eventually happened. How many people have a "graphics"
+ * terminal on there desk connected to a mini-computer? 
+ * 
  */
 
 #include <ncurses.h>
@@ -77,7 +90,14 @@ void wunsetcolor(WINDOW *win, int fg, int bg) {
 
 int colornum(int fg, int bg) {
 
-    /* must return a number between 0 and 63 */
+    /* must return a number between 0 and 63                                */
+    /*                                                                      */
+    /* this is a limitation on init_pair(), were the first parameter must   */
+    /* be between 1 and COLOR_PAIRS - 1. color pair 0 is the terminals      */
+    /* default forground/background color which is defined in the           */
+    /* termcap/terminfo database. to override the terminals default colors, */
+    /* you need to use the use_default_colors() function. this is not       */
+    /* mentioned in the articule where these routines are adapted from.     */
 
     int B, bbb, ffff;
 
@@ -97,7 +117,7 @@ static short _curs_color(int fg) {
     
     int color = COLOR_BLACK;
 
-    switch (7 & fg) {           /* RGB */
+    switch (7 & fg) {               /* RGB */
         case 0:                     /* 000 */
             color = COLOR_BLACK;
             break;

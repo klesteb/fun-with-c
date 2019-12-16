@@ -27,7 +27,8 @@ error_code_t error_codes[] = {
     { E_INVOPS,  "E_INVOPS",  "An invalid operation was tried" },
     { E_INVOBJ,  "E_INVOBJ",  "Invalid object" },
     { E_NOLOAD,  "E_NOLOAD",  "Unable to load data" },
-    { E_NOTSAME, "E_NOTSAME", "The objects are not the same" }
+    { E_NOTSAME, "E_NOTSAME", "The objects are not the same" },
+    { E_NOCREAT, "E_NOCREAT", "The object was not created" }
 };
 
 #endif

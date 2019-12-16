@@ -7,6 +7,7 @@
 #include "container.h"
 #include "component.h"
 #include "containers/form.h"
+#include "components/vline.h"
 #include "components/forms/forms.h"
 
 int main(int argc, char **argv) {
@@ -20,6 +21,7 @@ int main(int argc, char **argv) {
 
     window_t *window = NULL;
     container_t *form = NULL;
+    component_t *hline = NULL;
     component_t *field1 = NULL;
     component_t *field2 = NULL;
     component_t *label1 = NULL;
@@ -28,6 +30,7 @@ int main(int argc, char **argv) {
     field_data_t field_fd1;
     field_data_t label_fd2;
     field_data_t field_fd2;
+    field_data_t hline_fd1;
 
     initscr();
     cbreak();
@@ -47,6 +50,9 @@ int main(int argc, char **argv) {
     refresh();
     curs_set(0);
 
+    printw("press F12 to quit\n");
+    refresh();
+
     if ((window = window_create(row, col, height, width))) {
 
         window_box(window, "test 10");
@@ -65,9 +71,21 @@ int main(int argc, char **argv) {
         }
 
         component_set_padding(label1, TRUE);
-        component_set_colors(label1, COLOR_RED, COLOR_WHITE);
+        component_set_colors(label1, RED, WHITE);
 
-        label_fd2.row = 1;
+        hline_fd1.row = 1;
+        hline_fd1.col = 1;
+        hline_fd1.width = 30;
+        hline_fd1.height = 1;
+
+        if ((hline = form_hline_create(&hline_fd1, sizeof(field_data_t))) == NULL) {
+
+            printw("unable to create hline\n");
+            goto fini;
+
+        }
+
+        label_fd2.row = 2;
         label_fd2.col = 1;
         label_fd2.width = 15;
         label_fd2.height = 1;
@@ -98,7 +116,7 @@ int main(int argc, char **argv) {
 
         component_set_focus(field1, TRUE);
 
-        field_fd2.row = 1;
+        field_fd2.row = 2;
         field_fd2.col = 17;
         field_fd2.width = 15;
         field_fd2.height = 1;
@@ -110,7 +128,7 @@ int main(int argc, char **argv) {
             goto fini;
 
         }
-
+        
         if ((form = form_create(1, 1, 9, 39)) == NULL) {
 
             printw("unable to create form container\n");
@@ -128,6 +146,13 @@ int main(int argc, char **argv) {
         if ((stat = container_add_component(form, field1)) != OK) {
 
             printw("unable to add field 1 to form\n");
+            goto fini;
+
+        }
+
+        if ((stat = container_add_component(form, hline)) != OK) {
+
+            printw("unable to add hline to form\n");
             goto fini;
 
         }
@@ -161,9 +186,6 @@ int main(int argc, char **argv) {
         }
 
         doupdate();
-
-        printw("press F12 to quit\n");
-        refresh();
 
         while ((ch = getch()) != KEY_F(12)) {
 

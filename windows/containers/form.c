@@ -203,29 +203,31 @@ int _form_event(container_t *self, event_t *event) {
 
             switch(kevent->keycode) {
                 case KEY_UP: {
+                    /* sync the form to display */
+                    form_driver(data->form, REQ_NEXT_FIELD);
+                    form_driver(data->form, REQ_PREV_FIELD);
+                    /* move to the previous field */
                     form_driver(data->form, REQ_PREV_FIELD);
                     form_driver(data->form, REQ_END_LINE);
+                    pos_form_cursor(data->form);
                     break;
                 }
                 case KEY_DOWN: {
+                    /* sync the form to display */
+                    form_driver(data->form, REQ_NEXT_FIELD);
+                    form_driver(data->form, REQ_PREV_FIELD);
+                    /* move to the next field */
                     form_driver(data->form, REQ_NEXT_FIELD);
                     form_driver(data->form, REQ_END_LINE);
+                    pos_form_cursor(data->form);
                     break;
                 }
                 case KEY_LEFT: {
                     form_driver(data->form, REQ_PREV_CHAR);
                     break;
                 }
-                case KEY_SLEFT: {
-                    form_driver(data->form, REQ_END_LINE);
-                    break;
-                }
                 case KEY_RIGHT: {
                     form_driver(data->form, REQ_NEXT_CHAR);
-                    break;
-                }
-                case KEY_SRIGHT: {
-                    form_driver(data->form, REQ_BEG_LINE);
                     break;
                 }
                 case KEY_BACKSPACE: {
@@ -246,11 +248,23 @@ int _form_event(container_t *self, event_t *event) {
                     break;
                 }
                 case KEY_HOME: {
-                    form_driver(data->form, REQ_FIRST_PAGE);
+                    /* sync the form to display */
+                    form_driver(data->form, REQ_NEXT_FIELD);
+                    form_driver(data->form, REQ_PREV_FIELD);
+                    /* move to the first field */
+                    form_driver(data->form, REQ_FIRST_FIELD);
+                    form_driver(data->form, REQ_END_LINE);
+                    pos_form_cursor(data->form);
                     break;
                 }
                 case KEY_END: {
-                    form_driver(data->form, REQ_LAST_PAGE);
+                    /* sync the form to display */
+                    form_driver(data->form, REQ_NEXT_FIELD);
+                    form_driver(data->form, REQ_PREV_FIELD);
+                    /* move to the last field */
+                    form_driver(data->form, REQ_LAST_FIELD);
+                    form_driver(data->form, REQ_END_LINE);
+                    pos_form_cursor(data->form);
                     break;
                 }
                 case KEY_NPAGE: {

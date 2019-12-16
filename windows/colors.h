@@ -15,13 +15,38 @@
 
 #include <ncurses.h>
 
+/*-------------------------------------------------------------*/
+/* color constants                                             */
+/*-------------------------------------------------------------*/
+
+#define BLACK    0      /* foreground/background */
+#define BLUE     1
+#define GREEN    2
+#define CYAN     3
+#define RED      4
+#define MAGNETA  5
+#define BROWN    6
+#define WHITE    7
+#define GRAY     8      /* foreground only, sets the A_BOLD attribute */
+#define BBLUE    9
+#define BGREEN   10
+#define BCYAN    11
+#define BRED     12
+#define BMAGNETA 13
+#define BYELLOW  14
+#define BWHITE   15
+
+/*-------------------------------------------------------------*/
+/* interface                                                   */
+/*-------------------------------------------------------------*/
+
 #define setcolor(fg, bg)   wsetcolor((stdscr), (fg), (bg))
 #define unsetcolor(fg, bg) wunsetcolor((stdscr), (fg), (bg))
 
 extern int  colornum(int, int);
+extern void init_colorpairs(void);
 extern void wsetcolor(WINDOW *, int, int);
 extern void wunsetcolor(WINDOW *, int, int);
-extern void init_colorpairs(void);
 
 #endif
 

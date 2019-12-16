@@ -25,7 +25,8 @@ OBJS = container.o colors.o component.o window.o \
        components/label.o components/hline.o components/vline.o \
        components/text.o components/textarea.o \
        components/forms/form_field.o components/forms/form_label.o \
-       components/forms/form_textarea.o components/forms/form_header.o
+       components/forms/form_textarea.o components/forms/form_header.o \
+       components/forms/form_hline.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14
@@ -185,6 +186,10 @@ components/forms/form_header.o: components/forms/form_header.c $(INCS)
 components/forms/form_textarea.o: components/forms/form_textarea.c $(INCS)
 	$(CC) $(CFLAGS) -o components/forms/form_textarea.o components/forms/form_textarea.c
 	$(LIBR) $(LIBS) components/forms/form_textarea.o
+#
+components/forms/form_hline.o: components/forms/form_hline.c $(INCS)
+	$(CC) $(CFLAGS) -o components/forms/form_hline.o components/forms/form_hline.c
+	$(LIBR) $(LIBS) components/forms/form_hline.o
 #
 # eof
 #

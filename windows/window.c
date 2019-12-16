@@ -72,17 +72,39 @@ window_t *window_create(int row, int col, int height, int width) {
 
 int window_destroy(window_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        if (object_assert(self, window_t)) {
+        if (self != NULL) {
 
-            stat = self->dtor(OBJECT(self));
+            if (object_assert(self, window_t)) {
+
+                stat = self->dtor(OBJECT(self));
+                check_status(stat, OK, E_INVOPS);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -90,13 +112,39 @@ int window_destroy(window_t *self) {
 
 int window_compare(window_t *us, window_t *them) { 
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((us != NULL) && (them != NULL)) {
+    when_error {
 
-        stat = us->_compare(us, them);
+        if ((us != NULL) && (them != NULL)) {
 
-    }
+            if (object_assert(them, window_t)) {
+
+                stat = us->_compare(us, them);
+                check_status(stat, OK, E_NOTSAME);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -104,13 +152,31 @@ int window_compare(window_t *us, window_t *them) {
 
 int window_override(window_t *self, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (items != NULL)) {
+    when_error {
 
-        stat = self->_override(self, items);
+        if (self != NULL) {
 
-    }
+            stat = self->_override(self, items);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -118,13 +184,31 @@ int window_override(window_t *self, item_list_t *items) {
 
 int window_draw(window_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        stat = self->_draw(self);
+            stat = self->_draw(self);
+            check_status(stat, OK, E_INVOPS);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -132,13 +216,31 @@ int window_draw(window_t *self) {
 
 int window_erase(window_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        stat = self->_erase(self);
+        if (self != NULL) {
 
-    }
+            stat = self->_erase(self);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -146,13 +248,31 @@ int window_erase(window_t *self) {
 
 int window_refresh(window_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        stat = self->_refresh(self);
+            stat = self->_refresh(self);
+            check_status(stat, OK, E_INVOPS);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -160,13 +280,31 @@ int window_refresh(window_t *self) {
 
 int window_event(window_t *self, event_t *event) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (event != NULL)) {
+    when_error {
 
-        stat = self->_event(self, event);
+        if ((self != NULL) && (event != NULL)) {
 
-    }
+            stat = self->_event(self, event);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -174,13 +312,31 @@ int window_event(window_t *self, event_t *event) {
 
 int window_add_container(window_t *self, container_t *container) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (container != NULL)) {
+    when_error {
 
-        stat = self->_add_container(self, container);
+        if ((self != NULL) && (container != NULL)) {
 
-    }
+            stat = self->_add_container(self, container);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -188,13 +344,31 @@ int window_add_container(window_t *self, container_t *container) {
 
 int window_remove_container(window_t *self, container_t *container) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (container != NULL)) {
+    when_error {
 
-        stat = self->_remove_container(self, container);
+        if ((self != NULL) && (container != NULL)) {
 
-    }
+            stat = self->_remove_container(self, container);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -202,18 +376,36 @@ int window_remove_container(window_t *self, container_t *container) {
 
 int window_box(window_t *self, char *title) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        if (self->title != NULL) free(self->title);
+            if (self->title != NULL) free(self->title);
 
-        self->boxed = 1;
-        self->title = strdup(title);
+            self->boxed = 1;
+            self->title = strdup(title);
 
-        stat = _box_window(self);
+            stat = _box_window(self);
+            check_status(stat, OK, E_INVOPS);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -221,16 +413,31 @@ int window_box(window_t *self, char *title) {
 
 int window_get_colors(window_t *self, int *fg, int *bg) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (fg != NULL) && (bg != NULL)) {
+    when_error {
+        
+        if ((self != NULL) && (fg != NULL) && (bg != NULL)) {
 
-        *fg = self->fg;
-        *bg = self->bg;
+            *fg = self->fg;
+            *bg = self->bg;
 
-        stat = OK;
+        } else {
 
-    }
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -238,16 +445,31 @@ int window_get_colors(window_t *self, int *fg, int *bg) {
 
 int window_set_colors(window_t *self, int fg, int bg) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        self->fg = fg;
-        self->bg = bg;
+            self->fg = fg;
+            self->bg = bg;
 
-        stat = OK;
+        } else {
 
-    }
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -256,23 +478,40 @@ int window_set_colors(window_t *self, int fg, int bg) {
 int window_output(window_t *self, int row, int col, char *fmt, ...) {
 
     va_list aptr;
-    int stat = ERR;
+    int stat = OK;
     char buffer[2048];
 
-    if ((self != NULL) && (row >= 0) && (col >= 0) && (fmt != NULL)) {
+    when_error {
+        
+        if ((self != NULL) && (row >= 0) && (col >= 0) && (fmt != NULL)) {
 
-        va_start(aptr, fmt);
-        vsnprintf(buffer, 2047, fmt, aptr);
-        va_end(aptr);
+            va_start(aptr, fmt);
+            vsnprintf(buffer, 2047, fmt, aptr);
+            va_end(aptr);
 
-        wattrset(self->inner, self->attribute); 
-        wsetcolor(self->inner, self->fg, self->bg);
-        stat = mvwprintw(self->inner, row, col, buffer);
-        wstandend(self->inner);
+            wattrset(self->inner, self->attribute); 
+            wsetcolor(self->inner, self->fg, self->bg);
+            stat = mvwprintw(self->inner, row, col, buffer);
+            wstandend(self->inner);
 
-        wnoutrefresh(self->inner);
+            wnoutrefresh(self->inner);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -292,8 +531,8 @@ int _window_ctor(object_t *object, item_list_t *items) {
     int width = 32;
     int attribute = 0;
     char *title = NULL;
-    int fg = COLOR_WHITE;
-    int bg = COLOR_BLACK;
+    int fg = WHITE;
+    int bg = BLACK;
     window_t *self = NULL;
 
     if (object != NULL) {
@@ -649,9 +888,11 @@ static int _box_window(window_t *self) {
 
         if ((stat = box(self->outer, ACS_VLINE, ACS_HLINE)) == OK) {
 
+            wsetcolor(self->outer, self->fg, self->bg);
             stat = mvwprintw(self->outer, 0, 2, "[%s]", self->title);
             wnoutrefresh(self->outer);
-
+            wstandend(self->outer);
+            
         }
 
     }

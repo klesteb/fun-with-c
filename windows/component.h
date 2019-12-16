@@ -78,6 +78,7 @@ struct _component_s {
 #define COMPONENT_T_FORM_LABEL    7
 #define COMPONENT_T_FORM_HEADER   8
 #define COMPONENT_T_FORM_TEXTAREA 9
+#define COMPONENT_T_FORM_HLINE    10
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

@@ -886,13 +886,15 @@ static int _box_window(window_t *self) {
 
     if (self->outer != NULL) {
 
+        wbkgd(self->outer, COLOR_PAIR(colornum(self->fg, self->bg)));
+
         if ((stat = box(self->outer, ACS_VLINE, ACS_HLINE)) == OK) {
 
             wsetcolor(self->outer, self->fg, self->bg);
             stat = mvwprintw(self->outer, 0, 2, "[%s]", self->title);
             wnoutrefresh(self->outer);
             wstandend(self->outer);
-            
+
         }
 
     }

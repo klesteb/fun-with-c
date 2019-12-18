@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 
     if ((window = window_create(row, col, height, width))) {
 
-        window_set_colors(window, BLUE, WHITE);
+        window_set_colors(window, RED, BLACK);
         window_box(window, "test12");
         window_refresh(window);
 

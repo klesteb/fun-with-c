@@ -34,17 +34,17 @@ int main(int argc, char **argv) {
 
         for (fg = 0; fg <= 7; fg++) {
 
-            setcolor(fg, bg);
+            colorset(fg, bg);
             mvaddstr(fg + 3, bg * 10, "...test...");
-            unsetcolor(fg, bg);
+            coloroff(fg, bg);
 
         }
 
         for (fg = 8; fg <= 15; fg++) {
 
-            setcolor(fg, bg);
+            colorset(fg, bg);
             mvaddstr(fg + 5, bg * 10, "...test...");
-            unsetcolor(fg, bg);
+            coloroff(fg, bg);
 
         }
 

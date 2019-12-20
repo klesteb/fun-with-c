@@ -40,13 +40,15 @@
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-#define setcolor(fg, bg)   wsetcolor((stdscr), (fg), (bg))
-#define unsetcolor(fg, bg) wunsetcolor((stdscr), (fg), (bg))
+#define coloron(fg, bg)  wcoloron((stdscr), (fg), (bg))
+#define coloroff(fg, bg) wcoloroff((stdscr), (fg), (bg))
+#define colorset(fg, bg) wcoloron((stdscr), (fg), (bg))
+#define wcolorset(win, fg, bg) wcoloron((win), (fg), (bg))
 
 extern int  colornum(int, int);
 extern void init_colorpairs(void);
-extern void wsetcolor(WINDOW *, int, int);
-extern void wunsetcolor(WINDOW *, int, int);
+extern void wcoloron(WINDOW *, int, int);
+extern void wcoloroff(WINDOW *, int, int);
 
 #endif
 

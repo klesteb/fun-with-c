@@ -491,7 +491,7 @@ int window_output(window_t *self, int row, int col, char *fmt, ...) {
             va_end(aptr);
 
             wattrset(self->inner, self->attribute); 
-            wsetcolor(self->inner, self->fg, self->bg);
+            wcolorset(self->inner, self->fg, self->bg);
             stat = mvwprintw(self->inner, row, col, buffer);
             wstandend(self->inner);
 
@@ -728,7 +728,7 @@ int _window_draw(window_t *self) {
     container_t *container = NULL;
 
     wattrset(self->inner, self->attribute);
-    wsetcolor(self->inner, self->fg, self->bg);
+    wcolorset(self->inner, self->fg, self->bg);
 
     for (container = que_first(&self->containers);
          container != NULL;
@@ -900,7 +900,7 @@ static int _box_window(window_t *self) {
 
         if ((stat = box(self->outer, ACS_VLINE, ACS_HLINE)) == OK) {
 
-            wsetcolor(self->outer, self->fg, self->bg);
+            wcolorset(self->outer, self->fg, self->bg);
             stat = mvwprintw(self->outer, 0, 2, "[%s]", self->title);
             wnoutrefresh(self->outer);
             wstandend(self->outer);

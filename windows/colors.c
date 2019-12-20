@@ -79,7 +79,7 @@ void init_colorpairs(void) {
 
 }
 
-void wsetcolor(WINDOW *win, int fg, int bg) {
+void wcoloron(WINDOW *win, int fg, int bg) {
 
     /* set the color pair (colornum) and bold/bright (A_BOLD) */
 
@@ -93,7 +93,7 @@ void wsetcolor(WINDOW *win, int fg, int bg) {
 
 }
 
-void wunsetcolor(WINDOW *win, int fg, int bg) {
+void wcoloroff(WINDOW *win, int fg, int bg) {
 
     /* unset the color pair (colornum) and bold/bright (A_BOLD) */
 

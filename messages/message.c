@@ -408,6 +408,7 @@ int _message_ctor(object_t *object, item_list_t *items) {
         if (stat != OK) {
 
             object_set_error(self, E_NOLOAD);
+            goto fini;
 
         }
 
@@ -426,6 +427,7 @@ int _message_ctor(object_t *object, item_list_t *items) {
 
     }
 
+    fini:
     return stat;
 
 }

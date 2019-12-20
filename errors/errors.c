@@ -359,12 +359,19 @@ int _errors_ctor(object_t *object, item_list_t *items) {
 
         /* load our error codes */
 
-        self->_load_errors(self, error_codes, sizeof(error_codes));
+        stat = self->_load_errors(self, error_codes, sizeof(error_codes));
+        if (stat != OK) {
+            
+            object_set_error(self, E_NOLOAD);
+            goto fini;
+            
+        }
 
         stat = OK;
 
     }
 
+    fini:
     return stat;
 
 }

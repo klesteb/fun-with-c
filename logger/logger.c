@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "when.h"
 #include "object.h"
@@ -402,6 +403,7 @@ int _log_ctor(object_t *object, item_list_t *items) {
         if (log4c_extensions_init()) {
 
             stat = ERR;
+            object_set_error(self, E_NOLOAD);
             goto fini;
 
         }
@@ -409,20 +411,25 @@ int _log_ctor(object_t *object, item_list_t *items) {
         if (log4c_init()) {
 
             stat = ERR;
+            object_set_error(self, E_NOLOAD);
             goto fini;
 
         }
 
+        errno = 0;
         if ((hostname = calloc(1, 1024)) == NULL) {
 
             stat = ERR;
+            object_set_error(self, errno);
             goto fini;
 
         }
 
+        errno = 0;
         if ((rc = gethostname(hostname, 1023)) == -1) {
 
             stat = ERR;
+            object_set_error(self, errno);
             goto fini;
 
         }

@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 #include "object.h"
+#include "error_codes.h"
 #include "error_trace.h"
 
 /**
@@ -88,9 +89,13 @@
 }
 
 #define check_creation(self) {                  \
-    if ((self) == NULL) {                       \
+    if ((self) != NULL) {                       \
         retrieve_error((self));                 \
-        goto handler;                           \
+        if (trace_errnum != 0) {                \
+            goto handler;                       \
+        }                                       \
+    } else {                                    \
+        cause_error(E_INVOBJ);                  \
     }                                           \
 }
 

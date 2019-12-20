@@ -12,6 +12,7 @@
 
 #include <ncurses.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include "when.h"
 #include "object.h"
@@ -449,7 +450,7 @@ int window_set_colors(window_t *self, int fg, int bg) {
 
     when_error {
         
-        if (self != NULL) {
+        if ((self != NULL) && (fg <= BWHITE) && (bg <= WHITE)) {
 
             self->fg = fg;
             self->bg = bg;
@@ -614,18 +615,27 @@ int _window_ctor(object_t *object, item_list_t *items) {
 
         que_init(&self->containers);
 
-        if ((self->outer = newwin(height + 2, width + 2, row, col)) != NULL) {
-
-            if ((self->inner = derwin(self->outer, height, width, 1, 1)) != NULL) {
-
-                stat = OK;
-
-            }
-
+        errno = 0;
+        if ((self->outer = newwin(height + 2, width + 2, row, col)) == NULL) {
+            
+            object_set_error(self, errno);
+            goto fini;
+            
         }
 
+        errno = 0;
+        if ((self->inner = derwin(self->outer, height, width, 1, 1)) == NULL) {
+
+            object_set_error(self, errno);
+            goto fini;
+            
+        }
+
+        stat = OK;
+        
     }
 
+    fini:
     return stat;
 
 }

@@ -8,7 +8,7 @@ int main(void) {
     char text[1024];
     char message[1024];
     errors_t *errors = errors_create();
-    
+
     errors_get_message(errors, E_OK, message, 1023);
     printf("%s\n", message);
 

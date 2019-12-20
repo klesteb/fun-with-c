@@ -39,7 +39,7 @@
  * terminals.
  * 
  * It is interesting to read blogs of newbies and some old timers, or for
- * that matter, stack exchange. Who say why don't you just write those escape 
+ * that matter, Stack Exchange. Who say why don't you just write those escape 
  * sequences directly, it is so easy, just do blah blah blah, and here is 
  * this neat library that does blah blah blah for you.
  * 

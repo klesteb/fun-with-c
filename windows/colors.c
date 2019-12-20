@@ -20,16 +20,16 @@
  * color palette would have to be compatible. Also during this time, various 
  * sanctioning bodies where codifying ASCII terminal escape sequences, which
  * included the color palette. Each terminal manufacture would have a different
- * set of escape sequences to toggle features. It was a nitemare. And to be
+ * set of escape sequences to toggle features. It was a nightmare. And to be
  * fair the 8-bit home computers didn't have more colors available.
  * 
  * On Unix this lead to the termcap/terminfo terminal capabilities databases 
  * and the curses library for manipulating the terminal interface, in a 
  * somewhat portable way. 
  * 
- * VMS had the SMG library to do the same thing. And VMS had a homogeneous 
- * terminal environment! There is also a text library to define terminal 
- * escape sequences, which is expandable. 
+ * VMS had the SMG library to do the same thing. And VMS has a homogeneous 
+ * terminal environment! There is a terminal capabilities database
+ * (sys$system:termtable.exe). And it is expandable (sys$system:smgterms.txt).
  *
  * These libraries made life easier for the programmer. They also optimized 
  * writing to the terminal screen, if you ever lived on the end of a 2400 

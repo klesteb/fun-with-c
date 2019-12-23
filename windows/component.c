@@ -12,10 +12,12 @@
 
 #include <ncurses.h>
 
+#include "when.h"
+#include "colors.h"
+#include "events.h"
 #include "object.h"
 #include "component.h"
 #include "item_list.h"
-#include "events.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -72,17 +74,39 @@ component_t *component_create(int height, int width, void *data, int size) {
 
 int component_destroy(component_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        if (object_assert(self, component_t)) {
+        if (self != NULL) {
 
-            stat = self->dtor(OBJECT(self));
+            if (object_assert(self, component_t)) {
+
+                stat = self->dtor(OBJECT(self));
+                check_status(stat, OK, E_INVOPS);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -90,13 +114,31 @@ int component_destroy(component_t *self) {
 
 int component_compare(component_t *us, component_t *them) { 
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((us != NULL) && (them != NULL)) {
+    when_error {
 
-        stat = us->_compare(us, them);
+        if ((us != NULL) && (them != NULL)) {
 
-    }
+            stat = us->_compare(us, them);
+            check_status(stat, OK, E_NOTSAME);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -104,13 +146,31 @@ int component_compare(component_t *us, component_t *them) {
 
 int component_override(component_t *self, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (items != NULL)) {
+    when_error {
 
-        stat = self->_override(self, items);
+        if ((self != NULL) && (items != NULL)) {
 
-    }
+            stat = self->_override(self, items);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -118,13 +178,31 @@ int component_override(component_t *self, item_list_t *items) {
 
 int component_erase(component_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        stat = self->_erase(self);
+        if (self != NULL) {
 
-    }
+            stat = self->_erase(self);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -132,13 +210,31 @@ int component_erase(component_t *self) {
 
 int component_draw(component_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        stat = self->_draw(self);
+            stat = self->_draw(self);
+            check_status(stat, OK, E_INVOPS);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -146,13 +242,31 @@ int component_draw(component_t *self) {
 
 int component_event(component_t *self, event_t *event) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (event != NULL)) {
+    when_error {
 
-        stat = self->_event(self, event);
+        if ((self != NULL) && (event != NULL)) {
 
-    }
+            stat = self->_event(self, event);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -160,13 +274,31 @@ int component_event(component_t *self, event_t *event) {
 
 int component_refresh(component_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        stat = self->_refresh(self);
+            stat = self->_refresh(self);
+            check_status(stat, OK, E_INVOPS);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -174,16 +306,31 @@ int component_refresh(component_t *self) {
 
 int component_set_metrics(component_t *self, int row, int col) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        self->row = row;
-        self->col = col;
+        if (self != NULL) {
 
-        stat = OK;
+            self->row = row;
+            self->col = col;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -191,16 +338,31 @@ int component_set_metrics(component_t *self, int row, int col) {
 
 int component_get_metrics(component_t *self, int *row, int *col) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (row != NULL) && (col != NULL)) {
+    when_error {
 
-        *row = self->row;
-        *col = self->col;
+        if ((self != NULL) && (row != NULL) && (col != NULL)) {
 
-        stat = OK;
+            *row = self->row;
+            *col = self->col;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -208,16 +370,31 @@ int component_get_metrics(component_t *self, int *row, int *col) {
 
 int component_set_colors(component_t *self, int fg, int bg) {
     
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        self->fg = fg;
-        self->bg = bg;
+        if ((self != NULL) && (fg <= BWHITE) && (bg <= WHITE)) {
 
-        stat = OK;
+            self->fg = fg;
+            self->bg = bg;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -225,16 +402,31 @@ int component_set_colors(component_t *self, int fg, int bg) {
 
 int component_get_colors(component_t *self, int *fg, int *bg) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (fg != NULL) && (bg != NULL)) {
+    when_error {
 
-        *fg = self->fg;
-        *bg = self->bg;
+        if ((self != NULL) && (fg != NULL) && (bg != NULL)) {
 
-        stat = OK;
+            *fg = self->fg;
+            *bg = self->bg;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -242,15 +434,30 @@ int component_get_colors(component_t *self, int *fg, int *bg) {
 
 int component_set_focus(component_t *self, int focus) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        self->focus = focus;
+            self->focus = focus;
 
-        stat = OK;
+        } else {
 
-    }
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -258,15 +465,30 @@ int component_set_focus(component_t *self, int focus) {
 
 int component_get_focus(component_t *self, int *focus) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (focus != NULL)) {
+    when_error {
+        
+        if ((self != NULL) && (focus != NULL)) {
 
-        *focus = self->focus;
+            *focus = self->focus;
 
-        stat = OK;
+        } else {
 
-    }
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -274,15 +496,30 @@ int component_get_focus(component_t *self, int *focus) {
 
 int component_set_padding(component_t *self, int padding) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        self->padding = padding;
+        if (self != NULL) {
 
-        stat = OK;
+            self->padding = padding;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -290,15 +527,30 @@ int component_set_padding(component_t *self, int padding) {
 
 int component_get_padding(component_t *self, int *padding) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (padding != NULL)) {
+    when_error {
 
-        *padding = self->padding;
+        if ((self != NULL) && (padding != NULL)) {
 
-        stat = OK;
+            *padding = self->padding;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -306,15 +558,30 @@ int component_get_padding(component_t *self, int *padding) {
 
 int component_set_attribute(component_t *self, int attr) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        self->attribute = attr;
+        if (self != NULL) {
 
-        stat = OK;
+            self->attribute = attr;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -322,15 +589,30 @@ int component_set_attribute(component_t *self, int attr) {
 
 int component_get_attribute(component_t *self, int *attr) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (attr != NULL)) {
+    when_error {
 
-        *attr = self->attribute;
+        if ((self != NULL) && (attr != NULL)) {
 
-        stat = OK;
+            *attr = self->attribute;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -338,15 +620,30 @@ int component_get_attribute(component_t *self, int *attr) {
 
 int component_set_area(component_t *self, WINDOW *area) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (area != NULL)) {
+    when_error {
 
-        self->area = area;
+        if ((self != NULL) && (area != NULL)) {
 
-        stat = OK;
+            self->area = area;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -354,15 +651,30 @@ int component_set_area(component_t *self, WINDOW *area) {
 
 int component_get_area(component_t *self, WINDOW *area) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (area != NULL)) {
+    when_error {
 
-        area = self->area;
+        if ((self != NULL) && (area != NULL)) {
 
-        stat = OK;
+            area = self->area;
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -380,8 +692,8 @@ int _component_ctor(object_t *object, item_list_t *items) {
     int height = 1;
     int width = 32;
     int value_size = 0;
-    int fg = COLOR_WHITE;
-    int bg = COLOR_BLACK;
+    int fg = WHITE;
+    int bg = BLACK;
     void *value = NULL;
     component_t *self = NULL;
 

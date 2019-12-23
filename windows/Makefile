@@ -13,23 +13,23 @@ LFLAGS = -o test
 LIBS = ../libs/libwindows.a
 LIBR = ar -r
 #
-INCS = container.h colors.h events.h component.h window.h \
+INCS = container.h colors.h events.h component.h workbench.h window.h \
        containers/horizontal.h containers/vertical.h \
        containers/scrollable.h containers/form.h \
        components/label.h components/hline.h components/vline.h \
        components/text.h components/textarea.h components/forms/forms.h
 #
-OBJS = container.o colors.o component.o window.o \
+OBJS = container.o colors.o component.o workbench.o window.o \
        containers/horizontal.o containers/vertical.o \
        containers/scrollable.o containers/form.o \
        components/label.o components/hline.o components/vline.o \
        components/text.o components/textarea.o \
        components/forms/form_field.o components/forms/form_label.o \
        components/forms/form_textarea.o components/forms/form_header.o \
-       components/forms/form_hline.o
+       components/forms/form_seperator.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-     test10 test11 test12 test13 test14
+     test10 test11 test12 test13 test14 test15 test16
 #
 libs: $(OBJS)
 #
@@ -60,6 +60,8 @@ clean:
 	rm -f test12
 	rm -f test13
 	rm -f test14
+	rm -f test15
+	rm -f test16
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -118,6 +120,14 @@ test14: test14.o
 	$(CC) $(CFLAGS) test14.c
 	$(LINK) -o test14 test14.o  $(OLBS)
 #
+test15: test15.o
+	$(CC) $(CFLAGS) test15.c
+	$(LINK) -o test15 test15.o  $(OLBS)
+#
+test16: test16.o
+	$(CC) $(CFLAGS) test16.c
+	$(LINK) -o test16 test16.o  $(OLBS)
+#
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c
 	$(LIBR) $(LIBS) container.o
@@ -133,6 +143,10 @@ component.o: component.c $(INCS)
 window.o: window.c $(INCS)
 	$(CC) $(CFLAGS) window.c
 	$(LIBR) $(LIBS) window.o
+#
+workbench.o: workbench.c $(INCS)
+	$(CC) $(CFLAGS) workbench.c
+	$(LIBR) $(LIBS) workbench.o
 #
 containers/horizontal.o: containers/horizontal.c $(INCS)
 	$(CC) $(CFLAGS) -o containers/horizontal.o containers/horizontal.c
@@ -187,9 +201,9 @@ components/forms/form_textarea.o: components/forms/form_textarea.c $(INCS)
 	$(CC) $(CFLAGS) -o components/forms/form_textarea.o components/forms/form_textarea.c
 	$(LIBR) $(LIBS) components/forms/form_textarea.o
 #
-components/forms/form_hline.o: components/forms/form_hline.c $(INCS)
-	$(CC) $(CFLAGS) -o components/forms/form_hline.o components/forms/form_hline.c
-	$(LIBR) $(LIBS) components/forms/form_hline.o
+components/forms/form_seperator.o: components/forms/form_seperator.c $(INCS)
+	$(CC) $(CFLAGS) -o components/forms/form_seperator.o components/forms/form_seperator.c
+	$(LIBR) $(LIBS) components/forms/form_seperator.o
 #
 # eof
 #

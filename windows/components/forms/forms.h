@@ -39,11 +39,11 @@ typedef struct _field_data_s {
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern component_t *form_hline_create(field_data_t *, int);
 extern component_t *form_field_create(field_data_t *, int);
 extern component_t *form_label_create(field_data_t *, int);
 extern component_t *form_header_create(field_data_t *, int);
 extern component_t *form_textarea_create(field_data_t *, int);
+extern component_t *form_seperator_create(field_data_t *, int);
 
 extern int form_field_results(component_t *, void *, int);
 

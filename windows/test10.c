@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
         hline_fd1.width = 30;
         hline_fd1.height = 1;
 
-        if ((hline = form_hline_create(&hline_fd1, sizeof(field_data_t))) == NULL) {
+        if ((hline = form_seperator_create(&hline_fd1, sizeof(field_data_t))) == NULL) {
 
             printw("unable to create hline\n");
             goto fini;

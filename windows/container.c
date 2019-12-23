@@ -13,11 +13,12 @@
 #include <ncurses.h>
 #include <panel.h>
 
+#include "when.h"
+#include "events.h"
 #include "object.h"
 #include "container.h"
 #include "component.h"
 #include "item_list.h"
-#include "events.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -67,17 +68,39 @@ container_t *container_create(int row, int col, int height, int width) {
 
 int container_destroy(container_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
+        
+        if (self != NULL) {
 
-        if (object_assert(self, container_t)) {
+            if (object_assert(self, container_t)) {
 
-            stat = self->dtor(OBJECT(self));
+                stat = self->dtor(OBJECT(self));
+                check_status(stat, OK, E_INVOPS);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -85,13 +108,31 @@ int container_destroy(container_t *self) {
 
 int container_compare(container_t *us, container_t *them) { 
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((us != NULL) && (them != NULL)) {
+    when_error {
 
-        stat = us->_compare(us, them);
+        if ((us != NULL) && (them != NULL)) {
 
-    }
+            stat = us->_compare(us, them);
+            check_status(stat, OK, E_NOTSAME);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -99,13 +140,31 @@ int container_compare(container_t *us, container_t *them) {
 
 int container_override(container_t *self, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (items != NULL)) {
+    when_error {
+        
+        if ((self != NULL) && (items != NULL)) {
 
-        stat = self->_override(self, items);
+            stat = self->_override(self, items);
+            check_status(stat, OK, E_INVOPS);
 
-    }
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -113,13 +172,31 @@ int container_override(container_t *self, item_list_t *items) {
 
 int container_erase(container_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        stat = self->_erase(self);
+        if (self != NULL) {
 
-    }
+            stat = self->_erase(self);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -127,13 +204,31 @@ int container_erase(container_t *self) {
 
 int container_draw(container_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        stat = self->_draw(self);
+        if (self != NULL) {
 
-    }
+            stat = self->_draw(self);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -141,13 +236,31 @@ int container_draw(container_t *self) {
 
 int container_event(container_t *self, event_t *event) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (event != NULL)) {
+    when_error {
 
-        stat = self->_event(self, event);
+        if ((self != NULL) && (event != NULL)) {
 
-    }
+            stat = self->_event(self, event);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -155,13 +268,31 @@ int container_event(container_t *self, event_t *event) {
 
 int container_refresh(container_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (self != NULL) {
+    when_error {
 
-        stat = self->_refresh(self);
+        if (self != NULL) {
 
-    }
+            stat = self->_refresh(self);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -169,13 +300,31 @@ int container_refresh(container_t *self) {
 
 int container_add_component(container_t *self, component_t *component) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (component != NULL)) {
+    when_error {
 
-        stat = self->_add_component(self, component);
+        if ((self != NULL) && (component != NULL)) {
 
-    }
+            stat = self->_add_component(self, component);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -183,13 +332,31 @@ int container_add_component(container_t *self, component_t *component) {
 
 int container_remove_component(container_t *self, component_t *component) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((self != NULL) && (component != NULL)) {
+    when_error {
 
-        stat = self->_remove_component(self, component);
+        if ((self != NULL) && (component != NULL)) {
 
-    }
+            stat = self->_remove_component(self, component);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 

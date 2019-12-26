@@ -348,9 +348,23 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 int _workbench_dtor(object_t *object) {
 
     int stat = OK;
+    event_t *event = NULL;
 
     /* free local resources here */
 
+    while ((event = que_pop_head(&self->events))) {
+
+        free(event->data);
+        free(event);
+
+    }
+
+    if (que_empty(&self->events)) {
+
+        que_init(&self->events);
+
+    }
+    
     endwin();
 
     /* walk the chain, freeing as we go */

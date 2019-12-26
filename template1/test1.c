@@ -8,6 +8,7 @@ int main(int argc, char **argv) {
 
     if ((temp = template_create(NULL))) {
 
+        printf("Created object\n");
         template_destroy(temp);
 
     }

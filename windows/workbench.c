@@ -214,6 +214,26 @@ int workbench_loop(workbench_t *self) {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
+static int pfd[2];
+
+static int _sig_handler(int sig) {
+
+    int savedErrno;
+
+    savedErrno = errno;
+
+    if (write(pfd[1], sig, sizeof(int)) == -1 && errno != EAGAIN) {
+
+        errExit("write");
+
+    }
+
+    errno = savedErrno;
+
+    return 0;
+
+}
+
 static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
 
     int stat = OK;
@@ -262,6 +282,115 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
     return stat;
 
+}
+
+static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data) {
+
+    int ch;
+    int stat = OK;
+    workbench_t *self = (workbench_t *)data;
+
+    for (;;) {                      /* Consume bytes from pipe */
+
+        errno = 0;
+        if (read(pfd[0], &ch, 1) == -1) {
+
+            if (errno == EAGAIN) {
+
+                break;              /* No more bytes */
+
+            } else {
+
+                errExit("read");    /* Some other error */
+
+            }
+
+        }
+
+        /* Perform any actions that should be taken in response to signal */
+
+    }
+
+    return 0;
+
+}
+
+static int _init_self_pipe(workbench_t *self) {
+    
+    int flags = 0;
+    int stat = OK;
+    
+    errno = 0;
+    if (pipe(pfd) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    /* Make read end nonblocking */
+
+    errno = 0;
+    flags = fcntl(pfd[0], F_GETFL);
+    if (flags == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+        
+    }
+
+    errno = 0;
+    flags |= O_NONBLOCK;                
+    if (fcntl(pfd[0], F_SETFL, flags) == -1) {
+        
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+        
+    }
+
+    /* Make write end nonblocking */
+
+    errno = 0;
+    flags = fcntl(pfd[1], F_GETFL);
+    if (flags == -1) {
+        
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+        
+    }
+
+    errno = 0;
+    flags |= O_NONBLOCK;                
+    if (fcntl(pfd[1], F_SETFL, flags) == -1) {
+        
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+        
+    }
+
+    /* set up the signal handers */
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sa.sa_handler = _sig_handler;
+
+    errno = 0;
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+    
+    fini:
+    return stat;
+    
 }
 
 /*----------------------------------------------------------------*/
@@ -318,19 +447,33 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         que_init(&self->events);
 
-        initscr();
+        /* create a "self pipe" */
+
+        _init_self_pipe(self);
+        
+        /* initialize the terminal */
+
+        errno = 0;
+        if ((initscr() == NULL)) {
+
+            object_set_error(errno);
+            goto fini;
+
+        }
+
+        /* check for color capability */
+
+        if (has_colors() == FALSE) {
+
+            object_set_error(E_NOCOLOR);
+            goto fini;
+
+        }
+
         cbreak();
         noecho();
         nodelay(stdscr, TRUE);
         keypad(stdscr, TRUE);
-
-        if (has_colors() == FALSE) {
-
-            endwin();
-            printf("Your terminal does not support color\n");
-            exit(1);
-
-        }
 
         init_colorpairs();
         erase();
@@ -341,6 +484,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
     }
 
+    fini:
     return stat;
 
 }
@@ -448,8 +592,9 @@ int _workbench_loop(workbench_t *self) {
 
     int stat = OK;
 
-    NxAddInput(NULL, fileno(stdin), NxInputReadMask, _read_stdin, (void *)self);
     NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
+    NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
+    NxAddInput(NULL, fileno(stdin), NxInputReadMask, _read_stdin, (void *)self);
 
     stat = NxMainLoop(NULL);
 

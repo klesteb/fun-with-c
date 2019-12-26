@@ -25,6 +25,7 @@
 #define E_NOLOAD  1005
 #define E_NOTSAME 1006
 #define E_NOCREAT 1007
+#define E_NOCOLOR 1008
 
 #endif
 

@@ -28,7 +28,8 @@ error_code_t error_codes[] = {
     { E_INVOBJ,  "E_INVOBJ",  "Invalid object" },
     { E_NOLOAD,  "E_NOLOAD",  "Unable to load data" },
     { E_NOTSAME, "E_NOTSAME", "The objects are not the same" },
-    { E_NOCREAT, "E_NOCREAT", "The object was not created" }
+    { E_NOCREAT, "E_NOCREAT", "The object was not created" },
+    { E_NOCOLOR, "E_NOCOLOR", "The terminal doesn't support color" }
 };
 
 #endif

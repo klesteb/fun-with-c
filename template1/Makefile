@@ -6,45 +6,53 @@
 # Makefile to build template.
 #
 CC = gcc
-HOME = $(shell pwd)
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects
-SHARED = -shared  -o
-OLBS = ../libs/libobjects.a ../cclibs/libcclibs.a 
-LINK = gcc -L$(HOME) -Wl,-rpath=$(HOME)
-LFLAGS = -o test
+LINK = gcc 
 LIBR = ar -r
-LIBS = libtemplate.a
+WORKING = $(shell pwd)
+CFLAGS = -Wall -c -I../include -I../cclibs -I../objects
+LFLAGS = -o 
+SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -o
+SHARED = -shared -o libtemplate.so
+STATIC = libtemplate.a
+OLBS = ../libs/libobjects.a ../cclibs/libcclibs.a 
 #
 INCS = template.h template_priv.h
 #
-OBJS = template.o template_priv.o libtemplate.so
+OBJS = libtemplate.a libtemplate.so
 #
-all: $(OBJS) test1
+all: $(OBJS) test1 test2
 #
 debug:
 #
 clean:
 	rm -f *.o
 	rm -f *~
-	rm -f $(LIBS)
+	rm -f libtemplate.a
 	rm -f libtemplate.so
 	rm -f test1
+	rm -f test2
 #
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
-	$(LINK) -o test1 test1.o -ltemplate $(OLBS)
+	$(LINK) $(SFLAGS) test1 test1.o -ltemplate $(OLBS)
+#
+test2: test1.o
+	$(CC) $(CFLAGS) test1.c
+	$(LINK) $(LFLAGS) test2 test1.o $(STATIC) $(OLBS)
 #
 template.o: template.c $(INCS)
 	$(CC) $(CFLAGS) -fPIC template.c
-	$(LIBR) $(LIBS) template.o
 #
 template_priv.o: template_priv.c $(INCS)
 	$(CC) $(CFLAGS) -fPIC template_priv.c
-	$(LIBR) $(LIBS) template_priv.o
+#
+libtemplate.a: template.o template_priv.o
+	$(LIBR) $(STATIC) template.o
+	$(LIBR) $(STATIC) template_priv.o
 #
 libtemplate.so: template.o template_priv.o
-	$(CC) $(SHARED) libtemplate.so template.o template_priv.o
+	$(CC) $(SHARED) template.o template_priv.o
 #
 # eof
 #

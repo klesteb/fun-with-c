@@ -14,22 +14,6 @@
 #define _EVENTS_H_
 
 /*----------------------------------------------------------------*/
-/* klass declaration                                              */
-/*----------------------------------------------------------------*/
-
-typedef struct _event_s event_t;
-
-struct _event_s {
-    object_t parent_klass;
-    int (*ctor)(object_t *, item_list_t *);
-    int (*dtor)(object_t *);
-    int (*_compare)(event_t *, event_t *);
-    int (*_override)(event_t *, item_list_t *);
-    int type;
-    void *data;
-};
-
-/*----------------------------------------------------------------*/
 /* defination                                                     */
 /*----------------------------------------------------------------*/
 
@@ -48,15 +32,7 @@ typedef struct _kevent_s {
 
 #define EVENT_K_KEYBOARD 1
 #define EVENT_K_MOUSE    2
-
-/*----------------------------------------------------------------*/
-/* interface                                                      */
-/*----------------------------------------------------------------*/
-
-extern event_t *event_create(int);
-extern int event_destroy(event_t *);
-extern int event_compare(event_t *, event_t *);
-extern int event_override(event_t *, item_list_t *);
+#define EVENT_K_EXIT     3
 
 #endif
 

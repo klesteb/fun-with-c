@@ -11,6 +11,10 @@
 /*---------------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <ncurses.h>
 #include <panel.h>
 
@@ -18,6 +22,7 @@
 #include "colors.h"
 #include "events.h"
 #include "object.h"
+#include "window.h"
 #include "nix_util.h"
 #include "que_util.h"
 #include "container.h"
@@ -27,6 +32,15 @@
 #define TIMEOUT 1.0
 
 require_klass(OBJECT_KLASS);
+
+/*----------------------------------------------------------------*/
+/* global variables                                               */
+/*----------------------------------------------------------------*/
+
+int pfd[2];                /* self pipe fd's          */
+NxInputId pipe_id;         /* id for pipe events      */
+NxInputId stdin_id;        /* id for stdin events     */
+NxIntervalId timeout_id;   /* id for timeout events   */
 
 /*----------------------------------------------------------------*/
 /* klass methods                                                  */
@@ -97,7 +111,7 @@ int workbench_destroy(workbench_t *self) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -129,7 +143,7 @@ int workbench_override(workbench_t *self, item_list_t *items) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -169,7 +183,7 @@ int workbench_compare(workbench_t *us, workbench_t *them) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(us), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -201,7 +215,7 @@ int workbench_loop(workbench_t *self) {
 
         stat = ERR;
 
-        object_set_error2(OBJECT(self), trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -214,23 +228,17 @@ int workbench_loop(workbench_t *self) {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-static int pfd[2];
+static void _sig_handler(int sig) {
 
-static int _sig_handler(int sig) {
+    int saved = errno;
 
-    int savedErrno;
+    if (write(pfd[1], &sig, sizeof(int)) == -1 && errno != EAGAIN) {
 
-    savedErrno = errno;
-
-    if (write(pfd[1], sig, sizeof(int)) == -1 && errno != EAGAIN) {
-
-        errExit("write");
+        /* errExit("write"); */
 
     }
 
-    errno = savedErrno;
-
-    return 0;
+    errno = saved;
 
 }
 
@@ -268,13 +276,35 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
     while ((ch = getch()) != ERR) {
 
         event_t *event = calloc(1, sizeof(event_t));
-        KEVENT *kevent = calloc(1, sizeof(KEVENT));
-        kevent->keycode = ch;
 
-        event->type = EVENT_K_KEYBOARD;
-        event->data = (void *)kevent;
+        if (ch == KEY_MOUSE) {
 
-        que_push_tail(&self->events, event);
+            MEVENT *mevent = calloc(1, sizeof(MEVENT));
+
+            if ((getmouse(mevent) == OK)) {
+
+                event->type = EVENT_K_MOUSE;
+                event->data = (void *)mevent;
+
+                que_push_tail(&self->events, event);
+
+            } else {
+
+                free(mevent);
+
+            }
+
+        } else {
+
+            KEVENT *kevent = calloc(1, sizeof(KEVENT));
+            kevent->keycode = ch;
+
+            event->type = EVENT_K_KEYBOARD;
+            event->data = (void *)kevent;
+
+            que_push_tail(&self->events, event);
+
+        }
 
         doupdate();
 
@@ -286,14 +316,14 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
 static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data) {
 
-    int ch;
+    int sig;
     int stat = OK;
     workbench_t *self = (workbench_t *)data;
 
     for (;;) {                      /* Consume bytes from pipe */
 
         errno = 0;
-        if (read(pfd[0], &ch, 1) == -1) {
+        if (read(pfd[0], &sig, sizeof(int)) == -1) {
 
             if (errno == EAGAIN) {
 
@@ -301,7 +331,9 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
             } else {
 
-                errExit("read");    /* Some other error */
+                stat = ERR;
+                object_set_error(self, errno);
+                goto fini;
 
             }
 
@@ -309,17 +341,30 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
         /* Perform any actions that should be taken in response to signal */
 
+        switch (sig) {
+            case SIGINT:
+                self->dtor((object_t *)self);
+                break;
+
+            default: 
+                printw("recieved signal: %d\n", sig);
+                refresh();
+                break;
+        }
+
     }
 
-    return 0;
+    fini:
+    return stat;
 
 }
 
 static int _init_self_pipe(workbench_t *self) {
-    
+
     int flags = 0;
     int stat = OK;
-    
+    struct sigaction sa;
+
     errno = 0;
     if (pipe(pfd) == -1) {
 
@@ -338,17 +383,17 @@ static int _init_self_pipe(workbench_t *self) {
         stat = ERR;
         object_set_error(self, errno);
         goto fini;
-        
+
     }
 
     errno = 0;
     flags |= O_NONBLOCK;                
     if (fcntl(pfd[0], F_SETFL, flags) == -1) {
-        
+
         stat = ERR;
         object_set_error(self, errno);
         goto fini;
-        
+
     }
 
     /* Make write end nonblocking */
@@ -356,21 +401,21 @@ static int _init_self_pipe(workbench_t *self) {
     errno = 0;
     flags = fcntl(pfd[1], F_GETFL);
     if (flags == -1) {
-        
+
         stat = ERR;
         object_set_error(self, errno);
         goto fini;
-        
+
     }
 
     errno = 0;
     flags |= O_NONBLOCK;                
     if (fcntl(pfd[1], F_SETFL, flags) == -1) {
-        
+
         stat = ERR;
         object_set_error(self, errno);
         goto fini;
-        
+
     }
 
     /* set up the signal handers */
@@ -387,7 +432,7 @@ static int _init_self_pipe(workbench_t *self) {
         goto fini;
 
     }
-    
+
     fini:
     return stat;
     
@@ -446,6 +491,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         /* initialize internal variables here */
 
         que_init(&self->events);
+        que_init(&self->panels);
 
         /* create a "self pipe" */
 
@@ -456,7 +502,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         errno = 0;
         if ((initscr() == NULL)) {
 
-            object_set_error(errno);
+            object_set_error(self, errno);
             goto fini;
 
         }
@@ -465,17 +511,18 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         if (has_colors() == FALSE) {
 
-            object_set_error(E_NOCOLOR);
+            object_set_error(self, E_NOCOLOR);
             goto fini;
 
         }
 
         cbreak();
         noecho();
-        nodelay(stdscr, TRUE);
-        keypad(stdscr, TRUE);
-
         init_colorpairs();
+        keypad(stdscr, TRUE);
+        nodelay(stdscr, TRUE);
+        mousemask(ALL_MOUSE_EVENTS, NULL);
+        
         erase();
         refresh();
         curs_set(0);
@@ -492,9 +539,16 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 int _workbench_dtor(object_t *object) {
 
     int stat = OK;
+    PANEL *panel = NULL;
     event_t *event = NULL;
+    window_t *window = NULL;
+    workbench_t *self = WORKBENCH(object);
 
     /* free local resources here */
+
+    NxRemoveInput(NULL, pipe_id);
+    NxRemoveInput(NULL, stdin_id);
+    NxRemoveTimeOut(NULL, timeout_id);
 
     while ((event = que_pop_head(&self->events))) {
 
@@ -503,12 +557,26 @@ int _workbench_dtor(object_t *object) {
 
     }
 
+    while ((panel = que_pop_head(&self->panels))) {
+
+        window = (window_t *)panel_userptr(panel);
+        window_destroy(window);
+        del_panel(panel);
+        
+    }
+
     if (que_empty(&self->events)) {
 
         que_init(&self->events);
 
     }
-    
+
+    if (que_empty(&self->panels)) {
+
+        que_init(&self->panels);
+
+    }
+
     endwin();
 
     /* walk the chain, freeing as we go */
@@ -522,7 +590,7 @@ int _workbench_dtor(object_t *object) {
 
 int _workbench_override(workbench_t *self, item_list_t *items) {
 
-    int stat = -1;
+    int stat = ERR;
 
     if (items != NULL) {
 
@@ -571,16 +639,16 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
 int _workbench_event(workbench_t *self, event_t *event) {
 
     int stat = ERR;
-    container_t *container = NULL;
+    PANEL *panel = NULL;
+    window_t *window = NULL;
 
-    for (container = que_first(&self->containers);
-         container != NULL;
-         container = que_next(&self->containers)) {
+    for (panel = que_first(&self->panels);
+         panel != NULL;
+         panel = que_next(&self->panels)) {
 
-        stat = container_event(container, event);
+        window = (window_t *)panel_userptr(panel);
+        stat = window_event(window, event);
         if (stat != OK) break;
-
-        wnoutrefresh(container->area);
 
     }
 
@@ -592,9 +660,9 @@ int _workbench_loop(workbench_t *self) {
 
     int stat = OK;
 
-    NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
-    NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
-    NxAddInput(NULL, fileno(stdin), NxInputReadMask, _read_stdin, (void *)self);
+    timeout_id = NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
+    pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
+    stdin_id = NxAddInput(NULL, fileno(stdin), NxInputReadMask, _read_stdin, (void *)self);
 
     stat = NxMainLoop(NULL);
 

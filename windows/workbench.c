@@ -13,8 +13,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
-#include <fcntl.h>
-#include <signal.h>
 #include <ncurses.h>
 #include <panel.h>
 
@@ -37,8 +35,6 @@ require_klass(OBJECT_KLASS);
 /* global variables                                               */
 /*----------------------------------------------------------------*/
 
-int pfd[2];                /* self pipe fd's          */
-NxInputId pipe_id;         /* id for pipe events      */
 NxInputId stdin_id;        /* id for stdin events     */
 NxIntervalId timeout_id;   /* id for timeout events   */
 
@@ -53,6 +49,7 @@ int _workbench_loop(workbench_t *);
 int _workbench_event(workbench_t *, event_t *);
 int _workbench_compare(workbench_t *, workbench_t *);
 int _workbench_override(workbench_t *, item_list_t *);
+int _workbench_inject_event(workbench_t *, event_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -192,6 +189,38 @@ int workbench_compare(workbench_t *us, workbench_t *them) {
 
 }
 
+int workbench_inject_event(workbench_t *self, event_t *event) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (event != NULL)) {
+
+            stat = self->_inject_event(self, event);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int workbench_loop(workbench_t *self) {
 
     int stat = OK;
@@ -228,20 +257,6 @@ int workbench_loop(workbench_t *self) {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-static void _sig_handler(int sig) {
-
-    int saved = errno;
-
-    if (write(pfd[1], &sig, sizeof(int)) == -1 && errno != EAGAIN) {
-
-        /* errExit("write"); */
-
-    }
-
-    errno = saved;
-
-}
-
 static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
 
     int stat = OK;
@@ -254,6 +269,8 @@ static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
         if (stat != OK) break;
 
     }
+
+    doupdate();
 
     if (que_empty(&self->events)) {
 
@@ -306,136 +323,10 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
         }
 
-        doupdate();
-
     }
 
     return stat;
 
-}
-
-static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data) {
-
-    int sig;
-    int stat = OK;
-    workbench_t *self = (workbench_t *)data;
-
-    for (;;) {                      /* Consume bytes from pipe */
-
-        errno = 0;
-        if (read(pfd[0], &sig, sizeof(int)) == -1) {
-
-            if (errno == EAGAIN) {
-
-                break;              /* No more bytes */
-
-            } else {
-
-                stat = ERR;
-                object_set_error(self, errno);
-                goto fini;
-
-            }
-
-        }
-
-        /* Perform any actions that should be taken in response to signal */
-
-        switch (sig) {
-            case SIGINT:
-                self->dtor((object_t *)self);
-                break;
-
-            default: 
-                printw("recieved signal: %d\n", sig);
-                refresh();
-                break;
-        }
-
-    }
-
-    fini:
-    return stat;
-
-}
-
-static int _init_self_pipe(workbench_t *self) {
-
-    int flags = 0;
-    int stat = OK;
-    struct sigaction sa;
-
-    errno = 0;
-    if (pipe(pfd) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    /* Make read end nonblocking */
-
-    errno = 0;
-    flags = fcntl(pfd[0], F_GETFL);
-    if (flags == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    errno = 0;
-    flags |= O_NONBLOCK;                
-    if (fcntl(pfd[0], F_SETFL, flags) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    /* Make write end nonblocking */
-
-    errno = 0;
-    flags = fcntl(pfd[1], F_GETFL);
-    if (flags == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    errno = 0;
-    flags |= O_NONBLOCK;                
-    if (fcntl(pfd[1], F_SETFL, flags) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    /* set up the signal handers */
-
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART;
-    sa.sa_handler = _sig_handler;
-
-    errno = 0;
-    if (sigaction(SIGINT, &sa, NULL) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    fini:
-    return stat;
-    
 }
 
 /*----------------------------------------------------------------*/
@@ -487,15 +378,12 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         self->_override = _workbench_override;
         self->_loop = _workbench_loop;
         self->_event = _workbench_event;
+        self->_inject_event = _workbench_inject_event;
 
         /* initialize internal variables here */
 
         que_init(&self->events);
         que_init(&self->panels);
-
-        /* create a "self pipe" */
-
-        _init_self_pipe(self);
         
         /* initialize the terminal */
 
@@ -522,7 +410,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         keypad(stdscr, TRUE);
         nodelay(stdscr, TRUE);
         mousemask(ALL_MOUSE_EVENTS, NULL);
-        
+
         erase();
         refresh();
         curs_set(0);
@@ -545,10 +433,6 @@ int _workbench_dtor(object_t *object) {
     workbench_t *self = WORKBENCH(object);
 
     /* free local resources here */
-
-    NxRemoveInput(NULL, pipe_id);
-    NxRemoveInput(NULL, stdin_id);
-    NxRemoveTimeOut(NULL, timeout_id);
 
     while ((event = que_pop_head(&self->events))) {
 
@@ -578,6 +462,9 @@ int _workbench_dtor(object_t *object) {
     }
 
     endwin();
+
+    NxRemoveInput(NULL, stdin_id);
+    NxRemoveTimeOut(NULL, timeout_id);
 
     /* walk the chain, freeing as we go */
 
@@ -626,7 +513,8 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         (self->_compare == other->_compare) &&
         (self->_override == other->_override) &&
         (self->_event == other->_event) &&
-        (self->_loop == other->_loop)) {
+        (self->_loop == other->_loop) &&
+        (self->_inject_event == other->_inject_event)) {
 
         stat = OK;
 
@@ -642,15 +530,34 @@ int _workbench_event(workbench_t *self, event_t *event) {
     PANEL *panel = NULL;
     window_t *window = NULL;
 
-    for (panel = que_first(&self->panels);
-         panel != NULL;
-         panel = que_next(&self->panels)) {
+    if (event->type == EVENT_K_EXIT) {
 
-        window = (window_t *)panel_userptr(panel);
-        stat = window_event(window, event);
-        if (stat != OK) break;
+        free(event);
+        stat = self->dtor((object_t *)self);
+
+    } else {
+
+        for (panel = que_first(&self->panels);
+             panel != NULL;
+             panel = que_next(&self->panels)) {
+
+            window = (window_t *)panel_userptr(panel);
+            stat = window_event(window, event);
+            if (stat != OK) break;
+
+        }
 
     }
+
+    return stat;
+
+}
+
+int _workbench_inject_event(workbench_t *self, event_t *event) {
+
+    int stat = ERR;
+
+    stat = que_push_tail(&self->events, event);
 
     return stat;
 
@@ -661,7 +568,6 @@ int _workbench_loop(workbench_t *self) {
     int stat = OK;
 
     timeout_id = NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
-    pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
     stdin_id = NxAddInput(NULL, fileno(stdin), NxInputReadMask, _read_stdin, (void *)self);
 
     stat = NxMainLoop(NULL);

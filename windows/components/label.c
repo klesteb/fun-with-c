@@ -24,7 +24,6 @@ require_klass(COMPONENT_KLASS);
 
 int _label_draw(component_t *self) {
 
-    int count = 0;
     int stat = ERR;
     char *value = NULL;
 

@@ -441,8 +441,7 @@ static int _init_self_pipe(workbench_t *self) {
     /* Make read end nonblocking */
 
     errno = 0;
-    flags = fcntl(pfd[0], F_GETFL);
-    if (flags == -1) {
+    if ((flags = fcntl(pfd[0], F_GETFL)) == -1) {
 
         stat = ERR;
         object_set_error(self, errno);
@@ -463,8 +462,7 @@ static int _init_self_pipe(workbench_t *self) {
     /* Make write end nonblocking */
 
     errno = 0;
-    flags = fcntl(pfd[1], F_GETFL);
-    if (flags == -1) {
+    if ((flags = fcntl(pfd[1], F_GETFL)) == -1) {
 
         stat = ERR;
         object_set_error(self, errno);
@@ -617,6 +615,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         curs_set(0);
 
         /* create a "self pipe" for signal handling */
+        /* this must run after the initscr() call   */
 
         stat = _init_self_pipe(self);
 
@@ -738,22 +737,13 @@ int _workbench_event(workbench_t *self, event_t *event) {
     PANEL *panel = NULL;
     window_t *window = NULL;
 
-    if (event->type == EVENT_K_EXIT) {
+    for (panel = que_first(&self->panels);
+         panel != NULL;
+         panel = que_next(&self->panels)) {
 
-        free(event);
-        stat = self->dtor((object_t *)self);
-
-    } else {
-
-        for (panel = que_first(&self->panels);
-             panel != NULL;
-             panel = que_next(&self->panels)) {
-
-            window = (window_t *)panel_userptr(panel);
-            stat = window_event(window, event);
-            if (stat != OK) break;
-
-        }
+        window = (window_t *)panel_userptr(panel);
+        stat = window_event(window, event);
+        if (stat != OK) break;
 
     }
 

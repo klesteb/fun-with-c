@@ -13,8 +13,11 @@
 #ifndef _WORKBENCH_H
 #define _WORKBENCH_H
 
+#include <panel.h>
+
 #include "events.h"
 #include "object.h"
+#include "window.h"
 #include "que_util.h"
 #include "item_list.h"
 
@@ -33,11 +36,10 @@ struct _workbench_s {
     int (*_loop)(workbench_t *);
     int (*_event)(workbench_t *, event_t *);
     int (*_inject_event)(workbench_t *, event_t *);
-    int (*_add_listener)(workbench_t *, int);
-    int (*_del_listener)(workbench_t, int);
-    queue events;
+    int (*_add_window)(workbench_t *, window_t *);
+    int (*_remove_window)(workbench_t *, window_t *);
     queue panels;
-    queue listners;
+    queue events;
 };
 
 /*-------------------------------------------------------------*/
@@ -48,9 +50,6 @@ struct _workbench_s {
 
 #define WORKBENCH_M_DESTRUCTOR 1
 
-#undef CTRL
-#define CTRL(a) ((a) & 31)
-
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/
@@ -59,8 +58,10 @@ extern workbench_t *workbench_create(item_list_t *);
 extern int workbench_loop(workbench_t *);
 extern int workbench_destroy(workbench_t *);
 extern int workbench_compare(workbench_t *, workbench_t *);
+extern int workbench_add_window(workbench_t *, window_t *);
 extern int workbench_override(workbench_t *, item_list_t *);
 extern int workbench_inject_event(workbench_t *, event_t *);
+extern int workbench_remove_window(workbench_t *, window_t *);
 
 #endif
 

@@ -29,7 +29,7 @@ OBJS = container.o colors.o component.o workbench.o window.o \
        components/forms/form_seperator.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-     test10 test11 test12 test13 test14 test15 test16
+     test10 test11 test12 test13 test14 test15 test16 test17
 #
 libs: $(OBJS)
 #
@@ -62,6 +62,7 @@ clean:
 	rm -f test14
 	rm -f test15
 	rm -f test16
+	rm -f test17
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -127,6 +128,10 @@ test15: test15.o
 test16: test16.o
 	$(CC) $(CFLAGS) test16.c
 	$(LINK) -o test16 test16.o  $(OLBS)
+#
+test17: test17.o
+	$(CC) $(CFLAGS) test17.c
+	$(LINK) -o test17 test17.o  $(OLBS)
 #
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c

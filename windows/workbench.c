@@ -54,8 +54,10 @@ int _workbench_dtor(object_t *);
 int _workbench_loop(workbench_t *);
 int _workbench_event(workbench_t *, event_t *);
 int _workbench_compare(workbench_t *, workbench_t *);
+int _workbench_add_window(workbench_t *, window_t *);
 int _workbench_override(workbench_t *, item_list_t *);
 int _workbench_inject_event(workbench_t *, event_t *);
+int _workbench_remove_window(workbench_t *, window_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -227,6 +229,70 @@ int workbench_inject_event(workbench_t *self, event_t *event) {
 
 }
 
+int workbench_add_window(workbench_t *self, window_t *window) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (window != NULL)) {
+
+            stat = self->_add_window(self, window);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int workbench_remove_window(workbench_t *self, window_t *window) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (window != NULL)) {
+
+            stat = self->_remove_window(self, window);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int workbench_loop(workbench_t *self) {
 
     int stat = OK;
@@ -360,13 +426,15 @@ static int _init_self_pipe(workbench_t *self) {
     /*                                                    */
     /* we would like to capture SIGINT and SIGTERM to     */
     /* perform resource cleanup. just using our own       */
-    /* signal handlers lead to memory corruption and      */
+    /* signal handlers, lead to memory corruption and     */
     /* dumping core, so this work around was implemented. */
     /*                                                    */
     /* this is a shim to capture ncurses signal handlers  */
     /* so that we can hook in our own signal handlers to  */
-    /* clean up resources. there are no provisions in     */
-    /* ncurses to do this. so we get to play these        */
+    /* clean up resources. _read_pipe() reinstalls the    */
+    /* saved signal handlers to allow normal ncurses      */
+    /* signal handling. there are no provisions within    */
+    /* ncurses to do this, so we get to play these        */
     /* games...                                           */
     /*                                                    */
     /* I wonder if Mr. Dickey would approve...            */
@@ -459,7 +527,7 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
                 }
 
                 /* re-raise the signal, ncurses should now do  */
-                /* it's own cleanup and exit.                  */
+                /* it's own cleanup and cleanly exit.          */
 
                 raise(sig);
 
@@ -546,7 +614,7 @@ static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
 
     }
 
-    NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
+    timeout_id = NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
 
     return stat;
 
@@ -598,10 +666,13 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         self->dtor = _workbench_dtor;
         self->_compare = _workbench_compare;
         self->_override = _workbench_override;
+
         self->_loop = _workbench_loop;
         self->_event = _workbench_event;
+        self->_add_window = _workbench_add_window;
         self->_inject_event = _workbench_inject_event;
-
+        self->_remove_window = _workbench_remove_window;
+        
         /* initialize internal variables here */
 
         que_init(&self->events);
@@ -666,17 +737,17 @@ int _workbench_dtor(object_t *object) {
 
     }
 
+    if (que_empty(&self->events)) {
+
+        que_init(&self->events);
+
+    }
+
     while ((panel = que_pop_head(&self->panels))) {
 
         window = (window_t *)panel_userptr(panel);
         window_destroy(window);
         del_panel(panel);
-
-    }
-
-    if (que_empty(&self->events)) {
-
-        que_init(&self->events);
 
     }
 
@@ -744,7 +815,9 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         (self->_override == other->_override) &&
         (self->_event == other->_event) &&
         (self->_loop == other->_loop) &&
-        (self->_inject_event == other->_inject_event)) {
+        (self->_inject_event == other->_inject_event) &&
+        (self->_add_window == other->_add_window) &&
+        (self->_remove_window == other->_remove_window)) {
 
         stat = OK;
 
@@ -779,6 +852,51 @@ int _workbench_inject_event(workbench_t *self, event_t *event) {
     int stat = ERR;
 
     stat = que_push_tail(&self->events, event);
+
+    return stat;
+
+}
+
+int _workbench_add_window(workbench_t *self, window_t *window) {
+
+    int stat = ERR;
+    PANEL *panel = NULL;
+
+    if ((panel = new_panel(window->outer)) != NULL) {
+
+        set_panel_userptr(panel, (void *)window);
+        stat = que_push_tail(&self->panels, panel);
+
+    }
+
+    return stat;
+
+}
+
+int _workbench_remove_window(workbench_t *self, window_t *window) {
+
+    int stat = ERR;
+    PANEL *panel = NULL;
+    window_t *temp = NULL;
+
+    for (panel = que_first(&self->panels);
+         panel != NULL;
+         panel = que_next(&self->panels)) {
+
+        temp = (window_t *)panel_userptr(panel);
+
+        if ((window_compare(window, temp)) == OK) {
+
+            PANEL *junk = que_delete(&self->panels);
+            window_destroy(temp);
+            del_panel(junk);
+            stat = OK;
+
+            break;
+
+        }
+
+    }
 
     return stat;
 

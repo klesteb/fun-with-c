@@ -353,10 +353,23 @@ static int _init_self_pipe(workbench_t *self) {
 
     }
 
-    /* this is a shim to capture signals so that we   */
-    /* can cleanup resources. there are no provisions */
-    /* in ncurses to do this. so we get to play these */
-    /* games...                                       */
+    /* ncurses installs it own signal handlers. these     */
+    /* handle SIGWINCH, SIGINT, SIGTERM and SIGTSTP.      */
+    /* please see ncurses/tty/lib_tstp.c for the gory     */
+    /* details.                                           */
+    /*                                                    */
+    /* we would like to capture SIGINT and SIGTERM to     */
+    /* perform resource cleanup. just using our own       */
+    /* signal handlers lead to memory corruption and      */
+    /* dumping core, so this work around was implemented. */
+    /*                                                    */
+    /* this is a shim to capture ncurses signal handlers  */
+    /* so that we can hook in our own signal handlers to  */
+    /* clean up resources. there are no provisions in     */
+    /* ncurses to do this. so we get to play these        */
+    /* games...                                           */
+    /*                                                    */
+    /* I wonder if Mr. Dickey would approve...            */
 
     /* capture ncurses signal handlers */
 
@@ -425,13 +438,7 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
                 stat = self->dtor((object_t *)self);
 
-                /* reinstall ncurses signal handlers, just */
-                /* using our own signal handlers lead to   */
-                /* complaints about memory corruption and  */
-                /* dumping core, so this work around was   */
-                /* implemented.                            */
-                /*                                         */
-                /* I wonder if Mr. Dickey will approve...  */
+                /* reinstall ncurses signal handlers */
 
                 errno = 0;
                 if (sigaction(SIGINT, &old_sigint, NULL) != 0) {

@@ -270,7 +270,7 @@ static void _sig_handler(int sig) {
     if ((sig == SIGINT) || (sig == SIGTERM)) {
 
         /* disable signal handling */
-        
+
         struct sigaction act;
         sigemptyset(&act.sa_mask);
         act.sa_flags = 0;
@@ -278,9 +278,11 @@ static void _sig_handler(int sig) {
 
         if (sigaction(sig, &act, NULL) == 0) {
 
+            /* write signal to pipe */
+
             if (write(pfd[1], &sig, sizeof(int)) == -1 && errno != EAGAIN) {
 
-                /* errExit("write"); */
+                /* hmmm, what to do */
 
             }
 
@@ -292,29 +294,115 @@ static void _sig_handler(int sig) {
 
 }
 
-static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
+static int _init_self_pipe(workbench_t *self) {
 
+    int flags = 0;
     int stat = OK;
-    event_t *event = NULL;
-    workbench_t *self = (workbench_t *)data;
+    struct sigaction sa;
 
-    while ((event = que_pop_head(&self->events))) {
+    /* create our pipe */
 
-        stat = self->_event(self, event);
-        if (stat != OK) break;
+    errno = 0;
+    if (pipe(pfd) == -1) {
 
-    }
-
-    doupdate();
-
-    if (que_empty(&self->events)) {
-
-        que_init(&self->events);
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
 
     }
 
-    NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
+    /* Make read end nonblocking */
 
+    errno = 0;
+    if ((flags = fcntl(pfd[0], F_GETFL)) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    errno = 0;
+    flags |= O_NONBLOCK;                
+    if (fcntl(pfd[0], F_SETFL, flags) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    /* Make write end nonblocking */
+
+    errno = 0;
+    if ((flags = fcntl(pfd[1], F_GETFL)) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    errno = 0;
+    flags |= O_NONBLOCK;                
+    if (fcntl(pfd[1], F_SETFL, flags) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    /* this is a shim to capture signals so that we   */
+    /* can cleanup resources. there are no provisions */
+    /* in ncurses to do this. so we get to play these */
+    /* games...                                       */
+
+    /* capture ncurses signal handlers */
+
+    errno = 0;
+    if ((sigaction(SIGTERM, NULL, &old_sigterm)) != 0) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    errno = 0;
+    if ((sigaction(SIGINT, NULL, &old_sigint)) != 0) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    /* set up our signal handlers. */
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags |= SA_RESTART;
+    sa.sa_handler = _sig_handler;
+
+    errno = 0;
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    errno = 0;
+    if (sigaction(SIGTERM, &sa, NULL) == -1) {
+
+        stat = ERR;
+        object_set_error(self, errno);
+        goto fini;
+
+    }
+
+    fini:
     return stat;
 
 }
@@ -337,7 +425,13 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
                 stat = self->dtor((object_t *)self);
 
-                /* reinstall ncurses signal handlers */
+                /* reinstall ncurses signal handlers, just */
+                /* using our own signal handlers lead to   */
+                /* complaints about memory corruption and  */
+                /* dumping core, so this work around was   */
+                /* implemented.                            */
+                /*                                         */
+                /* I wonder if Mr. Dickey will approve...  */
 
                 errno = 0;
                 if (sigaction(SIGINT, &old_sigint, NULL) != 0) {
@@ -357,7 +451,8 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
                 }
 
-                /* raise the signal, ncurses should now do it's own cleanup */
+                /* re-raise the signal, ncurses should now do  */
+                /* it's own cleanup and exit.                  */
 
                 raise(sig);
 
@@ -423,108 +518,29 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
 }
 
-static int _init_self_pipe(workbench_t *self) {
+static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
 
-    int flags = 0;
     int stat = OK;
-    struct sigaction sa;
+    event_t *event = NULL;
+    workbench_t *self = (workbench_t *)data;
 
-    errno = 0;
-    if (pipe(pfd) == -1) {
+    while ((event = que_pop_head(&self->events))) {
 
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    /* Make read end nonblocking */
-
-    errno = 0;
-    if ((flags = fcntl(pfd[0], F_GETFL)) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
+        stat = self->_event(self, event);
+        if (stat != OK) break;
 
     }
 
-    errno = 0;
-    flags |= O_NONBLOCK;                
-    if (fcntl(pfd[0], F_SETFL, flags) == -1) {
+    doupdate();
 
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
+    if (que_empty(&self->events)) {
+
+        que_init(&self->events);
 
     }
 
-    /* Make write end nonblocking */
+    NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
 
-    errno = 0;
-    if ((flags = fcntl(pfd[1], F_GETFL)) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    errno = 0;
-    flags |= O_NONBLOCK;                
-    if (fcntl(pfd[1], F_SETFL, flags) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    /* capture ncurses signal handlers */
-
-    errno = 0;
-    if ((sigaction(SIGTERM, NULL, &old_sigterm)) != 0) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    errno = 0;
-    if ((sigaction(SIGINT, NULL, &old_sigint)) != 0) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    /* set up our signal handers */
-
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags |= SA_RESTART;
-    sa.sa_handler = _sig_handler;
-
-    errno = 0;
-    if (sigaction(SIGINT, &sa, NULL) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    errno = 0;
-    if (sigaction(SIGTERM, &sa, NULL) == -1) {
-
-        stat = ERR;
-        object_set_error(self, errno);
-        goto fini;
-
-    }
-
-    fini:
     return stat;
 
 }

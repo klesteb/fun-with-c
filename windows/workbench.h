@@ -33,8 +33,11 @@ struct _workbench_s {
     int (*_loop)(workbench_t *);
     int (*_event)(workbench_t *, event_t *);
     int (*_inject_event)(workbench_t *, event_t *);
+    int (*_add_listener)(workbench_t *, int);
+    int (*_del_listener)(workbench_t, int);
     queue events;
     queue panels;
+    queue listners;
 };
 
 /*-------------------------------------------------------------*/

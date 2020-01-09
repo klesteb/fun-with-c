@@ -51,8 +51,12 @@ struct sigaction old_sigterm;  /* ncurses sigterm handler */
 int _workbench_ctor(object_t *, item_list_t *);
 int _workbench_dtor(object_t *);
 
+int _workbench_draw(workbench_t *);
 int _workbench_loop(workbench_t *);
+int _workbench_refresh(workbench_t *);
 int _workbench_event(workbench_t *, event_t *);
+int _workbench_get_focus(workbench_t *, window_t *);
+int _workbench_set_focus(workbench_t *, window_t *);
 int _workbench_compare(workbench_t *, workbench_t *);
 int _workbench_add_window(workbench_t *, window_t *);
 int _workbench_override(workbench_t *, item_list_t *);
@@ -130,7 +134,7 @@ int workbench_override(workbench_t *self, item_list_t *items) {
     int stat = OK;
 
     when_error {
-        
+
         if (self != NULL) {
 
             stat = self->_override(self, items);
@@ -293,6 +297,70 @@ int workbench_remove_window(workbench_t *self, window_t *window) {
 
 }
 
+int workbench_get_focus(workbench_t *self, window_t *window) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (window != NULL)) {
+
+            stat = self->_get_focus(self, window);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int workbench_set_focus(workbench_t *self, window_t *window) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (window != NULL)) {
+
+            stat = self->_set_focus(self, window);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int workbench_loop(workbench_t *self) {
 
     int stat = OK;
@@ -426,7 +494,7 @@ static int _init_self_pipe(workbench_t *self) {
     /*                                                    */
     /* we would like to capture SIGINT and SIGTERM to     */
     /* perform resource cleanup. just using our own       */
-    /* signal handlers, lead to memory corruption and     */
+    /* signal handlers lead to memory corruption and      */
     /* dumping core, so this work around was implemented. */
     /*                                                    */
     /* this is a shim to capture ncurses signal handlers  */
@@ -667,16 +735,21 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         self->_compare = _workbench_compare;
         self->_override = _workbench_override;
 
+        self->_draw = _workbench_draw;
         self->_loop = _workbench_loop;
         self->_event = _workbench_event;
+        self->_refresh = _workbench_refresh;
+        self->_get_focus = _workbench_get_focus;
+        self->_set_focus = _workbench_set_focus;
         self->_add_window = _workbench_add_window;
         self->_inject_event = _workbench_inject_event;
         self->_remove_window = _workbench_remove_window;
-        
+
         /* initialize internal variables here */
 
         que_init(&self->events);
-        que_init(&self->panels);
+
+        self->panel = NULL;
 
         /* initialize the terminal */
 
@@ -743,17 +816,11 @@ int _workbench_dtor(object_t *object) {
 
     }
 
-    while ((panel = que_pop_head(&self->panels))) {
+    while ((panel = panel_above(NULL))) {
 
         window = (window_t *)panel_userptr(panel);
         window_destroy(window);
         del_panel(panel);
-
-    }
-
-    if (que_empty(&self->panels)) {
-
-        que_init(&self->panels);
 
     }
 
@@ -813,10 +880,14 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
         (self->_override == other->_override) &&
-        (self->_event == other->_event) &&
+        (self->_draw == other->_draw) &&
         (self->_loop == other->_loop) &&
-        (self->_inject_event == other->_inject_event) &&
+        (self->_event == other->_event) &&
+        (self->_refresh == other->_refresh) &&
+        (self->_get_focus == other->_get_focus) &&
+        (self->_set_focus == other->_set_focus) &&
         (self->_add_window == other->_add_window) &&
+        (self->_inject_event == other->_inject_event) &&
         (self->_remove_window == other->_remove_window)) {
 
         stat = OK;
@@ -830,18 +901,60 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
 int _workbench_event(workbench_t *self, event_t *event) {
 
     int stat = ERR;
+    window_t *window = NULL;
+
+    if (self->panel != NULL) {
+        
+        window = (window_t *)panel_userptr(self->panel);
+        stat = window_event(window, event);
+
+    }
+
+    return stat;
+
+}
+
+int _workbench_draw(workbench_t *self) {
+
+    int stat = ERR;
     PANEL *panel = NULL;
     window_t *window = NULL;
 
-    for (panel = que_first(&self->panels);
+    for (panel = panel_above(NULL);
          panel != NULL;
-         panel = que_next(&self->panels)) {
+         panel = panel_above(panel)) {
 
         window = (window_t *)panel_userptr(panel);
-        stat = window_event(window, event);
+        stat = window_draw(window);
         if (stat != OK) break;
 
     }
+
+    update_panels();
+    doupdate();
+
+    return stat;
+
+}
+
+int _workbench_refresh(workbench_t *self) {
+
+    int stat = ERR;
+    PANEL *panel = NULL;
+    window_t *window = NULL;
+
+    for (panel = panel_above(NULL);
+         panel != NULL;
+         panel = panel_above(panel)) {
+
+        window = (window_t *)panel_userptr(panel);
+        stat = window_refresh(window);
+        if (stat != OK) break;
+
+    }
+
+    update_panels();
+    doupdate();
 
     return stat;
 
@@ -864,8 +977,9 @@ int _workbench_add_window(workbench_t *self, window_t *window) {
 
     if ((panel = new_panel(window->outer)) != NULL) {
 
+        stat = OK;
         set_panel_userptr(panel, (void *)window);
-        stat = que_push_tail(&self->panels, panel);
+        self->panel = panel;
 
     }
 
@@ -879,18 +993,16 @@ int _workbench_remove_window(workbench_t *self, window_t *window) {
     PANEL *panel = NULL;
     window_t *temp = NULL;
 
-    for (panel = que_first(&self->panels);
+    for (panel = panel_above(NULL);
          panel != NULL;
-         panel = que_next(&self->panels)) {
+         panel = panel_above(panel)) {
 
         temp = (window_t *)panel_userptr(panel);
 
         if ((window_compare(window, temp)) == OK) {
 
-            PANEL *junk = que_delete(&self->panels);
-            window_destroy(temp);
-            del_panel(junk);
-            stat = OK;
+            del_panel(panel);
+            stat = window_destroy(temp);
 
             break;
 
@@ -902,9 +1014,56 @@ int _workbench_remove_window(workbench_t *self, window_t *window) {
 
 }
 
+int _workbench_set_focus(workbench_t *self, window_t *window) {
+
+    int stat = ERR;
+    PANEL *panel = NULL;
+    window_t *temp = NULL;
+
+    for (panel = panel_above(NULL);
+         panel != NULL;
+         panel = panel_above(panel)) {
+
+        temp = (window_t *)panel_userptr(panel);
+
+        if ((window_compare(window, temp)) == OK) {
+
+            stat = OK;
+            self->panel = panel;
+            break;
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int _workbench_get_focus(workbench_t *self, window_t *window) {
+
+    int stat = ERR;
+
+    if (self->panel != NULL) {
+
+        stat = OK;
+        window = (window_t *)panel_userptr(self->panel);
+
+    } else {
+
+        window = (window_t *)NULL;
+
+    }
+
+    return stat;
+
+}
+
 int _workbench_loop(workbench_t *self) {
 
     int stat = OK;
+
+    self->_draw(self);
 
     timeout_id = NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
     pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);

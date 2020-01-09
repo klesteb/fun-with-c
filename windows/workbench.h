@@ -33,12 +33,16 @@ struct _workbench_s {
     int (*dtor)(object_t *);
     int (*_compare)(workbench_t *, workbench_t *);
     int (*_override)(workbench_t *, item_list_t *);
+    int (*_draw)(workbench_t *);
     int (*_loop)(workbench_t *);
+    int (*_refresh)(workbench_t *);
     int (*_event)(workbench_t *, event_t *);
+    int (*_get_focus)(workbench_t *, window_t *);
+    int (*_set_focus)(workbench_t *, window_t *);
     int (*_inject_event)(workbench_t *, event_t *);
     int (*_add_window)(workbench_t *, window_t *);
     int (*_remove_window)(workbench_t *, window_t *);
-    queue panels;
+    PANEL *panel;
     queue events;
 };
 
@@ -57,6 +61,8 @@ struct _workbench_s {
 extern workbench_t *workbench_create(item_list_t *);
 extern int workbench_loop(workbench_t *);
 extern int workbench_destroy(workbench_t *);
+extern int workbench_get_focus(workbench_t *, window_t *);
+extern int workbench_set_focus(workbench_t *, window_t *);
 extern int workbench_compare(workbench_t *, workbench_t *);
 extern int workbench_add_window(workbench_t *, window_t *);
 extern int workbench_override(workbench_t *, item_list_t *);

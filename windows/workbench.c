@@ -416,7 +416,7 @@ static void _sig_handler(int sig) {
 
             if (write(pfd[1], &sig, sizeof(int)) == -1 && errno != EAGAIN) {
 
-                /* hmmm, what to do */
+                /* hmmm, what to do, what to do */
 
             }
 
@@ -506,6 +506,7 @@ static int _init_self_pipe(workbench_t *self) {
     /* games...                                           */
     /*                                                    */
     /* I wonder if Mr. Dickey would approve...            */
+    /*                                                    */
 
     /* capture ncurses signal handlers */
 
@@ -643,6 +644,10 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
             }
 
+        } else if (ch == KEY_RESIZE) {
+
+            self->_refresh(self);
+
         } else {
 
             KEVENT *kevent = calloc(1, sizeof(KEVENT));
@@ -670,11 +675,11 @@ static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
     while ((event = que_pop_head(&self->events))) {
 
         stat = self->_event(self, event);
+        free(event->data);
+        free(event);
         if (stat != OK) break;
 
     }
-
-    doupdate();
 
     if (que_empty(&self->events)) {
 
@@ -754,6 +759,14 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         /* initialize the terminal */
 
         errno = 0;
+        if ((slk_init(1) != OK)) {
+
+            object_set_error(self, errno);
+            goto fini;
+
+        }
+
+        errno = 0;
         if ((initscr() == NULL)) {
 
             object_set_error(self, errno);
@@ -776,6 +789,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         keypad(stdscr, TRUE);
         nodelay(stdscr, TRUE);
         mousemask(ALL_MOUSE_EVENTS, NULL);
+        slk_noutrefresh();
 
         erase();
         refresh();
@@ -856,9 +870,54 @@ int _workbench_override(workbench_t *self, item_list_t *items) {
                 (items[x].item_code == 0)) break;
 
             switch(items[x].item_code) {
-                case WORKBENCH_M_DESTRUCTOR: {
+                case WORKBENCH_M_DESTROY: {
                     self->dtor = items[x].buffer_address;
-                    stat = 0;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_DRAW: {
+                    self->_draw = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_EVENT: {
+                    self->_event = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_REFRESH: {
+                    self->_refresh = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_ADD_WINDOW: {
+                    self->_add_window = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_REMOVE_WINDOW: {
+                    self->_remove_window = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_SET_FOCUS: {
+                    self->_set_focus = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_GET_FOCUS: {
+                    self->_get_focus = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_LOOP: {
+                    self->_loop = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_INJECT_EVENT: {
+                    self->_inject_event = items[x].buffer_address;
+                    stat = OK;
                     break;
                 }
             }
@@ -904,9 +963,11 @@ int _workbench_event(workbench_t *self, event_t *event) {
     window_t *window = NULL;
 
     if (self->panel != NULL) {
-        
+
         window = (window_t *)panel_userptr(self->panel);
         stat = window_event(window, event);
+        update_panels();
+        doupdate();
 
     }
 
@@ -979,7 +1040,6 @@ int _workbench_add_window(workbench_t *self, window_t *window) {
 
         stat = OK;
         set_panel_userptr(panel, (void *)window);
-        self->panel = panel;
 
     }
 
@@ -1028,8 +1088,8 @@ int _workbench_set_focus(workbench_t *self, window_t *window) {
 
         if ((window_compare(window, temp)) == OK) {
 
-            stat = OK;
             self->panel = panel;
+            stat = top_panel(panel);
             break;
 
         }

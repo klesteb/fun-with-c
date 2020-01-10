@@ -51,13 +51,32 @@ int _vertical_draw(container_t *self) {
 
 }
 
+int _vertical_event(container_t *self, event_t *event) {
+
+    int stat = ERR;
+
+    component_t *temp = NULL;
+
+    for (temp = que_first(&self->components);
+         temp != NULL;
+         temp = que_next(&self->components)) {
+
+        stat = component_event(temp, event);
+        if (stat != OK) break;
+
+    }
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
 container_t *vertical_create(int row, int col, int height, int width) {
 
-    item_list_t items[2];
+    item_list_t items[3];
     container_t *vertical = NULL;
 
     if ((vertical = container_create(row, col, height, width))) {
@@ -65,7 +84,8 @@ container_t *vertical_create(int row, int col, int height, int width) {
         vertical->type = CONTAINER_T_VERTICAL;
 
         SET_ITEM(items[0], CONTAINER_M_DRAW, &_vertical_draw, 0, NULL);
-        SET_ITEM(items[1], 0, 0, 0, 0);
+        SET_ITEM(items[1], CONTAINER_M_EVENT, &_vertical_event, 0, NULL);
+        SET_ITEM(items[2], 0, 0, 0, 0);
 
         container_override(vertical, items);
 

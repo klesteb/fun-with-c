@@ -74,11 +74,14 @@ struct _component_s {
 #define COMPONENT_T_LABEL         5
 #define COMPONENT_T_MESSAGE       4
 #define COMPONENT_T_TEXTAREA      5
-#define COMPONENT_T_FORM_FIELD    6
-#define COMPONENT_T_FORM_LABEL    7
-#define COMPONENT_T_FORM_HEADER   8
-#define COMPONENT_T_FORM_TEXTAREA 9
-#define COMPONENT_T_FORM_HLINE    10
+#define COMPONENT_T_INPUT         6
+#define COMPONENT_T_FORM_FIELD    7
+#define COMPONENT_T_FORM_LABEL    8
+#define COMPONENT_T_FORM_HEADER   9
+#define COMPONENT_T_FORM_TEXTAREA 10
+#define COMPONENT_T_FORM_HLINE    11
+
+#define KEY_IILEGAL (KEY_MAX - 1)
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

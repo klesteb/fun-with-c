@@ -39,8 +39,8 @@ struct _workbench_s {
     int (*_event)(workbench_t *, event_t *);
     int (*_get_focus)(workbench_t *, window_t *);
     int (*_set_focus)(workbench_t *, window_t *);
-    int (*_inject_event)(workbench_t *, event_t *);
     int (*_add_window)(workbench_t *, window_t *);
+    int (*_inject_event)(workbench_t *, event_t *);
     int (*_remove_window)(workbench_t *, window_t *);
     PANEL *panel;
     queue events;
@@ -52,7 +52,17 @@ struct _workbench_s {
 
 #define WORKBENCH(x) ((workbench_t *)(x))
 
-#define WORKBENCH_M_DESTRUCTOR 1
+#define WORKBENCH_M_DRAW             1
+#define WORKBENCH_M_EVENT            2
+#define WORKBENCH_M_REFRESH          3
+#define WORKBENCH_M_DESTROY          4
+#define WORKBENCH_M_DESTRUCTOR       4
+#define WORKBENCH_M_ADD_WINDOW       5
+#define WORKBENCH_M_REMOVE_WINDOW    6
+#define WORKBENCH_M_SET_FOCUS        7
+#define WORKBENCH_M_GET_FOCUS        8
+#define WORKBENCH_M_LOOP             9
+#define WORKBENCH_M_INJECT_EVENT     10
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */

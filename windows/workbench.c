@@ -818,8 +818,6 @@ int _workbench_dtor(object_t *object) {
     event_t *event = NULL;
     window_t *window = NULL;
     workbench_t *self = WORKBENCH(object);
-
-
     
     /* free local resources here */
 
@@ -854,8 +852,6 @@ int _workbench_dtor(object_t *object) {
 
     }
 
-    fini:
-    
     /* walk the chain, freeing as we go */
 
     object_demote(object, object_t);

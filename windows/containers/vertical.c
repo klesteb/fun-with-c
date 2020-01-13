@@ -47,6 +47,8 @@ int _vertical_draw(container_t *self) {
 
     }
 
+    wnoutrefresh(self->area);
+
     return stat;
 
 }
@@ -65,6 +67,8 @@ int _vertical_event(container_t *self, event_t *event) {
         if (stat != OK) break;
 
     }
+
+    wnoutrefresh(self->area);
 
     return stat;
 

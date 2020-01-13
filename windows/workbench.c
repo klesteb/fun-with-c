@@ -1040,6 +1040,7 @@ int _workbench_add_window(workbench_t *self, window_t *window) {
 
         stat = OK;
         set_panel_userptr(panel, (void *)window);
+        wnoutrefresh(window->outer);
 
     }
 
@@ -1090,6 +1091,7 @@ int _workbench_set_focus(workbench_t *self, window_t *window) {
 
             self->panel = panel;
             stat = top_panel(panel);
+
             break;
 
         }

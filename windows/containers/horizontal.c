@@ -54,6 +54,8 @@ int _horizontal_draw(container_t *self) {
 
     }
 
+    wnoutrefresh(self->area);
+    
     return stat;
 
 }
@@ -72,6 +74,8 @@ int _horizontal_event(container_t *self, event_t *event) {
         if (stat != OK) break;
 
     }
+
+    wnoutrefresh(self->area);
 
     return stat;
 

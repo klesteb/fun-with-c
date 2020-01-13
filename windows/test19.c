@@ -25,39 +25,37 @@ int main(int argc, char **argv) {
         check_creation(win1);
 
         stat = window_box(win1, "window 1");
-        check_return(stat, OK, win1);
+        check_return(stat, win1);
 
         win2 = window_create(4, 6, 10, 40);
         check_creation(win2);
 
         stat = window_box(win2, "window 2");
-        check_return(stat, OK, win2);
+        check_return(stat, win2);
 
         stat = window_output(win2, 1, 1, "testing 2");
-        check_return(stat, OK, win2);
+        check_return(stat, win2);
 
         win3 = window_create(6, 50, 10, 20);
         check_creation(win3);
 
         stat = window_box(win3, "window 3");
-        check_return(stat, OK, win3);
+        check_return(stat, win3);
 
         stat = window_output(win3, 1, 1, "testing 3");
-        check_return(stat, OK, win3);
-        
+        check_return(stat, win3);
+
         stat = workbench_add_window(wb, win1);
-        check_return(stat, OK, wb);
+        check_return(stat, wb);
 
         stat = workbench_add_window(wb, win2);
-        check_return(stat, OK, wb);
+        check_return(stat, wb);
 
         stat = workbench_add_window(wb, win3);
-        check_return(stat, OK, wb);
-
-        refresh();
+        check_return(stat, wb);
 
         stat = workbench_loop(wb);
-        check_return(stat, OK, wb);
+        check_return(stat, wb);
 
         exit_when;
 

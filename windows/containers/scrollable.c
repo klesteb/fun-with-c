@@ -38,6 +38,8 @@ int _scrollable_draw(container_t *self) {
 
     }
 
+    wnoutrefresh(self->area);
+
     return stat;
 
 }
@@ -52,6 +54,8 @@ int _scrollable_refresh(container_t *self) {
         stat = component_refresh(temp);
 
     }
+
+    wnoutrefresh(self->area);
 
     return stat;
 
@@ -90,6 +94,8 @@ int _scrollable_add_component(container_t *self, component_t *component) {
         }
 
     }
+
+    wnoutrefresh(self->area);
 
     return stat;
 

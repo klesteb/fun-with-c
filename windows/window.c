@@ -737,11 +737,16 @@ int _window_draw(window_t *self) {
         stat = container_draw(container);
         if (stat != OK) break;
 
-        wnoutrefresh(container->area);
-
     }
 
     wstandend(self->inner);
+
+    if (self->boxed) {
+
+        stat = _box_window(self);
+
+    }
+
     wnoutrefresh(self->inner);
 
     return stat;
@@ -759,8 +764,6 @@ int _window_erase(window_t *self) {
 
         stat = container_erase(container);
         if (stat != OK) goto fini;
-
-        wnoutrefresh(container->area);
 
     }
 
@@ -789,8 +792,6 @@ int _window_event(window_t *self, event_t *event) {
         stat = container_event(container, event);
         if (stat != OK) break;
 
-        wnoutrefresh(container->area);
-
     }
 
     wnoutrefresh(self->inner);
@@ -811,9 +812,11 @@ int _window_refresh(window_t *self) {
         stat = container_refresh(container);
         if (stat != OK) goto fini;
 
-        wnoutrefresh(container->area);
-
     }
+
+    fini:
+
+    wstandend(self->inner);
 
     if (self->boxed) {
 
@@ -821,9 +824,6 @@ int _window_refresh(window_t *self) {
 
     }
 
-    fini:
-
-    wstandend(self->inner);
     wnoutrefresh(self->inner);
 
     return stat;
@@ -838,7 +838,8 @@ int _window_add_container(window_t *self, container_t *container) {
     if (self->inner != NULL) {
 
         if ((temp = derwin(self->inner, container->height, 
-                           container->width, container->row, container->col))) {
+                           container->width, container->row, 
+                           container->col))) {
 
             werase(temp);
             container->area = temp;
@@ -892,6 +893,7 @@ int _window_remove_container(window_t *self, container_t *container) {
 
 static int _box_window(window_t *self) {
 
+    int len = 0;
     int stat = ERR;
 
     if (self->outer != NULL) {
@@ -900,8 +902,17 @@ static int _box_window(window_t *self) {
 
         if ((stat = box(self->outer, ACS_VLINE, ACS_HLINE)) == OK) {
 
+            len = strlen(self->title);
+
             wcolorset(self->outer, self->fg, self->bg);
-            stat = mvwprintw(self->outer, 0, 2, "[%s]", self->title);
+
+            wmove(self->outer, 0, 2);
+            waddch(self->outer, ACS_RTEE);
+            wmove(self->outer, 0, 3);
+            waddstr(self->outer, self->title);
+            wmove(self->outer, 0, 3 + len);
+            waddch(self->outer, ACS_LTEE);
+            
             wnoutrefresh(self->outer);
             wstandend(self->outer);
 

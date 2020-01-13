@@ -9,7 +9,7 @@ void create_window(int row, int col, int width, int height, char *text) {
     PANEL *panel = new_panel(window);
 
     set_panel_userptr(panel, (void *)text);
-
+    
 }
 
 int main(void) {
@@ -34,7 +34,7 @@ int main(void) {
          panel = panel_above(panel)) {
 
         window = panel_window(panel);
-        box(window, '|', '-');
+        box(window, ACS_VLINE, ACS_HLINE);
         text = (char *)panel_userptr(panel);
         mvwprintw(window, 1, 1, "%s", text);
         wnoutrefresh(window);
@@ -54,7 +54,7 @@ int main(void) {
          panel = panel_below(panel)) {
 
         window = panel_window(panel);
-        box(window, '|', '-');
+        box(window, ACS_VLINE, ACS_HLINE);
         text = (char *)panel_userptr(panel);
         mvwprintw(window, 1, 1, "%s", text);
         wnoutrefresh(window);

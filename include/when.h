@@ -81,8 +81,8 @@
     }                                           \
 }
 
-#define check_return(status, expected, self) {  \
-    if ((status) != (expected)) {               \
+#define check_return(status, self) {            \
+    if ((status) != OK) {                       \
         retrieve_error((self));                 \
         goto handler;                           \
     }                                           \

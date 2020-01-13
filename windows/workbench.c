@@ -648,6 +648,10 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
             self->_refresh(self);
 
+        } else if (ch == KEY_F(12)) {
+
+            raise(SIGTERM);
+
         } else {
 
             KEVENT *kevent = calloc(1, sizeof(KEVENT));
@@ -815,6 +819,8 @@ int _workbench_dtor(object_t *object) {
     window_t *window = NULL;
     workbench_t *self = WORKBENCH(object);
 
+
+    
     /* free local resources here */
 
     while ((event = que_pop_head(&self->events))) {
@@ -848,6 +854,8 @@ int _workbench_dtor(object_t *object) {
 
     }
 
+    fini:
+    
     /* walk the chain, freeing as we go */
 
     object_demote(object, object_t);

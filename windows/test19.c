@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     } use {
 
         stat = ERR;
-        printf("error: %d\n", trace_errnum);
+        fprintf(stderr, "error: %d\n", trace_errnum);
 
     } end_when;
 

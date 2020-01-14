@@ -30,7 +30,7 @@ OBJS = container.o colors.o component.o workbench.o window.o \
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14 test15 test16 test17 test18 \
-     test19
+     test19 test20
 #
 libs: $(OBJS)
 #
@@ -66,6 +66,7 @@ clean:
 	rm -f test17
 	rm -f test18
 	rm -f test19
+	rm -f test20
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -143,6 +144,10 @@ test18: test18.o
 test19: test19.o
 	$(CC) $(CFLAGS) test19.c
 	$(LINK) -o test19 test19.o  $(OLBS)
+#
+test20: test20.o
+	$(CC) $(CFLAGS) test20.c
+	$(LINK) -o test20 test20.o  $(OLBS)
 #
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c

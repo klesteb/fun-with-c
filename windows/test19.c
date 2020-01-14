@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
         wb = workbench_create(NULL);
         check_creation(wb);
 
-        printw("Press ^C to exit\n");
+        printw("Press ^C or F12 to exit\n");
         refresh();
 
         win1 = window_create(2, 4, 10, 40);

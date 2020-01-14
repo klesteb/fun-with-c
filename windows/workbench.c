@@ -648,6 +648,24 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
             self->_refresh(self);
 
+        } else if (ch == KEY_F(11)) {
+
+            window_t *window = NULL;
+
+            /* if (self->panel != NULL) { */
+
+mvprintw(1, 0, "panel: %p", self->panel);
+refresh();
+                
+                window = panel_userptr(self->panel);
+                top_panel(self->panel);
+                window_refresh(window);
+                update_panels();
+                doupdate();
+                self->panel = panel_below(self->panel);
+
+            /* } */
+
         } else if (ch == KEY_F(12)) {
 
             raise(SIGTERM);

@@ -80,7 +80,7 @@ int _vertical_event(container_t *self, event_t *event) {
 
 container_t *vertical_create(int row, int col, int height, int width) {
 
-    item_list_t items[3];
+    item_list_t items[4];
     container_t *vertical = NULL;
 
     if ((vertical = container_create(row, col, height, width))) {
@@ -89,7 +89,8 @@ container_t *vertical_create(int row, int col, int height, int width) {
 
         SET_ITEM(items[0], CONTAINER_M_DRAW, &_vertical_draw, 0, NULL);
         SET_ITEM(items[1], CONTAINER_M_EVENT, &_vertical_event, 0, NULL);
-        SET_ITEM(items[2], 0, 0, 0, 0);
+        SET_ITEM(items[2], CONTAINER_M_REFRESH, &_vertical_draw, 0, NULL);
+        SET_ITEM(items[3], 0, 0, 0, 0);
 
         container_override(vertical, items);
 

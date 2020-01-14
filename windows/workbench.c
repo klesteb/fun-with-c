@@ -650,21 +650,17 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
         } else if (ch == KEY_F(11)) {
 
+            PANEL *current = NULL;
             window_t *window = NULL;
 
-            /* if (self->panel != NULL) { */
+            current = panel_above(NULL);
+            window = panel_userptr(current);
+            self->panel = current;
 
-mvprintw(1, 0, "panel: %p", self->panel);
-refresh();
-                
-                window = panel_userptr(self->panel);
-                top_panel(self->panel);
-                window_refresh(window);
-                update_panels();
-                doupdate();
-                self->panel = panel_below(self->panel);
-
-            /* } */
+            top_panel(current);
+            window_refresh(window);
+            update_panels();
+            doupdate();
 
         } else if (ch == KEY_F(12)) {
 
@@ -750,6 +746,8 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         }
 
         /* initilize our base klass here */
+
+        object_set_error(object, 0);
 
         /* initialize our derived klass here */
 
@@ -1062,7 +1060,6 @@ int _workbench_add_window(workbench_t *self, window_t *window) {
 
         stat = OK;
         set_panel_userptr(panel, (void *)window);
-        wnoutrefresh(window->outer);
 
     }
 

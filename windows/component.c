@@ -794,7 +794,7 @@ int _component_dtor(object_t *object) {
 
     /* free local resources here */
 
-    component_erase(self);
+    self->_erase(self);
 
     /* walk the chain, freeing as we go */
 
@@ -897,9 +897,9 @@ int _component_refresh(component_t *self) {
 
     int stat = ERR;
 
-    if ((stat == component_erase(self)) == OK) {
+    if ((stat == self->_erase(self)) == OK) {
 
-        stat = component_draw(self);
+        stat = self->_draw(self);
 
     }
 

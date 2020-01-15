@@ -19,7 +19,6 @@
 #include <string.h>
 
 #include "object.h"
-#include "item_list.h"
 
 /*----------------------------------------------------------------*/
 /* klass defination                                               */
@@ -111,7 +110,11 @@ int object_get_error(object_t *self, error_trace_t *error) {
 
     if ((self != NULL) && (error != NULL)) {
 
-        error = self->error;
+        error->errnum   = self->error->errnum;
+        error->lineno   = self->error->lineno;
+        error->filename = strdup(self->error->filename);
+        error->function = strdup(self->error->function);
+
         stat = OK;
 
     }

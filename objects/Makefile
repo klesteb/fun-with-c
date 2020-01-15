@@ -9,7 +9,7 @@ CC = gcc
 CFLAGS = -Wall -c -I../include -I../cclibs
 OLBS = ../libs/libobjects.a ../cclibs/libcclibs.a
 LINK = gcc
-LFLAGS = -o test
+LFLAGS = -o 
 LIBS = ../libs/libobjects.a
 LIBR = ar -r
 #
@@ -25,7 +25,6 @@ clean:
 	rm -f *.o
 	rm -f *~
 	rm -f $(LIBS)
-#
 #
 object.o: object.c $(INCS)
 	$(CC) $(CFLAGS) object.c

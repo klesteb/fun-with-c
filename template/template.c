@@ -201,6 +201,7 @@ int _template_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
+        object_set_error(object, OK);
 
         /* initialize our derived klass here */
 

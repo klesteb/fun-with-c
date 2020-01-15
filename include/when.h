@@ -82,20 +82,16 @@
 }
 
 #define check_return(status, self) {            \
-    if ((status) != OK) {                       \
+    if ((status) != (OK)) {                     \
         retrieve_error((self));                 \
         goto handler;                           \
     }                                           \
 }
 
 #define check_creation(self) {                  \
-    if ((self) != NULL) {                       \
-        retrieve_error((self));                 \
-        if (trace_errnum != 0) {                \
-            goto handler;                       \
-        }                                       \
-    } else {                                    \
-        cause_error(E_INVOBJ);                  \
+    retrieve_error((self));                     \
+    if (trace_errnum != (OK)) {                 \
+        goto handler;                           \
     }                                           \
 }
 

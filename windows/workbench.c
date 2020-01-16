@@ -747,7 +747,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
-        object_set_error(object, 0);
+        object_set_error(object, OK);
 
         /* initialize our derived klass here */
 
@@ -1124,15 +1124,13 @@ int _workbench_set_focus(workbench_t *self, window_t *window) {
 int _workbench_get_focus(workbench_t *self, window_t *window) {
 
     int stat = ERR;
-
+    window_t *temp = NULL;
+    
     if (self->panel != NULL) {
 
         stat = OK;
-        window = (window_t *)panel_userptr(self->panel);
-
-    } else {
-
-        window = (window_t *)NULL;
+        temp = (window_t *)panel_userptr(self->panel);
+        memcpy(window, temp, sizeof(window_t));
 
     }
 

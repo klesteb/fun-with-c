@@ -80,6 +80,8 @@ struct _component_s {
 #define COMPONENT_T_FORM_HEADER   9
 #define COMPONENT_T_FORM_TEXTAREA 10
 #define COMPONENT_T_FORM_HLINE    11
+#define COMPONENT_T_MENU          12
+#define COMPONENT_T_MENU_ITEM     13
 
 #define KEY_IILEGAL (KEY_MAX - 1)
 

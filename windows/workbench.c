@@ -650,17 +650,21 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
         } else if (ch == KEY_F(11)) {
 
-            PANEL *current = NULL;
-            window_t *window = NULL;
+            if ((self->panels > 0)) {
 
-            current = panel_above(NULL);
-            window = panel_userptr(current);
-            self->panel = current;
+                PANEL *current = NULL;
+                window_t *window = NULL;
 
-            top_panel(current);
-            window_refresh(window);
-            update_panels();
-            doupdate();
+                current = panel_above(NULL);
+                window = panel_userptr(current);
+                self->panel = current;
+
+                top_panel(current);
+                window_refresh(window);
+                update_panels();
+                doupdate();
+
+            }
 
         } else if (ch == KEY_F(12)) {
 
@@ -775,6 +779,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         que_init(&self->events);
 
         self->panel = NULL;
+        self->panels = 0;
 
         /* initialize the terminal */
 
@@ -1059,6 +1064,7 @@ int _workbench_add_window(workbench_t *self, window_t *window) {
     if ((panel = new_panel(window->outer)) != NULL) {
 
         stat = OK;
+        self->panels++;
         set_panel_userptr(panel, (void *)window);
 
     }
@@ -1080,6 +1086,12 @@ int _workbench_remove_window(workbench_t *self, window_t *window) {
         temp = (window_t *)panel_userptr(panel);
 
         if ((window_compare(window, temp)) == OK) {
+
+            if (self->panels > 0) {
+                
+                self->panels--;
+                
+            }
 
             del_panel(panel);
             stat = window_destroy(temp);

@@ -21,7 +21,6 @@
 /*-------------------------------------------------------------*/
 
 error_code_t error_codes[] = {
-    { E_OK,      "E_OK",      "Everything is AOK" },
     { E_INVPARM, "E_INVPARM", "Invalid parameters" },
     { E_NODATA,  "E_NODATA",  "No data available" },
     { E_INVOPS,  "E_INVOPS",  "An invalid operation was tried" },

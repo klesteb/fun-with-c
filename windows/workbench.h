@@ -42,6 +42,7 @@ struct _workbench_s {
     int (*_add_window)(workbench_t *, window_t *);
     int (*_inject_event)(workbench_t *, event_t *);
     int (*_remove_window)(workbench_t *, window_t *);
+    int panels;
     PANEL *panel;
     queue events;
 };

@@ -9,7 +9,7 @@ int main(void) {
     char message[1024];
     errors_t *errors = errors_create();
 
-    errors_get_message(errors, E_OK, message, 1023);
+    errors_get_message(errors, E_INVPARM, message, 1023);
     printf("%s\n", message);
 
     errors_get_text(errors, EAGAIN, text, 1023);

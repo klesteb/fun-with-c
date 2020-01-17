@@ -840,7 +840,7 @@ int _component_compare(component_t *us, component_t *them) {
 }
 
 int _component_override(component_t *self, item_list_t *items) {
-    
+
     int x;
     int stat = ERR;
 
@@ -870,12 +870,17 @@ int _component_override(component_t *self, item_list_t *items) {
                 stat = OK;
                 break;
             }
+            case COMPONENT_M_DESTROY: {
+                self->dtor = items[x].buffer_address;
+                stat = OK;
+                break;
+            }
         }
-        
+
     }
-    
+
     return stat;
-    
+
 }
 
 int _component_erase(component_t *self) {

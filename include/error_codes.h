@@ -17,7 +17,6 @@
 /* error code constants                                        */
 /*-------------------------------------------------------------*/
 
-#define E_OK      1000
 #define E_INVPARM 1001
 #define E_NODATA  1002
 #define E_INVOPS  1003

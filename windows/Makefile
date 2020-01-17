@@ -27,11 +27,11 @@ OBJS = container.o colors.o component.o workbench.o window.o \
        components/text.o components/textarea.o \
        components/forms/form_field.o components/forms/form_label.o \
        components/forms/form_textarea.o components/forms/form_header.o \
-       components/forms/form_seperator.o components/menu/menu_item.c
+       components/forms/form_seperator.o components/menu/menu_item.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14 test15 test16 test17 test18 \
-     test19 test20 test21 test22
+     test19 test20 test21 test22 test23
 #
 libs: $(OBJS)
 #
@@ -46,6 +46,8 @@ clean:
 	rm -f components/*~
 	rm -f components/forms/*.o
 	rm -f components/forms/*~
+	rm -f components/menu/*.o
+	rm -f components/menu/*~
 	rm -f windows/*.o
 	rm -f windows/*~
 	rm -f test1
@@ -70,6 +72,7 @@ clean:
 	rm -f test20
 	rm -f test21
 	rm -f test22
+	rm -f test23
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -159,6 +162,10 @@ test21: test21.o
 test22: test22.o
 	$(CC) $(CFLAGS) test22.c
 	$(LINK) $(LFLAGS) test22 test22.o  $(OLBS)
+#
+test23: test23.o
+	$(CC) $(CFLAGS) test23.c
+	$(LINK) $(LFLAGS) test23 test23.o  $(OLBS)
 #
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c

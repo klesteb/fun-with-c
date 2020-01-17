@@ -71,6 +71,7 @@ struct _container_s {
 #define CONTAINER_T_VERTICAL   2
 #define CONTAINER_T_SCROLLABLE 3
 #define CONTAINER_T_FORM       4
+#define CONTAINER_T_MENU       5
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

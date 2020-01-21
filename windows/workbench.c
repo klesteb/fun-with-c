@@ -40,7 +40,7 @@ require_klass(OBJECT_KLASS);
 int pfd[2];                    /* self pipe fd's          */
 NxInputId pipe_id;             /* id for pipe events      */
 NxInputId stdin_id;            /* id for stdin events     */
-NxIntervalId timeout_id;       /* id for timeout events   */
+NxWorkProcId workproc_id;      /* id for event processor  */
 struct sigaction old_sigint;   /* ncurses sigint handler  */
 struct sigaction old_sigterm;  /* ncurses sigterm handler */
 
@@ -428,6 +428,36 @@ static void _sig_handler(int sig) {
 
 }
 
+static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
+
+    int stat = OK;
+    event_t *event = NULL;
+    workbench_t *self = (workbench_t *)data;
+
+    if ((event = que_pop_head(&self->events))) {
+
+        stat = self->_event(self, event);
+        free(event->data);
+        free(event);
+
+        if (que_empty(&self->events)) {
+
+            que_init(&self->events);
+
+        }
+
+        if (stat == OK) {
+
+            workproc_id = NxAddWorkProc(NULL, _event_handler, (void *)self);
+            
+        }
+
+    }
+
+    return stat;
+
+}
+
 static int _init_self_pipe(workbench_t *self) {
 
     int flags = 0;
@@ -623,7 +653,7 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
     int stat = OK;
     workbench_t *self = (workbench_t *)data;
 
-    while ((ch = getch()) != ERR) {
+    if ((ch = getch()) != ERR) {
 
         event_t *event = calloc(1, sizeof(event_t));
 
@@ -637,6 +667,11 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
                 event->data = (void *)mevent;
 
                 stat = que_push_tail(&self->events, event);
+                if (stat == OK) {
+
+                    workproc_id = NxAddWorkProc(NULL, _event_handler, (void *)self);
+
+                }
 
             } else {
 
@@ -679,37 +714,15 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
             event->data = (void *)kevent;
 
             stat = que_push_tail(&self->events, event);
+            if (stat == OK) {
+
+                workproc_id = NxAddWorkProc(NULL, _event_handler, (void *)self);
+
+            }
 
         }
 
     }
-
-    return stat;
-
-}
-
-static int _event_handler(NxAppContext context, NxIntervalId id, void *data) {
-
-    int stat = OK;
-    event_t *event = NULL;
-    workbench_t *self = (workbench_t *)data;
-
-    while ((event = que_pop_head(&self->events))) {
-
-        stat = self->_event(self, event);
-        free(event->data);
-        free(event);
-        if (stat != OK) break;
-
-    }
-
-    if (que_empty(&self->events)) {
-
-        que_init(&self->events);
-
-    }
-
-    timeout_id = NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
 
     return stat;
 
@@ -869,7 +882,7 @@ int _workbench_dtor(object_t *object) {
 
         NxRemoveInput(NULL, pipe_id);
         NxRemoveInput(NULL, stdin_id);
-        NxRemoveTimeOut(NULL, timeout_id);
+        NxRemoveWorkProc(NULL, workproc_id);
 
     }
 
@@ -1088,9 +1101,9 @@ int _workbench_remove_window(workbench_t *self, window_t *window) {
         if ((window_compare(window, temp)) == OK) {
 
             if (self->panels > 0) {
-                
+
                 self->panels--;
-                
+
             }
 
             del_panel(panel);
@@ -1137,7 +1150,7 @@ int _workbench_get_focus(workbench_t *self, window_t *window) {
 
     int stat = ERR;
     window_t *temp = NULL;
-    
+
     if (self->panel != NULL) {
 
         stat = OK;
@@ -1156,7 +1169,6 @@ int _workbench_loop(workbench_t *self) {
 
     self->_draw(self);
 
-    timeout_id = NxAddTimeOut(NULL, TIMEOUT, _event_handler, (void *)self);
     pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
     stdin_id = NxAddInput(NULL, fileno(stdin), NxInputReadMask, _read_stdin, (void *)self);
 

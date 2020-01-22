@@ -35,19 +35,50 @@ typedef struct _forms_data_s {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-static int _focus_first_field(container_t *);
+static int _focus_first_field(container_t *self) {
 
-/*----------------------------------------------------------------*/
-/* klass overrides                                                */
-/*----------------------------------------------------------------*/
+    int stat = ERR;
+    component_t *temp = NULL;
+    field_data_t *data = NULL;
+    forms_data_t *forms = NULL;
 
-int _form_dtor(object_t *object) {
+    if (self->data != NULL) {
+
+        forms = (forms_data_t *)self->data;
+
+        for (temp = que_first(&self->components);
+             temp != NULL;
+             temp = que_next(&self->components)) {
+
+            if ((temp->type != COMPONENT_T_FORM_LABEL) &&
+                (temp->type != COMPONENT_T_FORM_HEADER)) {
+
+                data = (field_data_t *)temp->data;
+
+                if (data != NULL) {
+
+                    set_current_field(forms->form, data->field);
+                    form_driver(forms->form, REQ_END_LINE);
+                    curs_set(1);
+
+                    stat = OK;
+                    break;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+static int _form_remove(container_t *self) {
 
     int stat = OK;
-    component_t *component = NULL;
-    container_t *self = CONTAINER(object);
-
-    /* free local resources here */
 
     if (self->data != NULL) {
 
@@ -64,31 +95,11 @@ int _form_dtor(object_t *object) {
 
     }
 
-    while ((component = que_pop_head(&self->components))) {
-
-        component_destroy(component);
-
-    }
-
-    que_init(&self->components);
-        
-    if (self->area != NULL) {
-
-        werase(self->area);
-        delwin(self->area);
-
-    }
-
-    /* walk the chain, freeing as we go */
-
-    object_demote(object, object_t);
-    object_destroy(object);
-
     return stat;
-
+    
 }
 
-int _form_draw(container_t *self) {
+static int _form_display(container_t *self) {
 
     int count = 0;
     int stat = OK;
@@ -157,26 +168,71 @@ int _form_draw(container_t *self) {
         wnoutrefresh(self->area);
 
     }
-    
+
     return stat;
 
 }
 
-int _form_erase(container_t *self) {
+/*----------------------------------------------------------------*/
+/* klass overrides                                                */
+/*----------------------------------------------------------------*/
 
-    int stat = ERR;
+int _form_dtor(object_t *object) {
 
-    wnoutrefresh(self->area);
+    int stat = OK;
+    component_t *component = NULL;
+    container_t *self = CONTAINER(object);
+
+    /* free local resources here */
+
+    stat = _form_remove(self);
+
+    while ((component = que_pop_head(&self->components))) {
+
+        component_destroy(component);
+
+    }
+
+    que_init(&self->components);
+        
+    if (self->area != NULL) {
+
+        werase(self->area);
+        delwin(self->area);
+
+    }
+
+    /* walk the chain, freeing as we go */
+
+    object_demote(object, object_t);
+    object_destroy(object);
 
     return stat;
 
+}
+
+int _form_draw(container_t *self) {
+
+    return _form_display(self);
+    
+}
+
+int _form_erase(container_t *self) {
+
+    return _form_remove(self);
+    
 }
 
 int _form_refresh(container_t *self) {
 
     int stat = ERR;
 
-    wnoutrefresh(self->area);
+    stat = _form_remove(self);
+    if (stat == OK) {
+        
+        stat = _form_display(self);
+        
+    }
 
     return stat;
 
@@ -343,45 +399,4 @@ container_t *form_create(int row, int col, int height, int width) {
 /*----------------------------------------------------------------*/
 /* private methods                                                */
 /*----------------------------------------------------------------*/
-
-static int _focus_first_field(container_t *self) {
-
-    int stat = ERR;
-    component_t *temp = NULL;
-    field_data_t *data = NULL;
-    forms_data_t *forms = NULL;
-
-    if (self->data != NULL) {
-
-        forms = (forms_data_t *)self->data;
-
-        for (temp = que_first(&self->components);
-             temp != NULL;
-             temp = que_next(&self->components)) {
-
-            if ((temp->type != COMPONENT_T_FORM_LABEL) &&
-                (temp->type != COMPONENT_T_FORM_HEADER)) {
-
-                data = (field_data_t *)temp->data;
-
-                if (data != NULL) {
-
-                    set_current_field(forms->form, data->field);
-                    form_driver(forms->form, REQ_END_LINE);
-                    curs_set(1);
-
-                    stat = OK;
-                    break;
-
-                }
-
-            }
-
-        }
-
-    }
-
-    return stat;
-
-}
 

@@ -682,6 +682,8 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
         } else if (ch == KEY_RESIZE) {
 
             self->_refresh(self);
+            update_panels();
+            doupdate();
 
         } else if (ch == KEY_F(11)) {
 

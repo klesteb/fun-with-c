@@ -31,16 +31,12 @@ typedef struct _menus_data_s {
 } menus_data_t;
 
 /*----------------------------------------------------------------*/
-/* klass overrides                                                */
+/* private methods                                                */
 /*----------------------------------------------------------------*/
 
-int _menu_dtor(object_t *object) {
+static int _menu_remove(container_t *self) {
 
     int stat = OK;
-    component_t *component = NULL;
-    container_t *self = CONTAINER(object);
-
-    /* free local resources here */
 
     if (self->data != NULL) {
 
@@ -57,31 +53,11 @@ int _menu_dtor(object_t *object) {
 
     }
 
-    while ((component = que_pop_head(&self->components))) {
-
-        component_destroy(component);
-
-    }
-
-    que_init(&self->components);
-        
-    if (self->area != NULL) {
-
-        werase(self->area);
-        delwin(self->area);
-
-    }
-
-    /* walk the chain, freeing as we go */
-
-    object_demote(object, object_t);
-    object_destroy(object);
-
     return stat;
 
 }
 
-int _menu_draw(container_t *self) {
+static int _menu_display(container_t *self) {
 
     int count = 0;
     int stat = OK;
@@ -148,26 +124,74 @@ int _menu_draw(container_t *self) {
         wnoutrefresh(self->area);
 
     }
-    
+
     return stat;
 
 }
 
-int _menu_erase(container_t *self) {
+/*----------------------------------------------------------------*/
+/* klass overrides                                                */
+/*----------------------------------------------------------------*/
 
-    int stat = ERR;
+int _menu_dtor(object_t *object) {
+
+    int stat = OK;
+    component_t *component = NULL;
+    container_t *self = CONTAINER(object);
+
+    /* free local resources here */
+
+    stat = _menu_remove(self);
+
+    while ((component = que_pop_head(&self->components))) {
+
+        component_destroy(component);
+
+    }
+
+    que_init(&self->components);
+
+    if (self->area != NULL) {
+
+        werase(self->area);
+        delwin(self->area);
+
+    }
 
     wnoutrefresh(self->area);
 
+    /* walk the chain, freeing as we go */
+
+    object_demote(object, object_t);
+    object_destroy(object);
+
     return stat;
 
+}
+
+int _menu_draw(container_t *self) {
+
+    return _menu_display(self);
+    
+}
+
+int _menu_erase(container_t *self) {
+
+    return _menu_remove(self);
+    
 }
 
 int _menu_refresh(container_t *self) {
 
     int stat = ERR;
 
-    wnoutrefresh(self->area);
+    stat = _menu_remove(self);
+
+    if (stat == OK) {
+
+        stat = _menu_display(self);
+
+    }
 
     return stat;
 

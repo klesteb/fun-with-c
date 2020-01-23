@@ -43,6 +43,7 @@ struct _container_s {
     int type;
     int width;
     int height;
+    void *focus;
     WINDOW *area;
     queue components;
     void *data;

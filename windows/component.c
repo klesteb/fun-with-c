@@ -304,7 +304,7 @@ int component_refresh(component_t *self) {
 
 }
 
-int component_set_metrics(component_t *self, int row, int col) {
+int component_set_position(component_t *self, int row, int col) {
 
     int stat = OK;
 
@@ -336,7 +336,7 @@ int component_set_metrics(component_t *self, int row, int col) {
 
 }
 
-int component_get_metrics(component_t *self, int *row, int *col) {
+int component_get_position(component_t *self, int *row, int *col) {
 
     int stat = OK;
 
@@ -410,68 +410,6 @@ int component_get_colors(component_t *self, int *fg, int *bg) {
 
             *fg = self->fg;
             *bg = self->bg;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int component_set_focus(component_t *self, int focus) {
-
-    int stat = OK;
-
-    when_error {
-        
-        if (self != NULL) {
-
-            self->focus = focus;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int component_get_focus(component_t *self, int *focus) {
-
-    int stat = OK;
-
-    when_error {
-        
-        if ((self != NULL) && (focus != NULL)) {
-
-            *focus = self->focus;
 
         } else {
 

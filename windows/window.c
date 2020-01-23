@@ -727,6 +727,7 @@ int _window_draw(window_t *self) {
     int stat = OK;
     container_t *container = NULL;
 
+    curs_set(0);
     wattrset(self->inner, self->attribute);
     wcolorset(self->inner, self->fg, self->bg);
 
@@ -904,6 +905,7 @@ static int _box_window(window_t *self) {
 
             len = strlen(self->title);
 
+            curs_set(0);
             wcolorset(self->outer, self->fg, self->bg);
 
             wmove(self->outer, 0, 2);

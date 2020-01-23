@@ -32,7 +32,7 @@ int _scrollable_draw(container_t *self) {
     if ((temp = que_first(&self->components)) != NULL) {
 
         component_set_area(temp, self->area);
-        component_set_metrics(temp, 0, 0);
+        component_set_position(temp, 0, 0);
 
         stat = component_draw(temp);
 

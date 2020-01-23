@@ -178,7 +178,7 @@ component_t *textarea_create(int width, char *value, int size) {
     item_list_t items[4];
     wrapped_t *data = NULL;
     component_t *textarea = NULL;
-    
+
     if ((data = _data_create(width, value, size))) {
 
         if ((textarea = component_create(data->size, width, NULL, 0))) {

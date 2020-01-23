@@ -94,8 +94,6 @@ extern int component_draw(component_t *);
 extern int component_erase(component_t *);
 extern int component_destroy(component_t *);
 extern int component_refresh(component_t *);
-extern int component_set_focus(component_t *, int);
-extern int component_get_focus(component_t *, int *);
 extern int component_event(component_t *, event_t *);
 extern int component_set_padding(component_t *, int);
 extern int component_get_padding(component_t *, int *);
@@ -104,11 +102,11 @@ extern int component_get_area(component_t *, WINDOW *);
 extern int component_set_attribute(component_t *, int);
 extern int component_get_attribute(component_t *, int *);
 extern int component_set_colors(component_t *, int, int);
-extern int component_set_metrics(component_t *, int, int);
+extern int component_set_position(component_t *, int, int);
 extern int component_compare(component_t *, component_t *); 
 extern int component_override(component_t *, item_list_t *);
-extern int component_get_metrics(component_t *, int *, int *);
 extern int component_get_colors(component_t *, int *, int *);
+extern int component_get_position(component_t *, int *, int *);
 
 #endif
 

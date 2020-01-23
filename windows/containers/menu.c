@@ -117,6 +117,33 @@ static int _menu_display(container_t *self) {
 
             }
 
+            if (self->focus != NULL) {
+
+                ITEM *item = (ITEM *)self->focus;
+                stat = set_current_item(data->menu, item);
+                if (stat != E_OK) {
+
+                    object_set_error(self, stat);
+                    stat = ERR;
+                    goto fini;
+
+                }
+
+            } else {
+
+                stat = top_row(data->menu);
+                if (stat != E_OK) {
+
+                    object_set_error(self, stat);
+                    stat = ERR;
+                    goto fini;
+
+                }
+
+            }
+            pos_menu_cursor(data->menu);
+            curs_set(1);
+            
         }
 
         fini:
@@ -219,32 +246,38 @@ int _menu_event(container_t *self, event_t *event) {
             switch(kevent->keycode) {
                 case KEY_UP: {
                     menu_driver(data->menu, REQ_UP_ITEM);
+                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     break;
                 }
                 case 9:
                 case KEY_DOWN: {
                     menu_driver(data->menu, REQ_DOWN_ITEM);
+                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     break;
                 }
                 case KEY_HOME: {
                     menu_driver(data->menu, REQ_FIRST_ITEM);
+                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     break;
                 }
                 case KEY_END: {
                     menu_driver(data->menu, REQ_LAST_ITEM);
+                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     break;
                 }
                 case KEY_NPAGE: {
                     menu_driver(data->menu, REQ_SCR_DPAGE);
+                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     break;
                 }
                 case KEY_PPAGE: {
                     menu_driver(data->menu, REQ_SCR_UPAGE);
+                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     break;
                 }
@@ -252,6 +285,7 @@ int _menu_event(container_t *self, event_t *event) {
                 case KEY_ENTER: {
                     ITEM *item = NULL;
                     menu_driver(data->menu, REQ_TOGGLE_ITEM);
+                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     item = current_item(data->menu);
                     if (item != NULL) {

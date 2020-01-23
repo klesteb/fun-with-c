@@ -35,47 +35,6 @@ typedef struct _forms_data_s {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-static int _focus_first_field(container_t *self) {
-
-    int stat = ERR;
-    component_t *temp = NULL;
-    field_data_t *data = NULL;
-    forms_data_t *forms = NULL;
-
-    if (self->data != NULL) {
-
-        forms = (forms_data_t *)self->data;
-
-        for (temp = que_first(&self->components);
-             temp != NULL;
-             temp = que_next(&self->components)) {
-
-            if ((temp->type != COMPONENT_T_FORM_LABEL) &&
-                (temp->type != COMPONENT_T_FORM_HEADER)) {
-
-                data = (field_data_t *)temp->data;
-
-                if (data != NULL) {
-
-                    set_current_field(forms->form, data->field);
-                    form_driver(forms->form, REQ_END_LINE);
-                    curs_set(1);
-
-                    stat = OK;
-                    break;
-
-                }
-
-            }
-
-        }
-
-    }
-
-    return stat;
-
-}
-
 static int _form_remove(container_t *self) {
 
     int stat = OK;
@@ -159,7 +118,20 @@ static int _form_display(container_t *self) {
 
             }
 
-            stat = _focus_first_field(self);
+            if (self->focus != NULL) {
+
+                FIELD *field = (FIELD *)self->focus;
+                set_current_field(data->form, field);
+
+            } else {
+                
+                form_driver(data->form, REQ_FIRST_FIELD);
+                
+            }
+
+            form_driver(data->form, REQ_END_LINE);
+            pos_form_cursor(data->form);
+            curs_set(1);
 
         }
 
@@ -259,6 +231,7 @@ int _form_event(container_t *self, event_t *event) {
 
             switch(kevent->keycode) {
                 case KEY_UP: {
+                    self->focus = (void *)current_field(data->form);
                     /* sync the form to display */
                     form_driver(data->form, REQ_NEXT_FIELD);
                     form_driver(data->form, REQ_PREV_FIELD);
@@ -269,6 +242,7 @@ int _form_event(container_t *self, event_t *event) {
                     break;
                 }
                 case KEY_DOWN: {
+                    self->focus = (void *)current_field(data->form);
                     /* sync the form to display */
                     form_driver(data->form, REQ_NEXT_FIELD);
                     form_driver(data->form, REQ_PREV_FIELD);
@@ -279,22 +253,27 @@ int _form_event(container_t *self, event_t *event) {
                     break;
                 }
                 case KEY_LEFT: {
+                    self->focus = (void *)current_field(data->form);
                     form_driver(data->form, REQ_PREV_CHAR);
                     break;
                 }
                 case KEY_RIGHT: {
+                    self->focus = (void *)current_field(data->form);
                     form_driver(data->form, REQ_NEXT_CHAR);
                     break;
                 }
                 case KEY_BACKSPACE: {
+                    self->focus = (void *)current_field(data->form);
                     form_driver(data->form, REQ_DEL_PREV);
                     break;
                 }
                 case KEY_DC: {
+                    self->focus = (void *)current_field(data->form);
                     form_driver(data->form, REQ_DEL_CHAR);
                     break;
                 }
                 case KEY_IC: {
+                    self->focus = (void *)current_field(data->form);
                     data->ins = !data->ins;
                     if (data->ins) {
                         form_driver(data->form, REQ_INS_MODE);
@@ -304,6 +283,7 @@ int _form_event(container_t *self, event_t *event) {
                     break;
                 }
                 case KEY_HOME: {
+                    self->focus = (void *)current_field(data->form);
                     /* sync the form to display */
                     form_driver(data->form, REQ_NEXT_FIELD);
                     form_driver(data->form, REQ_PREV_FIELD);
@@ -314,6 +294,7 @@ int _form_event(container_t *self, event_t *event) {
                     break;
                 }
                 case KEY_END: {
+                    self->focus = (void *)current_field(data->form);
                     /* sync the form to display */
                     form_driver(data->form, REQ_NEXT_FIELD);
                     form_driver(data->form, REQ_PREV_FIELD);
@@ -324,15 +305,18 @@ int _form_event(container_t *self, event_t *event) {
                     break;
                 }
                 case KEY_NPAGE: {
+                    self->focus = (void *)current_field(data->form);
                     form_driver(data->form, REQ_NEXT_PAGE);
                     break;
                 }
                 case KEY_PPAGE: {
+                    self->focus = (void *)current_field(data->form);
                     form_driver(data->form, REQ_PREV_PAGE);
                     break;
                 }
                 case 10:
                 case KEY_ENTER: {
+                    self->focus = (void *)current_field(data->form);
                     /* sync the form to display */
                     form_driver(data->form, REQ_NEXT_FIELD);
                     form_driver(data->form, REQ_PREV_FIELD);
@@ -343,6 +327,7 @@ int _form_event(container_t *self, event_t *event) {
                     break;
                 }
                 default: {
+                    self->focus = (void *)current_field(data->form);
                     form_driver(data->form, kevent->keycode);
                     break;
                 }

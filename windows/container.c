@@ -445,9 +445,10 @@ int _container_ctor(object_t *object, item_list_t *items) {
         self->col = col;
         self->row = row;
         self->data = NULL;
+        self->focus = NULL;
         self->width = width;
         self->height = height;
-        
+
         que_init(&self->components);
         
         stat = OK;

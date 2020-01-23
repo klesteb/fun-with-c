@@ -42,7 +42,7 @@ int _horizontal_draw(container_t *self) {
         }
 
         component_set_area(temp, self->area);
-        component_set_metrics(temp, row, col);
+        component_set_position(temp, row, col);
 
         if ((stat = component_draw(temp)) != OK) {
 

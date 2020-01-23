@@ -442,14 +442,14 @@ static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
         if (que_empty(&self->events)) {
 
-            que_init(&self->events);
+            stat = que_init(&self->events);
 
         }
 
         if (stat == OK) {
 
-            workproc_id = NxAddWorkProc(NULL, _event_handler, (void *)self);
-            
+            workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
+
         }
 
     }
@@ -692,14 +692,17 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
                 PANEL *current = NULL;
                 window_t *window = NULL;
 
-                current = panel_above(NULL);
-                window = panel_userptr(current);
-                self->panel = current;
+                if ((current = panel_above(NULL)) != NULL) {
 
-                top_panel(current);
-                window_refresh(window);
-                update_panels();
-                doupdate();
+                    window = panel_userptr(current);
+                    self->panel = current;
+
+                    top_panel(current);
+                    window_refresh(window);
+                    update_panels();
+                    doupdate();
+
+                }
 
             }
 
@@ -854,7 +857,7 @@ int _workbench_dtor(object_t *object) {
     event_t *event = NULL;
     window_t *window = NULL;
     workbench_t *self = WORKBENCH(object);
-    
+
     /* free local resources here */
 
     while ((event = que_pop_head(&self->events))) {
@@ -1006,6 +1009,7 @@ int _workbench_event(workbench_t *self, event_t *event) {
 
         window = (window_t *)panel_userptr(self->panel);
         stat = window_event(window, event);
+
         update_panels();
         doupdate();
 

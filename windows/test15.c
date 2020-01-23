@@ -96,8 +96,6 @@ int main(int argc, char **argv) {
 
         }
 
-        component_set_focus(field1, TRUE);
-
         field_fd2.row = 1;
         field_fd2.col = 17;
         field_fd2.width = 15;

@@ -10,33 +10,16 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _MENUS_H
-#define _MENUS_H
+#ifndef _BAR_MENU_H
+#define _BAR_MENU_H
 
-#include <menu.h>
-
-#include "component.h"
-
-/*----------------------------------------------------------------*/
-/*                                                                */
-/*----------------------------------------------------------------*/
-
-typedef struct _menu_item_s {
-    int index;
-    char *label;
-    char *description;
-    ITEM *item;
-} menu_item_t;
-
-/*----------------------------------------------------------------*/
-/* constants                                                      */
-/*----------------------------------------------------------------*/
+#include "container.h"
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern component_t *menu_item_create(menu_item_t *, int);
+extern container_t *bar_menu_create(int, int, int, int);
 
 #endif
 

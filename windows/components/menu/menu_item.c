@@ -36,7 +36,7 @@ int _menu_item_dtor(object_t *object) {
 
     if (self->data != NULL) {
 
-        menu_data_t *data = (menu_data_t *)self->data;
+        menu_item_t *data = (menu_item_t *)self->data;
 
         if (data->item != NULL) {
 
@@ -59,7 +59,7 @@ int _menu_item_dtor(object_t *object) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-component_t *menu_item_create(menu_data_t *data, int size) {
+component_t *menu_item_create(menu_item_t *data, int size) {
 
     ITEM *temp = NULL;
     item_list_t items[2];
@@ -69,13 +69,13 @@ component_t *menu_item_create(menu_data_t *data, int size) {
 
         self->type = COMPONENT_T_MENU_ITEM;
 
-        temp = new_item(data->label, data->label);
+        temp = new_item(data->label, data->description);
 
         if (temp != NULL) {
 
             data->item = temp;
             self->data = (void *)data;
-            self->size = sizeof(menu_data_t);
+            self->size = sizeof(menu_item_t);
 
         }
 

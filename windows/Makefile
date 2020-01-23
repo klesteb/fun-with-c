@@ -15,16 +15,18 @@ LIBR = ar -r
 #
 INCS = container.h colors.h events.h component.h workbench.h window.h \
        containers/horizontal.h containers/vertical.h \
-       containers/scrollable.h containers/form.h containers/menu.h \
+       containers/scrollable.h containers/form.h containers/menus/bar.h \
+       containers/menus/box.h containers/menus/menu_priv.h \
        components/label.h components/hline.h components/vline.h \
        components/text.h components/textarea.h components/forms/forms.h \
        components/menu/menus.h
 #
 OBJS = container.o colors.o component.o workbench.o window.o \
        containers/horizontal.o containers/vertical.o \
-       containers/scrollable.o containers/form.o containers/menu.o \
-       components/label.o components/hline.o components/vline.o \
-       components/text.o components/textarea.o \
+       containers/scrollable.o containers/form.o containers/menus/bar.o \
+       containers/menus/box.o containers/menus/menu_priv.o \
+       components/label.o components/hline.o \
+       components/vline.o components/text.o components/textarea.o \
        components/forms/form_field.o components/forms/form_label.o \
        components/forms/form_textarea.o components/forms/form_header.o \
        components/forms/form_seperator.o components/menu/menu_item.o
@@ -42,6 +44,8 @@ clean:
 	rm -f *~
 	rm -f containers/*.o
 	rm -f containers/*~
+	rm -f containers/menus/*.o
+	rm -f containers/menus/*~
 	rm -f components/*.o
 	rm -f components/*~
 	rm -f components/forms/*.o
@@ -208,9 +212,17 @@ containers/form.o: containers/form.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) containers/form.o containers/form.c 
 	$(LIBR) $(LIBS) containers/form.o
 #
-containers/menu.o: containers/menu.c $(INCS)
-	$(CC) $(CFLAGS) $(LFLAGS) containers/menu.o containers/menu.c 
-	$(LIBR) $(LIBS) containers/menu.o
+containers/menus/bar.o: containers/menus/bar.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/bar.o containers/menus/bar.c 
+	$(LIBR) $(LIBS) containers/menus/bar.o
+#
+containers/menus/box.o: containers/menus/box.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/box.o containers/menus/box.c 
+	$(LIBR) $(LIBS) containers/menus/box.o
+#
+containers/menus/menu_priv.o: containers/menus/menu_priv.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/menu_priv.o containers/menus/menu_priv.c 
+	$(LIBR) $(LIBS) containers/menus/menu_priv.o
 #
 components/label.o: components/label.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) components/label.o components/label.c

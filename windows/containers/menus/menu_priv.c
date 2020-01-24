@@ -68,7 +68,7 @@ int _menu_display(container_t *self) {
 
                 if ((stat = component_draw(temp)) == OK) {
 
-                    menu_item_t *data = (menu_item_t *)temp->data;
+                    item_data_t *data = (item_data_t *)temp->data;
 
                     if (data != NULL) {
 
@@ -100,6 +100,13 @@ int _menu_display(container_t *self) {
                 object_set_error(self, stat);
                 goto fini;
 
+            }
+
+            if ((stat = set_menu_format(data->menu, data->row, data->col)) != E_OK) {
+                
+                object_set_error(self, stat);
+                goto fini;
+                
             }
 
             if ((stat = set_menu_win(data->menu, self->area)) != E_OK) {
@@ -139,7 +146,7 @@ int _menu_display(container_t *self) {
 
             } else {
 
-                stat = top_row(data->menu);
+                stat = set_current_item(data->menu, items[0]);
                 if (stat != E_OK) {
 
                     object_set_error(self, stat);
@@ -149,6 +156,7 @@ int _menu_display(container_t *self) {
                 }
 
             }
+
             pos_menu_cursor(data->menu);
             curs_set(1);
             

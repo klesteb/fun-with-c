@@ -141,8 +141,8 @@ window_t *create_menu(int *stat) {
     container_t *menu = NULL;
     component_t *item1 = NULL;
     component_t *item2 = NULL;
-    static menu_item_t item1_data;
-    static menu_item_t item2_data;
+    static item_data_t item1_data;
+    static item_data_t item2_data;
 
     when_error {
 
@@ -158,13 +158,13 @@ window_t *create_menu(int *stat) {
         item1_data.label = "item 1";
         item1_data.description = "this is a description 1";
 
-        item1 = menu_item_create(&item1_data, sizeof(menu_item_t));
+        item1 = menu_item_create(&item1_data, sizeof(item_data_t));
         check_creation(item1);
 
         item2_data.label = "item 2";
         item2_data.description = "this is a description 2";
 
-        item2 = menu_item_create(&item2_data, sizeof(menu_item_t));
+        item2 = menu_item_create(&item2_data, sizeof(item_data_t));
         check_creation(item1);
 
         *stat = container_add_component(menu, item1);

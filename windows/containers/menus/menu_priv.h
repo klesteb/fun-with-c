@@ -22,6 +22,8 @@ typedef struct _menu_data_s {
     ITEM **items;
     Menu_Options options;
     char *mark;
+    int row;
+    int col;
 } menu_data_t;
 
 /*----------------------------------------------------------------*/

@@ -112,6 +112,8 @@ container_t *box_menu_create(int row, int col, int height, int width) {
 
         if ((data = (menu_data_t *)calloc(1, sizeof(menu_data_t))) != NULL) {
 
+            data->col = 0;
+            data->row = 0;
             data->mark = "->";
             data->options = (O_ONEVALUE | O_SHOWDESC | O_ROWMAJOR | 
                              O_IGNORECASE | O_SHOWMATCH | O_NONCYCLIC);

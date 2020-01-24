@@ -20,12 +20,43 @@
 require_klass(CONTAINER_KLASS);
 
 /*----------------------------------------------------------------*/
+/* private methods                                                */
+/*----------------------------------------------------------------*/
+
+static int _show_description(container_t *self) {
+
+    int stat = ERR;
+    ITEM *item = NULL;
+    const char *description = NULL;
+    menu_data_t *data = (menu_data_t *)self->data;
+
+    if ((item = current_item(data->menu)) != NULL) {
+
+        if ((description = item_description(item)) != NULL) {
+
+            wmove(self->area, 1, 1);
+            wclrtoeol(self->area);
+            waddstr(self->area, description); 
+            stat = OK;
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+/*----------------------------------------------------------------*/
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
 int _bar_menu_event(container_t *self, event_t *event) {
 
+    int index = 0;
     int stat = ERR;
+    ITEM *item = NULL;
+    char buffer[100];
     menu_data_t *data = (menu_data_t *)self->data;
 
     if (data != NULL) {
@@ -34,37 +65,34 @@ int _bar_menu_event(container_t *self, event_t *event) {
 
             KEVENT *kevent = (KEVENT *)event->data;
 
+            if ((item = current_item(data->menu)) != NULL) {
+                
+                sprintf(buffer, "index = %d", item_index(item));
+                mvaddstr(20, 1, buffer);
+                
+            }
+            
             switch(kevent->keycode) {
                 case KEY_LEFT: {
                     menu_driver(data->menu, REQ_LEFT_ITEM);
-                    self->focus = (void *)current_item(data->menu);
-                    pos_menu_cursor(data->menu);
                     break;
                 }
                 case 9:
                 case KEY_RIGHT: {
                     menu_driver(data->menu, REQ_RIGHT_ITEM);
-                    self->focus = (void *)current_item(data->menu);
-                    pos_menu_cursor(data->menu);
                     break;
                 }
                 case KEY_HOME: {
                     menu_driver(data->menu, REQ_FIRST_ITEM);
-                    self->focus = (void *)current_item(data->menu);
-                    pos_menu_cursor(data->menu);
                     break;
                 }
                 case KEY_END: {
                     menu_driver(data->menu, REQ_LAST_ITEM);
-                    self->focus = (void *)current_item(data->menu);
-                    pos_menu_cursor(data->menu);
                     break;
                 }
                 case 10:
                 case KEY_ENTER: {
-                    ITEM *item = NULL;
                     menu_driver(data->menu, REQ_TOGGLE_ITEM);
-                    self->focus = (void *)current_item(data->menu);
                     pos_menu_cursor(data->menu);
                     item = current_item(data->menu);
                     if (item != NULL) {
@@ -74,6 +102,10 @@ int _bar_menu_event(container_t *self, event_t *event) {
                 }
             }
 
+            _show_description(self);
+            pos_menu_cursor(data->menu);
+
+            self->focus = (void *)current_item(data->menu);
             self->data = (void *)data;
             stat = OK;
 
@@ -89,18 +121,20 @@ int _bar_menu_event(container_t *self, event_t *event) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-container_t *bar_menu_create(int row, int col, int height, int width) {
+container_t *bar_menu_create(int width) {
 
     item_list_t items[7];
     container_t *self = NULL;
     menu_data_t *data = NULL;
 
-    if ((self = container_create(row, col, height, width))) {
+    if ((self = container_create(0, 1, 2, width))) {
 
         if ((data = (menu_data_t *)calloc(1, sizeof(menu_data_t))) != NULL) {
 
+            data->row = 1;
+            data->col = 16;
             data->mark = ">";
-            data->options = (O_ONEVALUE | O_IGNORECASE | O_SHOWMATCH);
+            data->options = (O_ONEVALUE | O_IGNORECASE | O_SHOWMATCH | O_ROWMAJOR);
 
             self->type = CONTAINER_T_MENU;
             self->data = (void *)data;

@@ -905,18 +905,22 @@ static int _box_window(window_t *self) {
 
             len = strlen(self->title);
 
-            curs_set(0);
-            wcolorset(self->outer, self->fg, self->bg);
+            if (len > 0) {
 
-            wmove(self->outer, 0, 2);
-            waddch(self->outer, ACS_RTEE);
-            wmove(self->outer, 0, 3);
-            waddstr(self->outer, self->title);
-            wmove(self->outer, 0, 3 + len);
-            waddch(self->outer, ACS_LTEE);
-            
-            wnoutrefresh(self->outer);
-            wstandend(self->outer);
+                curs_set(0);
+                wcolorset(self->outer, self->fg, self->bg);
+
+                wmove(self->outer, 0, 2);
+                waddch(self->outer, ACS_RTEE);
+                wmove(self->outer, 0, 3);
+                waddstr(self->outer, self->title);
+                wmove(self->outer, 0, 3 + len);
+                waddch(self->outer, ACS_LTEE);
+
+                wnoutrefresh(self->outer);
+                wstandend(self->outer);
+
+            }
 
         }
 

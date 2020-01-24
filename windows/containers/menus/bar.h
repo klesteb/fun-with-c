@@ -19,7 +19,7 @@
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern container_t *bar_menu_create(int, int, int, int);
+extern container_t *bar_menu_create(int);
 
 #endif
 

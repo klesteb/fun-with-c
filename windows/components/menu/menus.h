@@ -21,12 +21,12 @@
 /*                                                                */
 /*----------------------------------------------------------------*/
 
-typedef struct _menu_item_s {
+typedef struct _item_data_s {
     int index;
     char *label;
     char *description;
     ITEM *item;
-} menu_item_t;
+} item_data_t;
 
 /*----------------------------------------------------------------*/
 /* constants                                                      */
@@ -36,7 +36,7 @@ typedef struct _menu_item_s {
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern component_t *menu_item_create(menu_item_t *, int);
+extern component_t *menu_item_create(item_data_t *, int);
 
 #endif
 

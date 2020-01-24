@@ -53,10 +53,8 @@ static int _show_description(container_t *self) {
 
 int _bar_menu_event(container_t *self, event_t *event) {
 
-    int index = 0;
     int stat = ERR;
     ITEM *item = NULL;
-    char buffer[100];
     menu_data_t *data = (menu_data_t *)self->data;
 
     if (data != NULL) {
@@ -65,13 +63,6 @@ int _bar_menu_event(container_t *self, event_t *event) {
 
             KEVENT *kevent = (KEVENT *)event->data;
 
-            if ((item = current_item(data->menu)) != NULL) {
-                
-                sprintf(buffer, "index = %d", item_index(item));
-                mvaddstr(20, 1, buffer);
-                
-            }
-            
             switch(kevent->keycode) {
                 case KEY_LEFT: {
                     menu_driver(data->menu, REQ_LEFT_ITEM);
@@ -134,6 +125,7 @@ container_t *bar_menu_create(int width) {
             data->row = 1;
             data->col = 16;
             data->mark = ">";
+            data->callback = _show_description;
             data->options = (O_ONEVALUE | O_IGNORECASE | O_SHOWMATCH | O_ROWMAJOR);
 
             self->type = CONTAINER_T_MENU;

@@ -24,6 +24,7 @@ typedef struct _menu_data_s {
     char *mark;
     int row;
     int col;
+    int (*callback)(container_t *);
 } menu_data_t;
 
 /*----------------------------------------------------------------*/
@@ -33,8 +34,6 @@ typedef struct _menu_data_s {
 extern int _menu_dtor(object_t *);
 extern int _menu_draw(container_t *);
 extern int _menu_erase(container_t *);
-extern int _menu_remove(container_t *);
-extern int _menu_display(container_t *);
 extern int _menu_refresh(container_t *);
 extern int _menu_remove_component(container_t *, component_t *);
 

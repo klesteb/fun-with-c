@@ -115,6 +115,7 @@ container_t *box_menu_create(int row, int col, int height, int width) {
             data->col = 0;
             data->row = 0;
             data->mark = "->";
+            data->callback = NULL;
             data->options = (O_ONEVALUE | O_SHOWDESC | O_ROWMAJOR | 
                              O_IGNORECASE | O_SHOWMATCH | O_NONCYCLIC);
             self->type = CONTAINER_T_MENU;

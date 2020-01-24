@@ -25,7 +25,7 @@ require_klass(CONTAINER_KLASS);
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-int _menu_remove(container_t *self) {
+static int _menu_remove(container_t *self) {
 
     int stat = OK;
 
@@ -48,7 +48,7 @@ int _menu_remove(container_t *self) {
 
 }
 
-int _menu_display(container_t *self) {
+static int _menu_display(container_t *self) {
 
     int count = 0;
     int stat = OK;
@@ -157,9 +157,15 @@ int _menu_display(container_t *self) {
 
             }
 
+            if (data->callback != NULL) {
+
+                stat = (*data->callback)(self);
+
+            }
+
             pos_menu_cursor(data->menu);
             curs_set(1);
-            
+
         }
 
         fini:

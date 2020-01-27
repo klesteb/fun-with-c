@@ -9,14 +9,14 @@ CC = gcc
 CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../logger -I../errors -I../messages
 OLBS = ../libs/libmessages.a ../libs/liberrors.a ../libs/liblogger.a ../libs/libobjects.a ../cclibs/libcclibs.a -llog4c
 LINK = gcc
-LFLAGS = -o test
+LFLAGS = -o 
 LIBR = ar -r
 #
 #INCS = spooler.h
 #
 #OBJS = spooler.o
 #
-all: $(OBJS) test test2 test3 test4 test5 test6 test7
+all: $(OBJS) test test2 test3 test4 test5 test6 test7 test8 test9
 #
 debug:
 #
@@ -30,34 +30,44 @@ clean:
 	rm -f test5
 	rm -f test6
 	rm -f test7
+	rm -f test8
+	rm -f test9
 #
 test: test.o
 	$(CC) $(CFLAGS) test.c
-	$(LINK) -o test test.o  $(OLBS)
+	$(LINK) $(LFLAGS) test test.o  $(OLBS)
 #
 test2: test2.o
 	$(CC) $(CFLAGS) test2.c
-	$(LINK) -o test2 test2.o  $(OLBS)
+	$(LINK) $(LFLAGS) test2 test2.o  $(OLBS)
 #
 test3: test3.o
 	$(CC) $(CFLAGS) test3.c
-	$(LINK) -o test3 test3.o  $(OLBS)
+	$(LINK) $(LFLAGS) test3 test3.o  $(OLBS)
 #
 test4: test4.o
 	$(CC) $(CFLAGS) test4.c
-	$(LINK) -o test4 test4.o  $(OLBS)
+	$(LINK) $(LFLAGS) test4 test4.o  $(OLBS)
 #
 test5: test5.o
 	$(CC) $(CFLAGS) test5.c
-	$(LINK) -o test5 test5.o  $(OLBS)
+	$(LINK) $(LFLAGS) test5 test5.o  $(OLBS)
 #
 test6: test6.o
 	$(CC) $(CFLAGS) test6.c
-	$(LINK) -o test6 test6.o  $(OLBS)
+	$(LINK) $(LFLAGS) test6 test6.o  $(OLBS)
 #
 test7: test7.o
 	$(CC) $(CFLAGS) test7.c
-	$(LINK) -o test7 test7.o  $(OLBS)
+	$(LINK) $(LFLAGS) test7 test7.o  $(OLBS)
+#
+test8: test8.o
+	$(CC) $(CFLAGS) test8.c
+	$(LINK) $(LFLAGS) test8 test8.o  $(OLBS)
+#
+test9: test9.o
+	$(CC) $(CFLAGS) test9.c
+	$(LINK) $(LFLAGS) test9 test9.o  $(OLBS)
 #
 # eof
 #

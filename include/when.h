@@ -52,47 +52,77 @@
 #define trace_filename _er_trace.filename
 #define trace_function _er_trace.function
 
-#define cause_error(error) {                \
-    _er_trace.errnum = (error);             \
-    _er_trace.lineno = __LINE__;            \
-    _er_trace.filename = strdup(__FILE__);  \
-    _er_trace.function = strdup(__func__);  \
-    goto handler;                           \
+#define cause_error(error) {            \
+    trace_errnum = (error);             \
+    trace_lineno = __LINE__;            \
+    trace_filename = strdup(__FILE__);  \
+    trace_function = strdup(__func__);  \
+    goto handler;                       \
 }
 
-#define clear_error() {                     \
-    _er_trace.errnum = 0;                   \
-    _er_trace.lineno = 0;                   \
-    free(_er_trace.filename);               \
-    free(_er_trace.function);               \
+#define clear_error(error) {            \
+    trace_errnum = 0;                   \
+    trace_lineno = 0;                   \
+    free(trace_filename);               \
+    free(trace_function);               \
 }
 
-#define retrieve_error(self) {                  \
-    object_get_error(OBJECT(self), &_er_trace); \
+#define copy_error(error) {                      \
+    error->errnum = trace_errnum;                \
+    error->lineno = trace_lineno;                \
+    error->filename = strdup(trace_filename);    \
+    error->function = strdup(trace_function);    \
 }
 
-#define check_status(status, expected, error) { \
-    if ((status) != (expected)) {               \
-        _er_trace.errnum = (error);             \
-        _er_trace.lineno = __LINE__ - 1;        \
-        _er_trace.filename = strdup(__FILE__);  \
-        _er_trace.function = strdup(__func__);  \
-        goto handler;                           \
-    }                                           \
+#define clear_copied(error) {                    \
+    (error).errnum = 0;                          \
+    (error).lineno = 0;                          \
+    free((error).filename);                      \
+    free((error).function);                      \
 }
 
-#define check_return(status, self) {            \
-    if ((status) != (OK)) {                     \
-        retrieve_error((self));                 \
-        goto handler;                           \
-    }                                           \
+#define capture_error(error) {                   \
+    trace_errnum = (error).errnum;               \
+    trace_lineno = (error).lineno;               \
+    free(trace_filename);                        \
+    trace_filename = strdup((error).filename);   \
+    free(trace_function);                        \
+    trace_function = strdup((error).function);   \
 }
 
-#define check_creation(self) {                  \
-    retrieve_error((self));                     \
-    if (trace_errnum != (OK)) {                 \
-        goto handler;                           \
-    }                                           \
+#define retrieve_error(self) {                   \
+    object_get_error(OBJECT(self), &_er_trace);  \
+}
+
+#define check_status(status, expected, error) {  \
+    if ((status) != (expected)) {                \
+        trace_errnum = (error);                  \
+        trace_lineno = __LINE__ - 1;             \
+        trace_filename = strdup(__FILE__);       \
+        trace_function = strdup(__func__);       \
+        goto handler;                            \
+    }                                            \
+}
+
+#define check_status2(status, expected, error) { \
+    if ((status) != (expected)) {                \
+        capture_error((error));                  \
+        goto handler;                            \
+    }                                            \
+}
+
+#define check_return(status, self) {             \
+    if ((status) != (OK)) {                      \
+        retrieve_error((self));                  \
+        goto handler;                            \
+    }                                            \
+}
+
+#define check_creation(self) {                   \
+    retrieve_error((self));                      \
+    if (trace_errnum != (OK)) {                  \
+        goto handler;                            \
+    }                                            \
 }
 
 #endif

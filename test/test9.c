@@ -88,13 +88,14 @@ int main(int argc, char **argv) {
     } use {
 
         char text[32]; 
-        char *fmt = "%s, line: %d, file: %s, function: %s";
+        char reason[256];
+        char *fmt = "%s, reason: %s, line: %d, file: %s, function: %s";
 
-        errors_get_text(errs, error.errnum, text, 31);
-        log_error(logs, fmt, text, trace_lineno, trace_filename, trace_function);
+        errors_get_text(errs, trace_errnum, text, 31);
+        errors_get_message(errs, trace_errnum, reason, 255);
+        log_error(logs, fmt, text, reason, trace_lineno, trace_filename, trace_function);
 
         clear_error();
-        clear_copied(error);
 
     } end_when;
 

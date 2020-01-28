@@ -19,6 +19,7 @@
 #include "container.h"
 #include "component.h"
 #include "item_list.h"
+#include "error_codes.h"
 
 require_klass(OBJECT_KLASS);
 

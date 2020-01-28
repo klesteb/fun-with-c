@@ -12,6 +12,7 @@
 
 #include <ncurses.h>
 #include <form.h>
+#include <errno.h>
 
 #include "object.h"
 #include "container.h"
@@ -34,6 +35,16 @@ typedef struct _forms_data_s {
 /*----------------------------------------------------------------*/
 /* private methods                                                */
 /*----------------------------------------------------------------*/
+
+#define process_error(stat) {           \
+    if ((stat) == E_SYSTEM_ERROR) {     \
+        object_set_error(self, errno);  \
+    } else {                            \
+        object_set_error(self, (stat)); \
+    }                                   \
+    stat = ERR;                         \
+    goto fini;                          \
+}
 
 static int _form_remove(container_t *self) {
 
@@ -98,35 +109,49 @@ static int _form_display(container_t *self) {
 
         if ((data->form = new_form(data->fields)) != NULL) {
 
+            errno = 0;
             if ((stat = set_form_win(data->form, self->area)) != E_OK) {
 
-                goto fini;
+                process_error(stat);
 
             }
 
+            errno = 0;
             if ((stat = set_form_sub(data->form, 
                  derwin(self->area, self->height - 2, self->width - 2, 0, 0))) 
                 != E_OK) {
 
-                goto fini;
+                process_error(stat);
 
             }
 
+            errno = 0;
             if ((stat = post_form(data->form)) != E_OK) {
 
-                goto fini;
+                process_error(stat);
 
             }
 
+            errno = 0;
             if (self->focus != NULL) {
 
                 FIELD *field = (FIELD *)self->focus;
-                set_current_field(data->form, field);
+                if ((stat = set_current_field(data->form, field)) != E_OK) {
+
+                    process_error(stat);
+
+                }
 
             } else {
-                
-                form_driver(data->form, REQ_FIRST_FIELD);
-                
+
+                self->focus = (void *)fields[0];
+
+                if ((stat = set_current_field(data->form, fields[0])) != E_OK) {
+
+                    process_error(stat);
+
+                }
+
             }
 
             form_driver(data->form, REQ_END_LINE);
@@ -380,8 +405,4 @@ container_t *form_create(int row, int col, int height, int width) {
     return self;
 
 }
-
-/*----------------------------------------------------------------*/
-/* private methods                                                */
-/*----------------------------------------------------------------*/
 

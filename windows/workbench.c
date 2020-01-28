@@ -17,6 +17,7 @@
 #include <panel.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <locale.h>
 
 #include "when.h"
 #include "colors.h"
@@ -798,6 +799,8 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         self->panel = NULL;
         self->panels = 0;
+
+        setlocale(LC_ALL, "");
 
         /* initialize the terminal */
 

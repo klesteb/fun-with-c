@@ -4,6 +4,7 @@
 
 #include "when.h"
 #include "workbench.h"
+#include "error_codes.h"
 #include "containers/menus/bar.h"
 #include "components/menu/menus.h"
 
@@ -44,54 +45,54 @@ window_t *create_menu(int *stat) {
         check_creation(menu);
 
         item1_data.label = "item 1";
-        item1_data.description = "this is a description 1";
+        item1_data.description = "this is description 1";
 
-        item1 = menu_item_create(&item1_data, sizeof(item_data_t));
+        item1 = menu_item_create(&item1_data);
         check_creation(item1);
 
         *stat = container_add_component(menu, item1);
         check_return(*stat, menu);
 
         item2_data.label = "item 2";
-        item2_data.description = "this is a description 2";
+        item2_data.description = "this is description 2";
 
-        item2 = menu_item_create(&item2_data, sizeof(item_data_t));
+        item2 = menu_item_create(&item2_data);
         check_creation(item2);
 
         *stat = container_add_component(menu, item2);
         check_return(*stat, menu);
 
         item3_data.label = "item 3";
-        item3_data.description = "this is a description 3";
+        item3_data.description = "this is description 3";
 
-        item3 = menu_item_create(&item3_data, sizeof(item_data_t));
+        item3 = menu_item_create(&item3_data);
         check_creation(item3);
 
         *stat = container_add_component(menu, item3);
         check_return(*stat, menu);
 
         item4_data.label = "item 4";
-        item4_data.description = "this is a description 4";
+        item4_data.description = "this is description 4";
 
-        item4 = menu_item_create(&item4_data, sizeof(item_data_t));
+        item4 = menu_item_create(&item4_data);
         check_creation(item4);
 
         *stat = container_add_component(menu, item4);
         check_return(*stat, menu);
 
         item5_data.label = "item 5";
-        item5_data.description = "this is a description 5";
+        item5_data.description = "this is description 5";
 
-        item5 = menu_item_create(&item5_data, sizeof(item_data_t));
+        item5 = menu_item_create(&item5_data);
         check_creation(item5);
 
         *stat = container_add_component(menu, item5);
         check_return(*stat, menu);
 
         item6_data.label = "item 6";
-        item6_data.description = "this is a description 6";
+        item6_data.description = "this is description 6";
 
-        item6 = menu_item_create(&item6_data, sizeof(item_data_t));
+        item6 = menu_item_create(&item6_data);
         check_creation(item6);
 
         *stat = container_add_component(menu, item6);

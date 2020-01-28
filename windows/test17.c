@@ -4,6 +4,7 @@
 
 #include "when.h"
 #include "workbench.h"
+#include "error_codes.h"
 
 int main(int argc, char **argv) {
 

@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
         label_fd1.height = 1;
         label_fd1.value = "label 1";
 
-        if ((label1 = form_label_create(&label_fd1, sizeof(field_data_t))) == NULL) {
+        if ((label1 = form_label_create(&label_fd1)) == NULL) {
 
             printw("unable to create form label 1\n");
             goto fini;
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
         hline_fd1.width = 30;
         hline_fd1.height = 1;
 
-        if ((hline = form_seperator_create(&hline_fd1, sizeof(field_data_t))) == NULL) {
+        if ((hline = form_seperator_create(&hline_fd1)) == NULL) {
 
             printw("unable to create hline\n");
             goto fini;
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
         label_fd2.height = 1;
         label_fd2.value = "label 2";
 
-        if ((label2 = form_label_create(&label_fd2, sizeof(field_data_t))) == NULL) {
+        if ((label2 = form_label_create(&label_fd2)) == NULL) {
 
             printw("unable to create form label 2\n");
             goto fini;
@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
         field_fd1.height = 1;
         field_fd1.value = "current value";
 
-        if ((field1 = form_field_create(&field_fd1, sizeof(field_data_t))) == NULL) {
+        if ((field1 = form_field_create(&field_fd1)) == NULL) {
 
             printw("unable to create form field 1\n");
             goto fini;
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
         field_fd2.height = 1;
         field_fd2.value = "another value";
 
-        if ((field2 = form_field_create(&field_fd2, sizeof(field_data_t))) == NULL) {
+        if ((field2 = form_field_create(&field_fd2)) == NULL) {
 
             printw("unable to create form field 2\n");
             goto fini;

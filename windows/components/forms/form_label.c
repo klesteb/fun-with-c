@@ -81,7 +81,7 @@ int _form_label_draw(component_t *self) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-component_t *form_label_create(field_data_t *data, int size) {
+component_t *form_label_create(field_data_t *data) {
 
     FIELD *temp = NULL;
     item_list_t items[3];

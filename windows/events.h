@@ -33,6 +33,8 @@ typedef struct _kevent_s {
 #define EVENT_K_KEYBOARD 1
 #define EVENT_K_MOUSE    2
 #define EVENT_K_EXIT     3
+#define EVENT_K_MESSAGE  4
+#define EVENT_K_HELP     5
 
 #endif
 

@@ -5,6 +5,7 @@
 #include "when.h"
 #include "colors.h"
 #include "workbench.h"
+#include "error_codes.h"
 #include "containers/form.h"
 #include "components/vline.h"
 #include "containers/menus/box.h"
@@ -45,7 +46,7 @@ window_t *create_form(int *stat) {
         label_fd1.height = 1;
         label_fd1.value = "label 1";
 
-        label1 = form_label_create(&label_fd1, sizeof(field_data_t));
+        label1 = form_label_create(&label_fd1);
         check_creation(label1);
 
         *stat = component_set_padding(label1, TRUE);
@@ -59,7 +60,7 @@ window_t *create_form(int *stat) {
         hline_fd1.width = 30;
         hline_fd1.height = 1;
 
-        hline = form_seperator_create(&hline_fd1, sizeof(field_data_t));
+        hline = form_seperator_create(&hline_fd1);
         check_creation(hline);
 
         label_fd2.row = 2;
@@ -68,7 +69,7 @@ window_t *create_form(int *stat) {
         label_fd2.height = 1;
         label_fd2.value = "label 2";
 
-        label2 = form_label_create(&label_fd2, sizeof(field_data_t));
+        label2 = form_label_create(&label_fd2);
         check_creation(label2);
 
         *stat = component_set_padding(label1, TRUE);
@@ -83,7 +84,7 @@ window_t *create_form(int *stat) {
         field_fd1.height = 1;
         field_fd1.value = "current value";
 
-        field1 = form_field_create(&field_fd1, sizeof(field_data_t));
+        field1 = form_field_create(&field_fd1);
         check_creation(field1);
 
         field_fd2.row = 2;
@@ -92,7 +93,7 @@ window_t *create_form(int *stat) {
         field_fd2.height = 1;
         field_fd2.value = "another value";
 
-        field2 = form_field_create(&field_fd2, sizeof(field_data_t));
+        field2 = form_field_create(&field_fd2);
         check_creation(field2);
 
         form = form_create(1, 1, 9, 39);
@@ -158,13 +159,13 @@ window_t *create_menu(int *stat) {
         item1_data.label = "item 1";
         item1_data.description = "this is a description 1";
 
-        item1 = menu_item_create(&item1_data, sizeof(item_data_t));
+        item1 = menu_item_create(&item1_data);
         check_creation(item1);
 
         item2_data.label = "item 2";
         item2_data.description = "this is a description 2";
 
-        item2 = menu_item_create(&item2_data, sizeof(item_data_t));
+        item2 = menu_item_create(&item2_data);
         check_creation(item1);
 
         *stat = container_add_component(menu, item1);

@@ -36,7 +36,7 @@ typedef struct _item_data_s {
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern component_t *menu_item_create(item_data_t *, int);
+extern component_t *menu_item_create(item_data_t *);
 
 #endif
 

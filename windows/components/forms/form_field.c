@@ -117,7 +117,7 @@ int form_field_results(component_t *self, void *results, int size) {
 
 }
 
-component_t *form_field_create(field_data_t *data, int size) {
+component_t *form_field_create(field_data_t *data) {
 
     FIELD *temp = NULL;
     item_list_t items[3];

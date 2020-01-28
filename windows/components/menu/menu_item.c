@@ -59,7 +59,7 @@ int _menu_item_dtor(object_t *object) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-component_t *menu_item_create(item_data_t *data, int size) {
+component_t *menu_item_create(item_data_t *data) {
 
     ITEM *temp = NULL;
     item_list_t items[2];

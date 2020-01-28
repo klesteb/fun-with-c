@@ -4,6 +4,7 @@
 
 #include "when.h"
 #include "workbench.h"
+#include "error_codes.h"
 #include "containers/menus/box.h"
 #include "components/menu/menus.h"
 
@@ -34,13 +35,13 @@ window_t *create_menu(int *stat) {
         item1_data.label = "item 1";
         item1_data.description = "this is a description 1";
 
-        item1 = menu_item_create(&item1_data, sizeof(item_data_t));
+        item1 = menu_item_create(&item1_data);
         check_creation(item1);
 
         item2_data.label = "item 2";
         item2_data.description = "this is a description 2";
 
-        item2 = menu_item_create(&item2_data, sizeof(item_data_t));
+        item2 = menu_item_create(&item2_data);
         check_creation(item1);
 
         *stat = container_add_component(menu, item1);

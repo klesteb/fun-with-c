@@ -17,7 +17,6 @@
 #include <stdlib.h>
 
 #include "object.h"
-#include "error_codes.h"
 #include "error_trace.h"
 
 /**
@@ -30,7 +29,7 @@
  * @par Description
  * This is a macro package to implement a structured error handling
  * solution. This takes a different path from the more common 
- * "try catch" approach. This emulates the DEC/HP Basic "when error"
+ * "try/catch" approach. This emulates the DEC/HP Basic "when error"
  * blocks for error handling. 
  * 
  * There are some caveats; you can't nest blocks, you can't easily 
@@ -107,6 +106,7 @@
 #define check_status2(status, expected, error) { \
     if ((status) != (expected)) {                \
         capture_error((error));                  \
+        clear_copied((error));                   \
         goto handler;                            \
     }                                            \
 }

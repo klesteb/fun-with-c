@@ -12,6 +12,7 @@
 
 #include <ncurses.h>
 #include <menu.h>
+#include <errno.h>
 
 #include "object.h"
 #include "container.h"
@@ -24,6 +25,16 @@ require_klass(CONTAINER_KLASS);
 /*----------------------------------------------------------------*/
 /* private methods                                                */
 /*----------------------------------------------------------------*/
+
+#define process_error(stat) {           \
+    if ((stat) == E_SYSTEM_ERROR) {     \
+        object_set_error(self, errno);  \
+    } else {                            \
+        object_set_error(self, (stat)); \
+    }                                   \
+    stat = ERR;                         \
+    goto fini;                          \
+}
 
 static int _menu_remove(container_t *self) {
 
@@ -88,59 +99,58 @@ static int _menu_display(container_t *self) {
 
         if ((data->menu = new_menu(data->items)) != NULL) {
 
+            errno = 0;
             if ((stat = set_menu_opts(data->menu, data->options)) != E_OK) {
-
-                object_set_error(self, stat);
-                goto fini;
+                
+                process_error(stat);
 
             }
 
+            errno = 0;
             if ((stat = set_menu_mark(data->menu, data->mark)) != E_OK) {
 
-                object_set_error(self, stat);
-                goto fini;
+                process_error(stat);
 
             }
 
+            errno = 0;
             if ((stat = set_menu_format(data->menu, data->row, data->col)) != E_OK) {
                 
-                object_set_error(self, stat);
-                goto fini;
+                process_error(stat);
                 
             }
 
+            errno = 0;
             if ((stat = set_menu_win(data->menu, self->area)) != E_OK) {
 
-                object_set_error(self, stat);
-                goto fini;
+                process_error(stat);
 
             }
 
+            errno = 0;
             if ((stat = set_menu_sub(data->menu, 
                  derwin(self->area, self->height - 2, self->width - 2, 0, 0))) 
                 != E_OK) {
 
-                object_set_error(self, stat);
-                goto fini;
+                process_error(stat);
 
             }
 
+            errno = 0;
             if ((stat = post_menu(data->menu)) != E_OK) {
 
-                object_set_error(self, stat);
-                goto fini;
+                process_error(stat);
 
             }
 
+            errno = 0;
             if (self->focus != NULL) {
 
                 ITEM *item = (ITEM *)self->focus;
                 stat = set_current_item(data->menu, item);
                 if (stat != E_OK) {
 
-                    object_set_error(self, stat);
-                    stat = ERR;
-                    goto fini;
+                    process_error(stat);
 
                 }
 
@@ -149,9 +159,7 @@ static int _menu_display(container_t *self) {
                 stat = set_current_item(data->menu, items[0]);
                 if (stat != E_OK) {
 
-                    object_set_error(self, stat);
-                    stat = ERR;
-                    goto fini;
+                    process_error(stat);
 
                 }
 

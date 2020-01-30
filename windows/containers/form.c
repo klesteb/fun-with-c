@@ -46,6 +46,65 @@ typedef struct _forms_data_s {
     goto fini;                          \
 }
 
+static int _focus_first_field(container_t *self) {
+
+    int stat = OK;
+    component_t *temp = NULL;
+    field_data_t *data = NULL;
+    forms_data_t *forms = NULL;
+
+    if (self->data != NULL) {
+
+        forms = (forms_data_t *)self->data;
+
+        for (temp = que_first(&self->components);
+             temp != NULL;
+             temp = que_next(&self->components)) {
+
+            if (temp->type == COMPONENT_T_FORM_FIELD) {
+
+                data = (field_data_t *)temp->data;
+
+                if (data != NULL) {
+
+                    errno = 0;
+                    if ((stat = set_current_field(forms->form, data->field)) != E_OK) {
+
+                        process_error(stat);
+
+                    }
+
+                    errno = 0;
+                    if ((stat = form_driver(forms->form, REQ_END_LINE)) != E_OK) {
+
+                        process_error(stat);
+
+                    }
+
+                    errno = 0;
+                    if ((stat = pos_form_cursor(forms->form)) != E_OK) {
+
+                        process_error(stat);
+
+                    }
+
+                    self->focus = (void *)data->field;
+                    stat = curs_set(1);
+                    break;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    fini:
+    return stat;
+
+}
+
 static int _form_remove(container_t *self) {
 
     int stat = OK;
@@ -132,31 +191,7 @@ static int _form_display(container_t *self) {
 
             }
 
-            errno = 0;
-            if (self->focus != NULL) {
-
-                FIELD *field = (FIELD *)self->focus;
-                if ((stat = set_current_field(data->form, field)) != E_OK) {
-
-                    process_error(stat);
-
-                }
-
-            } else {
-
-                self->focus = (void *)fields[0];
-
-                if ((stat = set_current_field(data->form, fields[0])) != E_OK) {
-
-                    process_error(stat);
-
-                }
-
-            }
-
-            form_driver(data->form, REQ_END_LINE);
-            pos_form_cursor(data->form);
-            curs_set(1);
+            stat = _focus_first_field(self);
 
         }
 
@@ -246,6 +281,7 @@ int _form_remove_component(container_t *self, component_t *component) {
 int _form_event(container_t *self, event_t *event) {
 
     int stat = ERR;
+    char *buffer = NULL;
     forms_data_t *data = (forms_data_t *)self->data;
 
     if (data != NULL) {
@@ -354,9 +390,16 @@ int _form_event(container_t *self, event_t *event) {
                 default: {
                     self->focus = (void *)current_field(data->form);
                     form_driver(data->form, kevent->keycode);
+                    /* sync the form to display */
+                    form_driver(data->form, REQ_NEXT_FIELD);
+                    form_driver(data->form, REQ_PREV_FIELD);
                     break;
                 }
             }
+
+            /* copy the buffer to data */
+            /* buffer = field_buffer(self->focus, 0); */
+            /* memcpy(self->focus->result, buffer, self->focus->length); */
 
             self->data = (void *)data;
             stat = OK;

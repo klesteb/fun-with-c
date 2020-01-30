@@ -57,6 +57,27 @@ static short _curs_color(int);
 
 /*---------------------------------------------------------------------------*/
 
+int colornum(int fg, int bg) {
+
+    /* must return a number between 0 and 63                                */
+    /*                                                                      */
+    /* this is a limitation on init_pair(), were the first parameter must   */
+    /* be between 1 and COLOR_PAIRS - 1. color pair 0 is the terminals      */
+    /* default forground/background color which is defined in the           */
+    /* termcap/terminfo database. to override the terminals default colors, */
+    /* you need to use the use_default_colors() function. this is not       */
+    /* mentioned in the articule where these routines are adapted from.     */
+
+    int B, bbb, ffff;
+
+    B = 1 << 7;
+    bbb = (7 & bg) << 3;
+    ffff = 7 & fg;
+
+    return ((B | bbb | ffff) - 128);
+
+}
+
 void init_colorpairs(void) {
 
     int bg = 0;
@@ -104,27 +125,6 @@ void wcoloroff(WINDOW *win, int fg, int bg) {
     }
 
     wattroff(win, COLOR_PAIR(colornum(fg, bg)));
-
-}
-
-int colornum(int fg, int bg) {
-
-    /* must return a number between 0 and 63                                */
-    /*                                                                      */
-    /* this is a limitation on init_pair(), were the first parameter must   */
-    /* be between 1 and COLOR_PAIRS - 1. color pair 0 is the terminals      */
-    /* default forground/background color which is defined in the           */
-    /* termcap/terminfo database. to override the terminals default colors, */
-    /* you need to use the use_default_colors() function. this is not       */
-    /* mentioned in the articule where these routines are adapted from.     */
-
-    int B, bbb, ffff;
-
-    B = 1 << 7;
-    bbb = (7 & bg) << 3;
-    ffff = 7 & fg;
-
-    return ((B | bbb | ffff) - 128);
 
 }
 

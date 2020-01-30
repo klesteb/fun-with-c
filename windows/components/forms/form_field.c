@@ -13,11 +13,11 @@
 #include <ncurses.h>
 #include <form.h>
 
-#include "misc/misc.h"
-#include "component.h"
-#include "item_list.h"
-#include "colors.h"
 #include "forms.h"
+#include "colors.h"
+#include "component.h"
+#include "misc/misc.h"
+#include "item_list.h"
 
 require_klass(COMPONENT_KLASS);
 
@@ -43,6 +43,9 @@ int _form_field_dtor(object_t *object) {
             free_field(data->field);
 
         }
+
+        free(data->value);
+        free(data->result);
 
     }
 
@@ -132,6 +135,7 @@ component_t *form_field_create(field_data_t *data) {
         if (temp != NULL) {
 
             data->field = temp;
+            data->result = calloc(1, data->length);
             self->data = (void *)data;
             self->size = sizeof(field_data_t);
 

@@ -27,6 +27,8 @@ typedef struct _field_data_s {
     int width;
     int height;
     int required;
+    int length;
+    char *result;
     char *value;
     FIELD *field;
 } field_data_t;

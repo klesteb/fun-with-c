@@ -397,10 +397,6 @@ int _form_event(container_t *self, event_t *event) {
                 }
             }
 
-            /* copy the buffer to data */
-            /* buffer = field_buffer(self->focus, 0); */
-            /* memcpy(self->focus->result, buffer, self->focus->length); */
-
             self->data = (void *)data;
             stat = OK;
 

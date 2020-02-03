@@ -44,9 +44,9 @@ int _form_field_dtor(object_t *object) {
 
         }
 
-        free(data->value);
-        free(data->result);
-
+        /* free(data->value); */
+        /* free(data->result); */
+        
     }
 
     /* walk the chain, freeing as we go */

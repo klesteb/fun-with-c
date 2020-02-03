@@ -39,7 +39,7 @@ window_t *create_menu(int *stat) {
         check_creation(item1);
 
         item2_data.label = "item 2";
-        item2_data.description = "this is a description 2";
+        item2_data.description = "this is description 2";
 
         item2 = menu_item_create(&item2_data);
         check_creation(item1);

@@ -727,7 +727,13 @@ int _window_draw(window_t *self) {
     int stat = OK;
     container_t *container = NULL;
 
-    curs_set(0);
+    if (self->boxed) {
+
+        stat = _box_window(self);
+        if (stat != OK) goto fini;
+
+    }
+
     wattrset(self->inner, self->attribute);
     wcolorset(self->inner, self->fg, self->bg);
 
@@ -736,20 +742,14 @@ int _window_draw(window_t *self) {
          container = que_next(&self->containers)) {
 
         stat = container_draw(container);
-        if (stat != OK) break;
+        if (stat != OK) goto fini;
 
     }
 
     wstandend(self->inner);
-
-    if (self->boxed) {
-
-        stat = _box_window(self);
-
-    }
-
     wnoutrefresh(self->inner);
 
+    fini:
     return stat;
 
 }
@@ -806,6 +806,13 @@ int _window_refresh(window_t *self) {
     int stat = ERR;
     container_t *container = NULL;
 
+    if (self->boxed) {
+
+        stat = _box_window(self);
+        if (stat != OK) goto fini;
+
+    }
+
     for (container = que_first(&self->containers);
          container != NULL;
          container = que_next(&self->containers)) {
@@ -818,13 +825,6 @@ int _window_refresh(window_t *self) {
     fini:
 
     wstandend(self->inner);
-
-    if (self->boxed) {
-
-        stat = _box_window(self);
-
-    }
-
     wnoutrefresh(self->inner);
 
     return stat;
@@ -907,7 +907,6 @@ static int _box_window(window_t *self) {
 
             if (len > 0) {
 
-                curs_set(0);
                 wcolorset(self->outer, self->fg, self->bg);
 
                 wmove(self->outer, 0, 2);

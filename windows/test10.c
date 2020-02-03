@@ -105,6 +105,7 @@ int main(int argc, char **argv) {
         field_fd1.col = 17;
         field_fd1.width = 15;
         field_fd1.height = 1;
+        field_fd1.length = 32;
         field_fd1.value = "current value";
 
         if ((field1 = form_field_create(&field_fd1)) == NULL) {
@@ -118,6 +119,7 @@ int main(int argc, char **argv) {
         field_fd2.col = 17;
         field_fd2.width = 15;
         field_fd2.height = 1;
+        field_fd1.length = 32;
         field_fd2.value = "another value";
 
         if ((field2 = form_field_create(&field_fd2)) == NULL) {
@@ -183,7 +185,6 @@ int main(int argc, char **argv) {
 
         }
 
-/* curs_set(1); */
         doupdate();
 
         while ((ch = getch()) != KEY_F(12)) {

@@ -3,10 +3,13 @@
 #include <ncurses.h>
 
 #include "when.h"
-#include "workbench.h"
-#include "error_codes.h"
+#include "common.h"
 #include "containers/menus/box.h"
 #include "components/menu/menus.h"
+
+
+workbench_t *wb = NULL;
+
 
 window_t *create_menu(int *stat) {
 
@@ -71,7 +74,6 @@ window_t *create_menu(int *stat) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    workbench_t *wb = NULL;
     window_t *window = NULL;
 
     when_error {

@@ -20,6 +20,7 @@
 #include <locale.h>
 
 #include "when.h"
+#include "common.h"
 #include "colors.h"
 #include "events.h"
 #include "object.h"
@@ -27,8 +28,7 @@
 #include "nix_util.h"
 #include "que_util.h"
 #include "container.h"
-#include "workbench.h"
-#include "error_codes.h"
+#include "errors_ncurses.h"
 
 #define TIMEOUT 1.0
 
@@ -39,6 +39,7 @@ require_klass(OBJECT_KLASS);
 /*----------------------------------------------------------------*/
 
 int pfd[2];                    /* self pipe fd's          */
+errors_t *errs;                /* error code definitions  */
 NxInputId pipe_id;             /* id for pipe events      */
 NxInputId stdin_id;            /* id for stdin events     */
 NxWorkProcId workproc_id;      /* id for event processor  */
@@ -459,6 +460,27 @@ static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
 }
 
+static int _queue_event(workbench_t *self, event_t *event) {
+
+    int stat = ERR;
+
+    if (que_empty(&self->events)) {
+
+        que_init(&self->events);
+
+    }
+
+    stat = que_push_tail(&self->events, event);
+    if (stat == OK) {
+
+        workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
+
+    }
+
+    return stat;
+
+}
+
 static int _init_self_pipe(workbench_t *self) {
 
     int flags = 0;
@@ -667,12 +689,7 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
                 event->type = EVENT_K_MOUSE;
                 event->data = (void *)mevent;
 
-                stat = que_push_tail(&self->events, event);
-                if (stat == OK) {
-
-                    workproc_id = NxAddWorkProc(NULL, _event_handler, (void *)self);
-
-                }
+                stat = _queue_event(self, event);
 
             } else {
 
@@ -719,12 +736,7 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
             event->type = EVENT_K_KEYBOARD;
             event->data = (void *)kevent;
 
-            stat = que_push_tail(&self->events, event);
-            if (stat == OK) {
-
-                workproc_id = NxAddWorkProc(NULL, _event_handler, (void *)self);
-
-            }
+            stat = _queue_event(self, event);
 
         }
 
@@ -740,6 +752,8 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
 int _workbench_ctor(object_t *object, item_list_t *items) {
 
+    int row = 0;
+    int col = 0;
     int stat = ERR;
     workbench_t *self = NULL;
 
@@ -793,58 +807,77 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         self->_inject_event = _workbench_inject_event;
         self->_remove_window = _workbench_remove_window;
 
-        /* initialize internal variables here */
+        when_error {
+            
+            /* initialize internal variables here */
 
-        que_init(&self->events);
+            que_init(&self->events);
 
-        self->panel = NULL;
-        self->panels = 0;
+            self->panel = NULL;
+            self->panels = 0;
 
-        setlocale(LC_ALL, "");
+            setlocale(LC_ALL, "");
 
-        /* initialize the terminal */
+            /* initialize the terminal */
 
-        errno = 0;
-        if ((slk_init(1) != OK)) {
+            errno = 0;
+            stat = slk_init(1);
+            check_status(stat, OK, errno);
+            
+            errno = 0;
+            if ((initscr() == NULL)) {
 
-            object_set_error(self, errno);
-            goto fini;
+                object_set_error(self, errno);
+                goto fini;
 
-        }
+            }
 
-        errno = 0;
-        if ((initscr() == NULL)) {
+            /* check for color capability */
 
-            object_set_error(self, errno);
-            goto fini;
+            stat = has_colors();
+            check_status(stat, TRUE, E_NOCOLOR);
 
-        }
+            cbreak();
+            noecho();
+            init_colorpairs();
+            keypad(stdscr, TRUE);
+            nodelay(stdscr, TRUE);
+            mousemask(ALL_MOUSE_EVENTS, NULL);
+            slk_noutrefresh();
 
-        /* check for color capability */
+            erase();
+            refresh();
+            curs_set(0);
 
-        if (has_colors() == FALSE) {
+            /* load error definations */
 
-            object_set_error(self, E_NOCOLOR);
-            goto fini;
+            errs = errors_create();
+            check_creation(errs);
 
-        }
+            stat = errors_load(errs, ncurses_codes, sizeof(ncurses_codes));
+            check_return(stat, OK);
 
-        cbreak();
-        noecho();
-        init_colorpairs();
-        keypad(stdscr, TRUE);
-        nodelay(stdscr, TRUE);
-        mousemask(ALL_MOUSE_EVENTS, NULL);
-        slk_noutrefresh();
+            /* create the message window */
 
-        erase();
-        refresh();
-        curs_set(0);
+            getmaxyx(stdscr, row, col);
+            self->messages = newwin(1, col, row - 1, 0);
 
-        /* create a "self pipe" for signal handling */
-        /* this must run after the initscr() call   */
+            /* create a "self pipe" for signal handling */
+            /* this must run after the initscr() call   */
 
-        stat = _init_self_pipe(self);
+            stat = _init_self_pipe(self);
+            check_status(stat, OK, E_INVOPS);
+
+            exit_when;
+
+        } use {
+
+            stat = ERR;
+
+            object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+            clear_error();
+
+        } end_when;
 
     }
 
@@ -884,6 +917,8 @@ int _workbench_dtor(object_t *object) {
 
     }
 
+    werase(self->messages);
+    delwin(self->messages);
     endwin();
 
     if (isendwin()) {
@@ -1006,17 +1041,31 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
 int _workbench_event(workbench_t *self, event_t *event) {
 
     int stat = ERR;
+    int length = 0;
+    char message[256];
     window_t *window = NULL;
 
-    if (self->panel != NULL) {
+    if (event->type == EVENT_K_MESSAGE) {
+
+        length = strlen((char *)event->data) + 3;
+        length = (length > 255) ? 255 : length; 
+        memset(message, '\0', 256);
+        snprintf(message, length, "* %s", (char *)event->data);
+
+        werase(self->messages);
+        mvwaddstr(self->messages, 0, 0, message);
+        stat = wnoutrefresh(self->messages);
+
+    } else if (self->panel != NULL) {
 
         window = (window_t *)panel_userptr(self->panel);
         stat = window_event(window, event);
 
         update_panels();
-        doupdate();
 
     }
+
+    doupdate();
 
     return stat;
 
@@ -1072,7 +1121,7 @@ int _workbench_inject_event(workbench_t *self, event_t *event) {
 
     int stat = ERR;
 
-    stat = que_push_tail(&self->events, event);
+    stat =  _queue_event(self, event);
 
     return stat;
 

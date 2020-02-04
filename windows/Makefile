@@ -6,17 +6,18 @@
 # Makefile to build libwindows.
 #
 CC = gcc
-CFLAGS = -Wall -c -I. -I../include -I../cclibs -I../objects
-OLBS = ../libs/libwindows.a ../libs/libobjects.a ../cclibs/libcclibs.a -lncurses -lpanel -lform -lmenu
+CFLAGS = -Wall -c -I. -I../include -I../cclibs -I../objects -I../errors
+OLBS = ../libs/libwindows.a ../libs/liberrors.a ../libs/libobjects.a ../cclibs/libcclibs.a -lncurses -lpanel -lform -lmenu
 LINK = gcc
 LFLAGS = -o 
 LIBS = ../libs/libwindows.a
 LIBR = ar -r
 #
-INCS = container.h colors.h events.h component.h workbench.h window.h \
-       containers/horizontal.h containers/vertical.h \
+INCS = common.h container.h colors.h events.h component.h workbench.h \
+       window.h containers/horizontal.h containers/vertical.h \
        containers/scrollable.h containers/form.h containers/menus/bar.h \
-       containers/menus/box.h containers/menus/menu_priv.h \
+       containers/menus/box.h containers/menus/list.h \
+       containers/menus/menu_priv.h \
        components/label.h components/hline.h components/vline.h \
        components/text.h components/textarea.h components/forms/forms.h \
        components/menu/menus.h
@@ -24,8 +25,8 @@ INCS = container.h colors.h events.h component.h workbench.h window.h \
 OBJS = container.o colors.o component.o workbench.o window.o \
        containers/horizontal.o containers/vertical.o \
        containers/scrollable.o containers/form.o containers/menus/bar.o \
-       containers/menus/box.o containers/menus/menu_priv.o \
-       components/label.o components/hline.o \
+       containers/menus/box.o containers/menus/list.o \
+       containers/menus/menu_priv.o components/label.o components/hline.o \
        components/vline.o components/text.o components/textarea.o \
        components/forms/form_field.o components/forms/form_label.o \
        components/forms/form_textarea.o components/forms/form_header.o \
@@ -224,6 +225,10 @@ containers/menus/bar.o: containers/menus/bar.c $(INCS)
 containers/menus/box.o: containers/menus/box.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/box.o containers/menus/box.c 
 	$(LIBR) $(LIBS) containers/menus/box.o
+#
+containers/menus/list.o: containers/menus/list.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/list.o containers/menus/list.c 
+	$(LIBR) $(LIBS) containers/menus/list.o
 #
 containers/menus/menu_priv.o: containers/menus/menu_priv.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/menu_priv.o containers/menus/menu_priv.c 

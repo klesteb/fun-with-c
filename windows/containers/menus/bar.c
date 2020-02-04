@@ -13,6 +13,7 @@
 #include <ncurses.h>
 #include <menu.h>
 
+#include "common.h"
 #include "object.h"
 #include "container.h"
 #include "menu_priv.h"
@@ -27,6 +28,7 @@ static int _show_description(container_t *self) {
 
     int stat = ERR;
     ITEM *item = NULL;
+    event_t *event = NULL;
     const char *description = NULL;
     menu_data_t *data = (menu_data_t *)self->data;
 
@@ -34,10 +36,14 @@ static int _show_description(container_t *self) {
 
         if ((description = item_description(item)) != NULL) {
 
-            wmove(self->area, 1, 1);
-            wclrtoeol(self->area);
-            waddstr(self->area, description); 
-            stat = OK;
+            if ((event = calloc(1, sizeof(event_t))) != NULL) {
+
+                event->type = EVENT_K_MESSAGE;
+                event->data = (void *)strdup(description);
+
+                stat = workbench_inject_event(wb, event);
+
+            }
 
         }
 
@@ -84,7 +90,6 @@ int _bar_menu_event(container_t *self, event_t *event) {
                 case 10:
                 case KEY_ENTER: {
                     menu_driver(data->menu, REQ_TOGGLE_ITEM);
-                    pos_menu_cursor(data->menu);
                     item = current_item(data->menu);
                     if (item != NULL) {
                         

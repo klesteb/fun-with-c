@@ -71,6 +71,7 @@ struct _window_s {
 extern window_t *window_create(int, int, int, int);
 extern int window_draw(window_t *);
 extern int window_erase(window_t *);
+extern int window_clear(window_t *);
 extern int window_destroy(window_t *);
 extern int window_refresh(window_t *);
 extern int window_box(window_t *, char *);

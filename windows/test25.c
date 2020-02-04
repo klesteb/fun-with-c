@@ -3,10 +3,12 @@
 #include <ncurses.h>
 
 #include "when.h"
+#include "common.h"
 #include "workbench.h"
-#include "error_codes.h"
 #include "containers/menus/bar.h"
 #include "components/menu/menus.h"
+
+workbench_t *wb = NULL;
 
 window_t *create_menu(int *stat) {
 
@@ -31,7 +33,7 @@ window_t *create_menu(int *stat) {
 
     when_error {
 
-        row = getbegy(stdscr) + 1;
+        row = getbegy(stdscr);
         col = getbegx(stdscr);
         width = getmaxx(stdscr) - 2;
         
@@ -120,15 +122,11 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     window_t *menu = NULL;
-    workbench_t *wb = NULL;
 
     when_error {
 
         wb = workbench_create(NULL);
         check_creation(wb);
-
-        printw("Press ^C or F12 to exit, F11 to cycle and F10 for menu\n");
-        refresh();
 
         menu = create_menu(&stat);
         check_status(stat, OK, E_INVOPS);

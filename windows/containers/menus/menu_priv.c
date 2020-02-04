@@ -14,6 +14,7 @@
 #include <menu.h>
 #include <errno.h>
 
+#include "common.h"
 #include "object.h"
 #include "container.h"
 #include "component.h"
@@ -101,7 +102,7 @@ static int _menu_display(container_t *self) {
 
             errno = 0;
             if ((stat = set_menu_opts(data->menu, data->options)) != E_OK) {
-                
+
                 process_error(stat);
 
             }
@@ -115,9 +116,9 @@ static int _menu_display(container_t *self) {
 
             errno = 0;
             if ((stat = set_menu_format(data->menu, data->row, data->col)) != E_OK) {
-                
+
                 process_error(stat);
-                
+
             }
 
             errno = 0;
@@ -257,6 +258,35 @@ int _menu_refresh(container_t *self) {
 int _menu_remove_component(container_t *self, component_t *component) {
 
     int stat = ERR;
+
+    return stat;
+
+}
+
+int _menu_show_description(container_t *self) {
+
+    int stat = ERR;
+    ITEM *item = NULL;
+    event_t *event = NULL;
+    const char *description = NULL;
+    menu_data_t *data = (menu_data_t *)self->data;
+
+    if ((item = current_item(data->menu)) != NULL) {
+
+        if ((description = item_description(item)) != NULL) {
+
+            if ((event = calloc(1, sizeof(event_t))) != NULL) {
+
+                event->type = EVENT_K_MESSAGE;
+                event->data = (void *)strdup(description);
+
+                stat = workbench_inject_event(wb, event);
+
+            }
+
+        }
+
+    }
 
     return stat;
 

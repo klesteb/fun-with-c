@@ -13,8 +13,10 @@ workbench_t *wb = NULL;
 
 window_t *create_menu(int *stat) {
 
-    int col = 4;
-    int row = 2;
+    int col = 0;
+    int row = 0;
+    int rows = 0;
+    int cols = 0;
     int width = 40;
     int height = 10;
     window_t *window = NULL;
@@ -25,6 +27,10 @@ window_t *create_menu(int *stat) {
     static item_data_t item2_data;
 
     when_error {
+
+        getmaxyx(stdscr, rows, cols);
+        row = (rows - height) / 2;
+        col = (cols - width) / 2;
 
         window = window_create(row, col, height, width);
         check_creation(window);

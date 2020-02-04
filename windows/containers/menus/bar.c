@@ -21,39 +21,6 @@
 require_klass(CONTAINER_KLASS);
 
 /*----------------------------------------------------------------*/
-/* private methods                                                */
-/*----------------------------------------------------------------*/
-
-static int _show_description(container_t *self) {
-
-    int stat = ERR;
-    ITEM *item = NULL;
-    event_t *event = NULL;
-    const char *description = NULL;
-    menu_data_t *data = (menu_data_t *)self->data;
-
-    if ((item = current_item(data->menu)) != NULL) {
-
-        if ((description = item_description(item)) != NULL) {
-
-            if ((event = calloc(1, sizeof(event_t))) != NULL) {
-
-                event->type = EVENT_K_MESSAGE;
-                event->data = (void *)strdup(description);
-
-                stat = workbench_inject_event(wb, event);
-
-            }
-
-        }
-
-    }
-
-    return stat;
-
-}
-
-/*----------------------------------------------------------------*/
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
@@ -98,7 +65,7 @@ int _bar_menu_event(container_t *self, event_t *event) {
                 }
             }
 
-            _show_description(self);
+            _menu_show_description(self);
             pos_menu_cursor(data->menu);
 
             self->focus = (void *)current_item(data->menu);
@@ -130,7 +97,7 @@ container_t *bar_menu_create(int width) {
             data->row = 1;
             data->col = 16;
             data->mark = ">";
-            data->callback = _show_description;
+            data->callback = _menu_show_description;
             data->options = (O_ONEVALUE | O_IGNORECASE | O_SHOWMATCH | O_ROWMAJOR);
 
             self->type = CONTAINER_T_MENU;

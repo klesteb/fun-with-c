@@ -462,18 +462,22 @@ static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
 static int _queue_event(workbench_t *self, event_t *event) {
 
-    int stat = ERR;
+    int stat = OK;
 
     if (que_empty(&self->events)) {
 
-        que_init(&self->events);
+        stat = que_init(&self->events);
 
     }
 
-    stat = que_push_tail(&self->events, event);
     if (stat == OK) {
 
-        workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
+        stat = que_push_tail(&self->events, event);
+        if (stat == OK) {
+
+            workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
+
+        }
 
     }
 
@@ -697,7 +701,7 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
             }
 
-        } else if (ch == KEY_RESIZE) {
+        } else if ((ch == KEY_RESIZE) || (ch == KEY_F(9))) {
 
             self->_refresh(self);
             update_panels();
@@ -821,9 +825,9 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
             /* initialize the terminal */
 
             errno = 0;
-            stat = slk_init(1);
+            stat = slk_init(3);
             check_status(stat, OK, errno);
-            
+
             errno = 0;
             if ((initscr() == NULL)) {
 
@@ -843,12 +847,19 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
             keypad(stdscr, TRUE);
             nodelay(stdscr, TRUE);
             mousemask(ALL_MOUSE_EVENTS, NULL);
-            slk_noutrefresh();
 
             erase();
             refresh();
             curs_set(0);
 
+            /* set default "soft keys" */
+
+            slk_set(9,  "Redraw", 0);
+            slk_set(10, "Menu", 0);
+            slk_set(11, "Cycle", 0);
+            slk_set(12, "Quit", 0);
+            slk_noutrefresh();
+            
             /* load error definations */
 
             errs = errors_create();
@@ -861,6 +872,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
             getmaxyx(stdscr, row, col);
             self->messages = newwin(1, col, row - 1, 0);
+            /* wbkgd(self->messages, A_REVERSE); */
 
             /* create a "self pipe" for signal handling */
             /* this must run after the initscr() call   */

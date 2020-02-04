@@ -12,6 +12,8 @@
 #include "components/menu/menus.h"
 #include "components/forms/forms.h"
 
+workbench_t *wb = NULL;
+
 window_t *create_form(int *stat) {
 
     int row = 5;
@@ -197,7 +199,6 @@ int main(int argc, char **argv) {
     int stat = OK;
     window_t *form = NULL;
     window_t *menu = NULL;
-    workbench_t *wb = NULL;
 
     when_error {
 

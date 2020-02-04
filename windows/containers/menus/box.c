@@ -82,8 +82,10 @@ int _box_menu_event(container_t *self, event_t *event) {
                 }
             }
 
-            self->focus = (void *)current_item(data->menu);
+            _menu_show_description(self);
             pos_menu_cursor(data->menu);
+
+            self->focus = (void *)current_item(data->menu);
             self->data = (void *)data;
             stat = OK;
 
@@ -112,7 +114,7 @@ container_t *box_menu_create(int row, int col, int height, int width) {
             data->col = 3;
             data->row = 0;
             data->mark = "->";
-            data->callback = NULL;
+            data->callback = _menu_show_description;
             data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | 
                              O_SHOWMATCH | O_NONCYCLIC);
             self->type = CONTAINER_T_MENU;

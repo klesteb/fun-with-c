@@ -35,6 +35,7 @@ extern int _menu_dtor(object_t *);
 extern int _menu_draw(container_t *);
 extern int _menu_erase(container_t *);
 extern int _menu_refresh(container_t *);
+extern int _menu_show_description(container_t *);
 extern int _menu_remove_component(container_t *, component_t *);
 
 #endif

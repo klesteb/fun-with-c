@@ -25,7 +25,7 @@ error_code_t ncurses_codes[] = {
     { E_SYSTEM_ERROR,    "E_SYSTEM_ERROR",    "System error occurred" },
     { E_BAD_ARGUMENT,    "E_BAD_ARGUMENT",    "Routine detected an incorrect or out-of-range argument" },
     { E_POSTED,          "E_POSTED",          "Already posted" },
-    { E_CONNECTED,       "E_CONNECTED",       "Already connected" },
+    { E_CONNECTED,       "E_CONNECTED",       "The item is already connected" },
     { E_BAD_STATE,       "E_BAD_STATE",       "Routine was called from an initialization or termination function" },
     { E_NO_ROOM,         "E_NO_ROOM",         "Too large for its window" },
     { E_NOT_POSTED,      "E_NOT_POSTED",      "Has not been posted" },
@@ -35,7 +35,7 @@ error_code_t ncurses_codes[] = {
     { E_NOT_CONNECTED,   "E_NOT_CONNECTED",   "No items are connected" },
     { E_REQUEST_DENIED,  "E_REQUEST_DENIED",  "Could not process the request" },
     { E_INVALID_FIELD,   "E_INVALID_FIELD",   "Contents of a field are not valid" },
-    { E_CURRENT,         "E_CURRENT",         "Not current" },
+    { E_CURRENT,         "E_CURRENT",         "The field is the current field" },
 };
 
 #endif

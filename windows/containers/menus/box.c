@@ -113,7 +113,7 @@ container_t *box_menu_create(int row, int col, int height, int width) {
 
             data->col = 3;
             data->row = 0;
-            data->mark = "->";
+            data->mark = ">";
             data->callback = _menu_show_description;
             data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | 
                              O_SHOWMATCH | O_NONCYCLIC);

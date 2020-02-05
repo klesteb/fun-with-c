@@ -872,7 +872,6 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
             getmaxyx(stdscr, row, col);
             self->messages = newwin(1, col, row - 1, 0);
-            /* wbkgd(self->messages, A_REVERSE); */
 
             /* create a "self pipe" for signal handling */
             /* this must run after the initscr() call   */

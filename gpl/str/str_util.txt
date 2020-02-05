@@ -1,0 +1,68 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: str_util.c  RELEASE: 1.13  DATE: 10/02/97, 14:25:41
+*/
+/*******************************************************************************
+
+File:
+
+    str_util.c
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    These are a collection of the string manipulation functions.
+    Also, see the GET_UTIL functions.
+
+
+Notes:
+
+    These functions used to be part of the LIBALEX functions.  The following
+    changes have been made:
+
+      - Functions that take a length argument used to follow a convention
+        that, if the length were zero, the function would determine the
+        length by scanning the string for a null terminator.  This turned
+        out to be a real nuisance if you had a need to handle zero-length
+        strings ("").  The new convention is that,if the length argument
+        is less than zero, the function will determine the length itself.
+
+    These functions are reentrant under VxWorks (except for the global
+    debug flag).
+
+
+Procedures:
+
+    str_cat() - a "logical" version of Standard C Library function strcat(3).
+    str_convert() - scans a text string, converting "\<num>" sequences to
+        the appropriate binary bytes.
+    str_copy() - a "logical" version of Standard C Library function strcpy(3).
+    str_destring() - resolves quote-delimited elements in a string.
+    str_detab() - converts tabs in a string to blanks.
+    str_env() - translates environment variable references in a string.
+    str_etoa() - converts a string of EBCDIC characters to ASCII.
+    str_insert() - inserts a substring in a string.
+    str_match() - a string compare function that handles abbreviations.
+    str_remove() - removes a substring from a string.
+    str_tolower() - converts a string to all lower-case.
+    str_toupper() - converts a string to all upper-case.
+    str_trim() - trims trailing tabs and spaces from a string.
+    strcasecmp() - compares two strings, ignoring case.
+    strncasecmp() - compares two strings for a specified length, ignoring case.
+    strdup() - duplicates a null-terminated string.
+    strndup() - duplicates a string of a specified length.
+
+*******************************************************************************/

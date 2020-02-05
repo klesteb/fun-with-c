@@ -1,0 +1,79 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../lib/libs/libgpl.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../lfn_util.h lfn_priv.h
+#
+OBJS = lfn_create.o lfn_destroy.o lfn_fd.o lfn_getline.o  \
+	   lfn_isreadable.o lfn_isup.o lfn_iswriteable.o lfn_name.o  \
+	   lfn_putline.o lfn_read.o lfn_write.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+lfn_create.o: lfn_create.c $(INCS)
+	$(CC) $(CFLAGS) lfn_create.c
+	$(LIBR) $(LIBS) lfn_create.o
+#
+lfn_destroy.o: lfn_destroy.c $(INCS)
+	$(CC) $(CFLAGS) lfn_destroy.c
+	$(LIBR) $(LIBS) lfn_destroy.o
+#
+lfn_fd.o: lfn_fd.c $(INCS)
+	$(CC) $(CFLAGS) lfn_fd.c
+	$(LIBR) $(LIBS) lfn_fd.o
+#
+lfn_getline.o: lfn_getline.c $(INCS)
+	$(CC) $(CFLAGS) lfn_getline.c
+	$(LIBR) $(LIBS) lfn_getline.o
+#
+lfn_isreadable.o: lfn_isreadable.c $(INCS)
+	$(CC) $(CFLAGS) lfn_isreadable.c
+	$(LIBR) $(LIBS) lfn_isreadable.o
+#
+lfn_isup.o: lfn_isup.c $(INCS)
+	$(CC) $(CFLAGS) lfn_isup.c
+	$(LIBR) $(LIBS) lfn_isup.o
+#
+lfn_iswriteable.o: lfn_iswriteable.c $(INCS)
+	$(CC) $(CFLAGS) lfn_iswriteable.c
+	$(LIBR) $(LIBS) lfn_iswriteable.o
+#
+lfn_name.o: lfn_name.c $(INCS)
+	$(CC) $(CFLAGS) lfn_name.c
+	$(LIBR) $(LIBS) lfn_name.o
+#
+lfn_putline.o: lfn_putline.c $(INCS)
+	$(CC) $(CFLAGS) lfn_putline.c
+	$(LIBR) $(LIBS) lfn_putline.o
+#
+lfn_read.o: lfn_read.c $(INCS)
+	$(CC) $(CFLAGS) lfn_read.c
+	$(LIBR) $(LIBS) lfn_read.o
+#
+lfn_write.o: lfn_write.c $(INCS)
+	$(CC) $(CFLAGS) lfn_write.c
+	$(LIBR) $(LIBS) lfn_write.o
+#
+# eof
+#

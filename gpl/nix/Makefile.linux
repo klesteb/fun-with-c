@@ -1,0 +1,67 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../libcclibs.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../nix_util.h nix_priv.h
+#
+OBJS = nxaddinput.o nxaddtimeout.o nxaddworkproc.o  \
+       nxcreatecontext.o nxmainloop.o nxremoveinput.o  \
+       nxremovetimeout.o nxremoveworkproc.o nxsetdebug.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+nxaddinput.o: nxaddinput.c $(INCS)
+	$(CC) $(CFLAGS) nxaddinput.c
+	$(LIBR) $(LIBS) nxaddinput.o
+#
+nxaddtimeout.o: nxaddtimeout.c $(INCS)
+	$(CC) $(CFLAGS) nxaddtimeout.c
+	$(LIBR) $(LIBS) nxaddtimeout.o
+#
+nxaddworkproc.o: nxaddworkproc.c $(INCS)
+	$(CC) $(CFLAGS) nxaddworkproc.c
+	$(LIBR) $(LIBS) nxaddworkproc.o
+#
+nxcreatecontext.o: nxcreatecontext.c $(INCS)
+	$(CC) $(CFLAGS) nxcreatecontext.c
+	$(LIBR) $(LIBS) nxcreatecontext.o
+#
+nxmainloop.o: nxmainloop.c $(INCS)
+	$(CC) $(CFLAGS) nxmainloop.c
+	$(LIBR) $(LIBS) nxmainloop.o
+#
+nxremoveinput.o: nxremoveinput.c $(INCS)
+	$(CC) $(CFLAGS) nxremoveinput.c
+	$(LIBR) $(LIBS) nxremoveinput.o
+#
+nxremovetimeout.o: nxremovetimeout.c $(INCS)
+	$(CC) $(CFLAGS) nxremovetimeout.c
+	$(LIBR) $(LIBS) nxremovetimeout.o
+#
+nxremoveworkproc.o: nxremoveworkproc.c $(INCS)
+	$(CC) $(CFLAGS) nxremoveworkproc.c
+	$(LIBR) $(LIBS) nxremoveworkproc.o
+#
+nxsetdebug.o: nxsetdebug.c $(INCS)
+	$(CC) $(CFLAGS) nxsetdebug.c
+	$(LIBR) $(LIBS) nxsetdebug.o
+#
+# eof
+#

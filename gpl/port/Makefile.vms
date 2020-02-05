@@ -1,0 +1,41 @@
+!
+! File: makefile.
+! Date: 24-Jun-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libport.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]port_util.h,port_priv.h
+!
+OBJS = port_core.obj,port_create.obj,port_destroy.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+port_core.obj: port_core.c $(INCS)
+    $(CC) port_core.c
+    $(LIBR) $(LIBS) port_core.obj
+!
+port_create.obj: port_create.c $(INCS)
+    $(CC) port_create.c
+    $(LIBR) $(LIBS) port_create.obj
+!
+port_destroy.obj: port_destroy.c $(INCS)
+    $(CC) port_destroy.c
+    $(LIBR) $(LIBS) port_destroy.obj
+!
+! eof
+!

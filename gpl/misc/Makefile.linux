@@ -1,0 +1,32 @@
+#
+# File: Makefile
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# This is the makefile to create libgpl.a.
+#
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. 
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+OBJS = vperror.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+vperror.o: vperror.c vperror.h
+	$(CC) $(CFLAGS) vperror.c
+	$(LIBR) $(LIBS) vperror.o
+#
+# eof
+#

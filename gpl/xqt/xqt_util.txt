@@ -1,0 +1,98 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: xqt_util.c  RELEASE: 1.8  DATE: 11/12/98, 19:17:35
+*/
+/*******************************************************************************
+
+File:
+
+    xqt_util.c
+
+    Shell Execution Utilities.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    The Shell Execution Utilities provide a means for a program to execute
+    host system commands, e.g., shell commands under UNIX and DCL commands
+    under VMS.  The utilities create a subprocess (by forking under UNIX
+    and spawning under VMS) to execute the commands; pipes (mailboxes under
+    VMS) are used to connect the parent program to the subprocess's standard
+    input and output streams.
+
+    To execute a single shell command and to read the output of the command,
+    the following code could be used:
+
+        #include  "xqt_util.h"		-- Shell execution utilities.
+        char  buffer[132] ;
+        XqtStream  stream ;
+        ...
+        xqt_open (NULL, &stream) ;
+        ...
+        xqt_write (stream, "%s", "<shell command>") ;
+        xqt_read (stream, sizeof buffer, buffer) ;
+        ... process result string in buffer ...
+        xqt_close (stream) ;
+
+    The code above executes only one command; you can actually have any
+    number of xqt_write()s and xqt_read()s between the opening and the
+    closing of the execution stream.
+
+    Note that you must have some way of knowing how many lines of output
+    to read from an executed command.  One means of ensuring that the
+    correct number of lines is read is as follows:
+
+        (1) Issue the command to be executed.
+        (2) Issue a command that generates known output.
+        (3) Read each line of output until the known output is encountered.
+
+    Under VMS, for example, the following code fragment reads a variable-
+    length directory listing:
+
+        char  filename[256] ;
+        ...
+        xqt_write (stream, "%s", "DIRECTORY/NOHEADING/NOTRAILING") ;
+        xqt_write (stream, "%s", "SHOW SYMBOL $STATUS") ;
+        while (!xqt_read (stream, sizeof filename, filename)) {
+            if (strncmp (filename, "  $STATUS ==", 12) == 0)  break ;
+            ... process file name ...
+        }
+        ... end of directory listing ...
+
+    DCL's $STATUS variable holds the completion status of the last command
+    executed (the directory command, in this case).  The "SHOW SYMBOL $STATUS"
+    command outputs the completion status in the following format:
+
+                      $STATUS == "%X<completion_status>"
+
+    The completion status is a VMS error code (SS$_, etc.) displayed in
+    hexadecimal form.  A useful thing to do is to examine the value of the
+    $STATUS variable after every command executed.  UNIX shells generally
+    have a similar means of determining the completion status of a command.
+
+
+Procedures:
+
+    xqt_close() - closes a shell execution stream.
+    xqt_fd() - returns the file descriptor for input from the stream.
+    xqt_open - opens a shell execution stream.
+    xqt_poll() - checks if any output from a shell execution stream is
+        waiting to be read.
+    xqt_read() - reads a line of output from a shell execution stream.
+    xqt_write() - writes a line of input to a shell execution stream.
+
+*******************************************************************************/
+

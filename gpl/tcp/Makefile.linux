@@ -1,0 +1,88 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../tcp_util.h tcp_priv.h
+#
+OBJS = tcp_answer.o tcp_call.o tcp_complete.o tcp_destroy.o  \
+       tcp_fd.o tcp_isreadable.o tcp_isup.o tcp_iswriteable.o  \
+       tcp_listen.o tcp_name.o tcp_read.o tcp_request_pending.o  \
+       tcp_write.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+tcp_answer.o: tcp_answer.c $(INCS)
+	$(CC) $(CFLAGS) tcp_answer.c
+	$(LIBR) $(LIBS) tcp_answer.o
+#
+tcp_call.o: tcp_call.c $(INCS)
+	$(CC) $(CFLAGS) tcp_call.c
+	$(LIBR) $(LIBS) tcp_call.o
+#
+tcp_complete.o: tcp_complete.c $(INCS)
+	$(CC) $(CFLAGS) tcp_complete.c
+	$(LIBR) $(LIBS) tcp_complete.o
+#
+tcp_destroy.o: tcp_destroy.c $(INCS)
+	$(CC) $(CFLAGS) tcp_destroy.c
+	$(LIBR) $(LIBS) tcp_destroy.o
+#
+tcp_fd.o: tcp_fd.c $(INCS)
+	$(CC) $(CFLAGS) tcp_fd.c
+	$(LIBR) $(LIBS) tcp_fd.o
+#
+tcp_isreadable.o: tcp_isreadable.c $(INCS)
+	$(CC) $(CFLAGS) tcp_isreadable.c
+	$(LIBR) $(LIBS) tcp_isreadable.o
+#
+tcp_isup.o: tcp_isup.c $(INCS)
+	$(CC) $(CFLAGS) tcp_isup.c
+	$(LIBR) $(LIBS) tcp_isup.o
+#
+tcp_iswriteable.o: tcp_iswriteable.c $(INCS)
+	$(CC) $(CFLAGS) tcp_iswriteable.c
+	$(LIBR) $(LIBS) tcp_iswriteable.o
+#
+tcp_listen.o: tcp_listen.c $(INCS)
+	$(CC) $(CFLAGS) tcp_listen.c
+	$(LIBR) $(LIBS) tcp_listen.o
+#
+tcp_name.o: tcp_name.c $(INCS)
+	$(CC) $(CFLAGS) tcp_name.c
+	$(LIBR) $(LIBS) tcp_name.o
+#
+tcp_read.o: tcp_read.c $(INCS)
+	$(CC) $(CFLAGS) tcp_read.c
+	$(LIBR) $(LIBS) tcp_read.o
+#
+tcp_request_pending.o: tcp_request_pending.c $(INCS)
+	$(CC) $(CFLAGS) tcp_request_pending.c
+	$(LIBR) $(LIBS) tcp_request_pending.o
+#
+tcp_write.o: tcp_write.c $(INCS)
+	$(CC) $(CFLAGS) tcp_write.c
+	$(LIBR) $(LIBS) tcp_write.o
+#
+# eof
+#

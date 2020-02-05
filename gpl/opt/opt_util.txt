@@ -1,0 +1,148 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: opt_util.c  RELEASE: 1.10  DATE: 07/12/96, 15:35:47
+*/
+/*******************************************************************************
+
+File:
+
+    opt_util.c
+
+    Command Line Option Procesing Utility Functions.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    This file contains a package of functions used to scan and parse
+    UNIX-style command line arguments.  The OPT_UTIL utilities support:
+
+	(1) single-letter options; e.g., "-a"
+	(2) single-letter options expecting arguments; e.g., "-o <file>"
+	(3) name options; e.g., "-readonly"
+	(4) name options with arguments; e.g., "-list <file>"
+	(5) redirection of standard input and output on systems that
+	    don't support it at the shell level; e.g., "> output_file"
+
+    The scanning algorithm used by the OPT_UTIL functions allows name options
+    to be abbreviated on the command line.  For example, the "-list <file>"
+    name option in (4) above can be entered on the command line as "-l <file>",
+    "-li <file>", "-lis <file>", or "-list <file>".  If the one-character
+    abbreviation of a name conflicts with a single-letter option, the single-
+    letter option takes priority.
+
+    The following command line
+
+	% program -a -o <object_file> -readonly -list <file>
+
+    would be scanned and parsed as follows using the OPT_UTIL package:
+
+	#include  "opt_util.h"
+	char  *argument ;
+	int  option ;
+
+	opt_init (argc, argv, 0, "ao:{readonly}{object:}", NULL) ;
+	while (option = opt_get (NULL, &argument)) {
+	    switch (option) {
+	    case 1:  ... process "-a" option ...
+	    case 2:  ... process "-o <file>" option argument ...
+	    case 3:  ... process "-readonly" option ...
+	    case 4:  ... process "-list <file>" option ...
+	    case NONOPT:
+		... process non-option argument ...
+	    case OPTERR:
+		... invalid option or missing argument ...
+	    }
+	}
+
+    Applications that will scan multiple command lines using the same set of
+    allowable options can cache the original scan context, resetting it for
+    each new command line (represented by a new ARGC/ARGV set of arguments):
+
+	static  char  *optionList[] = {         -- Command line options.
+	    "a", "o:", "{readonly}", "{object:}", NULL
+	} ;
+	static  OptContext  scan = NULL ;
+	...
+	for (... each new ARGC/ARGV set of arguments ...) {
+	    if (scan == NULL)
+		opt_init (argc, argv, 1, optionList, &scan) ;
+	    opt_reset (scan, argc, argv) ;
+	    while (option = opt_get (scan, &argument)) {
+		... process options ...
+	    }
+	}
+
+    Note in the example above that the valid command line options are
+    specified in list form rather than in-line.
+
+    VxWorks programs can use the OPT_UTIL functions to provide a simple
+    command line invocation consistent between UNIX and VxWorks:
+
+	    % program <option(s) ...>           (UNIX)
+
+	   -> sp program, "<option(s) ...>"     (VxWorks)
+
+    The single options string under VxWorks has several advantages over
+    separate positional arguments: (i) it's easier to type in, (ii) it's
+    easier to extend with new options, and (iii) it's more portable.
+    The following code fragment from a program called RPM shows how to
+    declare a main routine expecting command line arguments under both
+    UNIX and VxWorks:
+
+	#ifdef VXWORKS
+	    int  rpm (char *commandLine)
+	#else
+	    int  main (int argc, char *argv[])
+	#endif
+	{
+	    ... local variable declarations ...
+
+	#ifdef VXWORKS
+	    char  **argv ;
+	    int  argc ;
+	    opt_create_argv ("rpm", commandLine, &argc, &argv) ;
+	#endif
+
+	    ... call the other OPT_UTIL functions to parse
+		the ARGC/ARGV array of arguments ...
+
+	}
+
+
+Notes:
+
+    Under VxWorks, these functions are reentrant.  When a task uses
+    the default scan context, the static pointer to that context is
+    automatically registered with the operating system as a task
+    variable; i.e., the variable is saved and restored during a task
+    context switch.
+
+
+Procedures:
+
+    OPT_CREATE_ARGV - creates an ARGV array of arguments for a command line.
+    OPT_DELETE_ARGV - deletes an ARGV array of arguments.
+    OPT_ERRORS - enables/disables the display of error messages.
+    OPT_GET - gets the next option (and its argument) from the command line.
+    OPT_INDEX - returns the index of the current option or its argument.
+    OPT_INIT - initializes a command line scan.
+    OPT_NAME - returns the name of an option returned by OPT_GET().
+    OPT_RESET - resets a command line scan.
+    OPT_SET - sets the option/argument index of a command line scan.
+    OPT_TERM - terminates a command line scan.
+
+*******************************************************************************/
+

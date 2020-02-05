@@ -1,0 +1,55 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libxqt.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]xqt_util.h,xqt_priv.h
+!
+OBJS = xqt_close.obj,xqt_fd.obj,xqt_open.obj,xqt_poll.obj,xqt_read.obj,xqt_write.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+xqt_close.obj: xqt_close.c $(INCS)
+    $(CC) xqt_close.c
+    $(LIBR) $(LIBS) xqt_close.obj
+!
+xqt_fd.obj: xqt_fd.c $(INCS)
+    $(CC) xqt_fd.c
+    $(LIBR) $(LIBS) xqt_fd.obj
+!
+xqt_open.obj: xqt_open.c $(INCS)
+    $(CC) xqt_open.c
+    $(LIBR) $(LIBS) xqt_open.obj
+!
+xqt_poll.obj: xqt_poll.c $(INCS)
+    $(CC) xqt_poll.c
+    $(LIBR) $(LIBS) xqt_poll.obj
+!
+xqt_read.obj: xqt_read.c $(INCS)
+    $(CC) xqt_read.c
+    $(LIBR) $(LIBS) xqt_read.obj
+!
+xqt_write.obj: xqt_write.c $(INCS)
+    $(CC) xqt_write.c
+    $(LIBR) $(LIBS) xqt_write.obj
+!
+! eof
+!

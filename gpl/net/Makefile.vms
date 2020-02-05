@@ -1,0 +1,43 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libnet.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]net_util.h,net_priv.h
+!
+OBJS = net_addrof.obj,net_hostof.obj,net_portof.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+net_addrof.obj: net_addrof.c $(INCS)
+    $(CC) net_addrof.c
+    $(LIBR) $(LIBS) net_addrof.obj
+!
+net_hostof.obj: net_hostof.c $(INCS)
+    $(CC) net_hostof.c
+    $(LIBR) $(LIBS) net_hostof.obj
+!
+net_portof.obj: net_portof.c $(INCS)
+    $(CC) net_portof.c
+    $(LIBR) $(LIBS) net_portof.obj
+!
+! eof
+!

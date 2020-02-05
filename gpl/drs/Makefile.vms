@@ -1,0 +1,62 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libdrs.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]drs_util.h,drs_priv.h
+!
+OBJS = drs_core.obj,drs_count.obj,drs_create.obj,drs_destroy.obj, \
+       drs_first.obj,drs_get.obj,drs_next.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+test:
+	$(CC) test.c
+	$(LINK) test.obj,[-]cclibs.olb/LIB
+!
+drs_core.obj: drs_core.c $(INCS)
+    $(CC) drs_core.c
+    $(LIBR) $(LIBS) drs_core.obj
+!
+drs_count.obj: drs_count.c $(INCS)
+    $(CC) drs_count.c
+    $(LIBR) $(LIBS) drs_count.obj
+!
+drs_create.obj: drs_create.c $(INCS)
+    $(CC) drs_create.c
+    $(LIBR) $(LIBS) drs_create.obj
+!
+drs_destroy.obj: drs_destroy.c $(INCS)
+    $(CC) drs_destroy.c
+    $(LIBR) $(LIBS) drs_destroy.obj
+!
+drs_first.obj: drs_first.c $(INCS)
+    $(CC) drs_first.c
+    $(LIBR) $(LIBS) drs_first.obj
+!
+drs_get.obj: drs_get.c $(INCS)
+    $(CC) drs_get.c
+    $(LIBR) $(LIBS) drs_get.obj
+!
+drs_next.obj: drs_next.c $(INCS)
+    $(CC) drs_next.c
+    $(LIBR) $(LIBS) drs_next.obj
+!
+! eof
+!

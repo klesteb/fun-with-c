@@ -1,0 +1,93 @@
+/************************************************************************
+ *  Copyright (c) 1997 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+%Z%  FILE: %M%  RELEASE: %I%  DATE: %G%, %U%
+*/
+/*******************************************************************************
+
+File:
+
+    port_util.c
+
+    Listening Port Utilities.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    This package implements network listening ports for network servers
+    based on the NIX I/O dispatcher (see "nix_util.c").  The server must
+    first create the listening port and then turn control over to the
+    NIX dispatcher:
+
+        #include  <stdio.h>		-- Standard I/O definitions.
+        #include  "nix_util.h"		-- Network I/O Handler definitions.
+        #include  "port_util.h"		-- Listening port utilities.
+        ListeningPort  port ;
+        ...
+        port_create ("<service>", NULL, createF, NULL, &port) ;
+        ...
+        NxMainLoop (NULL) ;		-- Dispatcher takes over.
+
+    When the dispatcher detects a client attempting to connect to the server,
+    it calls an internal PORT_UTIL callback.  This callback, port_answer(),
+    establishes the connection with the client and then calls the client
+    creation function specified in the port_create() call.  The client
+    creation function typically creates some data structure representing
+    the client and registers the new connection with the NIX dispatcher
+    as an input source.
+
+    Using the PORT_UTIL package, a simple date/time server requires only
+    a few lines of code:
+
+        #include  <stdio.h>		-- Standard I/O definitions.
+        #include  <string.h>		-- Standard C string functions.
+        #include  <time.h>		-- Time definitions.
+        #include  "port_util.h"		-- Listening port utilities.
+
+        static  int  sendTime (TcpEndpoint connection, NxAppContext context,
+                               void *parameter, void **client)
+        {   char  *asciiTOD ;
+            time_t  binaryTOD = time (NULL) ;
+
+            asciiTOD = ctime (&binaryTOD) ;
+            tcp_write (connection, -1.0, strlen (asciiTOD), asciiTOD, NULL) ;
+            tcp_destroy (connection) ;
+        }
+
+        int  main (int argc, char *argv[])
+        {   ListeningPort  port ;
+
+            port_create (argv[1], NULL, sendTime, NULL, &port) ;
+            NxMainLoop (NULL) ;
+        }
+
+    Function main() creates the network listening port (whose service name
+    or port number is specified on the command line) and relinquishes control
+    to the NIX I/O dispatcher.  When a client requests a connection to the
+    server, the connection is established and sendTime() is called to "create"
+    the client, which, in this case, consists solely of outputting the current
+    time-of-day on the data connectoin and then closing the connection.
+
+
+Public Procedures:
+
+    port_create() - creates a listening port.
+    port_destroy() - destroys a listening port.
+
+Private Procedures:
+
+    port_answer() - answers a connection request.
+
+*******************************************************************************/

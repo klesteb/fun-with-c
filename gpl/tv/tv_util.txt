@@ -1,0 +1,54 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: tv_util.c  RELEASE: 1.12  DATE: 11/12/98, 19:16:41
+*/
+/*******************************************************************************
+
+File:
+
+    tv_util.c
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    These are utility functions used to manipulate (e.g., add and
+    subtract) UNIX "timeval"s, which represent time in seconds and
+    microseconds.
+
+
+Notes:
+
+    These functions are reentrant under VxWorks.
+
+
+Procedures:
+
+    tv_add() - adds two TIMEVALs.
+    tv_compare() - compares two TIMEVALs.
+    tv_create() - creates a TIMEVAL from a time expressed in seconds and
+                  microseconds.
+    tv_createf() - creates a TIMEVAL from a time expressed as a
+                  floating-point number of seconds.
+    tv_float() - converts a TIMEVAL to a floating-point number of seconds.
+    tv_show() - returns a printable representation of a TIMEVAL.
+    tv_subtract() - subtracts one TIMEVAL from another.
+    tv_tod() - returns the current time-of-day (GMT).
+    tv_truncate() - truncates a TIMEVAL to the beginning of the year, the day,
+                    the hour, etc.
+    xdr_timeval() - encodes/decodes a TIMEVAL in XDR format.
+
+*******************************************************************************/
+

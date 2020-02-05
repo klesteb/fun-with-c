@@ -1,0 +1,66 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../fnm_util.h fnm_priv.h
+#
+OBJS = fnm_build.o fnm_core.o fnm_create.o fnm_destroy.o  \
+       fnm_exists.o fnm_parse.o fnm_vms2unix.o fnm_unix2vms.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+fnm_build.o: fnm_build.c $(INCS)
+	$(CC) $(CFLAGS) fnm_build.c
+	$(LIBR) $(LIBS) fnm_build.o
+#
+fnm_core.o: fnm_core.c $(INCS)
+	$(CC) $(CFLAGS) fnm_core.c
+	$(LIBR) $(LIBS) fnm_core.o
+#
+fnm_create.o: fnm_create.c $(INCS)
+	$(CC) $(CFLAGS) fnm_create.c
+	$(LIBR) $(LIBS) fnm_create.o
+#
+fnm_destroy.o: fnm_destroy.c $(INCS)
+	$(CC) $(CFLAGS) fnm_destroy.c
+	$(LIBR) $(LIBS) fnm_destroy.o
+#
+fnm_exists.o: fnm_exists.c $(INCS)
+	$(CC) $(CFLAGS) fnm_exists.c
+	$(LIBR) $(LIBS) fnm_exists.o
+#
+fnm_parse.o: fnm_parse.c $(INCS)
+	$(CC) $(CFLAGS) fnm_parse.c
+	$(LIBR) $(LIBS) fnm_parse.o
+#
+fnm_vms2unix.o: fnm_vms2unix.c $(INCS)
+	$(CC) $(CFLAGS) fnm_vms2unix.c
+	$(LIBR) $(LIBS) fnm_vms2unix.o
+#
+fnm_unix2vms.o: fnm_unix2vms.c $(INCS)
+	$(CC) $(CFLAGS) fnm_unix2vms.c
+	$(LIBR) $(LIBS) fnm_unix2vms.o
+#
+# eof
+#

@@ -1,0 +1,41 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../libcclibs.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../port_util.h port_priv.h
+#
+OBJS = port_core.o port_create.o port_destroy.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+port_core.o: port_core.c $(INCS)
+	$(CC) $(CFLAGS) port_core.c
+	$(LIBR) $(LIBS) port_core.o
+#
+port_create.o: port_create.c $(INCS)
+	$(CC) $(CFLAGS) port_create.c
+	$(LIBR) $(LIBS) port_create.o
+#
+port_destroy.o: port_destroy.c $(INCS)
+	$(CC) $(CFLAGS) port_destroy.c
+	$(LIBR) $(LIBS) port_destroy.o
+#
+# eof
+#

@@ -1,0 +1,88 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libtcp.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]tcp_util.h,tcp_priv.h
+!
+OBJS = tcp_answer.obj,tcp_call.obj,tcp_complete.obj,tcp_destroy.obj, \
+       tcp_fd.obj,tcp_isreadable.obj,tcp_isup.obj,tcp_iswriteable.obj, \
+       tcp_listen.obj,tcp_name.obj,tcp_read.obj,tcp_request_pending.obj, \
+       tcp_write.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+test:
+	$(CC) test.c
+	$(LINK)/exe=text.ext test.obj,[-]cclibs.olb/lib
+!
+tcp_answer.obj: tcp_answer.c $(INCS)
+    $(CC) tcp_answer.c
+    $(LIBR) $(LIBS) tcp_answer.obj
+!
+tcp_call.obj: tcp_call.c $(INCS)
+    $(CC) tcp_call.c
+    $(LIBR) $(LIBS) tcp_call.obj
+!
+tcp_complete.obj: tcp_complete.c $(INCS)
+    $(CC) tcp_complete.c
+    $(LIBR) $(LIBS) tcp_complete.obj
+!
+tcp_destroy.obj: tcp_destroy.c $(INCS)
+    $(CC) tcp_destroy.c
+    $(LIBR) $(LIBS) tcp_destroy.obj
+!
+tcp_fd.obj: tcp_fd.c $(INCS)
+    $(CC) tcp_fd.c
+    $(LIBR) $(LIBS) tcp_fd.obj
+!
+tcp_isreadable.obj: tcp_isreadable.c $(INCS)
+    $(CC) tcp_isreadable.c
+    $(LIBR) $(LIBS) tcp_isreadable.obj
+!
+tcp_isup.obj: tcp_isup.c $(INCS)
+    $(CC) tcp_isup.c
+    $(LIBR) $(LIBS) tcp_isup.obj
+!
+tcp_iswriteable.obj: tcp_iswriteable.c $(INCS)
+    $(CC) tcp_iswriteable.c
+    $(LIBR) $(LIBS) tcp_iswriteable.obj
+!
+tcp_listen.obj: tcp_listen.c $(INCS)
+    $(CC) tcp_listen.c
+    $(LIBR) $(LIBS) tcp_listen.obj
+!
+tcp_name.obj: tcp_name.c $(INCS)
+    $(CC) tcp_name.c
+    $(LIBR) $(LIBS) tcp_name.obj
+!
+tcp_read.obj: tcp_read.c $(INCS)
+    $(CC) tcp_read.c
+    $(LIBR) $(LIBS) tcp_read.obj
+!
+tcp_request_pending.obj: tcp_request_pending.c $(INCS)
+    $(CC) tcp_request_pending.c
+    $(LIBR) $(LIBS) tcp_request_pending.obj
+!
+tcp_write.obj: tcp_write.c $(INCS)
+    $(CC) tcp_write.c
+    $(LIBR) $(LIBS) tcp_write.obj
+!
+! eof
+!

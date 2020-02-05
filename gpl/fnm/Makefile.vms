@@ -1,0 +1,64 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libfnm.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]fnm_util.h,fnm_priv.h
+!
+OBJS = fnm_build.obj,fnm_core.obj,fnm_create.obj,fnm_destroy.obj, \
+       fnm_exists.obj,fnm_parse.obj,fnm_vms2unix.obj,fnm_unix2vms.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+fnm_build.obj: fnm_build.c $(INCS)
+    $(CC) fnm_build.c
+    $(LIBR) $(LIBS) fnm_build.obj
+!
+fnm_core.obj: fnm_core.c $(INCS)
+    $(CC) fnm_core.c
+    $(LIBR) $(LIBS) fnm_core.obj
+!
+fnm_create.obj: fnm_create.c $(INCS)
+    $(CC) fnm_create.c
+    $(LIBR) $(LIBS) fnm_create.obj
+!
+fnm_destroy.obj: fnm_destroy.c $(INCS)
+    $(CC) fnm_destroy.c
+    $(LIBR) $(LIBS) fnm_destroy.obj
+!
+fnm_exists.obj: fnm_exists.c $(INCS)
+    $(CC) fnm_exists.c
+    $(LIBR) $(LIBS) fnm_exists.obj
+!
+fnm_parse.obj: fnm_parse.c $(INCS)
+    $(CC) fnm_parse.c
+    $(LIBR) $(LIBS) fnm_parse.obj
+!
+fnm_vms2unix.obj: fnm_vms2unix.c $(INCS)
+    $(CC) fnm_vms2unix.c
+    $(LIBR) $(LIBS) fnm_vms2unix.obj
+!
+fnm_unix2vms.obj: fnm_unix2vms.c $(INCS)
+    $(CC) fnm_unix2vms.c
+    $(LIBR) $(LIBS) fnm_unix2vms.obj
+!
+! eof
+!

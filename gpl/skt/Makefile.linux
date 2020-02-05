@@ -1,0 +1,55 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../libcclibs.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../skt_util.h skt_priv.h
+#
+OBJS = skt_isreadable.o skt_isup.o skt_iswriteable.o skt_peer.o  \
+       skt_port.o skt_setbuf.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+#
+skt_isreadable.o: skt_isreadable.c $(INCS)
+	$(CC) $(CFLAGS) skt_isreadable.c
+	$(LIBR) $(LIBS) skt_isreadable.o
+#
+skt_isup.o: skt_isup.c $(INCS)
+	$(CC) $(CFLAGS) skt_isup.c
+	$(LIBR) $(LIBS) skt_isup.o
+#
+skt_iswriteable.o: skt_iswriteable.c $(INCS)
+	$(CC) $(CFLAGS) skt_iswriteable.c
+	$(LIBR) $(LIBS) skt_iswriteable.o
+#
+skt_peer.o: skt_peer.c $(INCS)
+	$(CC) $(CFLAGS) skt_peer.c
+	$(LIBR) $(LIBS) skt_peer.o
+#
+skt_port.o: skt_port.c $(INCS)
+	$(CC) $(CFLAGS) skt_port.c
+	$(LIBR) $(LIBS) skt_port.o
+#
+skt_setbuf.o: skt_setbuf.c $(INCS)
+	$(CC) $(CFLAGS) skt_setbuf.c
+	$(LIBR) $(LIBS) skt_setbuf.o
+#
+# eof
+#

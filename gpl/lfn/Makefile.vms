@@ -1,0 +1,79 @@
+!
+! File: makefile.
+! Date: 16-Jul-2002
+! By  : Kevin Esteb
+!
+! Makefile to build liblfn.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]lfn_util.h,lfn_priv.h
+!
+OBJS = lfn_create.obj,lfn_destroy.obj,lfn_fd.obj,lfn_getline.obj, \
+       lfn_isreadable.obj,lfn_isup.obj,lfn_iswriteable.obj,lfn_name.obj, \
+       lfn_putline.obj,lfn_read.obj,lfn_write.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+test:
+	$(CC) test.c
+	$(LINK)/exe=test.exe test.obj,[-]cclibs.olb/lib
+!
+lfn_create.obj: lfn_create.c $(INCS)
+    $(CC) lfn_create.c
+    $(LIBR) $(LIBS) lfn_create.obj
+!
+lfn_destroy.obj: lfn_destroy.c $(INCS)
+    $(CC) lfn_destroy.c
+    $(LIBR) $(LIBS) lfn_destroy.obj
+!
+lfn_fd.obj: lfn_fd.c $(INCS)
+    $(CC) lfn_fd.c
+    $(LIBR) $(LIBS) lfn_fd.obj
+!
+lfn_getline.obj: lfn_getline.c $(INCS)
+    $(CC) lfn_getline.c
+    $(LIBR) $(LIBS) lfn_getline.obj
+!
+lfn_isreadable.obj: lfn_isreadable.c $(INCS)
+    $(CC) lfn_isreadable.c
+    $(LIBR) $(LIBS) lfn_isreadable.obj
+!
+lfn_isup.obj: lfn_isup.c $(INCS)
+    $(CC) lfn_isup.c
+    $(LIBR) $(LIBS) lfn_isup.obj
+!
+lfn_iswriteable.obj: lfn_iswriteable.c $(INCS)
+    $(CC) lfn_iswriteable.c
+    $(LIBR) $(LIBS) lfn_iswriteable.obj
+!
+lfn_name.obj: lfn_name.c $(INCS)
+    $(CC) lfn_name.c
+    $(LIBR) $(LIBS) lfn_name.obj
+!
+lfn_putline.obj: lfn_putline.c $(INCS)
+    $(CC) lfn_putline.c
+    $(LIBR) $(LIBS) lfn_putline.obj
+!
+lfn_read.obj: lfn_read.c $(INCS)
+    $(CC) lfn_read.c
+    $(LIBR) $(LIBS) lfn_read.obj
+!
+lfn_write.obj: lfn_write.c $(INCS)
+    $(CC) lfn_write.c
+    $(LIBR) $(LIBS) lfn_write.obj
+!
+! eof
+!

@@ -1,0 +1,77 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libopt.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]opt_util.h,opt_priv.h
+!
+OBJS = opt_core.obj,opt_create_argv.obj,opt_delete_argv.obj,opt_errors.obj, \
+       opt_get.obj,opt_index.obj,opt_init.obj,opt_name.obj,opt_reset.obj, \
+       opt_set.obj,opt_term.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+opt_core.obj: opt_core.c $(INCS)
+    $(CC) opt_core.c
+    $(LIBR) $(LIBS) opt_core.obj
+!
+opt_create_argv.obj: opt_create_argv.c $(INCS)
+    $(CC) opt_create_argv.c
+    $(LIBR) $(LIBS) opt_create_argv.obj
+!
+opt_delete_argv.obj: opt_delete_argv.c $(INCS)
+    $(CC) opt_delete_argv.c
+    $(LIBR) $(LIBS) opt_delete_argv.obj
+!
+opt_errors.obj: opt_errors.c $(INCS)
+    $(CC) opt_errors.c
+    $(LIBR) $(LIBS) opt_errors.obj
+!
+opt_get.obj: opt_get.c $(INCS)
+    $(CC) opt_get.c
+    $(LIBR) $(LIBS) opt_get.obj
+!
+opt_index.obj: opt_index.c $(INCS)
+    $(CC) opt_index.c
+    $(LIBR) $(LIBS) opt_index.obj
+!
+opt_init.obj: opt_init.c $(INCS)
+    $(CC) opt_init.c
+    $(LIBR) $(LIBS) opt_init.obj
+!
+opt_name.obj: opt_name.c $(INCS)
+    $(CC) opt_name.c
+    $(LIBR) $(LIBS) opt_name.obj
+!
+opt_reset.obj: opt_reset.c $(INCS)
+    $(CC) opt_reset.c
+    $(LIBR) $(LIBS) opt_reset.obj
+!
+opt_set.obj: opt_set.c $(INCS)
+    $(CC) opt_set.c
+    $(LIBR) $(LIBS) opt_set.obj
+!
+opt_term.obj: opt_term.c $(INCS)
+    $(CC) opt_term.c
+    $(LIBR) $(LIBS) opt_term.obj
+!
+! eof
+!

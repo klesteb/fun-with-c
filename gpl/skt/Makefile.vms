@@ -1,0 +1,56 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libskt.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]skt_util.h,skt_priv.h
+!
+OBJS = skt_isreadable.obj,skt_isup.obj,skt_iswriteable.obj,skt_peer.obj, \
+       skt_port.obj,skt_setbuf.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+skt_isreadable.obj: skt_isreadable.c $(INCS)
+    $(CC) skt_isreadable.c
+    $(LIBR) $(LIBS) skt_isreadable.obj
+!
+skt_isup.obj: skt_isup.c $(INCS)
+    $(CC) skt_isup.c
+    $(LIBR) $(LIBS) skt_isup.obj
+!
+skt_iswriteable.obj: skt_iswriteable.c $(INCS)
+    $(CC) skt_iswriteable.c
+    $(LIBR) $(LIBS) skt_iswriteable.obj
+!
+skt_peer.obj: skt_peer.c $(INCS)
+    $(CC) skt_peer.c
+    $(LIBR) $(LIBS) skt_peer.obj
+!
+skt_port.obj: skt_port.c $(INCS)
+    $(CC) skt_port.c
+    $(LIBR) $(LIBS) skt_port.obj
+!
+skt_setbuf.obj: skt_setbuf.c $(INCS)
+    $(CC) skt_setbuf.c
+    $(LIBR) $(LIBS) skt_setbuf.obj
+!
+! eof
+!

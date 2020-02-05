@@ -1,0 +1,109 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: lfn_util.c  RELEASE: 1.7  DATE: 10/02/97, 14:23:25
+*/
+/*******************************************************************************
+
+File:
+
+    lfn_util.c
+
+    Line Feed-Terminated Networking Utilities.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    The LFN_UTIL functions provide a simple means of sending and receiving
+    LF-terminated text over a network connection.  The LFN_UTIL package is
+    layered on top of the lower-level TCP_UTIL functions.  Network connections
+    can be established between clients and servers and LFN streams are built
+    on these connections.
+
+    A simple server process that reads and displays the ASCII text messages
+    it receives could be as brief as the following program:
+
+    #include  <stdio.h>                     -- Standard I/O definitions.
+    #include  "tcp_util.h"                  -- TCP/IP networking utilities.
+    #include  "lfn_util.h"                  -- LF-terminated network I/O.
+
+    int  main (int argc, char *argv[])
+    {
+        char  *message ;
+        TcpEndpoint  client, server ;
+        LfnStream  stream ;
+
+        tcp_listen (argv[1], 99, &server) ;  -- Create listening endpoint.
+
+        for ( ; ; ) {                       -- Answer next client.
+            tcp_answer (server, -1.0, &client) ;
+            lfn_create (client, NULL, &stream) ;
+            for ( ; ; ) {                   -- Service connected client.
+                if (lfn_getline (stream, -1.0, &message))  break ;
+                printf ("Message: %s\n", message) ;
+            }
+            lfn_destroy (stream) ;           -- Lost client.
+        }
+
+    }
+
+    The server's name is specified as the first argument on the command line
+    (i.e., "argv[1]").  If a client connection is broken, the server loops
+    back to wait for another client.
+
+    A simple client process that reads its user's input and forwards it to
+    the server process would look as follows:
+
+    #include  <stdio.h>                     -- Standard I/O definitions.
+    #include  "tcp_util.h"                  -- TCP/IP networking utilities.
+    #include  "lfn_util.h"                  -- LF-terminated network I/O.
+
+    int  main (int argc, char *argv[])
+    {
+        char  buffer[128] ;
+        TcpEndpoint  connection ;
+        LfnStream  stream ;
+
+        tcp_call (argv[1], 0, 0, &connection) ; -- Call server.
+        lfn_create (connection, NULL, &stream) ;
+        for ( ; ; ) {                       -- Forward input to server.
+            if (gets (buffer) == NULL)  break ;
+            lfn_putline (stream, -1.0, "%s\n", buffer) ;
+        }
+        lfn_destroy (stream) ;               -- Lost user!
+
+    }
+
+
+Notes:
+
+    These functions are reentrant under VxWorks (except for the global
+    debug flag).
+
+
+Public Procedures:
+
+    lfn_create() - creates a LF-terminated network stream.
+    lfn_destroy() - deletes a LF-terminated network stream.
+    lfn_fd() - returns an LFN stream's socket number.
+    lfn_getline() - reads a line of input from an LFN stream.
+    lfn_isreadable() - checks if input is waiting to be read from a stream.
+    lfn_isup() - checks if an LFN stream is up.
+    lfn_iswriteable() - checks if data can be written to a stream.
+    lfn_putline() - writes a line of output to an LFN stream.
+    lfn_read() - reads unformatted data from an LFN stream.
+    lfn_write() - writes unformatted data to an LFN stream.
+
+*******************************************************************************/

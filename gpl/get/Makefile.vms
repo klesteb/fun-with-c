@@ -1,0 +1,47 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libget.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]get_util.h,get_priv.h
+!
+OBJS = get_arg.obj,get_field.obj,get_string.obj,get_word.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+get_arg.obj: get_arg.c $(INCS)
+    $(CC) get_arg.c
+    $(LIBR) $(LIBS) get_arg.obj
+!
+get_field.obj: get_field.c $(INCS)
+    $(CC) get_field.c
+    $(LIBR) $(LIBS) get_field.obj
+!
+get_string.obj: get_string.c $(INCS)
+    $(CC) get_string.c
+    $(LIBR) $(LIBS) get_string.obj
+!
+get_word.obj: get_word.c $(INCS)
+    $(CC) get_word.c
+    $(LIBR) $(LIBS) get_word.obj
+!
+! eof
+!

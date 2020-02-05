@@ -1,0 +1,78 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: meo_util.c  RELEASE: 1.7  DATE: 11/19/98, 15:37:03
+*/
+/*******************************************************************************
+
+File:
+
+    meo_util.c
+
+    Memory Operations Package.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    The MEO_UTIL functions perform various operations on memory regions.
+
+    The meoDump() functions generate VMS-style dumps of arbitrary regions
+    of memory.  Each line of output includes the address of the memory being
+    dumped, the data (formatted in octal, decimal, or hexadecimal), and the
+    ASCII equivalent of the data:
+
+        ...
+        00000060:  60616263 64656667 68696A6B 6C6D6E6F  "`abcdefghijklmno"
+        00000070:  70717273 74757677 78797A7B 7C7D7E7F  "pqrstuvwxyz{|}~."
+        00000080:  80818283 84858687 88898A8B 8C8D8E8F  "................"
+        ...
+
+    The MEO_UTIL package also provides a simple means of saving the contents
+    of an arbitrary memory region to a file:
+
+        #include  <stdio.h>             -- Standard I/O definitions.
+        #include  "meo_util.h"          -- Memory operations.
+        char  oldBuffer[1234] ;
+        ...
+        meoSave (oldBuffer, sizeof oldBuffer, "buffer.dat", 0) ;
+
+    The contents of a file can be loaded into an existing region of memory:
+
+        char  *newBuffer = oldBuffer ;
+        int  numBytes = sizeof oldBuffer ;
+        ...
+        meoLoad ("buffer.dat", 0, &newBuffer, &numBytes) ;
+
+    or into memory dynamically allocated by meoLoad():
+
+        char  *newBuffer = NULL ;
+        int  numBytes ;
+        ...
+        meoLoad ("buffer.dat", 0, &newBuffer, &numBytes) ;
+        ... use the new buffer ...
+        free (newBuffer) ;
+
+
+Public Procedures (* defined as macros):
+
+    meoDump() - outputs an ASCII dump of a memory region to a file.
+  * meoDumpD() - outputs a decimal ASCII dump to a file.
+  * meoDumpO() - outputs an octal ASCII dump to a file.
+  * meoDumpT() - outputs a text ASCII dump to a file.
+  * meoDumpX() - outputs a hexadecimal ASCII dump to a file.
+    meoLoad() - loads the contents of a file into memory.
+    meoSave() - saves the contents of memory to a file.
+
+*******************************************************************************/

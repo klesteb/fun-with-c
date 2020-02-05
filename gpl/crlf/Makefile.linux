@@ -1,0 +1,45 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = -o
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../crlf_util.h crlf_priv.h
+#
+OBJS = crlf2nl.o nl2crlf.o nlcount.o
+#
+all: $(OBJS)
+#
+debug:
+#
+
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+crlf2nl.o: crlf2nl.c $(INCS)
+	$(CC) $(CFLAGS) crlf2nl.c
+	$(LIBR) $(LIBS) crlf2nl.o
+#
+nl2crlf.o: nl2crlf.c $(INCS)
+	$(CC) $(CFLAGS) nl2crlf.c
+	$(LIBR) $(LIBS) nl2crlf.o
+#
+nlcount.o: nlcount.c $(INCS)
+	$(CC) $(CFLAGS) nlcount.c
+	$(LIBR) $(LIBS) nlcount.o
+#
+# eof
+#

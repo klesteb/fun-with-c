@@ -1,0 +1,100 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libstr.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]str_util.h,str_priv.h
+!
+OBJS = str_cat.obj,str_copy.obj,str_core.obj,str_destring.obj, \
+       str_detab.obj,str_env.obj,str_etoa.obj,str_insert.obj, \
+       str_match.obj,str_remove.obj,str_tolower.obj,str_toupper.obj, \
+       str_trim.obj,strndup.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+strcasecmp.obj: strcasecmp.c $(INCS)
+    $(CC) strcasecmp.c
+    $(LIBR) $(LIBS) strcasecmp.obj
+!
+strdup.obj: strdup.c $(INCS)
+    $(CC) strdup.c
+    $(LIBR) $(LIBS) strdup.obj
+!
+strncasecmp.obj: strncasecmp.c $(INCS)
+    $(CC) strncasecmp.c
+    $(LIBR) $(LIBS) strncasecmp.obj
+!
+strndup.obj: strndup.c $(INCS)
+    $(CC) strndup.c
+    $(LIBR) $(LIBS) strndup.obj
+!
+str_cat.obj: str_cat.c $(INCS)
+    $(CC) str_cat.c
+    $(LIBR) $(LIBS) str_cat.obj
+!
+str_copy.obj: str_copy.c $(INCS)
+    $(CC) str_copy.c
+    $(LIBR) $(LIBS) str_copy.obj
+!
+str_core.obj: str_core.c $(INCS)
+    $(CC) str_core.c
+    $(LIBR) $(LIBS) str_core.obj
+!
+str_destring.obj: str_destring.c $(INCS)
+    $(CC) str_destring.c
+    $(LIBR) $(LIBS) str_destring.obj
+!
+str_detab.obj: str_detab.c $(INCS)
+    $(CC) str_detab.c
+    $(LIBR) $(LIBS) str_detab.obj
+!
+str_env.obj: str_env.c $(INCS)
+    $(CC) str_env.c
+    $(LIBR) $(LIBS) str_env.obj
+!
+str_etoa.obj: str_etoa.c $(INCS)
+    $(CC) str_etoa.c
+    $(LIBR) $(LIBS) str_etoa.obj
+!
+str_insert.obj: str_insert.c $(INCS)
+    $(CC) str_insert.c
+    $(LIBR) $(LIBS) str_insert.obj
+!
+str_match.obj: str_match.c $(INCS)
+    $(CC) str_match.c
+    $(LIBR) $(LIBS) str_match.obj
+!
+str_remove.obj: str_remove.c $(INCS)
+    $(CC) str_remove.c
+    $(LIBR) $(LIBS) str_remove.obj
+!
+str_tolower.obj: str_tolower.c $(INCS)
+    $(CC) str_tolower.c
+    $(LIBR) $(LIBS) str_tolower.obj
+!
+str_toupper.obj: str_toupper.c $(INCS)
+    $(CC) str_toupper.c
+    $(LIBR) $(LIBS) str_toupper.obj
+!
+str_trim.obj: str_trim.c $(INCS)
+    $(CC) str_trim.c
+    $(LIBR) $(LIBS) str_trim.obj
+!
+! eof
+!

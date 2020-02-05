@@ -1,0 +1,106 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: hash_util.c  RELEASE: 1.12  DATE: 10/23/96, 11:19:49
+*/
+/*******************************************************************************
+
+File:
+
+    hash_util.c
+
+    Hash Search Utilities
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    These utilities provide a means of building hash tables and performing
+    hash searches.
+
+    The classic representation of hash tables is used for these hash tables.
+    An array of buckets is created by hashCreate(), sized to the first prime
+    number M that is larger than the expected maximum number of elements in
+    the table.  Key-value pairs are then added to the table by hashAdd().
+    A character string key is "folded" into an integer and divided by the
+    prime number M to produce an index into the array of buckets; the key-value
+    pair is then stored in the indicated bucket.  If multiple key-value pairs
+    map into the same bucket (AKA a collision), they are chained together by a
+    linked list attached to the bucket.
+
+    Building a hash table using these functions is very simple.  First, create
+    an empty hash table:
+
+        #include  "hash_util.h"         -- Hash table definitions.
+        #define  NUM_ITEMS  500
+        HashTable  table ;
+        ...
+        hash_create(NUM_ITEMS, 0, &table) ;
+
+    The first argument to hash_create() is the expected number of items in
+    the table; the table will handle more, albeit with slower lookup times.
+
+    Key-value pairs are added to the table with hash_add():
+
+        hash_add(table, "<key>", (void *) value) ;
+
+    Keys are null-terminated characters strings and values must be cast as
+    (VOID *) pointers.  If the key is already in the table, its old value
+    is replaced with the new value.
+
+    Looking up the value of a key is done with hash_search():
+
+        void  *value ;
+        ...
+        if (hash_search(table, "<key>", &value))
+            ... found ...
+        else
+            ... not found ...
+
+    The value is returned as a (VOID *) pointer, which the caller must then
+    cast back to the original type.
+
+    Key-value pairs can be individually deleted from a hash table:
+
+        hash_delete(table, "<key>") ;
+
+    or the entire table can be destroyed:
+
+        hash_destroy(table) ;
+
+    The HASH_UTIL group of hash table functions offer several advantages
+    over the Standard C Library hashing functions (HCREATE(3), HDESTROY(3),
+    and HSEARCH(3)).  First, the HASH_UTIL functions are easier to use: the
+    multi-purpose functionality of HSEARCH(3) is broken up into hashAdd()
+    and hashSearch(), etc.  Second, the HASH_UTIL functions allow for more
+    than one hash table in a program.
+
+
+Notes:
+
+    These functions are reentrant under VxWorks.
+
+
+Procedures:
+
+    hash_add() - adds a key-data pair to a hash table.
+    hash_create() - creates an empty hash table.
+    hash_delete() - deletes a key-data pair from a hash table.
+    hash_destroy() - deletes a hash table.
+    hash_dump() - dumps a hash table.
+    hash_search() - locates a key in a hash table and returns the data value
+                    associated with the key.
+    hash_statistics() - displays various statistics for a hash table.
+
+*******************************************************************************/

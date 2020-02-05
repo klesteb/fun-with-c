@@ -1,0 +1,79 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../opt_util.h opt_priv.h
+#
+OBJS = opt_core.o opt_create_argv.o opt_delete_argv.o opt_errors.o  \
+       opt_get.o opt_index.o opt_init.o opt_name.o opt_reset.o  \
+       opt_set.o opt_term.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+opt_core.o: opt_core.c $(INCS)
+	$(CC) $(CFLAGS) opt_core.c
+	$(LIBR) $(LIBS) opt_core.o
+#
+opt_create_argv.o: opt_create_argv.c $(INCS)
+	$(CC) $(CFLAGS) opt_create_argv.c
+	$(LIBR) $(LIBS) opt_create_argv.o
+#
+opt_delete_argv.o: opt_delete_argv.c $(INCS)
+	$(CC) $(CFLAGS) opt_delete_argv.c
+	$(LIBR) $(LIBS) opt_delete_argv.o
+#
+opt_errors.o: opt_errors.c $(INCS)
+	$(CC) $(CFLAGS) opt_errors.c
+	$(LIBR) $(LIBS) opt_errors.o
+#
+opt_get.o: opt_get.c $(INCS)
+	$(CC) $(CFLAGS) opt_get.c
+	$(LIBR) $(LIBS) opt_get.o
+#
+opt_index.o: opt_index.c $(INCS)
+	$(CC) $(CFLAGS) opt_index.c
+	$(LIBR) $(LIBS) opt_index.o
+#
+opt_init.o: opt_init.c $(INCS)
+	$(CC) $(CFLAGS) opt_init.c
+	$(LIBR) $(LIBS) opt_init.o
+#
+opt_name.o: opt_name.c $(INCS)
+	$(CC) $(CFLAGS) opt_name.c
+	$(LIBR) $(LIBS) opt_name.o
+#
+opt_reset.o: opt_reset.c $(INCS)
+	$(CC) $(CFLAGS) opt_reset.c
+	$(LIBR) $(LIBS) opt_reset.o
+#
+opt_set.o: opt_set.c $(INCS)
+	$(CC) $(CFLAGS) opt_set.c
+	$(LIBR) $(LIBS) opt_set.o
+#
+opt_term.o: opt_term.c $(INCS)
+	$(CC) $(CFLAGS) opt_term.c
+	$(LIBR) $(LIBS) opt_term.o
+#
+# eof
+#

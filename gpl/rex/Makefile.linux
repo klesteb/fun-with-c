@@ -1,0 +1,37 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../libcclibs.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../rex_util.h rex_internals.h
+#
+OBJS = rex_util.o rex_utils_y.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+rex_util.o: rex_util.c $(INCS)
+	$(CC) $(CFLAGS) rex_util.c
+	$(LIBR) $(LIBS) rex_util.o
+#
+rex_utils_y.o: rex_utils_y.c $(INCS)
+	$(CC) $(CFLAGS) rex_utils_y.c
+	$(LIBR) $(LIBS) rex_utils_y.o
+#
+# eof
+#

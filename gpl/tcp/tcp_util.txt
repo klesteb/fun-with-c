@@ -1,0 +1,155 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: tcp_util.c  RELEASE: 1.16  DATE: 02/18/98, 17:51:23
+*/
+/*******************************************************************************
+
+File:
+
+    tcp_util.c
+
+    TCP/IP Networking Utilities.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    The TCP_UTIL functions allow you to easily establish and communicate
+    over TCP/IP network connections between client and server processes,
+    possibly residing on different hosts.  The TCP_UTIL functions follow
+    a telephone-like model of networking: clients "call" servers and
+    servers "answer" clients.  Once a network connection is established
+    between a client and a server, the two can "talk" to each other by
+    reading from and writing to the connection:
+
+                  Client <----------------------> Server
+
+    tcp_listen(), tcp_answer(), and tcp_call() are used to establish a
+    communications link between a client and a server.  The server process
+    calls tcp_listen() to create a network endpoint at which the server
+    listens for connection requests from clients.  When one is received,
+    the server process calls tcp_answer() to accept the client connection.
+    A server may receive and accept connection requests from multiple
+    clients; the operating system automatically creates a new connection
+    (data endpoint) for each client.  The server can then multiplex the
+    servicing of the clients or, if the operating system supports it,
+    fork separate subprocesses to service each client.
+
+    Client processes call tcp_call() to submit connection requests to
+    the server process (which may be running on another host).  Note
+    that a process can be both a client and a server with respect to
+    other processes.
+
+    tcp_read() and tcp_write() are used to send and receive data over a
+    network connection.  Because there is no concept of record boundaries
+    in a TCP/IP network stream, communicating processes must follow their
+    own protocol in order to determine how long a message is.  In the
+    example presented below, the protocol is very simple: every message
+    is exactly 64 bytes long, even if the text of the message doesn't
+    fill the transmitted "record".  More sophisticated protocols (e.g.,
+    the XDR record marking standard) are available.
+
+    The following is a very simple server process that listens for and
+    answers a client "call".  It then reads and displays 64-byte messages
+    sent by the client.  If the client "hangs up", the server loops back
+    and waits for another client.
+
+        #include  <stdio.h>                     -- Standard I/O definitions.
+        #include  "tcp_util.h"                  -- TCP/IP networking utilities.
+
+        main (int argc, char *argv[])
+        {
+            char  buffer[128] ;
+            TcpEndpoint client, server ;
+
+            tcp_listen("<name>", 99, &server) ; -- Create listening endpoint.
+
+            for ( ; ; ) {                       -- Answer next client.
+                tcp_answer(server, -1.0, &client) ;
+                for ( ; ; ) {                   -- Service connected client.
+                    if (tcp_read(client, -1.0, 64, buffer, NULL))  break ;
+                    printf("Message from client: %s\n", buffer) ;
+                }
+                tcp_destroy(client) ;           -- Lost client.
+            }
+
+        }
+
+    The following client process "calls" the server and, once the connection
+    is established, sends it 16 messages:
+
+        #include  <stdio.h>                     -- Standard I/O definitions.
+        #include  "tcp_util.h"                  -- TCP/IP networking utilities.
+
+        main (int argc, char *argv[])
+        {
+            char  buffer[128] ;
+            int  i ;
+            TcpEndpoint  server ;
+
+            tcp_call("<name>", 0, 0, &server) ;    -- Call server.
+
+            for (i = 0 ;  i < 16 ;  i++) {      -- Send messages.
+                sprintf(buffer, "Hello for the %dth time!", i) ;
+                tcp_write(server, -1.0, 64, buffer, NULL) ;
+            }
+
+            tcp_destroy(server) ;               -- Hang up.
+
+        }
+
+
+Notes:
+
+    These functions are reentrant under VxWorks (except for the global
+    debug flag).
+
+
+Ancient History (C to C++ and back again):
+
+    This package borrowed 95% of its code and comments from a C++ version
+    of my NET_UTIL package, so I hope the comments are all up to date.
+
+    I'm not crazy about the term "endpoint", but I wanted something other
+    than "socket" that was common to TCP listening sockets and TCP and
+    UDP data sockets.  I tried "port", but TCP server sockets all have
+    their listening socket's port number.  I've seen "endpoint" used in
+    a couple of networking books and in some articles, so there it is.
+
+
+Public Procedures (for listening endpoints):
+
+    tcp_answer() - answers a client connection request.
+    tcp_listen() - creates a listening endpoint.
+    tcp_request_pending() - checks if a client is trying to connect.
+
+Public Procedures (for data endpoints, * defined as macros):
+
+    tcp_call() - establishes a client-side connection with a server.
+    tcp_complete() - completes a no-wait call.
+    tcp_isreadable() - checks if data is waiting to be read on a connection.
+    tcp_isup() - checks if a connection is up.
+    tcp_iswriteable() - checks if data can be written to a connection.
+    tcp_read() - reads data from a connection.
+  * tcp_setbuf() - changes the sizes of a connection's receive and send buffers.
+    tcp_write() - writes data to a connection.
+
+Public Procedures (general):
+
+    tcp_destroy() - closes an endpoint.
+    tcp_fd() - returns the file descriptor for an endpoint's socket.
+    tcp_name() - returns the name of an endpoint.
+
+*******************************************************************************/

@@ -1,0 +1,46 @@
+#
+# File: Makefile.linux
+# Date: 0r-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../net_util.h net_priv.h
+#
+OBJS = net_addrof.o net_hostof.o net_portof.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm *.o
+	rm *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+#
+net_addrof.o: net_addrof.c $(INCS)
+	$(CC) $(CFLAGS) net_addrof.c
+	$(LIBR) $(LIBS) net_addrof.o
+#
+net_hostof.o: net_hostof.c $(INCS)
+	$(CC) $(CFLAGS) net_hostof.c
+	$(LIBR) $(LIBS) net_hostof.o
+#
+net_portof.o: net_portof.c $(INCS)
+	$(CC) $(CFLAGS) net_portof.c
+	$(LIBR) $(LIBS) net_portof.o
+#
+# eof
+#

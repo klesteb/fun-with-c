@@ -1,0 +1,43 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: crlf_util.c  RELEASE: 1.4  DATE: 07/12/96, 15:36:26
+*/
+/*******************************************************************************
+
+File:
+
+    crlf_util.c
+
+    Carriage Return/Line Feed Utilities.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    The CRLF_UTIL functions perform various operations and transformations
+    on strings containing carriage return and line feed characters.
+
+
+Public Procedures:
+
+    crlf2nl() - replaces each carriage return/line feed sequence in a
+        string by a new-line character.
+    nl2crlf() - replaces each new-line character in a string by a
+        carriage return/line feed sequence.
+    nlCount() - counts the number of new-line characters in a string.
+
+*******************************************************************************/
+
+

@@ -1,0 +1,69 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libtv.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]tv_util.h,tv_priv.h
+!
+OBJS = tv_add.obj,tv_compare.obj,tv_create.obj,tv_createf.obj, \
+       tv_float.obj,tv_show.obj,tv_subtract.obj,tv_tod.obj, \
+       tv_truncate.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+tv_add.obj: tv_add.c $(INCS)
+    $(CC) tv_add.c
+    $(LIBR) $(LIBS) tv_add.obj
+!
+tv_compare.obj: tv_compare.c $(INCS)
+    $(CC) tv_compare.c
+    $(LIBR) $(LIBS) tv_compare.obj
+!
+tv_create.obj: tv_create.c $(INCS)
+    $(CC) tv_create.c
+    $(LIBR) $(LIBS) tv_create.obj
+!
+tv_createf.obj: tv_createf.c $(INCS)
+    $(CC) tv_createf.c
+    $(LIBR) $(LIBS) tv_createf.obj
+!
+tv_float.obj: tv_float.c $(INCS)
+    $(CC) tv_float.c
+    $(LIBR) $(LIBS) tv_float.obj
+!
+tv_show.obj: tv_show.c $(INCS)
+    $(CC) tv_show.c
+    $(LIBR) $(LIBS) tv_show.obj
+!
+tv_subtract.obj: tv_subtract.c $(INCS)
+    $(CC) tv_subtract.c
+    $(LIBR) $(LIBS) tv_subtract.obj
+!
+tv_tod.obj: tv_tod.c $(INCS)
+    $(CC) tv_tod.c
+    $(LIBR) $(LIBS) tv_tod.obj
+!
+tv_truncate.obj: tv_truncate.c $(INCS)
+    $(CC) tv_truncate.c
+    $(LIBR) $(LIBS) tv_truncate.obj
+!
+! eof
+!

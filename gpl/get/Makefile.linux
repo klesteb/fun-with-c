@@ -1,0 +1,46 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../libcclibs.a
+LINK = gcc
+LFLAGS = -o test
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../get_util.h get_priv.h
+#
+OBJS = get_arg.o get_field.o get_string.o get_word.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+#
+get_arg.o: get_arg.c $(INCS)
+	$(CC) $(CFLAGS) get_arg.c
+	$(LIBR) $(LIBS) get_arg.o
+#
+get_field.o: get_field.c $(INCS)
+	$(CC) $(CFLAGS) get_field.c
+	$(LIBR) $(LIBS) get_field.o
+#
+get_string.o: get_string.c $(INCS)
+	$(CC) $(CFLAGS) get_string.c
+	$(LIBR) $(LIBS) get_string.o
+#
+get_word.o: get_word.c $(INCS)
+	$(CC) $(CFLAGS) get_word.c
+	$(LIBR) $(LIBS) get_word.o
+#
+# eof
+#

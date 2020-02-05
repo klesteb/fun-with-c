@@ -1,0 +1,43 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libcrlf.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]crlf_util.h,crlf_priv.h
+!
+OBJS = crlf2nl.obj,nl2crlf.obj,nlcount.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+crlf2nl.obj: crlf2nl.c $(INCS)
+    $(CC) crlf2nl.c
+    $(LIBR) $(LIBS) crlf2nl.obj
+!
+nl2crlf.obj: nl2crlf.c $(INCS)
+    $(CC) nl2crlf.c
+    $(LIBR) $(LIBS) nl2crlf.obj
+!
+nlcount.obj: nlcount.c $(INCS)
+    $(CC) nlcount.c
+    $(LIBR) $(LIBS) nlcount.obj
+!
+! eof
+!

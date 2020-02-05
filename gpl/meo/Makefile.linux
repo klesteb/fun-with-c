@@ -1,0 +1,49 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../meo_util.h meo_priv.h
+#
+OBJS = meo_core.o meo_dump.o meo_load.o meo_save.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+meo_core.o: meo_core.c $(INCS)
+	$(CC) $(CFLAGS) meo_core.c
+	$(LIBR) $(LIBS) meo_core.o
+#
+meo_dump.o: meo_dump.c $(INCS)
+	$(CC) $(CFLAGS) meo_dump.c
+	$(LIBR) $(LIBS) meo_dump.o
+#
+meo_load.o: meo_load.c $(INCS)
+	$(CC) $(CFLAGS) meo_load.c
+	$(LIBR) $(LIBS) meo_load.o
+#
+meo_save.o: meo_save.c $(INCS)
+	$(CC) $(CFLAGS) meo_save.c
+	$(LIBR) $(LIBS) meo_save.o
+#
+# eof
+#

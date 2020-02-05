@@ -1,0 +1,37 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build librex.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]rex_util.h,rex_internals.h
+!
+OBJS = rex_util.obj,rex_utils_y.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+rex_util.obj: rex_util.c $(INCS)
+    $(CC) rex_util.c
+    $(LIBR) $(LIBS) rex_util.obj
+!
+rex_utils_y.obj: rex_utils_y.c $(INCS)
+    $(CC) rex_utils_y.c
+    $(LIBR) $(LIBS) rex_utils_y.obj
+!
+! eof
+!

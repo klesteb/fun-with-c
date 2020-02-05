@@ -1,0 +1,100 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../libcclibs.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../str_util.h str_priv.h
+#
+OBJS = str_cat.o str_copy.o str_core.o str_destring.o  \
+       str_detab.o str_env.o str_etoa.o str_insert.o  \
+       str_match.o str_remove.o str_tolower.o str_toupper.o  \
+       str_trim.o strndup.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+strcasecmp.o: strcasecmp.c $(INCS)
+	$(CC) $(CFLAGS) strcasecmp.c
+	$(LIBR) $(LIBS) strcasecmp.o
+#
+strdup.o: strdup.c $(INCS)
+	$(CC) $(CFLAGS) strdup.c
+	$(LIBR) $(LIBS) strdup.o
+#
+strncasecmp.o: strncasecmp.c $(INCS)
+	$(CC) $(CFLAGS) strncasecmp.c
+	$(LIBR) $(LIBS) strncasecmp.o
+#
+strndup.o: strndup.c $(INCS)
+	$(CC) $(CFLAGS) strndup.c
+	$(LIBR) $(LIBS) strndup.o
+#
+str_cat.o: str_cat.c $(INCS)
+	$(CC) $(CFLAGS) str_cat.c
+	$(LIBR) $(LIBS) str_cat.o
+#
+str_copy.o: str_copy.c $(INCS)
+	$(CC) $(CFLAGS) str_copy.c
+	$(LIBR) $(LIBS) str_copy.o
+#
+str_core.o: str_core.c $(INCS)
+	$(CC) $(CFLAGS) str_core.c
+	$(LIBR) $(LIBS) str_core.o
+#
+str_destring.o: str_destring.c $(INCS)
+	$(CC) $(CFLAGS) str_destring.c
+	$(LIBR) $(LIBS) str_destring.o
+#
+str_detab.o: str_detab.c $(INCS)
+	$(CC) $(CFLAGS) str_detab.c
+	$(LIBR) $(LIBS) str_detab.o
+#
+str_env.o: str_env.c $(INCS)
+	$(CC) $(CFLAGS) str_env.c
+	$(LIBR) $(LIBS) str_env.o
+#
+str_etoa.o: str_etoa.c $(INCS)
+	$(CC) $(CFLAGS) str_etoa.c
+	$(LIBR) $(LIBS) str_etoa.o
+#
+str_insert.o: str_insert.c $(INCS)
+	$(CC) $(CFLAGS) str_insert.c
+	$(LIBR) $(LIBS) str_insert.o
+#
+str_match.o: str_match.c $(INCS)
+	$(CC) $(CFLAGS) str_match.c
+	$(LIBR) $(LIBS) str_match.o
+#
+str_remove.o: str_remove.c $(INCS)
+	$(CC) $(CFLAGS) str_remove.c
+	$(LIBR) $(LIBS) str_remove.o
+#
+str_tolower.o: str_tolower.c $(INCS)
+	$(CC) $(CFLAGS) str_tolower.c
+	$(LIBR) $(LIBS) str_tolower.o
+#
+str_toupper.o: str_toupper.c $(INCS)
+	$(CC) $(CFLAGS) str_toupper.c
+	$(LIBR) $(LIBS) str_toupper.o
+#
+str_trim.o: str_trim.c $(INCS)
+	$(CC) $(CFLAGS) str_trim.c
+	$(LIBR) $(LIBS) str_trim.o
+#
+# eof
+#

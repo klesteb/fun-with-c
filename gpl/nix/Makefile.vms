@@ -1,0 +1,67 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libnix.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]nix_util.h,nix_priv.h
+!
+OBJS = nxaddinput.obj,nxaddtimeout.obj,nxaddworkproc.obj, \
+       nxcreatecontext.obj,nxmainloop.obj,nxremoveinput.obj, \
+       nxremovetimeout.obj,nxremoveworkproc.obj,nxsetdebug.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+nxaddinput.obj: nxaddinput.c $(INCS)
+    $(CC) nxaddinput.c
+    $(LIBR) $(LIBS) nxaddinput.obj
+!
+nxaddtimeout.obj: nxaddtimeout.c $(INCS)
+    $(CC) nxaddtimeout.c
+    $(LIBR) $(LIBS) nxaddtimeout.obj
+!
+nxaddworkproc.obj: nxaddworkproc.c $(INCS)
+    $(CC) nxaddworkproc.c
+    $(LIBR) $(LIBS) nxaddworkproc.obj
+!
+nxcreatecontext.obj: nxcreatecontext.c $(INCS)
+    $(CC) nxcreatecontext.c
+    $(LIBR) $(LIBS) nxcreatecontext.obj
+!
+nxmainloop.obj: nxmainloop.c $(INCS)
+    $(CC) nxmainloop.c
+    $(LIBR) $(LIBS) nxmainloop.obj
+!
+nxremoveinput.obj: nxremoveinput.c $(INCS)
+    $(CC) nxremoveinput.c
+    $(LIBR) $(LIBS) nxremoveinput.obj
+!
+nxremovetimeout.obj: nxremovetimeout.c $(INCS)
+    $(CC) nxremovetimeout.c
+    $(LIBR) $(LIBS) nxremovetimeout.obj
+!
+nxremoveworkproc.obj: nxremoveworkproc.c $(INCS)
+    $(CC) nxremoveworkproc.c
+    $(LIBR) $(LIBS) nxremoveworkproc.obj
+!
+nxsetdebug.obj: nxsetdebug.c $(INCS)
+    $(CC) nxsetdebug.c
+    $(LIBR) $(LIBS) nxsetdebug.obj
+!
+! eof
+!

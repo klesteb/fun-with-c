@@ -1,0 +1,58 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../xqt_util.h xqt_priv.h
+#
+OBJS = xqt_close.o xqt_fd.o xqt_open.o xqt_poll.o xqt_read.o xqt_write.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+#
+xqt_close.o: xqt_close.c $(INCS)
+	$(CC) $(CFLAGS) xqt_close.c
+	$(LIBR) $(LIBS) xqt_close.o
+#
+xqt_fd.o: xqt_fd.c $(INCS)
+	$(CC) $(CFLAGS) xqt_fd.c
+	$(LIBR) $(LIBS) xqt_fd.o
+#
+xqt_open.o: xqt_open.c $(INCS)
+	$(CC) $(CFLAGS) xqt_open.c
+	$(LIBR) $(LIBS) xqt_open.o
+#
+xqt_poll.o: xqt_poll.c $(INCS)
+	$(CC) $(CFLAGS) xqt_poll.c
+	$(LIBR) $(LIBS) xqt_poll.o
+#
+xqt_read.o: xqt_read.c $(INCS)
+	$(CC) $(CFLAGS) xqt_read.c
+	$(LIBR) $(LIBS) xqt_read.o
+#
+xqt_write.o: xqt_write.c $(INCS)
+	$(CC) $(CFLAGS) xqt_write.c
+	$(LIBR) $(LIBS) xqt_write.o
+#
+# eof
+#

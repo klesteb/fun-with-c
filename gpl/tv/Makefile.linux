@@ -1,0 +1,68 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o test
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../tv_util.h tv_priv.h
+#
+OBJS = tv_add.o tv_compare.o tv_create.o tv_createf.o  \
+       tv_float.o tv_show.o tv_subtract.o tv_tod.o  \
+       tv_truncate.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+#
+tv_add.o: tv_add.c $(INCS)
+	$(CC) $(CFLAGS) tv_add.c
+	$(LIBR) $(LIBS) tv_add.o
+#
+tv_compare.o: tv_compare.c $(INCS)
+	$(CC) $(CFLAGS) tv_compare.c
+	$(LIBR) $(LIBS) tv_compare.o
+#
+tv_create.o: tv_create.c $(INCS)
+	$(CC) $(CFLAGS) tv_create.c
+	$(LIBR) $(LIBS) tv_create.o
+#
+tv_createf.o: tv_createf.c $(INCS)
+	$(CC) $(CFLAGS) tv_createf.c
+	$(LIBR) $(LIBS) tv_createf.o
+#
+tv_float.o: tv_float.c $(INCS)
+	$(CC) $(CFLAGS) tv_float.c
+	$(LIBR) $(LIBS) tv_float.o
+#
+tv_show.o: tv_show.c $(INCS)
+	$(CC) $(CFLAGS) tv_show.c
+	$(LIBR) $(LIBS) tv_show.o
+#
+tv_subtract.o: tv_subtract.c $(INCS)
+	$(CC) $(CFLAGS) tv_subtract.c
+	$(LIBR) $(LIBS) tv_subtract.o
+#
+tv_tod.o: tv_tod.c $(INCS)
+	$(CC) $(CFLAGS) tv_tod.c
+	$(LIBR) $(LIBS) tv_tod.o
+#
+tv_truncate.o: tv_truncate.c $(INCS)
+	$(CC) $(CFLAGS) tv_truncate.c
+	$(LIBR) $(LIBS) tv_truncate.o
+#
+# eof
+#

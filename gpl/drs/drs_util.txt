@@ -1,0 +1,79 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: drs_util.c  RELEASE: 1.7  DATE: 07/12/96, 15:36:12
+*/
+/*******************************************************************************
+
+File:
+
+    drs_util.c
+
+    Directory Scanning Utilities.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    The functions in the DRS_UTIL package are used to scan the names of the
+    files in a directory.  Wildcards can be used to filter out unwanted files.
+
+    The following example prints out the names of the ".c" files in a
+    directory:
+
+        #include  <stdio.h>		-- Standard I/O definitions.
+        #include  "drs_util.h"		-- Directory scanning utilities.
+        ...
+        int  main (int argc, char *argv[])
+        {
+            char  *fileName ;
+            DirectoryScan  scan ;
+
+            drs_create ("*.c", &scan) ;
+            fileName = drs_first (scan) ;
+            while (fileName != NULL) {
+                printf ("C File: %s\n", fileName) ;
+                fileName = drs_next (scan) ;
+            }
+            drs_destroy (scan) ;
+        }
+
+    Alternatively, you can call drs_get() to get the I-th name in the directory:
+
+            ...
+            for (i = 0 ;  i < drs_count (scan) ;  i++)
+                printf ("C File: %s\n", drs_get (scan, i)) ;
+            ...
+
+
+Notes:
+
+    This package is derived from and supersedes my FSEARCH() routine.
+    Farewell, VMS!
+
+
+Public Procedures:
+
+    drs_count() - returns the number of files in a directory scan.
+    drs_create() - creates a directory scan.
+    drs_destroy() - destroys a directory scan.
+    drs_first() - gets the first entry in the directory.
+    drs_get() - gets the I-th entry in the directory.
+    drs_next() - gets the next entry in the directory.
+
+Private Procedures:
+
+    drsCompare() - compares two file names for sorting purposes.
+
+*******************************************************************************/

@@ -1,0 +1,66 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libhash.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]hash_util.h,hash_priv.h
+!
+OBJS = hash_add.obj,hash_core.obj,hash_create.obj,hash_delete.obj, \
+       hash_destroy.obj,hash_dump.obj,hash_search.obj,hash_statistics.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+test:
+    $(CC) test.c
+    $(LINK) test.obj,$(LIBS)/lib
+!
+hash_add.obj: hash_add.c $(INCS)
+    $(CC) hash_add.c
+    $(LIBR) $(LIBS) hash_add.obj
+!
+hash_core.obj: hash_core.c $(INCS)
+    $(CC) hash_core.c
+    $(LIBR) $(LIBS) hash_core.obj
+!
+hash_create.obj: hash_create.c $(INCS)
+    $(CC) hash_create.c
+    $(LIBR) $(LIBS) hash_create.obj
+!
+hash_delete.obj: hash_delete.c $(INCS)
+    $(CC) hash_delete.c
+    $(LIBR) $(LIBS) hash_delete.obj
+!
+hash_destroy.obj: hash_destroy.c $(INCS)
+    $(CC) hash_destroy.c
+    $(LIBR) $(LIBS) hash_destroy.obj
+!
+hash_dump.obj: hash_dump.c $(INCS)
+    $(CC) hash_dump.c
+    $(LIBR) $(LIBS) hash_dump.obj
+!
+hash_search.obj: hash_search.c $(INCS)
+    $(CC) hash_search.c
+    $(LIBR) $(LIBS) hash_search.obj
+!
+hash_statistics.obj: hash_statistics.c $(INCS)
+    $(CC) hash_statistics.c
+    $(LIBR) $(LIBS) hash_statistics.obj
+!
+! eof
+!

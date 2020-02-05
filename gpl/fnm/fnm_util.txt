@@ -1,0 +1,142 @@
+/************************************************************************
+ *  Copyright (c) 1996 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: fnm_util.c  RELEASE: 1.10  DATE: 11/19/98, 15:37:02
+*/
+/*******************************************************************************
+
+File:
+
+    fnm_util.c
+
+    Filename Utilities.
+
+
+Author:    Alex Measday, ISI
+
+
+Purpose:
+
+    The FNM_UTIL package provides a filename parsing capability inspired
+    by the VAX/VMS lexical function, F$PARSE().  File specifications have
+    the following structure:
+
+                 node:/directory(s)/name.extension.version
+
+    Any field is optional.  NODE is a host name; DIRECTORY is one or more
+    names separated by "/"s; NAME follows the last "/" in the pathname.
+    VERSION is a 3-digit number (e.g., "002") and EXTENSION follows the
+    last dot before the VERSION dot.
+
+    A filename is created as follows:
+
+        #include  "fnm_util.h"                  -- Filename utilities.
+        FileName  fname ;
+        ...
+        fname = fnm_create ("<file_spec>", NULL) ;
+
+    fnm_create() expands the file specification, translating environment
+    variable references and filling in defaults for missing fields.
+
+    fnm_create() can be passed multiple file specifications, which are
+    then processed from left to right in the calling sequence:
+
+        fname = fnm_create ("<spec1>", ..., "<specN>", NULL) ;
+
+    First, the leftmost file specification is examined and any references
+    to environment variables are translated.  The next file specification
+    is then examined.  Environment variables are translated and fields
+    missing in the first file specification are supplied from the new
+    file specification.  Subsequent file specifications are examined,
+    in turn, and "applied" to the results of the processing of the
+    previous file specifications.  Finally, system defaults (e.g., the
+    user's home directory) are supplied for missing fields that remain.
+
+    Is that clear?  I used to have a diagram that showed the file names
+    stacked up, one on top of another:
+
+                          ... System Defaults ...
+                               File_Spec_#N    |
+                                    ...        |
+                               File_Spec_#2    |
+                               File_Spec_#1    V
+                              --------------
+                                  Result
+
+    File name components would drop down through holes in lower-level
+    specifications to fill in missing fields in the result.
+
+    Specifying multiple file specifications is useful for replacing
+    extensions, concatenating directories, etc.:
+
+        #include  "fnm_util.h"                  -- Filename utilities.
+        FileName  fname ;
+        ...                                     -- "/usr/me" (current directory)
+        fname = fnm_create (NULL) ;
+                                                -- "/usr/me/prog.lis"
+        fname = fnm_create (".lis", "prog.c", NULL) ;
+                                                -- "/usr/you/tools/dump.o"
+        fname = fnm_create (".o", "tools/dump.c", "/usr/you/", NULL) ;
+
+    What can you do with a file name once it is created?  You call
+    fnm_parse() to get the whole file name or parts of the file name
+    as a string:
+
+        #include  "fnm_util.h"                  -- Filename utilities.
+        char  *s ;
+        FileName  fname ;
+        ...
+        fname = fnm_create("host:/usr/who/myprog.c.001", NULL) ;
+        s = fnm_parse(fname, FnmPath) ;         -- "host:/usr/who/myprog.c.001"
+        s = fnm_parse(fname, FnmNode) ;         -- "host:"
+        s = fnm_parse(fname, FnmDirectory) ;    -- "/usr/who"
+        s = fnm_parse(fname, FnmFile) ;         -- "myprog.c.001"
+        s = fnm_parse(fname, FnmName) ;         -- "myprog"
+        s = fnm_parse(fname, FnmExtension) ;    -- ".c"
+        s = fnm_parse(fname, FnmVersion) ;      -- ".001"
+        fnm_destroy(fname) ;
+
+    Shorthand macros - fnm_path(), fnm_node(), etc. - are defined for each
+    of the fnm_parse() calls above.
+
+
+Origins:
+
+    The FNM_UTIL package is a repackaging of my FPARSE package, which was
+    inspired by the VAX/VMS lexical function, F$PARSE().
+
+
+Public Procedures:
+
+    fnm_build() - builds a pathname.
+    fnm_create() - creates a filename.
+    fnm_destroy() - destroys a filename.
+    fnm_exists() - checks if a file exists.
+    fnm_parse() - parses a filename.
+    fnm_vms2unix() - convert a VMS path to Unix syntax
+
+Macro Definitions:
+
+    fnm_path() - returns a filename's full pathname.
+    fnm_node() - returns the node from a filename.
+    fnm_directory() - returns the directory from a filename.
+    fnm_file() - returns the file, extension, and version from a filename.
+    fnm_name() - returns the file from a filename.
+    fnm_extension() - returns the extension from a filename.
+    fnm_version() - returns the version number from a filename.
+
+Private Procedures:
+
+    fnm_fill_parts() - fill in missing parts of a filename with defaults.
+    fnm_locate_parts() - locate the parts of a filename.
+    fnm_new() - allocates and initializes a filename structure.
+

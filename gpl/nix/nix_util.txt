@@ -1,0 +1,150 @@
+/************************************************************************
+ *  Copyright (c) 1993 by Charles A. Measday                            *
+ *                                                                      *
+ *  Permission to use, copy, modify, and distribute this software       *
+ *  and its documentation for any purpose and without fee is hereby     *
+ *  granted, provided that the above copyright notice appear in all     *
+ *  copies.  The author makes no representations about the suitability  *
+ *  of this software for any purpose.  It is provided "as is" without   *
+ *  express or implied warranty.                                        *
+ ************************************************************************/
+
+/*
+@(#)  FILE: nix_util.c  RELEASE: 1.12  DATE: 04/22/97, 16:53:18
+*/
+/*******************************************************************************
+
+File:
+
+    nix_util.c
+
+    Network I/O Handler (Not Including X).
+
+
+Author:    Alex Measday
+
+
+Purpose:
+
+    The functions in this file implement an X Toolkit-style I/O event
+    dispatcher.  Applications that make use of the NIX dispatcher are
+    generally structured as follows:
+
+          Perform any application-specific initialization activities.
+          Register event "callbacks" with the NIX event dispatcher.
+          DO forever
+              Wait for the next event.
+              CALL the callback bound to the event.
+          ENDDO
+
+    The event processing loop is encapsulated in a NIX function, NXMAINLOOP().
+    Other NIX functions are available to:
+
+      - Register an I/O source with the dispatcher.  When an I/O event is
+        detected at the source, the dispatcher automatically invokes an
+        application-defined "callback" function to respond to the event
+        (e.g., to read input from a network connection).
+
+      - Register a timeout timer with the dispatcher.  When the
+        specified time interval has elapsed, the dispatcher
+        automatically invokes an application-defined callback
+        function to react to the timeout.
+
+      - Register a work procedure (an application-defined function) with
+        the dispatcher.  When no I/O is active and no timers are ready
+        to fire, the dispatcher will execute the next work procedure on
+        its queue.  Work procedures are used to perform tasks in the
+        "background".
+
+    The NIX_UTIL functions are patterned after the following X Toolkit
+    functions:
+
+        NxAddInput ()		-	XtAppAddInput ()
+        NxAddTimeOut ()		-	XtAppAddTimeOut ()
+        NxAddWorkProc ()	-	XtAppAddWorkProc ()
+        NxMainLoop ()		-	XtAppMainLoop ()
+        NxRemoveInput ()	-	XtRemoveInput ()
+        NxRemoveTimeOut ()	-	XtRemoveTimeOut ()
+        NxRemoveWorkProc ()	-	XtRemoveWorkProc ()
+
+    I/O sources are registered with the NIX dispatcher by NXADDINPUT(),
+    timeout timers by NXADDTIMEOUT(), and work procedures by NXADDWORKPROC().
+    The dispatcher itself is contained in NXMAINLOOP().  Once called,
+    NXMAINLOOP(), like XtAppMainLoop(), never returns; it loops forever,
+    waiting for I/O and timer events and invoking the application-specified
+    callback functions bound to the events.
+
+    The following program (working) shows a simple application of the NIX
+    functions to reading standard input and echoing it to standard output:
+
+        #include  <stdio.h>		-- Standard I/O definitions.
+        #include  "nix_util.h"		-- Network I/O Handler definitions.
+
+        static  int  read_input (...)	-- Standard input callback.
+        {
+            char  buffer[128] ;
+            if (gets (buffer) == NULL)  exit (0) ;
+            printf ("read_input: %s\n", buffer) ;
+        }
+
+        main (...)			-- Main routine.
+        {
+            NxAddInput (NULL, fileno (stdin), NxInputReadMask,
+                        read_input, NULL) ;
+            NxMainLoop (NULL) ;
+        }
+
+    The NIX main loop is implemented using a UNIX SELECT(2) call and it
+    supports read, write, and exceptional I/O events (much like the X
+    Toolkit does).  The NIX functions have been tested on UNIX and VMS
+    machines and, if you get the header files straight, they should work
+    under operating systems like VxWorks that support SELECT(2).
+
+    Under VMS, you can use the SELECT(2) implementation or, by calling
+    NXMAINLOOPEF(), an event flag-based implementation a la DECWindows.
+    The VMS UCX implementation of SELECT(2) only supports socket I/O and
+    not arbitrary device I/O as in UNIX; event flags provide this missing
+    capability.
+
+
+Notes:
+
+    The original NIX functions were patterned after the corresponding
+    X Toolkit functions, but they didn't mimic the X Toolkit names and
+    signatures like they do now.  With the thought of making it easier
+    to reuse X- and non-X-based event-related code, I redid the NIX
+    interface to closely parallel the X Toolkit interface.  Despite
+    the new NX names, I still speak of the "NIX" utilities.
+
+    The NIX utilities were developed under VMS and subsequently ported
+    to SunOS and VxWorks.  In porting the code, I rearranged the header
+    files somewhat, so I hope the VMS version still compiles.  I briefly
+    had access to an HP/UX machine, on which I attempted to compile the
+    utilities using HP's ANSI C compiler.  This attempt failed because
+    of some problem with the "time.h" definitions; I didn't have time
+    to dig into the problem further.  I believe I did compile and
+    successfully test the code using HP's non-ANSI C compiler.
+
+    Under VxWorks, the NIX utilities are reentrant (except for the
+    global debug flag).  A pointer to the statically-allocated, default
+    application context is automatically registered as a task-specific
+    variable, so the operating system will save and restore it when
+    a task context switch occurs.
+
+
+Procedures:
+
+    NXADDINPUT - registers an I/O source with the NIX dispatcher.
+    NXADDTIMEOUT - registers a timeout callback with the NIX dispatcher.
+    NXADDWORKPROC - registers a background work procedure with the NIX
+        dispatcher.
+    NXCREATECONTEXT - creates an application context.
+    NXMAINLOOP - monitors and responds to I/O events and timeouts.
+    NXMAINLOOPEF - monitors and responds to I/O events and timeouts using
+        event flags (VMS only).
+    NXREMOVEINPUT - removes the registration of an I/O source.
+    NXREMOVETIMEOUT - removes the registration of a timeout callback.
+    NXREMOVEWORKPROC - removes the registration of a work procedure.
+    NXSETDEBUG - enables/disables debug output.
+
+*******************************************************************************/

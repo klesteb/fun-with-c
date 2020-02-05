@@ -1,0 +1,62 @@
+#
+# File: Makefile.linux
+# Date: 25-Nov-2005
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc
+OLBS = ../../libs/libgpl.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libgpl.a
+LIBR = ar -r
+#
+INCS = ../drs_util.h drs_priv.h
+#
+OBJS = drs_core.o drs_count.o drs_create.o drs_destroy.o \
+	drs_first.o drs_get.o drs_next.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+drs_core.o: drs_core.c $(INCS)
+	$(CC) $(CFLAGS) drs_core.c
+	$(LIBR) $(LIBS) drs_core.o
+#
+drs_count.o: drs_count.c $(INCS)
+	$(CC) $(CFLAGS) drs_count.c
+	$(LIBR) $(LIBS) drs_count.o
+#
+drs_create.o: drs_create.c $(INCS)
+	$(CC) $(CFLAGS) drs_create.c
+	$(LIBR) $(LIBS) drs_create.o
+#
+drs_destroy.o: drs_destroy.c $(INCS)
+	$(CC) $(CFLAGS) drs_destroy.c
+	$(LIBR) $(LIBS) drs_destroy.o
+#
+drs_first.o: drs_first.c $(INCS)
+	$(CC) $(CFLAGS) drs_first.c
+	$(LIBR) $(LIBS) drs_first.o
+#
+drs_get.o: drs_get.c $(INCS)
+	$(CC) $(CFLAGS) drs_get.c
+	$(LIBR) $(LIBS) drs_get.o
+#
+drs_next.o: drs_next.c $(INCS)
+	$(CC) $(CFLAGS) drs_next.c
+	$(LIBR) $(LIBS) drs_next.o
+#
+# eof
+#

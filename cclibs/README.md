@@ -3,7 +3,9 @@
 
 cclibs is a collection of C code that I wrote during the '90s. It is 
 composed of various useful modules. Most of this code is written in
-the style of libgpl.
+the style of libgpl. The make files with the .vms extension are 
+formatted to be used with Aven make, which was available on the DECUS 
+tapes.
 
 ## cfg
 

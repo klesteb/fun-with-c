@@ -18,8 +18,13 @@ The code is being maintained and extended. The nix routines have been
 supplanted, so my bug report was not needed. But I sent a nice message
 to Charles to let him know that I was still using his code.
 
-**Note:** This code has been modified from the original code. Don't
-bother Charles with bug reports. 
+**Note:** This code has been modified from the original code and it is
+not the complete release. It is just the stuff that I could use on VMS. 
+So don't bother Charles with bug reports. 
 
+## Documentation
 
+Each of the sub directories has a .txt file. Each of the code modules
+has extensive comments. This is how we did it back in the "old days".
+So if you want to know how to use the code, you need to read the code.
 

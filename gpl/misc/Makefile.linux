@@ -24,7 +24,7 @@ clean:
 	rm -f *.o
 	rm -f *~
 #
-vperror.o: vperror.c vperror.h
+vperror.o: vperror.c ../vperror.h
 	$(CC) $(CFLAGS) vperror.c
 	$(LIBR) $(LIBS) vperror.o
 #

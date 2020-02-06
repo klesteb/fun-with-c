@@ -6,10 +6,10 @@
 # Makefile to build libwin.olb.
 #
 CC = gcc
-CFLAGS = -Wall -c -I.. -I../misc
+CFLAGS = -Wall -c -I.. -I../misc -I../../gpl
 OLBS = ../libcclibs.a -l ncurses
 LINK = gcc
-LFLAGS =
+LFLAGS = 
 LIBR = ar -r
 LIBS = ../libcclibs.a
 #
@@ -24,8 +24,8 @@ all: $(OBJS)
 debug:
 #
 clean:
-	rm *.o
-	rm *~
+	rm -f *.o
+	rm -f *~
 #
 demos: bardemo formdemo listdemo pdemo popdemo
 tests: wintest kbtest

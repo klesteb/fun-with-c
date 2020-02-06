@@ -6,7 +6,7 @@
 # Makefile to build libcclibs.a.
 #
 CC = gcc
-CFLAGS = -Wall -c -I.. -I../misc -I../../gpl -I../../gpl/misc
+CFLAGS = -Wall -c -I.. -I../misc -I../../gpl
 OLBS = ../../libs/libcclibs.a
 LINK = gcc
 LFLAGS = -o 

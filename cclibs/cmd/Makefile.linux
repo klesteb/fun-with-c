@@ -1,0 +1,56 @@
+#
+# File: makefile.
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libcclibs.a
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc -I../../gpl -I../../gpl/misc
+OLBS = ../../libs/libcclibs.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libcclibs.a
+LIBR = ar -r
+#
+INCS = ../cmd_util.h cmd_priv.h
+#
+OBJS = cmd_create.o cmd_destroy.o cmd_dispatch.o cmd_input.o cmd_get.o
+#
+all: $(OBJS)
+#
+debug:
+#CFLAGS = -ggdb -Wall -c -I.. -I../misc 
+#LFLAGS = -ggdb -o
+#
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+cmd_create.o: cmd_create.c $(INCS)
+	$(CC) $(CFLAGS) cmd_create.c
+	$(LIBR) $(LIBS) cmd_create.o
+#
+cmd_input.o: cmd_input.c $(INCS)
+	$(CC) $(CFLAGS) cmd_input.c
+	$(LIBR) $(LIBS) cmd_input.o
+#
+cmd_dispatch.o: cmd_dispatch.c $(INCS)
+	$(CC) $(CFLAGS) cmd_dispatch.c
+	$(LIBR) $(LIBS) cmd_dispatch.o
+#
+cmd_destroy.o: cmd_destroy.c $(INCS)
+	$(CC) $(CFLAGS) cmd_destroy.c
+	$(LIBR) $(LIBS) cmd_destroy.o
+#
+cmd_get.o: cmd_get.c $(INCS)
+	$(CC) $(CFLAGS) cmd_get.c
+	$(LIBR) $(LIBS) cmd_get.o
+#
+# eof
+#

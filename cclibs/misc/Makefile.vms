@@ -1,0 +1,172 @@
+!
+! File: Makefile
+! Date: 19-Aug-1999
+! By  : Kevin Esteb
+!
+! This is the makefile to create the tools library.
+!
+!
+CC = cc'cflags'/inc=[-]/ansi/standard=relaxed_ansi89
+OLBS = [-]cclibs.olb
+LINK = link'lflags'
+LIBR = libr/replace
+!
+OBJS = dates.obj,fmtasc.obj,left.obj,ltrim.obj,mid.obj,\
+       pos.obj, right.obj,rtrim.obj,seg.obj,soundex.obj,spaces.obj,\
+       stricmp.obj,string.obj,strlwr.obj,strnicmp.obj,strrev.obj,\
+       strupr.obj,trim.obj,xmalloc.obj,xstrtok.obj,match.obj,\
+       report.obj,vperror.obj,str_replace.obj,\
+       convert_dibol_overpunch.obj,convert_zone_overpunch.obj, \
+       convert_left_overpunch.obj,convert_right_overpunch.obj, \
+       create_dibol_overpunch.obj,create_zone_overpunch.obj, \
+       create_left_overpunch.obj,create_right_overpunch.obj, \
+       format_zone.obj wordwrap.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt/list
+    lflags := /debug
+!
+clean:
+    delete *.lis;*,*.com;*
+    purge *.obj
+!
+dates.obj: dates.c dates.h
+    $(CC) dates.c
+    $(LIBR) $(OLBS) dates.obj
+!
+fmtasc.obj: fmtasc.c
+    $(CC) fmtasc.c
+    $(LIBR) $(OLBS) fmtasc.obj
+!
+left.obj: left.c
+    $(CC) left.c
+    $(LIBR) $(OLBS) left.obj
+!
+ltrim.obj: ltrim.c
+    $(CC) ltrim.c
+    $(LIBR) $(OLBS) ltrim.obj
+!
+mid.obj: mid.c
+    $(CC) mid.c
+    $(LIBR) $(OLBS) mid.obj
+!
+pos.obj: pos.c
+    $(CC) pos.c
+    $(LIBR) $(OLBS) pos.obj
+!
+right.obj: right.c
+    $(CC) right.c
+    $(LIBR) $(OLBS) right.obj
+!
+rtrim.obj: rtrim.c
+    $(CC) rtrim.c
+    $(LIBR) $(OLBS) rtrim.obj
+!
+seg.obj: seg.c
+    $(CC) seg.c
+    $(LIBR) $(OLBS) seg.obj
+!
+soundex.obj: soundex.c
+    $(CC) soundex.c
+    $(LIBR) $(OLBS) soundex.obj
+!
+spaces.obj: spaces.c
+    $(CC) spaces.c
+    $(LIBR) $(OLBS) spaces.obj
+!
+stricmp.obj: stricmp.c
+    $(CC) stricmp.c
+    $(LIBR) $(OLBS) stricmp.obj
+!
+string.obj: string.c
+    $(CC) string.c
+    $(LIBR) $(OLBS) string.obj
+!
+strlwr.obj: strlwr.c
+    $(CC) strlwr.c
+    $(LIBR) $(OLBS) strlwr.obj
+!
+strnicmp.obj: strnicmp.c
+    $(CC) strnicmp.c
+    $(LIBR) $(OLBS) strnicmp.obj
+!
+strrev.obj: strrev.c
+    $(CC) strrev.c
+    $(LIBR) $(OLBS) strrev.obj
+!
+strupr.obj: strupr.c
+    $(CC) strupr.c
+    $(LIBR) $(OLBS) strupr.obj
+!
+trim.obj: trim.c
+    $(CC) trim.c
+    $(LIBR) $(OLBS) trim.obj
+!
+xmalloc.obj: xmalloc.c
+    $(CC) xmalloc.c
+    $(LIBR) $(OLBS) xmalloc.obj
+!
+xstrtok.obj: xstrtok.c
+    $(CC) xstrtok.c
+    $(LIBR) $(OLBS) xstrtok.obj
+!
+match.obj: match.c match.h
+    $(CC) match.c
+    $(LIBR) $(OLBS) match.obj
+!
+report.obj: report.c
+    $(CC) report.c
+    $(LIBR) $(OLBS) report.obj
+!
+vperror.obj: vperror.c vperror.h
+    $(CC) vperror.c
+    $(LIBR) $(OLBS) vperror.obj
+!
+str_replace.obj: str_replace.c
+    $(CC) str_replace.c
+    $(LIBR) $(OLBS) str_replace.obj
+!
+convert_dibol_overpunch.obj: convert_dibol_overpunch.c
+    $(CC) convert_dibol_overpunch.c
+    $(LIBR) $(OLBS) convert_dibol_overpunch.obj
+!
+convert_zone_overpunch.obj: convert_zone_overpunch.c
+    $(CC) convert_zone_overpunch.c
+    $(LIBR) $(OLBS) convert_zone_overpunch.obj
+!
+convert_left_overpunch.obj: convert_left_overpunch.c
+    $(CC) convert_left_overpunch.c
+    $(LIBR) $(OLBS) convert_left_overpunch.obj
+!
+convert_right_overpunch.obj: convert_right_overpunch.c
+    $(CC) convert_right_overpunch.c
+    $(LIBR) $(OLBS) convert_right_overpunch.obj
+!
+create_dibol_overpunch.obj: create_dibol_overpunch.c
+    $(CC) create_dibol_overpunch.c
+    $(LIBR) $(OLBS) create_dibol_overpunch.obj
+!
+create_zone_overpunch.obj: create_zone_overpunch.c
+    $(CC) create_zone_overpunch.c
+    $(LIBR) $(OLBS) create_zone_overpunch.obj
+!
+create_left_overpunch.obj: create_left_overpunch.c
+    $(CC) create_left_overpunch.c
+    $(LIBR) $(OLBS) create_left_overpunch.obj
+!
+create_right_overpunch.obj: create_right_overpunch.c
+    $(CC) create_right_overpunch.c
+    $(LIBR) $(OLBS) create_right_overpunch.obj
+!
+format_zone.obj: format_zone.c
+    $(CC)/noopt format_zone.c
+    $(LIBR) $(OLBS) format_zone.obj
+!
+wordwrap.obj: wordwrap.c
+    $(CC)/noopt wordwrap.c
+    $(LIBR) $(OLBS) wordwrap.obj
+!
+! eof
+!

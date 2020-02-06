@@ -1,0 +1,114 @@
+#
+# File: Makefile.linux
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libcclibs.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc -I../../gpl -I../../gpl/misc
+OLBS = ../../libs/libcclibs.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libcclibs.a
+LIBR = ar -r
+#
+INCS = ../que_util.h que_priv.h
+#
+OBJS = que_delete.o que_empty.o que_end.o que_find.o  \
+       que_first.o que_get.o que_init.o que_insert.o  \
+       que_last.o que_next.o que_pop_head.o que_pop_tail.o  \
+       que_prev.o que_push_head.o que_push_tail.o que_put.o  \
+       que_seek.o que_size.o que_sort.o que_start.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+#
+que_delete.o: que_delete.c $(INCS)
+	$(CC) $(CFLAGS) que_delete.c
+	$(LIBR) $(LIBS) que_delete.o
+#
+que_empty.o: que_empty.c $(INCS)
+	$(CC) $(CFLAGS) que_empty.c
+	$(LIBR) $(LIBS) que_empty.o
+#
+que_end.o: que_end.c $(INCS)
+	$(CC) $(CFLAGS) que_end.c
+	$(LIBR) $(LIBS) que_end.o
+#
+que_find.o: que_find.c $(INCS)
+	$(CC) $(CFLAGS) que_find.c
+	$(LIBR) $(LIBS) que_find.o
+#
+que_first.o: que_first.c $(INCS)
+	$(CC) $(CFLAGS) que_first.c
+	$(LIBR) $(LIBS) que_first.o
+#
+que_get.o: que_get.c $(INCS)
+	$(CC) $(CFLAGS) que_get.c
+	$(LIBR) $(LIBS) que_get.o
+#
+que_init.o: que_init.c $(INCS)
+	$(CC) $(CFLAGS) que_init.c
+	$(LIBR) $(LIBS) que_init.o
+#
+que_insert.o: que_insert.c $(INCS)
+	$(CC) $(CFLAGS) que_insert.c
+	$(LIBR) $(LIBS) que_insert.o
+#
+que_last.o: que_last.c $(INCS)
+	$(CC) $(CFLAGS) que_last.c
+	$(LIBR) $(LIBS) que_last.o
+#
+que_next.o: que_next.c $(INCS)
+	$(CC) $(CFLAGS) que_next.c
+	$(LIBR) $(LIBS) que_next.o
+#
+que_pop_head.o: que_pop_head.c $(INCS)
+	$(CC) $(CFLAGS) que_pop_head.c
+	$(LIBR) $(LIBS) que_pop_head.o
+#
+que_pop_tail.o: que_pop_tail.c $(INCS)
+	$(CC) $(CFLAGS) que_pop_tail.c
+	$(LIBR) $(LIBS) que_pop_tail.o
+#
+que_prev.o: que_prev.c $(INCS)
+	$(CC) $(CFLAGS) que_prev.c
+	$(LIBR) $(LIBS) que_prev.o
+#
+que_push_head.o: que_push_head.c $(INCS)
+	$(CC) $(CFLAGS) que_push_head.c
+	$(LIBR) $(LIBS) que_push_head.o
+#
+que_push_tail.o: que_push_tail.c $(INCS)
+	$(CC) $(CFLAGS) que_push_tail.c
+	$(LIBR) $(LIBS) que_push_tail.o
+#
+que_put.o: que_put.c $(INCS)
+	$(CC) $(CFLAGS) que_put.c
+	$(LIBR) $(LIBS) que_put.o
+#
+que_seek.o: que_seek.c $(INCS)
+	$(CC) $(CFLAGS) que_seek.c
+	$(LIBR) $(LIBS) que_seek.o
+#
+que_size.o: que_size.c $(INCS)
+	$(CC) $(CFLAGS) que_size.c
+	$(LIBR) $(LIBS) que_size.o
+#
+que_sort.o: que_sort.c $(INCS)
+	$(CC) $(CFLAGS) que_sort.c
+	$(LIBR) $(LIBS) que_sort.o
+#
+que_start.o: que_start.c $(INCS)
+	$(CC) $(CFLAGS) que_start.c
+	$(LIBR) $(LIBS) que_start.o
+#
+# eof
+#

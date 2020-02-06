@@ -1,0 +1,49 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libcmd.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]cmd_util.h,cmd_priv.h
+!
+OBJS = cmd_create.obj,cmd_destroy.obj,cmd_dispatch.obj,cmd_input.obj,cmd_get.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+cmd_create.obj: cmd_create.c $(INCS)
+    $(CC) cmd_create.c
+    $(LIBR) $(LIBS) cmd_create.obj
+!
+cmd_input.obj: cmd_input.c $(INCS)
+    $(CC) cmd_input.c
+    $(LIBR) $(LIBS) cmd_input.obj
+!
+cmd_dispatch.obj: cmd_dispatch.c $(INCS)
+    $(CC) cmd_dispatch.c
+    $(LIBR) $(LIBS) cmd_dispatch.obj
+!
+cmd_destroy.obj: cmd_destroy.c $(INCS)
+    $(CC) cmd_destroy.c
+    $(LIBR) $(LIBS) cmd_destroy.obj
+!
+cmd_get.obj: cmd_get.c $(INCS)
+    $(CC) cmd_get.c
+    $(LIBR) $(LIBS) cmd_get.obj
+!
+! eof
+!

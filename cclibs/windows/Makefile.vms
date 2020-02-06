@@ -1,0 +1,103 @@
+!
+! File: makefile.
+! Date: 07-Apr-2003
+! By  : Kevin Esteb
+!
+! Makefile to build libwin.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = ,libwin.olb/lib,[---.source.cclibs]cclibs.olb/lib
+LIBS = libwin.olb
+LINK = link'lflags'
+LIBR = libr/replace
+!
+INCS = windows.h
+!
+OBJS = winalert.obj,winbar.obj,windows.obj,winforms.obj, \
+       wininput.obj,winlists.obj,winpd.obj,winpopup.obj, \
+       matchkey.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+demos: bardemo.exe,formdemo.exe,listdemo.exe,pdemo.exe,popdemo.exe,wintest.exe
+!
+winalert.obj: winalert.c $(INCS)
+    $(CC) winalert.c
+    $(LIBR) $(LIBS) winalert.obj
+
+winbar.obj: winbar.c $(INCS)
+    $(CC) winbar.c
+    $(LIBR) $(LIBS) winbar.obj
+!
+windows.obj: windows.c $(INCS)
+    $(CC) windows.c
+    $(LIBR) $(LIBS) windows.obj
+!
+winedtbuff.obj: winedtbuff.c $(INCS)
+    $(CC) winedtbuff.c
+    $(LIBR) $(LIBS) winedtbuff.obj
+!
+winforms.obj: winforms.c $(INCS)
+    $(CC) winforms.c
+    $(LIBR) $(LIBS) winforms.obj
+!
+wingetedt.obj: wingetedt.c $(INCS)
+    $(CC) wingetedt.c
+    $(LIBR) $(LIBS) wingetedt.obj
+!
+wininput.obj: wininput.c $(INCS)
+    $(CC) wininput.c
+    $(LIBR) $(LIBS) wininput.obj
+!
+winlists.obj: winlists.c $(INCS)
+    $(CC) winlists.c
+    $(LIBR) $(LIBS) winlists.obj
+!
+winpd.obj: winpd.c $(INCS)
+    $(CC) winpd.c
+    $(LIBR) $(LIBS) winpd.obj
+!
+winpopup.obj: winpopup.c $(INCS)
+    $(CC) winpopup.c
+    $(LIBR) $(LIBS) winpopup.obj
+!
+matchkey.obj: matchkey.c $(INCS)
+    $(CC) matchkey.c
+    $(LIBR) $(LIBS) matchkey.obj
+!
+! Demo programs
+!
+bardemo.exe: bardemo.c
+    $(CC) bardemo.c
+    $(LINK)/exec=bardemo.exe bardemo.obj $(OLBS)
+!
+formdemo.exe: formdemo.c
+    $(CC) formdemo.c
+    $(LINK)/exec=formdemo.exe formdemo.obj $(OLBS)
+!
+listdemo.exe: listdemo.c
+    $(CC) listdemo.c
+    $(LINK)/exec=listdemo.exe listdemo.obj $(OLBS)
+!
+pdemo.exe: pdemo.c
+    $(CC) pdemo.c
+    $(LINK)/exec=pdemo.exe pdemo.obj $(OLBS)
+!
+popdemo.exe: popdemo.c
+    $(CC) popdemo.c
+    $(LINK)/exec=popdemo.exe popdemo.obj $(OLBS)
+!
+wintest.exe: wintest.c
+    $(CC) wintest.c
+    $(LINK)/exec=wintest.exe wintest.obj $(OLBS)
+!
+! eof
+!

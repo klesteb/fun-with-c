@@ -1,0 +1,89 @@
+#
+# File: Makefile.linux
+# Date: 25-Nov-2005
+# By  : Kevin Esteb
+#
+# Makefile to build liblpd.olb.
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../misc -I../../gpl -I../../gpl/misc
+OLBS = ../../libs/libcclibs.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../libs/libcclibs.a
+LIBR = ar -r
+#
+INCS = ../lpd_util.h lpd_priv.h
+#
+OBJS = lpd_close.o lpd_end_data.o lpd_end_job.o lpd_eof.o  \
+       lpd_get_stat.o lpd_open.o lpd_print_job.o lpd_put.o  \
+       lpd_remove_job.o lpd_send_control.o lpd_start_data.o  \
+       lpd_start_job.o lpd_wait_ack.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+#
+lpd_close.o: lpd_close.c $(INCS)
+	$(CC) $(CFLAGS) lpd_close.c
+	$(LIBR) $(LIBS) lpd_close.o
+#
+lpd_end_data.o: lpd_end_data.c $(INCS)
+	$(CC) $(CFLAGS) lpd_end_data.c
+	$(LIBR) $(LIBS) lpd_end_data.o
+#
+lpd_end_job.o: lpd_end_job.c $(INCS)
+	$(CC) $(CFLAGS) lpd_end_job.c
+	$(LIBR) $(LIBS) lpd_end_job.o
+#
+lpd_eof.o: lpd_eof.c $(INCS)
+	$(CC) $(CFLAGS) lpd_eof.c
+	$(LIBR) $(LIBS) lpd_eof.o
+#
+lpd_get_stat.o: lpd_get_stat.c $(INCS)
+	$(CC) $(CFLAGS) lpd_get_stat.c
+	$(LIBR) $(LIBS) lpd_get_stat.o
+#
+lpd_open.o: lpd_open.c $(INCS)
+	$(CC) $(CFLAGS) lpd_open.c
+	$(LIBR) $(LIBS) lpd_open.o
+#
+lpd_print_job.o: lpd_print_job.c $(INCS)
+	$(CC) $(CFLAGS) lpd_print_job.c
+	$(LIBR) $(LIBS) lpd_print_job.o
+#
+lpd_put.o: lpd_put.c $(INCS)
+	$(CC) $(CFLAGS) lpd_put.c
+	$(LIBR) $(LIBS) lpd_put.o
+#
+lpd_remove_job.o: lpd_remove_job.c $(INCS)
+	$(CC) $(CFLAGS) lpd_remove_job.c
+	$(LIBR) $(LIBS) lpd_remove_job.o
+#
+lpd_send_control.o: lpd_send_control.c $(INCS)
+	$(CC) $(CFLAGS) lpd_send_control.c
+	$(LIBR) $(LIBS) lpd_send_control.o
+#
+lpd_start_data.o: lpd_start_data.c $(INCS)
+	$(CC) $(CFLAGS) lpd_start_data.c
+	$(LIBR) $(LIBS) lpd_start_data.o
+#
+lpd_start_job.o: lpd_start_job.c $(INCS)
+	$(CC) $(CFLAGS) lpd_start_job.c
+	$(LIBR) $(LIBS) lpd_start_job.o
+#
+lpd_wait_ack.o: lpd_wait_ack.c $(INCS)
+	$(CC) $(CFLAGS) lpd_wait_ack.c
+	$(LIBR) $(LIBS) lpd_wait_ack.o
+#
+# eof
+#

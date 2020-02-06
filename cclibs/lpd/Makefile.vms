@@ -1,0 +1,90 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build liblpd.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]lpd_util.h,lpd_priv.h
+!
+OBJS = lpd_close.obj,lpd_end_data.obj,lpd_end_job.obj,lpd_eof.obj, \
+       lpd_get_stat.obj,lpd_open.obj,lpd_print_job.obj,lpd_put.obj, \
+       lpd_remove_job.obj,lpd_send_control.obj,lpd_start_data.obj, \
+       lpd_start_job.obj,lpd_wait_ack.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+test:
+	$(CC) test.c
+	$(LINK)/exe=test.exe test.obj,[-]cclibs.olb/lib,[-]vmslibs.olb/lib
+!
+all: $(OBJS)
+!
+lpd_close.obj: lpd_close.c $(INCS)
+    $(CC) lpd_close.c
+    $(LIBR) $(LIBS) lpd_close.obj
+!
+lpd_end_data.obj: lpd_end_data.c $(INCS)
+    $(CC) lpd_end_data.c
+    $(LIBR) $(LIBS) lpd_end_data.obj
+!
+lpd_end_job.obj: lpd_end_job.c $(INCS)
+    $(CC) lpd_end_job.c
+    $(LIBR) $(LIBS) lpd_end_job.obj
+!
+lpd_eof.obj: lpd_eof.c $(INCS)
+    $(CC) lpd_eof.c
+    $(LIBR) $(LIBS) lpd_eof.obj
+!
+lpd_get_stat.obj: lpd_get_stat.c $(INCS)
+    $(CC) lpd_get_stat.c
+    $(LIBR) $(LIBS) lpd_get_stat.obj
+!
+lpd_open.obj: lpd_open.c $(INCS)
+    $(CC) lpd_open.c
+    $(LIBR) $(LIBS) lpd_open.obj
+!
+lpd_print_job.obj: lpd_print_job.c $(INCS)
+    $(CC) lpd_print_job.c
+    $(LIBR) $(LIBS) lpd_print_job.obj
+!
+lpd_put.obj: lpd_put.c $(INCS)
+    $(CC) lpd_put.c
+    $(LIBR) $(LIBS) lpd_put.obj
+!
+lpd_remove_job.obj: lpd_remove_job.c $(INCS)
+    $(CC) lpd_remove_job.c
+    $(LIBR) $(LIBS) lpd_remove_job.obj
+!
+lpd_send_control.obj: lpd_send_control.c $(INCS)
+    $(CC) lpd_send_control.c
+    $(LIBR) $(LIBS) lpd_send_control.obj
+!
+lpd_start_data.obj: lpd_start_data.c $(INCS)
+    $(CC) lpd_start_data.c
+    $(LIBR) $(LIBS) lpd_start_data.obj
+!
+lpd_start_job.obj: lpd_start_job.c $(INCS)
+    $(CC) lpd_start_job.c
+    $(LIBR) $(LIBS) lpd_start_job.obj
+!
+lpd_wait_ack.obj: lpd_wait_ack.c $(INCS)
+    $(CC) lpd_wait_ack.c
+    $(LIBR) $(LIBS) lpd_wait_ack.obj
+!
+! eof
+!

@@ -1,0 +1,69 @@
+#
+# File: Makefile.linux
+# Date: 25-Nov-2005
+# By  : Kevin Esteb
+#
+# Makefile to build libcmd.olb.
+#
+CC = gcc 
+CFLAGS = -Wall -c -I.. -I../misc -I../../gpl -I../../gpl/misc
+OLBS = ../../libs/libcclibs.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libcclibs.a
+LIBR = ar -r
+#
+INCS = ../cfg_util.h cfg_priv.h
+#
+OBJS = cfg_close.o cfg_del.o cfg_destroy.o cfg_get.o cfg_open.o \
+       cfg_save.o cfg_set.o cfg_exists.o
+#
+all: $(OBJS)
+#
+debug:
+#CFLAGS = -ggdb -Wall -c -I.. -I../misc
+#LFLAGS = -ggdb -o 
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+test:
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS)
+#
+#
+cfg_close.o: cfg_close.c $(INCS)
+	$(CC) $(CFLAGS) cfg_close.c
+	$(LIBR) $(LIBS) cfg_close.o
+#
+cfg_del.o: cfg_del.c $(INCS)
+	$(CC) $(CFLAGS) cfg_del.c
+	$(LIBR) $(LIBS) cfg_del.o
+#
+cfg_destroy.o: cfg_destroy.c $(INCS)
+	$(CC) $(CFLAGS) cfg_destroy.c
+	$(LIBR) $(LIBS) cfg_destroy.o
+#
+cfg_get.o: cfg_get.c $(INCS)
+	$(CC) $(CFLAGS) cfg_get.c
+	$(LIBR) $(LIBS) cfg_get.o
+#
+cfg_open.o: cfg_open.c $(INCS)
+	$(CC) $(CFLAGS) cfg_open.c
+	$(LIBR) $(LIBS) cfg_open.o
+#
+cfg_save.o: cfg_save.c $(INCS)
+	$(CC) $(CFLAGS) cfg_save.c
+	$(LIBR) $(LIBS) cfg_save.o
+#
+cfg_set.o: cfg_set.c $(INCS)
+	$(CC) $(CFLAGS) cfg_set.c
+	$(LIBR) $(LIBS) cfg_set.o
+#
+cfg_exists.o: cfg_exists.c $(INCS)
+	$(CC) $(CFLAGS) cfg_exists.c
+	$(LIBR) $(LIBS) cfg_exists.o
+#
+# eof
+#

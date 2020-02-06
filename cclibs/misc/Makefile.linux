@@ -1,0 +1,169 @@
+#
+# File: Makefile
+# Date: 19-Aug-1999
+# By  : Kevin Esteb
+#
+# This is the makefile to create the tools library.
+#
+#
+CC = gcc
+CFLAGS = -Wall -c -I.. -I../../gpl -I../../gpl/misc
+OLBS = ../../libs/libcclibs.a
+LINK = gcc
+LFLAGS = -o
+LIBS = ../../libs/libcclibs.a
+LIBR = ar -r
+#
+OBJS = dates.o fmtasc.o left.o ltrim.o mid.o \
+       pos.o right.o rtrim.o seg.o soundex.o spaces.o \
+       stricmp.o string.o strlwr.o strnicmp.o strrev.o \
+       strupr.o trim.o xmalloc.o xstrtok.o match.o \
+       report.o str_replace.o \
+       convert_dibol_overpunch.o convert_zone_overpunch.o  \
+       convert_left_overpunch.o convert_right_overpunch.o  \
+       create_dibol_overpunch.o create_zone_overpunch.o  \
+       create_left_overpunch.o create_right_overpunch.o  \
+       format_zone.o wordwrap.o
+#
+all: $(OBJS)
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+#
+dates.o: dates.c dates.h
+	$(CC) $(CFLAGS) dates.c
+	$(LIBR) $(OLBS) dates.o
+#
+fmtasc.o: fmtasc.c
+	$(CC) $(CFLAGS) fmtasc.c
+	$(LIBR) $(OLBS) fmtasc.o
+#
+left.o: left.c
+	$(CC) $(CFLAGS) left.c
+	$(LIBR) $(OLBS) left.o
+#
+ltrim.o: ltrim.c
+	$(CC) $(CFLAGS) ltrim.c
+	$(LIBR) $(OLBS) ltrim.o
+#
+mid.o: mid.c
+	$(CC) $(CFLAGS) mid.c
+	$(LIBR) $(OLBS) mid.o
+#
+pos.o: pos.c
+	$(CC) $(CFLAGS) pos.c
+	$(LIBR) $(OLBS) pos.o
+#
+right.o: right.c
+	$(CC) $(CFLAGS) right.c
+	$(LIBR) $(OLBS) right.o
+#
+rtrim.o: rtrim.c
+	$(CC) $(CFLAGS) rtrim.c
+	$(LIBR) $(OLBS) rtrim.o
+#
+seg.o: seg.c
+	$(CC) $(CFLAGS) seg.c
+	$(LIBR) $(OLBS) seg.o
+#
+soundex.o: soundex.c
+	$(CC) $(CFLAGS) soundex.c
+	$(LIBR) $(OLBS) soundex.o
+#
+spaces.o: spaces.c
+	$(CC) $(CFLAGS) spaces.c
+	$(LIBR) $(OLBS) spaces.o
+#
+stricmp.o: stricmp.c
+	$(CC) $(CFLAGS) stricmp.c
+	$(LIBR) $(OLBS) stricmp.o
+#
+string.o: string.c
+	$(CC) $(CFLAGS) string.c
+	$(LIBR) $(OLBS) string.o
+#
+strlwr.o: strlwr.c
+	$(CC) $(CFLAGS) strlwr.c
+	$(LIBR) $(OLBS) strlwr.o
+#
+strnicmp.o: strnicmp.c
+	$(CC) $(CFLAGS) strnicmp.c
+	$(LIBR) $(OLBS) strnicmp.o
+#
+strrev.o: strrev.c
+	$(CC) $(CFLAGS) strrev.c
+	$(LIBR) $(OLBS) strrev.o
+#
+strupr.o: strupr.c
+	$(CC) $(CFLAGS) strupr.c
+	$(LIBR) $(OLBS) strupr.o
+#
+trim.o: trim.c
+	$(CC) $(CFLAGS) trim.c
+	$(LIBR) $(OLBS) trim.o
+#
+xmalloc.o: xmalloc.c
+	$(CC) $(CFLAGS) xmalloc.c
+	$(LIBR) $(OLBS) xmalloc.o
+#
+xstrtok.o: xstrtok.c
+	$(CC) $(CFLAGS) xstrtok.c
+	$(LIBR) $(OLBS) xstrtok.o
+#
+match.o: match.c match.h
+	$(CC) $(CFLAGS) match.c
+	$(LIBR) $(OLBS) match.o
+#
+report.o: report.c
+	$(CC) $(CFLAGS) report.c
+	$(LIBR) $(OLBS) report.o
+#
+str_replace.o: str_replace.c
+	$(CC) $(CFLAGS) str_replace.c
+	$(LIBR) $(OLBS) str_replace.o
+#
+convert_dibol_overpunch.o: convert_dibol_overpunch.c
+	$(CC) $(CFLAGS) convert_dibol_overpunch.c
+	$(LIBR) $(OLBS) convert_dibol_overpunch.o
+#
+convert_zone_overpunch.o: convert_zone_overpunch.c
+	$(CC) $(CFLAGS) convert_zone_overpunch.c
+	$(LIBR) $(OLBS) convert_zone_overpunch.o
+#
+convert_left_overpunch.o: convert_left_overpunch.c
+	$(CC) $(CFLAGS) convert_left_overpunch.c
+	$(LIBR) $(OLBS) convert_left_overpunch.o
+#
+convert_right_overpunch.o: convert_right_overpunch.c
+	$(CC) $(CFLAGS) convert_right_overpunch.c
+	$(LIBR) $(OLBS) convert_right_overpunch.o
+#
+create_dibol_overpunch.o: create_dibol_overpunch.c
+	$(CC) $(CFLAGS) create_dibol_overpunch.c
+	$(LIBR) $(OLBS) create_dibol_overpunch.o
+#
+create_zone_overpunch.o: create_zone_overpunch.c
+	$(CC) $(CFLAGS) create_zone_overpunch.c
+	$(LIBR) $(OLBS) create_zone_overpunch.o
+#
+create_left_overpunch.o: create_left_overpunch.c
+	$(CC) $(CFLAGS) create_left_overpunch.c
+	$(LIBR) $(OLBS) create_left_overpunch.o
+#
+create_right_overpunch.o: create_right_overpunch.c
+	$(CC) $(CFLAGS) create_right_overpunch.c
+	$(LIBR) $(OLBS) create_right_overpunch.o
+#
+format_zone.o: format_zone.c
+	$(CC) $(CFLAGS) format_zone.c
+	$(LIBR) $(OLBS) format_zone.o
+#
+wordwrap.o: wordwrap.c
+	$(CC) $(CFLAGS) wordwrap.c
+	$(LIBR) $(OLBS) wordwrap.o
+#
+# eof
+#

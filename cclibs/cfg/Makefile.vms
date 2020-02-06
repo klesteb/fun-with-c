@@ -1,0 +1,64 @@
+!
+! File: makefile.
+! Date: 07-May-2002
+! By  : Kevin Esteb
+!
+! Makefile to build libcmd.olb.
+!
+CC = cc/list'cflags'/inc=([-...])
+OLBS = 
+LINK = link'lflags'
+LIBS = [-]cclibs.olb
+LIBR = libr/replace
+!
+INCS = [-]cfg_util.h,cfg_priv.h
+!
+OBJS = cfg_close.obj,cfg_del.obj,cfg_destroy.obj,cfg_get.obj,cfg_open.obj \
+       cfg_save.obj,cfg_set.obj,cfg_exists.obj
+!
+all: $(OBJS)
+!
+debug:
+    cflags := /debug/noopt
+    lflags := /debug
+!
+clean:
+    delete *.lis;*
+    purge *.*
+!
+all: $(OBJS)
+!
+cfg_close.obj: cfg_close.c $(INCS)
+    $(CC) cfg_close.c
+    $(LIBR) $(LIBS) cfg_close.obj
+!
+cfg_del.obj: cfg_del.c $(INCS)
+    $(CC) cfg_del.c
+    $(LIBR) $(LIBS) cfg_del.obj
+!
+cfg_destroy.obj: cfg_destroy.c $(INCS)
+    $(CC) cfg_destroy.c
+    $(LIBR) $(LIBS) cfg_destroy.obj
+!
+cfg_get.obj: cfg_get.c $(INCS)
+    $(CC) cfg_get.c
+    $(LIBR) $(LIBS) cfg_get.obj
+!
+cfg_open.obj: cfg_open.c $(INCS)
+    $(CC) cfg_open.c
+    $(LIBR) $(LIBS) cfg_open.obj
+!
+cfg_save.obj: cfg_save.c $(INCS)
+    $(CC) cfg_save.c
+    $(LIBR) $(LIBS) cfg_save.obj
+!
+cfg_set.obj: cfg_set.c $(INCS)
+    $(CC) cfg_set.c
+    $(LIBR) $(LIBS) cfg_set.obj
+!
+cfg_exists.obj: cfg_exists.c $(INCS)
+    $(CC) cfg_exists.c
+    $(LIBR) $(LIBS) cfg_exists.obj
+!
+! eof
+!

@@ -1,0 +1,133 @@
+
+/**************************************************************** 
+ * 
+ *  File : deque.c 
+ * 
+ *  Author: Peter Yard [1993.01.02] -- 02 Jan 1993 
+ * 
+ *  Disclaimer: This code is released to the public domain. 
+ * 
+ *  Description: 
+ * 
+ *      Generic double ended queue (Deque pronounced DEK) for handling 
+ *      any data types, with sorting. 
+ * 
+ *      By use of various functions in this module the caller 
+ *      can create stacks, queues, lists, doubly linked lists, 
+ *      sorted lists, indexed lists.  All lists are dynamic. 
+ * 
+ *      It is the responsibility of the caller to malloc and free 
+ *      memory for insertion into the queue. A pointer to the object 
+ *      is used so that not only can any data be used but various kinds 
+ *      of data can be pushed on the same queue if one so wished e.g. 
+ *      various length string literals mixed with pointers to structures 
+ *      or integers etc. 
+ * 
+ *  Enhancements: 
+ * 
+ *      A future improvement would be the option of multiple "cursors" 
+ *      so that multiple locations could occur in the one queue to allow 
+ *      placemarkers and additional flexibility.  Perhaps even use queue 
+ *      itself to have a list of cursors. 
+ *
+ *      The orignal can be found on Bob Stout's snippet collection 
+ *      at http://www.snippets.org.
+ * 
+ * Modifications:
+ * 
+ *      16-Nov-1998 K.Esteb
+ *          This code did not work correctly under VMS or Linux (memory access 
+ *          violations). This was fixed by actually allocating memory to hold 
+ *          the structures in que_push_tail() and que_push_head(). Apparently 
+ *          it worked fine under MS-DOS - Hmmm.... 
+ *
+ *          I also changed the calling convention to reflect how I like 
+ *          things. All statically allocated memory has been pushed into the 
+ *          queue data structure. This should make the code reentrant and 
+ *          thread safe. 
+ *
+ *       03-Nov-1999 K.Esteb
+ *          Fixed several functions that were not working correctly.
+ *
+ *          que_init()      now allocates memory for the initial head/tail 
+ *                          nodes.
+ *          que_push_tail() will now populate the initial head/tail nodes 
+ *                          before creating new nodes.
+ *          que_push_head() will now populate the initial head/tail nodes 
+ *                          before creating new nodes. It will also correctly
+ *                          place new nodes at the beginning of the queue.
+ *          que_delete()    will now delete a node from the list properly.
+ *          que_insert()    will now insert a new node after the current one.
+ *
+ *          This changes were all instigated when it was discoverd that the
+ *          library was not maintaining the list pointers properly.
+ *
+ *       30-Nov-2001 K.Esteb
+ *          Fixed a small problem.
+ *
+ *          que_push_tail() will now place the first data item into the
+ *                          correct node. que_pop_tail() now finds all of 
+ *                          data items.
+ *
+ * Usage: 
+ * 
+ *          /x init queue x/ 
+ *          queue  q; 
+ *          que_init(&q); 
+ * 
+ *      To create a stack : 
+ * 
+ *          que_push_head(&q, &mydata1); /x push x/ 
+ *          que_push_head(&q, &mydata2); 
+ *          ..... 
+ *          data_ptr = que_pop_head(&q); /x pop x/ 
+ *          ..... 
+ *          data_ptr = que_first(&q);   /x top of stack x/ 
+ * 
+ *      To create a FIFO: 
+ * 
+ *          que_push_head(&q, &mydata1); 
+ *          ..... 
+ *          data_ptr = que_pop_tail(&q); 
+ * 
+ *      To create a double list: 
+ * 
+ *          data_ptr = que_first(&q); 
+ *          .... 
+ *          data_ptr = que_next(&q); 
+ *          data_ptr = que_last(&q); 
+ *          if (que_empty(&q)) .... 
+ *          ..... 
+ *          data_ptr = que_previous(&q); 
+ * 
+ * 
+ *      To create a sorted list: 
+ * 
+ *          que_push_head(&q, &mydata1); /x push x/ 
+ *          que_push_head(&q, &mydata2); 
+ *          ..... 
+ *          if (!que_sort(&q, MyFunction)) 
+ *              .. error .. 
+ * 
+ *          /x fill in key field of mydata1. 
+ *           * NB: que_find does linear search 
+ *           x/ 
+ * 
+ *          if (que_find(&q, &mydata1, MyFunction)) 
+ *          { 
+ *              /x found it, queue cursor now at correct record x/ 
+ *              /x can retrieve with x/ 
+ *              data_ptr = que_get(&q); 
+ * 
+ *              /x alter data , write back with x/ 
+ *              que_put(&q, data_ptr); 
+ *          } 
+ * 
+ *          /x Search with binary search x/ 
+ *          if (que_seek(&q, &mydata, MyFunction)) 
+ *              /x etc x/ 
+ * 
+ * 
+ ****************************************************************/ 
+
+

@@ -6,8 +6,8 @@
 # Makefile to build error_code.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects
-OLBS = ../libs/liberrors.a ../libs/libobjects.a ../cclibs/libcclibs.a 
+CFLAGS = -Wall -c -I../include -I../cclibs -I../gpl -I../objects
+OLBS = ../libs/liberrors.a ../libs/libobjects.a ../libs/libcclibs.a ../libs/libgpl.a
 LINK = gcc
 LFLAGS = -o test
 LIBS = ../libs/liberrors.a

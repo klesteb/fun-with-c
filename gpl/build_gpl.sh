@@ -44,6 +44,11 @@
  make -f Makefile.linux clean
  make -f Makefile.linux
 #
+ cd ../misc
+ echo "Making the MISC routines..."
+ make -f Makefile.linux clean
+ make -f Makefile.linux
+#
  cd ../net
  echo "Making the NET routines..."
  make -f Makefile.linux clean

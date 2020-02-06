@@ -6,8 +6,8 @@
 # Makefile to build testing .
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../logger -I../errors -I../messages
-OLBS = ../libs/libmessages.a ../libs/liberrors.a ../libs/liblogger.a ../libs/libobjects.a ../cclibs/libcclibs.a -llog4c
+CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../logger -I../errors -I../messages -I../gpl
+OLBS = ../libs/libmessages.a ../libs/liberrors.a ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -r

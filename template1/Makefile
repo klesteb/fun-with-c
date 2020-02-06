@@ -9,12 +9,12 @@ CC = gcc
 LINK = gcc 
 LIBR = ar -r
 WORKING = $(shell pwd)
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects
+CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl
 LFLAGS = -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -o
 SHARED = -shared -o libtemplate.so
 STATIC = libtemplate.a
-OLBS = ../libs/libobjects.a ../cclibs/libcclibs.a 
+OLBS = ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
 INCS = template.h template_priv.h
 #

@@ -6,8 +6,8 @@
 # Makefile to build objects.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs
-OLBS = ../libs/libobjects.a ../cclibs/libcclibs.a
+CFLAGS = -Wall -c -I../include -I../cclibs -I../gpl
+OLBS = ../libs/libobjects.a ../libs/libgpl.a ../cclibs/libcclibs.a
 LINK = gcc
 LFLAGS = -o 
 LIBS = ../libs/libobjects.a

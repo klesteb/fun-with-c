@@ -6,10 +6,10 @@
 # Makefile to build messages.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects
-OLBS = message.o ../libs/libobjects.a ../cclibs/libcclibs.a 
+CFLAGS = -Wall -c -I../include -I../cclibs -I../gpl -I../objects
+OLBS = message.o ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 LINK = gcc
-LFLAGS = -o test
+LFLAGS = -o 
 LIBR = ar -r
 LIBS = ../libs/libmessages.a
 #
@@ -30,7 +30,7 @@ clean:
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
-	$(LINK) -o test1 test1.o  $(OLBS)
+	$(LINK) $(LFLAGS) test1 test1.o $(OLBS)
 #
 message.o: message.c $(INCS)
 	$(CC) $(CFLAGS) message.c

@@ -6,8 +6,8 @@
 # Makefile to build factory.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects
-OLBS = ../libs/liblogger.a ../libs/libobjects.a ../cclibs/libcclibs.a -llog4c
+CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl
+OLBS = ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
 LINK = gcc
 LFLAGS = -o test
 LIBR = ar -r

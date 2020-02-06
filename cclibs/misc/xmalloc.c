@@ -14,8 +14,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include "vperror.h"
-
 /*----------------------------------------------------------------------*/
 
 void *xmalloc(int n) {                  /* number of bytes to allocate  */
@@ -28,28 +26,30 @@ void *xmalloc(int n) {                  /* number of bytes to allocate  */
  * Description
  * 
  *     This function will alloc the given amount of memory and check to see if
- *     it really did. If it did not then it will call vperror(). The returned 
- *     buffer will be zeroed out.
+ *     it really did. The returned buffer will be zeroed out. If an error has
+ *     occured, NULL will be returned and errno set.
  * 
  * Modification History
+ * 
+ *    06-Feb-2020 K. Esteb
+ *        Removed the reference to vperror.
  * 
  * Variables Used
  * 
  */
-    
+
     void *p = NULL;
-    
+
 /*
  * Main part of function
  */
     
-    if ((p = malloc(n)) == NULL) {
+    errno = 0;
+    if ((p = malloc(n)) != NULL) {
         
-        vperror("(xmalloc) - out of memory\n");
+        memset(p, '\0', n);
 
     }
-    
-    memset(p, '\0', n);
    
     return(p);
 

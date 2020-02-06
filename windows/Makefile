@@ -6,8 +6,8 @@
 # Makefile to build libwindows.
 #
 CC = gcc
-CFLAGS = -Wall -c -I. -I../include -I../cclibs -I../objects -I../errors
-OLBS = ../libs/libwindows.a ../libs/liberrors.a ../libs/libobjects.a ../cclibs/libcclibs.a -lncurses -lpanel -lform -lmenu
+CFLAGS = -Wall -c -I. -I../include -I../cclibs -I../objects -I../errors -I../gpl
+OLBS = ../libs/libwindows.a ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -lncurses -lpanel -lform -lmenu
 LINK = gcc
 LFLAGS = -o 
 LIBS = ../libs/libwindows.a

@@ -1132,7 +1132,7 @@ int _workbench_inject_event(workbench_t *self, event_t *event) {
 
     int stat = ERR;
 
-    stat =  _queue_event(self, event);
+    stat = _queue_event(self, event);
 
     return stat;
 

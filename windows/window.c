@@ -552,6 +552,114 @@ int window_output(window_t *self, int row, int col, char *fmt, ...) {
 
 }
 
+int window_get_position(window_t *self, int *row, int *col) {
+
+    int stat = OK;
+
+    when_error {
+        
+        if ((self != NULL) && (row != NULL) && (col != NULL)) {
+
+            *row = self->row;
+            *col = self->col;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int window_set_position(window_t *self, int row, int col) {
+
+    int cols = 0;
+    int rows = 0;
+    int stat = OK;
+
+    when_error {
+
+        if (self != NULL) {
+
+            getmaxyx(self->outer, rows, cols);
+
+            if ((row <= rows) && (col <= cols)) {
+
+                self->row = row;
+                self->col = col;
+
+            } else {
+
+                cause_error(E_INVPARM);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int window_get_dimensions(window_t *self, int *height, int *width) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (height != NULL) && (width != NULL)) {
+
+            *width = self->width;
+            *height = self->height;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/

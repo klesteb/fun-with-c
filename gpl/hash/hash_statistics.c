@@ -10,6 +10,7 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
+#include <math.h>
 #include "hash_priv.h"
 
 /*----------------------------------------------------------------------*/
@@ -18,15 +19,15 @@
 
 int  hash_statistics (
 
-#    if __STDC__
-        FILE  *outfile,
-        HashTable  table)
-#    else
-        outfile, table)
+#if __STDC__
+    FILE  *outfile,
+    HashTable  table)
+#else
+    outfile, table)
 
-        FILE  *outfile ;
-        HashTable  table ;
-#    endif
+    FILE  *outfile ;
+    HashTable  table ;
+#endif
 
 {
 /*

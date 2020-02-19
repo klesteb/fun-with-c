@@ -19,17 +19,28 @@ OBJS = hash_add.o hash_core.o hash_create.o hash_delete.o  \
 	   hash_destroy.o hash_dump.o hash_search.o hash_statistics.o \
        hash_get.o hash_count.o hash_set_debug.o
 #
-all: $(OBJS)
+all: $(OBJS) test test2 test3
 #
 debug:
 #
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f test
+	rm -f test2
+	rm -f test3
 #
-test:
+test: test.c $(OBJS)
 	$(CC) $(CFLAGS) test.c
-	$(LINK) $(LFLAGS) test test.o $(OLBS)
+	$(LINK) $(LFLAGS) test test.o $(OLBS) -lm
+#
+test2: test2.c
+	$(CC) $(CFLAGS) test2.c
+	$(LINK) $(LFLAGS) test2 test2.o $(OLBS) -lm
+#
+test3: test3.c
+	$(CC) $(CFLAGS) test3.c
+	$(LINK) $(LFLAGS) test3 test3.o $(OLBS) -lm
 #
 hash_add.o: hash_add.c $(INCS)
 	$(CC) $(CFLAGS) hash_add.c

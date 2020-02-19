@@ -19,15 +19,15 @@
 const char *hash_get (
 
 #if _STDC_
-        HashTable  table,
-        int  index,
-        void  **data)
+    HashTable  table,
+    int  index,
+    void  **data)
 #else
-        table, index, data)
+    table, index, data)
 
-        HashTable table ;
-        int  index ;
-        void  **data ;
+    HashTable table ;
+    int  index ;
+    void  **data ;
 #endif
 
 {    

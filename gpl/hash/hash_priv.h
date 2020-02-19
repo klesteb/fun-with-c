@@ -33,7 +33,7 @@
 									
 typedef  struct  HashItem {
     char  *key;                     /* Item key.                        */
-    const  void  *value;            /* Item value.                      */
+    void  *value;                   /* Item value.                      */
     struct  HashItem  *next;        /* Pointer to next item in list.    */
 }  HashItem ;
 
@@ -45,6 +45,7 @@ typedef  struct  _HashTable {
     int  longestChain;              /* Records length of longest chain. */
     int *numItems;                  /* Array number of items in item chains. */
     HashItem  *chain[1];            /* Array of N pointers to item chains. */
+    void (*free_value)(void *);     /* callback to free the item.          */
 }  _HashTable;
 
 /*----------------------------------------------------------------------*/

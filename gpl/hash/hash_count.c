@@ -19,11 +19,11 @@
 int  hash_count (
 
 #if _STDC__
-        HashTable  table)
+    HashTable  table)
 #else
-        table)
+    table)
 
-        HashTable  table;
+    HashTable  table;
 #endif
 
 {

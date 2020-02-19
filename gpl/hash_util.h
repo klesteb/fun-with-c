@@ -44,18 +44,19 @@ extern int hash_util_debug;      /* Global debug switch (1/0 = yes/no). */
 /*----------------------------------------------------------------------*/
 
 extern  int  hash_add P_((HashTable table,
-			 const char *key,
-			 const void *data));
+			 char *key,
+			 void *data));
 
 extern  int  hash_create P_((int maxEntries,
 			    int debug,
-			    HashTable *table));
+                HashTable *table));
 
 extern  int  hash_delete P_((HashTable table,
-			    const char *key));
+			    const char *key,
+                void (*callback)(void *value)));
 
-extern  int  hash_destroy P_((HashTable table, 
-                              void (*callback)(void *item)));
+extern  int  hash_destroy P_((HashTable table,
+                void (*callback)(void *value)));
 
 extern  int  hash_dump P_((FILE *outfile,
 			  const char *header,

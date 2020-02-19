@@ -18,17 +18,17 @@
 
 int  hash_add (
 
-#    if __STDC__
-        HashTable  table,
-        const  char  *key,
-        const  void  *data)
-#    else
-        table, key, data)
+#if __STDC__
+    HashTable  table,
+    char  *key,
+    void  *data)
+#else
+    table, key, data)
 
-        HashTable  table ;
-        char  *key ;
-        void  *data ;
-#    endif
+    HashTable  table ;
+    char  *key ;
+    void  *data ;
+#endif
 
 {
 /*
@@ -106,8 +106,8 @@ int  hash_add (
 
         if (table->debug) {
 
-            printf("(hashAdd) Replaced \"%s\":%p (%p) in table %p[%d].\n",
-                                   key, data, item, table, index);
+            fprintf(stderr, "(hashAdd) Replaced \"%s\":%p (%p) in table %p[%d].\n",
+                    key, data, item, table, index);
 
         }
 
@@ -158,8 +158,8 @@ int  hash_add (
 
     if (table->debug) {
 
-        printf("(hash_add) Added \"%s\":%p (%p) to table %p[%d].\n",
-                               key, data, item, table, index);
+        fprintf(stderr, "(hash_add) Added \"%s\":%p (%p) to table %p[%d].\n",
+                key, data, item, table, index);
 
     }
 

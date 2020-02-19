@@ -19,12 +19,12 @@
 int  hash_destroy (
 
 #if __STDC__
-        HashTable  table, void (*callback)(void *))
+    HashTable  table, void (*callback)(void *))
 #else
-        table, callback)
+    table, callback)
 
-        HashTable  table;
-        void (*callback)(void *)
+    HashTable  table;
+    void (*callback)(void *);
 #endif
 
 {
@@ -54,19 +54,23 @@ int  hash_destroy (
  * Modification History
  *
  *     18-Feb-2020 K.Esteb
- *         Update  this routine to a newer release version.
+ *         Updated this routine to a newer release version.
  *
  * Variables Used
  */
 
-    int  i;
-    HashItem  *item, *next;
+    int i;
+    HashItem *item, *next;
 
 /*
  * Main part of function.
  */
 
-    if (table->debug)  printf("(hash_destroy) Deleting hash table %p.\n", table);
+    if (table->debug) {
+
+        fprintf(stderr, "(hash_destroy) Deleting hash table %p.\n", table);
+
+    }
 
     if (table == NULL)  return(0);
 
@@ -75,16 +79,20 @@ int  hash_destroy (
         for (item = table->chain[i]; item != NULL; item = next) {
 
             next = item->next;
-            free(item->key);                    /* Free item key.         */
-            (*callback)((void *)item->value);   /* Free the item.         */
+            free(item->key);                /* Free item key.         */
+
+            if (callback != NULL) {
+
+                (*callback)(item->value);   /* Free the item value.   */
+
+            }
 
         }
 
     }
 
     /* Free the hash table.   */
-    
-    if (table->chain != NULL) free(table->chain);
+
     if (table->numItems != NULL) free(table->numItems);
     free((char *)table);
 

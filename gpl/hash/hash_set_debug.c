@@ -19,12 +19,12 @@
 int  hash_set_debug (
 
 #if _STDC__
-        HashTable  table, int debug)
+    HashTable  table, int debug)
 #else
-        table, debug)
+    table, debug)
 
-        HashTable  table;
-        int debug;
+    HashTable  table;
+    int debug;
 #endif
 
 {

@@ -18,17 +18,17 @@
 
 int  hash_search (
 
-#    if __STDC__
-        HashTable  table,
-        const  char  *key,
-        void  **data)
-#    else
-        table, key, data)
+#if __STDC__
+    HashTable  table,
+    const  char  *key,
+    void  **data)
+#else
+    table, key, data)
 
-        HashTable  table ;
-        char  *key ;
-        void  **data ;
-#    endif
+    HashTable  table ;
+    char  *key ;
+    void  **data ;
+#endif
 
 {
 /*
@@ -93,13 +93,25 @@ int  hash_search (
     if (comparison == 0) {
 
         if (data != NULL)  *data = (void *) item->value;
-        if (table->debug)  printf("(hash_search) \"%s\":%p found in table %p.\n", key, item->value, table);
+        if (table->debug) {
+            
+            fprintf(stderr, "(hash_search) \"%s\":%p found in table %p.\n", 
+                    key, item->value, table);
+            
+        }
+
         return(-1);
 
     } else {
 
         if (data != NULL)  *data = NULL;
-        if (table->debug)  printf("(hash_search) Key \"%s\" not found in table %p.\n", key, table);
+        if (table->debug) {
+            
+            fprintf(stderr, "(hash_search) Key \"%s\" not found in table %p.\n", 
+                    key, table);
+            
+        }
+
         return(0);
 
     }

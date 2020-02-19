@@ -18,15 +18,17 @@
 
 int  hash_delete (
 
-#    if __STDC__
-        HashTable  table,
-        const  char  *key)
-#    else
-        table, key)
+#if __STDC__
+    HashTable  table,
+    const  char  *key,
+    void (*callback)(void *))
+#else
+    table, key, callback)
 
-        HashTable  table ;
-        char  *key ;
-#    endif
+    HashTable  table ;
+    char  *key ;
+    void (*callback)(void *);
+#endif
 
 {
 /*
@@ -62,8 +64,8 @@ int  hash_delete (
  * Variables Used
  */
 
-    HashItem  *item, *prev;
-    int  index;
+    HashItem *item, *prev;
+    int index;
 
 /*
  * Main part of function.
@@ -93,7 +95,12 @@ int  hash_delete (
 
     if (item == NULL) {
 
-        if (table->debug)  printf("(hash_delete) Key \"%s\" not found in table %p.\n", key, table);
+        if (table->debug) {
+
+            fprintf(stderr, "(hash_delete) Key \"%s\" not found in table %p.\n", 
+                    key, table);
+
+        }
         return(-2);
 
     } else {
@@ -109,10 +116,20 @@ int  hash_delete (
 
     }
 
-    if (table->debug)  printf("(hash_delete) Deleted \"%s\":%p from table %p.\n", item->key, item->value, table) ;
+    if (table->debug) {
 
-    free(item->key);                  /* Free item key.                 */
-    free((char *)item);               /* Free the item.                 */
+        fprintf(stderr, "(hash_delete) Deleted \"%s\":%p from table %p.\n", 
+                item->key, item->value, table);
+
+    }
+
+    free(item->key);                     /* Free item key.         */
+    if (callback != NULL) {
+
+        (*callback)(item->value);  /* Free the item value.   */
+
+    }
+    free(item);
 
     return(0);
 

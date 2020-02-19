@@ -18,17 +18,17 @@
 
 int  hash_create (
 
-#    if __STDC__
-        int  maxEntries,
-        int debug,
-        HashTable  *table)
-#    else
-        maxEntries, debug, table)
+#if __STDC__
+    int  maxEntries,
+    int debug,
+    HashTable  *table)
+#else
+    maxEntries, debug, freeme, table)
 
-        int  maxEntries ;
-        int debug;
-        HashTable  *table ;
-#    endif
+    int  maxEntries ;
+    int debug;
+    HashTable  *table ;
+#endif
 
 {
 /*
@@ -46,13 +46,19 @@ int  hash_create (
  *
  *    Invocation:
  *
- *        status = hash_create(maxEntries, debug, &table);
+ *        status = hash_create(maxEntries, debug, freeme, &table);
  *
  *    where
  *
  *        <maxEntries>        - I
  *            Is the maximum number of entries expected in the table.
  *
+ *        <debug>             - I
+ *            Toggles debug mode.
+ * 
+ *        <freeme>           - I
+ *            A callback to free the memory used by the hash value.
+ * 
  *        <table>             - O
  *            Returns a handle for the new hash table.  This handle is
  *            used for accessing the table in subsequent HASH_UTIL calls.
@@ -66,7 +72,7 @@ int  hash_create (
  * Variables Used
  */
 
-    int  i, prime, size;
+    int i, prime, size;
 
 /*
  * Main part of function.
@@ -102,11 +108,11 @@ int  hash_create (
     (*table)->maxChains = prime;
     (*table)->numChains = 0;           /* Number of non-empty chains.   */
     (*table)->longestChain = 0;        /* Length of longest chain.      */
- 
+
     for (i = 0; i < prime; i++) {
-       
+
         (*table)->chain[i] = (HashItem *)NULL;
-       
+
     }
 
     /* allocate the parallel array of chain lengths. */
@@ -126,7 +132,12 @@ int  hash_create (
 
     }
 
-    if ((*table)->debug)  printf("(hash_create) Created hash table %p of %d elements.\n", *table, prime);
+    if ((*table)->debug) {
+
+        fprintf(stderr, "(hash_create) Created hash table %p of %d elements.\n", 
+                *table, prime);
+
+    }
 
     return(0);
 

@@ -18,17 +18,17 @@
 
 int  hash_dump (
 
-#    if __STDC__
-        FILE  *outfile,
-        const  char  *header,
-        HashTable  table)
-#    else
-        outfile, header, table)
+#if __STDC__
+    FILE  *outfile,
+    const  char  *header,
+    HashTable  table)
+#else
+    outfile, header, table)
 
-        FILE  *outfile ;
-        char  *header ;
-        HashTable  table ;
-#    endif
+    FILE  *outfile ;
+    char  *header ;
+    HashTable  table ;
+#endif
 
 {
 /*

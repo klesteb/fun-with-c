@@ -22,15 +22,15 @@ int hash_util_debug;             /* Global debug switch (1/0 = yes/no). */
 
 int  hash_key (
 
-#    if __STDC__
-        const  char  *key,
-        int  tableSize)
-#    else
-        key, tableSize)
+#if __STDC__
+    const  char  *key,
+    int  tableSize)
+#else
+    key, tableSize)
 
-        char  *key ;
-        int  tableSize ;
-#    endif
+    char  *key ;
+    int  tableSize ;
+#endif
 
 {
 /*

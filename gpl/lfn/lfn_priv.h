@@ -37,6 +37,7 @@
 #include  "tv_util.h"                   /* "timeval" manipulation functions. */
 #include  "vperror.h"                   /* VPERROR() definitions. */
 #include  "lfn_util.h"                  /* LF-terminated network I/O. */
+#include  "meo_util.h"                  /* memory operations */
 
 /*----------------------------------------------------------------------*/
 /* LFN Stream - contains information about a LF-terminated, data stream,*/

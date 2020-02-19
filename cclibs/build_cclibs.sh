@@ -29,6 +29,11 @@
  make -f Makefile.linux clean
  make -f Makefile.linux
 #
+ cd ../pjl
+ echo "Making the PJL routines..."
+ make -f Makefile clean
+ make -f Makefile
+#
  cd ../que
  echo "Making the QUE routines..."
  make -f Makefile.linux clean

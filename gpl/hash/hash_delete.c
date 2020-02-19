@@ -104,6 +104,9 @@ int  hash_delete (
 
         } else prev->next = item->next;
 
+        table->totalItems--;
+        table->numItems[index]--;
+
     }
 
     if (table->debug)  printf("(hash_delete) Deleted \"%s\":%p from table %p.\n", item->key, item->value, table) ;

@@ -103,8 +103,14 @@ int  hash_add (
     if (comparison == 0) {
 
         item->value = data;
-        if (table->debug)  printf("(hashAdd) Replaced \"%s\":%p (%p) in table %p[%d].\n",
+
+        if (table->debug) {
+
+            printf("(hashAdd) Replaced \"%s\":%p (%p) in table %p[%d].\n",
                                    key, data, item, table, index);
+
+        }
+
         return(0);
 
     }
@@ -147,8 +153,15 @@ int  hash_add (
 
     }
 
-    if (table->debug)  printf("(hash_add) Added \"%s\":%p (%p) to table %p[%d].\n",
+    table->totalItems++;
+    table->numItems[index]++;
+
+    if (table->debug) {
+
+        printf("(hash_add) Added \"%s\":%p (%p) to table %p[%d].\n",
                                key, data, item, table, index);
+
+    }
 
     /* For statistical purposes, measure the length of the chain and,   */
     /* if necessary, update the LONGEST_CHAIN value for the hash table. */

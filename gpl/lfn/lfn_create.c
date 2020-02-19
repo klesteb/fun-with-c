@@ -109,7 +109,7 @@ int  lfn_create (
     if (options != NULL) {
 
         opt_create_argv("lfn_create", options, &argc, &argv);
-        opt_init(argc, argv, 1, optionList, &context);
+        opt_init(argc, argv, optionList, &context);
         opt_errors(context, 0);
 
         errflg = 0;
@@ -149,7 +149,6 @@ int  lfn_create (
             return(errno);
 
         }
-
 
     }
 

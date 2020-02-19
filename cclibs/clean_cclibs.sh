@@ -25,6 +25,10 @@
  echo "Making the MISC routines..."
  make -f Makefile.linux clean
 #
+ cd ../pjl
+ echo "Making the PJL routines..."
+ make -f Makefile clean
+#
  cd ../que
  echo "Making the QUE routines..."
  make -f Makefile.linux clean

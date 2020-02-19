@@ -16,7 +16,8 @@ LIBR = ar -r
 INCS = ../hash_util.h hash_priv.h
 #
 OBJS = hash_add.o hash_core.o hash_create.o hash_delete.o  \
-	   hash_destroy.o hash_dump.o hash_search.o hash_statistics.o
+	   hash_destroy.o hash_dump.o hash_search.o hash_statistics.o \
+       hash_get.o hash_count.o 
 #
 all: $(OBJS)
 #
@@ -61,6 +62,14 @@ hash_search.o: hash_search.c $(INCS)
 hash_statistics.o: hash_statistics.c $(INCS)
 	$(CC) $(CFLAGS) hash_statistics.c
 	$(LIBR) $(LIBS) hash_statistics.o
+#
+hash_get.o: hash_get.c $(INCS)
+	$(CC) $(CFLAGS) hash_get.c
+	$(LIBR) $(LIBS) hash_get.o
+#
+hash_count.o: hash_count.c $(INCS)
+	$(CC) $(CFLAGS) hash_count.c
+	$(LIBR) $(LIBS) hash_count.o
 #
 # eof
 #

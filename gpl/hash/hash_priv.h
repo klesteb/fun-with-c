@@ -39,9 +39,11 @@ typedef  struct  HashItem {
 
 typedef  struct  _HashTable {
     int  debug;                     /* Debug switch (1/0 = yes/no).     */
+    int  totalItems;                /* total number of items in table */
     int  maxChains;                 /* Maximum number of entries N in table. */
     int  numChains;                 /* Actual number of non-empty entries. */
     int  longestChain;              /* Records length of longest chain. */
+    int *numItems;                  /* Array number of items in item chains. */
     HashItem  *chain[1];            /* Array of N pointers to item chains. */
 }  _HashTable;
 
@@ -61,7 +63,6 @@ int  hash_prime (
         int  number
 #    endif
     ) ;
-
 
 #endif
 

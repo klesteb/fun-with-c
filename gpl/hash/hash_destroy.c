@@ -18,13 +18,14 @@
 
 int  hash_destroy (
 
-#    if __STDC__
-        HashTable  table)
-#    else
-        table)
+#if __STDC__
+        HashTable  table, void (*callback)(void *))
+#else
+        table, callback)
 
-        HashTable  table ;
-#    endif
+        HashTable  table;
+        void (*callback)(void *)
+#endif
 
 {
 /*
@@ -52,6 +53,9 @@ int  hash_destroy (
  *
  * Modification History
  *
+ *     18-Feb-2020 K.Esteb
+ *         Update  this routine to a newer release version.
+ *
  * Variables Used
  */
 
@@ -71,14 +75,18 @@ int  hash_destroy (
         for (item = table->chain[i]; item != NULL; item = next) {
 
             next = item->next;
-            free(item->key);                  /* Free item key.         */
-            free((char *)item);               /* Free the item.         */
+            free(item->key);                    /* Free item key.         */
+            (*callback)((void *)item->value);   /* Free the item.         */
 
         }
 
     }
 
-    free((char *)table);                      /* Free the hash table.   */
+    /* Free the hash table.   */
+    
+    if (table->chain != NULL) free(table->chain);
+    if (table->numItems != NULL) free(table->numItems);
+    free((char *)table);
 
     return(0);
 

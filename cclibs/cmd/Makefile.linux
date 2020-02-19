@@ -7,7 +7,7 @@
 #
 CC = gcc
 CFLAGS = -Wall -c -I.. -I../misc -I../../gpl
-OLBS = ../../libs/libcclibs.a
+OLBS = ../../libs/libcclibs.a ../../libs/libgpl.a
 LINK = gcc
 LFLAGS = -o
 LIBS = ../../libs/libcclibs.a
@@ -17,7 +17,7 @@ INCS = ../cmd_util.h cmd_priv.h
 #
 OBJS = cmd_create.o cmd_destroy.o cmd_dispatch.o cmd_input.o cmd_get.o
 #
-all: $(OBJS)
+all: $(OBJS) test
 #
 debug:
 #CFLAGS = -ggdb -Wall -c -I.. -I../misc 
@@ -27,8 +27,9 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f test
 #
-test:
+test: test.c
 	$(CC) $(CFLAGS) test.c
 	$(LINK) $(LFLAGS) test test.o $(OLBS)
 #

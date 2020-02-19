@@ -20,13 +20,13 @@ int  hash_create (
 
 #    if __STDC__
         int  maxEntries,
-        int  debug,
+        int debug,
         HashTable  *table)
 #    else
         maxEntries, debug, table)
 
         int  maxEntries ;
-        int  debug ;
+        int debug;
         HashTable  *table ;
 #    endif
 
@@ -52,10 +52,6 @@ int  hash_create (
  *
  *        <maxEntries>        - I
  *            Is the maximum number of entries expected in the table.
- *
- *        <debug>             - I
- *            Enables debug output (to STDOUT) on any HASH_UTIL calls
- *            for the new hash table.
  *
  *        <table>             - O
  *            Returns a handle for the new hash table.  This handle is
@@ -102,12 +98,33 @@ int  hash_create (
     }
 
     (*table)->debug = debug;
+    (*table)->totalItems = 0;
     (*table)->maxChains = prime;
     (*table)->numChains = 0;           /* Number of non-empty chains.   */
     (*table)->longestChain = 0;        /* Length of longest chain.      */
  
-   for (i = 0; i < prime; i++)
+    for (i = 0; i < prime; i++) {
+       
         (*table)->chain[i] = (HashItem *)NULL;
+       
+    }
+
+    /* allocate the parallel array of chain lengths. */
+
+    (*table)->numItems = (int *) calloc (prime, sizeof (int)) ;
+    if ((*table)->numItems == NULL) {
+
+        vperror("(hash_create) Error allocating %lu-element array of chain lengths.\ncalloc: ",
+                prime) ;
+        return (errno) ;
+
+    }
+
+    for (i = 0 ;  i < prime ;  i++) {
+
+        (*table)->numItems[i] = 0 ;
+
+    }
 
     if ((*table)->debug)  printf("(hash_create) Created hash table %p of %d elements.\n", *table, prime);
 

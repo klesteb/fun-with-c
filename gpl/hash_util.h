@@ -54,7 +54,8 @@ extern  int  hash_create P_((int maxEntries,
 extern  int  hash_delete P_((HashTable table,
 			    const char *key));
 
-extern  int  hash_destroy P_((HashTable table));
+extern  int  hash_destroy P_((HashTable table, 
+                              void (*callback)(void *item)));
 
 extern  int  hash_dump P_((FILE *outfile,
 			  const char *header,
@@ -66,6 +67,10 @@ extern  int  hash_search P_((HashTable table,
 
 extern  int  hash_statistics P_((FILE *outfile,
 				HashTable table));
+
+extern  int hash_count P_((HashTable table));
+        
+extern const char *hash_get P_((HashTable table, int index, void **data)); 
 
 
 #ifdef __cplusplus

@@ -41,6 +41,10 @@
 #define TRUE 1
 #define FALSE 0
 #endif
+#ifndef OK
+#define OK  0
+#define ERR -1
+#endif
 
 #endif				/* If this file was not INCLUDE'd previously. */
 

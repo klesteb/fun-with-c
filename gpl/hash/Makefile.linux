@@ -17,7 +17,7 @@ INCS = ../hash_util.h hash_priv.h
 #
 OBJS = hash_add.o hash_core.o hash_create.o hash_delete.o  \
 	   hash_destroy.o hash_dump.o hash_search.o hash_statistics.o \
-       hash_get.o hash_count.o 
+       hash_get.o hash_count.o hash_set_debug.o
 #
 all: $(OBJS)
 #
@@ -70,6 +70,10 @@ hash_get.o: hash_get.c $(INCS)
 hash_count.o: hash_count.c $(INCS)
 	$(CC) $(CFLAGS) hash_count.c
 	$(LIBR) $(LIBS) hash_count.o
+#
+hash_set_debug.o: hash_set_debug.c $(INCS)
+	$(CC) $(CFLAGS) hash_set_debug.c
+	$(LIBR) $(LIBS) hash_set_debug.o
 #
 # eof
 #

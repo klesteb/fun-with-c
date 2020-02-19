@@ -69,9 +69,10 @@ extern  int  hash_statistics P_((FILE *outfile,
 				HashTable table));
 
 extern  int hash_count P_((HashTable table));
-        
+
 extern const char *hash_get P_((HashTable table, int index, void **data)); 
 
+extern int hash_set_debug P_((HashTable table, int debug)); 
 
 #ifdef __cplusplus
     }

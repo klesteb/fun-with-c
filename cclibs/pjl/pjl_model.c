@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 1999 by Kevin L. Esteb                                     */
+/*              Copyright (c) 2020 by Kevin L. Esteb                         */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -10,43 +10,58 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include <time.h>
-#include "tools.h"
+#include "pjl_priv.h"
 
-/*-----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------*/
 
-DATE sys_date(void) {
+int pjl_model(
+
+#if __STDC__
+    PjlHandle handle, char *model, int *len)
+#else
+    handle, model, len)
+
+    PjlHandle handle;
+    char *model;
+    int *len;
+#endif
+{
 /*
- * Function: sys_date.c
+ * Function: pjl_model.c
  * Version : 1.0
- * Created : 21-Nov-1998
+ * Created : 20-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *  This function will return the julian day number of the current 
- *  system date.
+ *    This function will return the printers model name.
  *
  * Modification History
  *
  * Variables Used
  */
- 
-    DATE epoch = 2440587L;              /* start of UNIX time           */
-    DATE today;
-    time_t t;
-    struct tm *tb;
-    
+
+    queue list;
+    int stat = ERR;
+    char *buffer = NULL;
+    char *command = "@PJL INFO ID \r\n";
+
 /*
- * Main part of function
+ * Main part of function.
  */
- 
-    t = time(NULL);
-    tb = localtime(&t);
 
-    today = julian_date(tb->tm_mday, tb->tm_mon, tb->tm_year + 1900);
+    que_init(&list);
 
-    return(today);
+    if ((stat = _pjl_do_command(handle, command, &list)) == OK) {
+
+        buffer = que_pop_head(&list);
+
+        *len = strlen(buffer);
+        model = buffer;
+
+    }
+
+    return stat;
 
 }
-    
+

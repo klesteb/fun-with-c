@@ -31,6 +31,12 @@ that. How about a left over-punch number from DIBOL? There is a routine
 for  that. You just love those DEC BASIC string handling functions, 
 there are routines for that. 
 
+## pjl
+
+A project that was started 20 years ago and subsequently dropped. It
+was for a VMS print symbiont, so that it could directly control HP Laser 
+Jets with PJL.
+
 ## que
 
 A module to handle linked lists. Implemented as a double linked list.

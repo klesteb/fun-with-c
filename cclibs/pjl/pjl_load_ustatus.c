@@ -109,6 +109,8 @@ int pjl_load_ustatus(
 
     }
 
+    que_push_head(&handle->ustatus, response);
+
     fini:
     return stat;
 

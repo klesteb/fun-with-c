@@ -16,13 +16,13 @@
 
 int pjl_dump_config(
 
-#    if __STDC__
+#if __STDC__
     PjlHandle handle)
-#    else
+#else
     handle)
 
     PjlHandle handle;
-#    endif
+#endif
 
 {
 /*
@@ -53,28 +53,44 @@ int pjl_dump_config(
  * Variables Used
  */
 
+    char model[256];
     char *option = NULL;
+    char *fmt1 = "%s\n";
     char *fmt2 = "%s=%s\n";
-    char *fmt1 = "%s [%s %s]\n";
+    char *fmt3 = "%s [%s %s]\n";
     PjlResponse *response = NULL;
 
 /*
  * Main part of function.
  */
 
+    if (pjl_get_model(handle, model, 255) == OK) {
+
+        printf("\nPrinter Model: %s\n", model);
+
+    }
+
     printf("\nPrinter Config:\n\n");
 
-    for (response = que_first(&handle->ustatus);
+    for (response = que_first(&handle->configs);
          response != NULL;
-         response = que_next(&handle->ustatus)) {
+         response = que_next(&handle->configs)) {
 
         if (response->items == NULL) {
 
-            printf(fmt2, response->name, response->value);
+            if (response->value == NULL) {
+
+                printf(fmt1, response->name);
+
+            } else {
+
+                printf(fmt2, response->name, response->value);
+
+            }
 
         } else {
 
-            printf(fmt1, response->name, response->items, response->type);
+            printf(fmt3, response->name, response->items, response->type);
 
             for (option = que_first(&response->options);
                  option != NULL;

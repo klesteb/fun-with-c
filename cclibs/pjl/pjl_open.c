@@ -68,15 +68,16 @@ int pjl_open(
  * Variables Used
  */
 
-    int len = 0;
+    int len = 255;
     int stat = ERR;
     int offset = 0; 
+    char model[256];
     const char *error;
-    char *model = NULL;
     TcpEndpoint connection;
     char service[PJL_K_BUFSIZ];
-    char *config1 = "^(\\w+)=(\\d+)";
-    char *config2 = "^(\\w+)\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
+    char *config1 = "^(\\w+)$";
+    char *config2 = "^(.+)\\b=(.+)";
+    char *config3 = "^(.+)\\b\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
     char *ustatus = "^(\\w+)=(\\w+)\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
     char *variable = "^(\\w+)=(\\w+)\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
 
@@ -144,11 +145,22 @@ int pjl_open(
 
     }
 
+    if (((*handle)->rconfig3 = pcre_compile(config3, 0, &error, &offset, NULL)) == NULL) {
+
+        vperror("(pjl_core) Parsing error: %s, offset: %d\n", error, offset);
+        goto fini;
+
+    }
+
     if ((stat = pjl_start((*handle))) == OK) {
 
-        if ((stat = pjl_model((*handle), model, &len)) == OK) {
+        if ((stat = pjl_load_model((*handle), model, len)) == OK) {
 
             (*handle)->model = strndup(model, len);
+
+        } else {
+
+            (*handle)->model = strdup("unknown");
 
         }
 

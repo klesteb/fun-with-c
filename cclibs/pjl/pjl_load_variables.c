@@ -16,13 +16,13 @@
 
 int pjl_load_variables(
 
-#    if __STDC__
+#if __STDC__
     PjlHandle handle)
-#    else
+#else
     handle)
 
     PjlHandle handle;
-#    endif
+#endif
 
 {
 /*
@@ -52,27 +52,64 @@ int pjl_load_variables(
  * Variables Used
  */
 
-    int stat = -1;
+    queue list;
+    int stat = ERR;
+    int toggle = 0;
+    char *line = NULL;
+    PjlResponse *response = NULL;
     char *command = "@PJL INFO VARIABLES \r\n";
 
 /*
  * Main part of function.
  */
 
-    if ((stat = _pjl_clear_list(&handle->variables))) {
+    que_init(&list);
 
-        vperror("(pjl_load_variables) Error unable to clear the config list.\n");
+    /* Ask for the printer variables.                               */
+
+    if ((stat = _pjl_do_command(handle, command, &list)) != OK) {
+
+        vperror("(pjl_load_variables) Error requesting printer config.\n");
         goto fini;
 
     }
 
-    /* Ask for the printer configuration.                               */
+    while ((line = que_pop_head(&list))) {
 
-    if ((stat = _pjl_do_command(handle, command, &handle->variables)) != OK) {
+        if (line[0] != '\t') {
 
-        vperror("(pjl_load_variables) Error requesting printer variables.\n");
+            if (toggle) {
+
+                que_push_head(&handle->variables, response);
+                toggle = 0;
+
+            }
+
+            if ((response = xmalloc(sizeof(PjlResponse))) == NULL) {
+
+                stat = ERR;
+                goto fini;
+
+            }
+
+            que_init(&response->options);
+
+            if ((stat = _pjl_parse_variables(handle, response, line)) != OK) {
+
+                goto fini;
+
+            }
+
+        } else {
+
+            que_push_head(&response->options, (void *)trim(line));
+            toggle = 1;
+
+        }
 
     }
+
+    que_push_head(&handle->variables, response);
 
     fini:
     return stat;

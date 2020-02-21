@@ -51,6 +51,7 @@ typedef struct _PjlHandle {
     int debug;                  /* Global debug switch (1/0 = yes/no).  */
     pcre *rconfig1;             /* regex to parse config detail line    */
     pcre *rconfig2;             /* regex to parse config detail line    */
+    pcre *rconfig3;             /* regex to parse config detail line    */
     pcre *rustatus;             /* regex to parse ustatus detai line.   */
     pcre *rvariable;            /* regex to parse variable detail line. */
 } _PjlHandle;
@@ -78,12 +79,13 @@ typedef struct _PjlResponse {
 /*----------------------------------------------------------------------*/
 
 extern int _pjl_clear_list P_((queue *));
+extern int _pjl_clear_response P_((queue *));
 extern int _pjl_send_command P_((PjlHandle, char *));
 extern int _pjl_get_response P_((PjlHandle, queue *));
 extern int _pjl_do_command P_((PjlHandle, char *, queue *));
 extern int _pjl_parse_config P_((PjlHandle, PjlResponse *, char *));
 extern int _pjl_parse_ustatus P_((PjlHandle, PjlResponse *, char *));
-extern int _pjl_parse_variable P_((PjlHandle, PjlResponse *, char *));
+extern int _pjl_parse_variables P_((PjlHandle, PjlResponse *, char *));
 
 #endif
 

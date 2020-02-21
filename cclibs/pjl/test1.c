@@ -34,7 +34,7 @@ int main (int argc, char **argv) {
 
         pjl_load_config(handle);
         pjl_dump_config(handle);
-        
+
         pjl_stop(handle);
         pjl_close(handle);
 

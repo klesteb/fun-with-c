@@ -139,7 +139,7 @@ int _pjl_send_command(
 
         if (strnicmp(command, y, len) == 0) {
 
-            memmove(y, &y[len], len);
+            stat = OK;
             break;
 
         }
@@ -251,16 +251,70 @@ int _pjl_clear_list(
 
 }
 
+int _pjl_clear_response(
+#if __STDC__
+    queue *responses)
+#else
+    list)
+
+    queue *responses;
+#endif
+{
+/*
+ * Function: _pjl_clear_response.c
+ * Version : 1.0
+ * Created : 21-Feb-2020
+ * Author  : Kevin Esteb
+ *
+ * Description
+ *
+ *    This clear a list.
+  *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+    int stat = ERR;
+    PjlResponse *response = NULL;
+
+/*
+ * Main part of function.
+ */
+
+    while ((response = que_pop_head(responses))) {
+
+        if (response->name != NULL) free(response->name);
+        if (response->value != NULL) free(response->value);
+        if (response->items != NULL) free(response->items);
+        if (response->type != NULL) free(response->type);
+
+        _pjl_clear_list(&response->options);
+
+    }
+
+    if (que_empty(responses)) {
+
+        stat = que_init(responses);
+
+    }
+
+    return stat;
+
+}
+
 int _pjl_parse_ustatus(
+
 #if __STDC__
     PjlHandle handle, PjlResponse *response, char *line)
 #else
-    handle, *response, line)
+    handle, response, line)
 
     PjlHandle handle;
     PjlResponse *response;
     char *line;
 #endif
+
 {
 /*
  * Function: _pjl_parse_ustatus.c
@@ -336,19 +390,21 @@ int _pjl_parse_ustatus(
 
 }
 
-int _pjl_parse_variable(
+int _pjl_parse_variables(
+
 #if __STDC__
     PjlHandle handle, PjlResponse *response, char *line)
 #else
-    handle, *response, line)
+    handle, response, line)
 
     PjlHandle handle;
     PjlResponse *response;
     char *line;
 #endif
+
 {
 /*
- * Function: _pjl_parse_variable.c
+ * Function: _pjl_parse_variables.c
  * Version : 1.0
  * Created : 20-Feb-2020
  * Author  : Kevin Esteb
@@ -422,6 +478,7 @@ int _pjl_parse_variable(
 }
 
 int _pjl_parse_config(
+
 #if __STDC__
     PjlHandle handle, PjlResponse *response, char *line)
 #else
@@ -431,6 +488,7 @@ int _pjl_parse_config(
     PjlResponse *response;
     char *line;
 #endif
+
 {
 /*
  * Function: _pjl_parse_config.c
@@ -460,7 +518,50 @@ int _pjl_parse_config(
  * Main part of function.
  */
 
+    if ((count = pcre_exec(handle->rconfig1, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
+        
+        if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) {
+
+            vperror("(pjl_parse_config) Unable to retrieve name, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        stat = OK;
+        response->name = strdup(name);
+        response->value = NULL;
+        response->items = NULL;
+        response->type = NULL;
+        goto fini;
+
+    }
+
     if ((count = pcre_exec(handle->rconfig2, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
+
+        if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) {
+
+            vperror("(pjl_parse_config) Unable to retrieve name, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        if ((rc = pcre_copy_substring(line, ovector, count, 2, value, 31)) < 0) {
+
+            vperror("(pjl_parse_config) Unable to retrieve value, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        stat = OK;
+        response->name = strdup(name);
+        response->value = strdup(value);
+        response->type = NULL;
+        response->items = NULL;
+        goto fini;
+
+    }
+
+    if ((count = pcre_exec(handle->rconfig3, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
 
         if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) {
 
@@ -488,31 +589,6 @@ int _pjl_parse_config(
         response->items = strdup(items);
         response->type = strdup(type);
         response->value = NULL;
-        goto fini;
-
-    }
-
-    if ((count = pcre_exec(handle->rconfig1, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
-
-        if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) {
-
-            vperror("(pjl_parse_config) Unable to retrieve name, error: %d\n", rc);
-            goto fini;
-
-        }
-
-        if ((rc = pcre_copy_substring(line, ovector, count, 2, value, 31)) < 00) {
-
-            vperror("(pjl_parse_config) Unable to retrieve value, error: %d\n", rc);
-            goto fini;
-
-        }
-
-        stat = OK;
-        response->name = strdup(name);
-        response->value = strdup(value);
-        response->items = NULL;
-        response->type = NULL;
 
     }
 

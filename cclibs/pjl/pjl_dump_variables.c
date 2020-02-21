@@ -15,13 +15,13 @@
 
 int pjl_dump_variables(
 
-#    if __STDC__
+#if __STDC__
     PjlHandle handle)
-#    else
+#else
     handle)
 
     PjlHandle handle;
-#    endif
+#endif
 
 {
 /*

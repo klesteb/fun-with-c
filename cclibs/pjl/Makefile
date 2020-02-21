@@ -20,7 +20,7 @@ OBJS = pjl_close.o pjl_core.o pjl_dump_config.o pjl_dump_ustatus.o \
        pjl_jobname.o pjl_language.o pjl_open.o pjl_rdymsg.o \
        pjl_ustatus.o pjl_ustatusoff.o pjl_set_debug.o pjl_load_config.o \
        pjl_load_variables.o pjl_load_ustatus.o pjl_stop.o pjl_start.o \
-       pjl_model.o
+       pjl_load_model.o pjl_get_model.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
 #
@@ -148,9 +148,13 @@ pjl_stop.o: pjl_stop.c $(INCS)
 	$(CC) $(CFLAGS) pjl_stop.c
 	$(LIBR) $(LIBS) pjl_stop.o
 #
-pjl_model.o: pjl_model.c $(INCS)
-	$(CC) $(CFLAGS) pjl_model.c
-	$(LIBR) $(LIBS) pjl_model.o
+pjl_load_model.o: pjl_load_model.c $(INCS)
+	$(CC) $(CFLAGS) pjl_load_model.c
+	$(LIBR) $(LIBS) pjl_load_model.o
+#
+pjl_get_model.o: pjl_get_model.c $(INCS)
+	$(CC) $(CFLAGS) pjl_get_model.c
+	$(LIBR) $(LIBS) pjl_get_model.o
 #
 # eof
 #

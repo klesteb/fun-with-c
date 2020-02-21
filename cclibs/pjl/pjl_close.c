@@ -69,9 +69,9 @@ int pjl_close(
 
         /* Free up resources                                           */
 
-        _pjl_clear_list(&handle->ustatus);
-        _pjl_clear_list(&handle->configs);
-        _pjl_clear_list(&handle->variables);
+        _pjl_clear_response(&handle->ustatus);
+        _pjl_clear_response(&handle->configs);
+        _pjl_clear_response(&handle->variables);
 
     }
 

@@ -29,10 +29,11 @@ int main (int argc, char **argv) {
     if ((pjl_open(argv[1], argv[2], 20.0, &handle)) == 0) {
 
         pjl_start(handle);
+
         pjl_load_variables(handle);
         pjl_dump_variables(handle);
-        pjl_stop(handle);
 
+        pjl_stop(handle);
         pjl_close(handle);
 
     } else printf("Unable to attach to printer!\n");

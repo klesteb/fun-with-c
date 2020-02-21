@@ -10,9 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-extern char *trim(char *);
-
 #include "pjl_priv.h"
+#include "misc/misc.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -78,11 +77,16 @@ int pjl_load_config(
 
     while ((line = que_pop_head(&list))) {
 
-        if (line[0] != '\t') {
+        if (line[0] == '\t') {
+
+            que_push_head(&response->options, (void *)trim(line));
+            toggle = 1;
+
+        } else {
 
             if (toggle) {
 
-                que_push_head(&handle->ustatus, response);
+                que_push_head(&handle->configs, response);
                 toggle = 0;
 
             }
@@ -102,10 +106,11 @@ int pjl_load_config(
 
             }
 
-        } else {
+            if (pos(line, "=", 0) > 0) {
 
-            que_push_head(&response->options, (void *)trim(line));
-            toggle = 1;
+                que_push_head(&handle->configs, response);
+
+            }
 
         }
 

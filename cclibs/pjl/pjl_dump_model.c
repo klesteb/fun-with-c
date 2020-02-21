@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*               Copyright (c) 2020 by Kevin L. Esteb                        */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,7 +14,7 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_dump_config(
+int pjl_dump_model(
 
 #if __STDC__
     PjlHandle handle)
@@ -26,19 +26,18 @@ int pjl_dump_config(
 
 {
 /*
- * Function: pjl_dump_config.c
+ * Function: pjl_dump_model.c
  * Version : 1.0
- * Created : 14-Feb-2004
+ * Created : 21-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    Function pjl_dump_config() will dump the current stored printer
- *    configuration for this stream.
+ *    Function pjl_dump_model() will dump the printers model.
  *
  *    Invocation:
  *
- *        status = pjl_dump_config(handle);
+ *        status = pjl_dump_model(handle);
  *
  *    where
  *
@@ -53,52 +52,20 @@ int pjl_dump_config(
  * Variables Used
  */
 
+    int stat = ERR;
     char model[256];
-    char *option = NULL;
-    char *fmt1 = "%s\n";
-    char *fmt2 = "%s=%s\n";
-    char *fmt3 = "%s [%s %s]\n";
-    PjlResponse *response = NULL;
 
 /*
  * Main part of function.
  */
 
-    printf("\nPrinter Config:\n\n");
+    if ((stat = pjl_get_model(handle, model, 255)) == OK) {
 
-    for (response = que_first(&handle->configs);
-         response != NULL;
-         response = que_next(&handle->configs)) {
-
-        if (response->items == NULL) {
-
-            if (response->value == NULL) {
-
-                printf(fmt1, response->name);
-
-            } else {
-
-                printf(fmt2, response->name, response->value);
-
-            }
-
-        } else {
-
-            printf(fmt3, response->name, response->items, response->type);
-
-            for (option = que_first(&response->options);
-                 option != NULL;
-                 option = que_next(&response->options)) {
-
-                printf("    %s\n", option);
-
-            }
-
-        }
+        printf("\nPrinter Model: %s\n", model);
 
     }
 
-    return(0);
+    return stat;
 
 }
 

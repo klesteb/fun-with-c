@@ -35,7 +35,8 @@ there are routines for that.
 
 A project that was started 20 years ago and subsequently dropped. It
 was for a VMS print symbiont, so that it could directly control HP Laser 
-Jets with PJL.
+Jets with PJL (also compatible with other printers that understand PJL). 
+So why not finish it up! Just a library thou. 
 
 ## que
 

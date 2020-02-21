@@ -71,7 +71,6 @@ int pjl_open(
     int len = 255;
     int stat = ERR;
     int offset = 0; 
-    char model[256];
     const char *error;
     TcpEndpoint connection;
     char service[PJL_K_BUFSIZ];
@@ -93,9 +92,9 @@ int pjl_open(
 
     }
 
-    (*handle)->model = strdup("unknown");
-    (*handle)->timeout = timeout;
     (*handle)->debug = 0;
+    (*handle)->timeout = timeout;
+    (*handle)->model = strdup("unknown");
 
     sprintf(service, "%s@%s", port, host);
 
@@ -148,23 +147,6 @@ int pjl_open(
     if (((*handle)->rconfig3 = pcre_compile(config3, 0, &error, &offset, NULL)) == NULL) {
 
         vperror("(pjl_core) Parsing error: %s, offset: %d\n", error, offset);
-        goto fini;
-
-    }
-
-    if ((stat = pjl_start((*handle))) == OK) {
-
-        if ((stat = pjl_load_model((*handle), model, len)) == OK) {
-
-            (*handle)->model = strndup(model, len);
-
-        } else {
-
-            (*handle)->model = strdup("unknown");
-
-        }
-
-        stat = pjl_stop((*handle));
 
     }
 

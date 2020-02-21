@@ -69,6 +69,8 @@ int pjl_close(
 
         /* Free up resources                                           */
 
+        if (handle->model != NULL) free(handle->model);
+
         _pjl_clear_response(&handle->ustatus);
         _pjl_clear_response(&handle->configs);
         _pjl_clear_response(&handle->variables);

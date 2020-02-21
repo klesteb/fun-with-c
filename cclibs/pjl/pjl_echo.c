@@ -24,6 +24,7 @@ int pjl_echo(
 
     PjlHandle handle;
 #endif
+
 {
 /*
  * Function: pjl_echo.c
@@ -42,8 +43,6 @@ int pjl_echo(
  * Variables Used
  */
 
-    char *y;
-    int stat = -1;
     char buff[1024];
     time_t t = time(NULL);
     struct tm *tb = localtime(&t);
@@ -53,22 +52,7 @@ int pjl_echo(
  * Main part of function.
  */
 
-    if ((stat = lfn_putline(handle->stream, handle->timeout, buff)) == 0) {
-
-        while ((stat = lfn_getline(handle->stream, handle->timeout, &y)) == 0) {
-
-            if (strnicmp(y, buff, 31) == 0) {
-
-                stat = 0;
-                break;
-
-            }
-
-        }
-
-    }
-
-    return stat;
-
+    return _pjl_send_command(handle, buff);
+    
 }
 

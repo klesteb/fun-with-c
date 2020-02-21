@@ -69,6 +69,7 @@ typedef struct _PjlResponse {
 /*----------------------------------------------------------------------*/
 
 #define PJL_K_BUFSIZ 1024           /* Input buffer size of 1024 bytes  */
+#define PJL_K_MODEL  256            /* the size of the model name       */
 
 /*----------------------------------------------------------------------*/
 /* External routines needed by the package.                             */

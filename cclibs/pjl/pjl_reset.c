@@ -60,7 +60,7 @@ int pjl_reset(
 
     /* Put the printer into command mode. */
 
-    if ((stat = lfn_putline(handle->stream, handle->timeout, command)) != 0) {
+    if ((stat = _pjl_put(handle, command)) != 0) {
 
         vperror("(pjl_reset) Error putting printer into command mode.\n");
         goto fini:
@@ -69,7 +69,7 @@ int pjl_reset(
 
     /* Send the PJL RESET command. */
 
-    if ((stat = lfn_putline(handle->stream, handle->timout, reset)) != 0) {
+    if ((stat = _pjl_put(handle, reset)) != 0) {
 
         vperror("(pjl_reset) Error resetting printer environment.\n");
 

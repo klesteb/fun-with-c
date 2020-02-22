@@ -68,7 +68,6 @@ int pjl_open(
  * Variables Used
  */
 
-    int len = 255;
     int stat = ERR;
     int offset = 0; 
     const char *error;

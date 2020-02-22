@@ -14,7 +14,8 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_language(
+int pjl_enter(
+
 #if __STDC__
     PjlHandle handle, char *language)
 #else
@@ -23,9 +24,10 @@ int pjl_language(
     PjlHandle handle;
     char *language;
 #endif
+
 {
 /*
- * Function: pjl_language.c
+ * Function: pjl_enter.c
  * Version : 1.0
  * Created : 09-Nov-2000
  * Author  : Kevin Esteb
@@ -34,46 +36,39 @@ int pjl_language(
  *
  *    This function will set the default printer control language. It will
  *    check the printer configuration to see if the desired language is
- *    supported. If not a -1 is returned.
+ *    supported. If not ERR is returned.
  *
  * Modification History
  *
  * Variables Used
  */
 
-    int stat = 0;
-    char *buff = NULL;
-    char *item = "LANGUAGE";
+    int stat = ERR;
+    char *option = NULL;
+    char buffer[PJL_K_BUFSIZ];
     char *wanted = "LANGUAGES";
+    PjlResponse *response = NULL;
+    char *command = "@PJL ENTER LANGUAGE = %s \r\n";
 
 /*
  * Main part of function.
  */
 
-    for (buff = que_first(&handle->configs);
-         buff != NULL;
-         buff = que_next(&handle->configs)) {
+    for (response = que_first(&handle->configs);
+         response != NULL;
+         response = que_next(&handle->configs)) {
 
-        if (strnicmp(buff, wanted, strlen(wanted)) == 0) {
+        if (strcmp(response->name, wanted) == 0) {
 
-            for (;
-                 buff != NULL;
-                 buff = que_next(&handle->configs)) {
+            for (option = que_first(&response->options);
+                 option != NULL;
+                 option = que_next(&response->options)) {
 
-                if (buff[0] == '\t') {
+                if (strcmp(language, option) == 0) {
 
-                    if (stricmp(language, buff) == 0) {
-
-                        stat = lfn_putline(handle->stream, handle->timeout,
-                                           "@PJL ENTER LANGUAGE = %s \r\n",
-                                           language);
-                        goto fini;
-
-                    }
-
-                } else {
-
-                    stat = -1;
+                    memset(buffer, '\0', PJL_K_BUFSIZ);
+                    sprintf(buffer, command, language);
+                    stat = _pjl_put(handle, buffer);
                     goto fini;
 
                 }

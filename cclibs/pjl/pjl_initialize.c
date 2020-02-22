@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*                Copyright (c) 2020 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,42 +14,47 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_jobname(
+int pjl_initialize(
 
-#    if __STDC__
-    PjlHandle handle, char *jobname)
-#    else
-    handle, jobname)
+#if __STDC__
+    PjlHandle handle)
+#else
+    handle)
 
     PjlHandle handle;
-    char *jobname;
-#    endif
+#endif
 
 {
 /*
- * Function: pjl_jobname
+ * Function: pjl_initialize.c
  * Version : 1.0
- * Created : 09-Nov-2000
+ * Created : 22-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    This function will give the pjl job a name.
+ *    This function will initialize the printer and reset it back to
+ *    "PJL Current Environment" and "User Default Environment".
  *
  * Modification History
  *
  * Variables Used
  */
 
-    int stat;
+    int stat = ERR;
+    char *command = "@PJL INITIALIZE \r\n";
 
 /*
  * Main part of function.
  */
 
-    stat = lfn_putline(handle->stream, handle->timeout, "@PJL JOB NAME = \"%s\" \r\n", jobname);
+    if ((stat = _pjl_put(handle, command)) != OK) {
 
-    return(stat);
+        vperror("(pjl_initialize) Unable to initialize printer.");
+
+    }
+
+    return stat;
 
 }
 

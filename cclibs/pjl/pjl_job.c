@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*               Copyright (c) 2020 by Kevin L. Esteb                        */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,38 +14,44 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_eoj(
+int pjl_job(
 
 #if __STDC__
-    PjlHandle handle, char *jobname)
+    PjlHandle handle, char *jobname, int start, int end, int password)
 #else
-    handle, jobname)
+    handle, jobname, start, end, password)
 
     PjlHandle handle;
     char *jobname;
+    int start;
+    int end;
+    int password;
     
 #endif
 
 {
 /*
- * Function: pjl_eoj.c
+ * Function: pjl_job.c
  * Version : 1.0
- * Created : 09-Nov-2000
+ * Created : 22-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    This function will signal the pjl stream that the current job is
- *    finished.
+ *    This function will signal the pjl stream that new job is being
+ *    started.
  *
  * Modification History
  *
  * Variables Used
  */
 
-    int stat = ERR;
+    char temp[32];
+    char *fend = "END = %d ";
     char buffer[PJL_K_BUFSIZ];
-    char *command = "@PJL EOJ NAME = \"%s\" \r\n";
+    char *fstart = "START = %d ";
+    char *fpassword = "PASSWORD = \"%d\" ";
+    char *command = "@PJL JOB NAME = \"%s\" ";
 
 /*
  * Main part of function.
@@ -57,20 +63,35 @@ int pjl_eoj(
 
     }
 
-    memset(buffer, '\0', PJL_K_BUFSIZ);
     sprintf(buffer, command, jobname);
 
-    if ((stat = pjl_start(handle)) == OK) {
+    if (start > 0) {
 
-        if ((stat = _pjl_put(handle, buffer)) == OK) {
-
-            stat = pjl_stop(handle);
-
-        }
+        memset(temp, '\0', 32);
+        sprintf(temp, fstart, start);
+        strcat(buffer, temp);
 
     }
 
-    return stat;
+    if (end > 0) {
+
+        memset(temp, '\0', 32);
+        sprintf(temp, fend, end);
+        strcat(buffer, temp);
+
+    }
+
+    if (password > 0) {
+
+        memset(temp, '\0', 32);
+        sprintf(temp, fpassword, password);
+        strcat(buffer, temp);
+
+    }
+
+    strcat(buffer, "\r\n");
+
+    return lfn_putline(handle->stream, handle->timeout, buffer);
 
 }
 

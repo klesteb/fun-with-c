@@ -58,7 +58,7 @@ int pjl_execute(
  */
 
     int stat = ERR;
-    char buff[1024];
+    char buff[PJL_K_BUFSIZ];
     char *command = "@PJL EXECUTE %s \r\n";
 
 /*
@@ -67,12 +67,17 @@ int pjl_execute(
 
     if ((handle != NULL) && (operation != NULL)) {
 
-        memset(buff, '\0', 1024);
-        snprintf(buff, 1023, command, operation);
+        if ((strcmp("SHUTDOWN", operation) == 0) ||
+            (strcmp("DEMOPAGE", operation) == 0) ||
+            (strcmp("RESIFONT", operation) == 0) ||
+            (strcmp("PERMFONT", operation) == 0) ||
+            (strcmp("PRTCONFIG", operation) == 0)) {
 
-        if ((stat = lfn_putline(handle->stream, handle->timeout, buff)) != OK) {
-            
-            
+            memset(buff, '\0', PJL_K_BUFSIZ);
+            sprintf(buff, command, operation);
+
+            stat = _pjl_put(handle->stream, buff);
+
         }
 
     }

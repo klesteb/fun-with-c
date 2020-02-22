@@ -61,7 +61,7 @@ int pjl_start(
 
         /* Put the printer into command mode. */
 
-        if ((stat = lfn_putline(handle->stream, handle->timeout, command)) != 0) {
+        if ((stat = _pjl_put(handle, command)) != 0) {
 
             vperror("(pjl_start) Error placing printer into command mode.\n");
             goto fini;

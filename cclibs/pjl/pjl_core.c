@@ -128,7 +128,7 @@ int _pjl_send_command(
  * Main part of function.
  */
 
-    if ((stat = lfn_putline(handle->stream, handle->timeout, command)) != 0) {
+    if ((stat = _pjl_put(handle, command)) != 0) {
 
         vperror("(pjl_send_command) Error sending the command.\n");
         goto fini;
@@ -154,6 +154,49 @@ int _pjl_send_command(
     }
 
     fini:
+    return stat;
+
+}
+
+int _pjl_put(
+
+#if __STDC__
+    PjlHandle handle, char *command)
+#else
+    handle, command)
+
+    PjlHandle handle;
+    char *command;
+#endif
+
+{
+/*
+ * Function: _pjl_put.c
+ * Version : 1.0
+ * Created : 22-Feb-2020
+ * Author  : Kevin Esteb
+ *
+ * Description
+ *
+ *    Send a command.
+ *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+    int stat = ERR;
+
+/*
+ * Main part of function.
+ */
+
+    if ((stat = lfn_putline(handle->stream, handle->timeout, command)) != 0) {
+
+        vperror("(pjl_put) Error sending the command.\n");
+
+    }
+
     return stat;
 
 }

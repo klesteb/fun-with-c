@@ -17,10 +17,11 @@ INCS = ../pjl_util.h pjl_priv.h
 #
 OBJS = pjl_close.o pjl_core.o pjl_dump_config.o pjl_dump_ustatus.o \
        pjl_dump_variables.o pjl_echo.o pjl_eoj.o pjl_inquire.o \
-       pjl_jobname.o pjl_language.o pjl_open.o pjl_rdymsg.o \
+       pjl_enter.o pjl_open.o pjl_rdymsg.o pjl_initialize.o \
        pjl_ustatus.o pjl_ustatusoff.o pjl_set_debug.o pjl_load_config.o \
        pjl_load_variables.o pjl_load_ustatus.o pjl_stop.o pjl_start.o \
-       pjl_load_model.o pjl_get_model.o pjl_dump_model.o
+       pjl_load_model.o pjl_get_model.o pjl_dump_model.o pjl_job.o \
+       pjl_comment.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
 #
@@ -100,13 +101,9 @@ pjl_inquire.o: pjl_inquire.c $(INCS)
 	$(CC) $(CFLAGS) pjl_inquire.c
 	$(LIBR) $(LIBS) pjl_inquire.o
 #
-pjl_jobname.o: pjl_jobname.c $(INCS)
-	$(CC) $(CFLAGS) pjl_jobname.c
-	$(LIBR) $(LIBS) pjl_jobname.o
-#
-pjl_language.o: pjl_language.c $(INCS)
-	$(CC) $(CFLAGS) pjl_language.c
-	$(LIBR) $(LIBS) pjl_language.o
+pjl_enter.o: pjl_enter.c $(INCS)
+	$(CC) $(CFLAGS) pjl_enter.c
+	$(LIBR) $(LIBS) pjl_enter.o
 #
 pjl_open.o: pjl_open.c $(INCS)
 	$(CC) $(CFLAGS) pjl_open.c
@@ -159,6 +156,18 @@ pjl_get_model.o: pjl_get_model.c $(INCS)
 pjl_dump_model.o: pjl_dump_model.c $(INCS)
 	$(CC) $(CFLAGS) pjl_dump_model.c
 	$(LIBR) $(LIBS) pjl_dump_model.o
+#
+pjl_job.o: pjl_job.c $(INCS)
+	$(CC) $(CFLAGS) pjl_job.c
+	$(LIBR) $(LIBS) pjl_job.o
+#
+pjl_comment.o: pjl_comment.c $(INCS)
+	$(CC) $(CFLAGS) pjl_comment.c
+	$(LIBR) $(LIBS) pjl_comment.o
+#
+pjl_initialize.o: pjl_initialize.c $(INCS)
+	$(CC) $(CFLAGS) pjl_initialize.c
+	$(LIBR) $(LIBS) pjl_initialize.o
 #
 # eof
 #

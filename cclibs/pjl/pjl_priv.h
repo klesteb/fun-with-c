@@ -79,6 +79,7 @@ typedef struct _PjlResponse {
 /* Internal routines needed by the package.                             */
 /*----------------------------------------------------------------------*/
 
+extern int _pjl_put P_((PjlHandle, char *));
 extern int _pjl_clear_list P_((queue *));
 extern int _pjl_clear_response P_((queue *));
 extern int _pjl_send_command P_((PjlHandle, char *));

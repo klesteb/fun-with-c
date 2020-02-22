@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*              Copyright (c) 2020 by Kevin L. Esteb                         */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,72 +14,51 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_close(
+int pjl_load_model(
 
 #if __STDC__
     PjlHandle handle)
 #else
-    handle)
+    handle, model, len)
 
     PjlHandle handle;
 #endif
 
 {
 /*
- * Function: pjl_close.c
+ * Function: pjl_load_model.c
  * Version : 1.0
- * Created : 14-Feb-2004
+ * Created : 20-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    Function pjl_close() closes the network connection to the
- *    printer and frees any used resources.
- *
- *    Invocation:
- *
- *        status = pjl_close(handle);
- *
- *    where
- *
- *        <handle>            - I
- *            The handle for subsequent operations.
- *
- *        <status>            - O
- *            This function will always return 0.
+ *    This function will load the printers model name.
  *
  * Modification History
  *
  * Variables Used
  */
 
+    queue list;
+    int stat = ERR;
+    char *model = NULL;
+    char *command = "@PJL INFO ID \r\n";
+
 /*
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    que_init(&list);
 
-        /* Terminate the connection to the printer.                     */
+    if ((stat = _pjl_do_command(handle, command, &list)) == OK) {
 
-        if (handle->stream != NULL) {
-
-            lfn_destroy(handle->stream);
-
-        }
-
-        /* Free up resources                                           */
-
-        if (handle->model != NULL) free(handle->model);
-
-        _pjl_clear_response(&handle->ustatus);
-        _pjl_clear_response(&handle->configs);
-        _pjl_clear_response(&handle->variables);
-
-        free(handle);
+        model = que_pop_head(&list);
+        handle->model = strdup(model);
 
     }
 
-    return(0);
+    return stat;
 
 }
 

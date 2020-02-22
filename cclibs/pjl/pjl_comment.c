@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*                Copyright (c) 2020 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,58 +14,45 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_stop(
+int pjl_comment(
+
 #if __STDC__
-    PjlHandle handle)
+    PjlHandle handle, char *comment)
 #else
-    handle)
+    handle, comment)
 
     PjlHandle handle;
+    char *comment;
+    
 #endif
+
 {
 /*
- * Function: pjl_stop.c
+ * Function: pjl_comment.c
  * Version : 1.0
- * Created : 13-Feb-2020
+ * Created : 22-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    Function pjl_stop() resets the printer to "User Default" state.
- *
- *    Invocation:
- *
- *        status = pjl_stop(handle);
- *
- *    where
- *
- *        <handle>            - I
- *            The handle for subsequent operations.
- *
- *        <status>            - O
- *            This function will always return 0.
+ *    This function will place a comment into the pjl stream.
  *
  * Modification History
  *
  * Variables Used
  */
 
-    int stat = ERR;
-    char *uel = "\033%%-12345X";
+    char buffer[PJL_K_BUFSIZ];
+    char *command = "@PJL COMMENT %s \r\n";
 
 /*
  * Main part of function.
  */
 
-    /* Send the UEL. */
+    memset(buffer, '\0', PJL_K_BUFSIZ);
+    sprintf(buffer, command, comment);
 
-    if ((stat = _pjl_put(handle, uel)) != 0) {
-
-        vperror("(pjl_stop) Error resetting printer.\n");
-
-    }
-
-    return stat;
+    return _pjl_put(handle, buffer);
 
 }
 

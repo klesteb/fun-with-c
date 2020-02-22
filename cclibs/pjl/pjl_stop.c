@@ -15,6 +15,7 @@
 /*----------------------------------------------------------------------*/
 
 int pjl_stop(
+
 #if __STDC__
     PjlHandle handle)
 #else
@@ -22,6 +23,7 @@ int pjl_stop(
 
     PjlHandle handle;
 #endif
+
 {
 /*
  * Function: pjl_stop.c
@@ -59,9 +61,9 @@ int pjl_stop(
 
     /* Send the UEL. */
 
-    if ((stat = _pjl_put(handle, uel)) != 0) {
+    if ((stat = _pjl_put(handle, uel)) != OK) {
 
-        vperror("(pjl_stop) Error resetting printer.\n");
+        vperror("(pjl_stop) Error sending RESET command.\n");
 
     }
 

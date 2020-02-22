@@ -76,7 +76,11 @@ int pjl_execute(
             memset(buff, '\0', PJL_K_BUFSIZ);
             sprintf(buff, command, operation);
 
-            stat = _pjl_put(handle->stream, buff);
+            if ((stat = _pjl_put(handle, buff)) != OK) {
+
+                vperror("(pjl_execute) Unable to EXECUTE command \"%s\".", operation);
+
+            }
 
         }
 

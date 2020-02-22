@@ -128,7 +128,7 @@ int _pjl_send_command(
  * Main part of function.
  */
 
-    if ((stat = _pjl_put(handle, command)) != 0) {
+    if ((stat = _pjl_put(handle, command)) != OK) {
 
         vperror("(pjl_send_command) Error sending the command.\n");
         goto fini;
@@ -193,7 +193,7 @@ int _pjl_put(
 
     if ((stat = lfn_putline(handle->stream, handle->timeout, command)) != 0) {
 
-        vperror("(pjl_put) Error sending the command.\n");
+        vperror("(pjl_put) Communications error.\n");
 
     }
 

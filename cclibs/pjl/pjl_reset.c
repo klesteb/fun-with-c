@@ -50,7 +50,7 @@ int pjl_reset(
  * Variables Used
  */
 
-    int stat = -1;
+    int stat = ERR;
     char *reset = "@PJL RESET \r\n";
     char *command = "\033%%-12345X@PJL \r\n";
 
@@ -60,7 +60,7 @@ int pjl_reset(
 
     /* Put the printer into command mode. */
 
-    if ((stat = _pjl_put(handle, command)) != 0) {
+    if ((stat = _pjl_put(handle, command)) != OK) {
 
         vperror("(pjl_reset) Error putting printer into command mode.\n");
         goto fini:
@@ -69,7 +69,7 @@ int pjl_reset(
 
     /* Send the PJL RESET command. */
 
-    if ((stat = _pjl_put(handle, reset)) != 0) {
+    if ((stat = _pjl_put(handle, reset)) != OK) {
 
         vperror("(pjl_reset) Error resetting printer environment.\n");
 

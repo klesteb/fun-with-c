@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "pjl_util.h"
-#include "opt_util.h"
 #include "tcp_util.h"
 #include "lfn_util.h"
 
@@ -13,9 +12,9 @@
 
 int main (int argc, char **argv) {
 
+    int stat;
     PjlHandle handle;
 
-    /* opt_util_debug = 1; */
     /* tcp_util_debug = 1; */
     /* lfn_util_debug = 1; */
     
@@ -28,20 +27,26 @@ int main (int argc, char **argv) {
 
     printf("\nUsing host %s, port %s\n", argv[1], argv[2]);
 
-    if ((pjl_open(argv[1], argv[2], 2.0, &handle)) == 0) {
+    if ((stat = pjl_create(&handle)) == OK) {
 
-        pjl_start(handle);
+        if ((stat = pjl_open(handle, argv[1], argv[2], 2.0)) == OK) {
 
-        pjl_load_model(handle);
-        pjl_load_config(handle);
+            pjl_start(handle);
 
-        pjl_dump_model(handle);
-        pjl_dump_config(handle);
+            pjl_load_model(handle);
+            pjl_load_config(handle);
 
-        pjl_stop(handle);
-        pjl_close(handle);
+            pjl_dump_model(handle);
+            pjl_dump_config(handle);
 
-    } else printf("Unable to attach printer!\n");
+            pjl_stop(handle);
+            pjl_close(handle);
+
+        } else printf("Unable to connect to: %s, port: %s\n", argv[1], argv[2]);
+
+        pjl_destroy(handle);
+
+    } else printf("Unable to allocate resources\n");
 
     return 0;
 

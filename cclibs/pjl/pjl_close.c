@@ -53,6 +53,8 @@ int pjl_close(
  * Variables Used
  */
 
+    int stat = ERR;
+
 /*
  * Main part of function.
  */
@@ -63,23 +65,22 @@ int pjl_close(
 
         if (handle->stream != NULL) {
 
-            lfn_destroy(handle->stream);
+            if ((stat = lfn_destroy(handle->stream)) != 0) {
+
+                vperror("(pjl_close) Unable to close connection.\n");
+                goto fini;
+
+            }
+
+            stat = OK;
+            handle->stream = NULL;
 
         }
 
-        /* Free up resources                                           */
-
-        if (handle->model != NULL) free(handle->model);
-
-        _pjl_clear_response(&handle->ustatus);
-        _pjl_clear_response(&handle->configs);
-        _pjl_clear_response(&handle->variables);
-
-        free(handle);
-
     }
 
-    return(0);
+    fini:
+    return stat;
 
 }
 

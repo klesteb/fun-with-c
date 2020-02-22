@@ -21,7 +21,7 @@ OBJS = pjl_close.o pjl_core.o pjl_dump_config.o pjl_dump_ustatus.o \
        pjl_ustatus.o pjl_ustatusoff.o pjl_set_debug.o pjl_load_config.o \
        pjl_load_variables.o pjl_load_ustatus.o pjl_stop.o pjl_start.o \
        pjl_load_model.o pjl_get_model.o pjl_dump_model.o pjl_job.o \
-       pjl_comment.o
+       pjl_comment.o pjl_create.o pjl_destroy.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
 #
@@ -168,6 +168,14 @@ pjl_comment.o: pjl_comment.c $(INCS)
 pjl_initialize.o: pjl_initialize.c $(INCS)
 	$(CC) $(CFLAGS) pjl_initialize.c
 	$(LIBR) $(LIBS) pjl_initialize.o
+#
+pjl_create.o: pjl_create.c $(INCS)
+	$(CC) $(CFLAGS) pjl_create.c
+	$(LIBR) $(LIBS) pjl_create.o
+#
+pjl_destroy.o: pjl_destroy.c $(INCS)
+	$(CC) $(CFLAGS) pjl_destroy.c
+	$(LIBR) $(LIBS) pjl_destroy.o
 #
 # eof
 #

@@ -42,7 +42,8 @@ int pjl_comment(
  * Variables Used
  */
 
-    char buffer[PJL_K_BUFSIZ];
+    int stat = ERR;
+    char buffer[PJL_K_BUFSIZ + 1];
     char *command = "@PJL COMMENT %s \r\n";
 
 /*
@@ -50,9 +51,15 @@ int pjl_comment(
  */
 
     memset(buffer, '\0', PJL_K_BUFSIZ);
-    sprintf(buffer, command, comment);
+    snprintf(buffer, PJL_K_BUFSIZ, command, comment);
 
-    return _pjl_put(handle, buffer);
+    if ((stat = _pjl_put(handle, buffer)) != OK) {
+
+        vperror("(pjl_comment) Unable to send COMMENT command.\n");
+
+    }
+
+    return stat;
 
 }
 

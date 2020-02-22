@@ -68,7 +68,12 @@ int pjl_enter(
 
                     memset(buffer, '\0', PJL_K_BUFSIZ);
                     sprintf(buffer, command, language);
-                    stat = _pjl_put(handle, buffer);
+
+                    if ((stat = _pjl_put(handle, buffer)) != OK) {
+
+                        vperror("(pjl_enter) Unable to send ENTER command.\n");
+
+                    }
                     goto fini;
 
                 }

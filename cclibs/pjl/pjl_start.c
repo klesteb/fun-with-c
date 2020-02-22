@@ -61,7 +61,7 @@ int pjl_start(
 
         /* Put the printer into command mode. */
 
-        if ((stat = _pjl_put(handle, command)) != 0) {
+        if ((stat = _pjl_put(handle, command)) != OK) {
 
             vperror("(pjl_start) Error placing printer into command mode.\n");
             goto fini;
@@ -70,7 +70,7 @@ int pjl_start(
 
         /* Sync with the printer. */
 
-        if ((stat = pjl_echo(handle)) != 0) {
+        if ((stat = pjl_echo(handle)) != OK) {
 
             vperror("(pjl_start) Error syncing with the printer.\n");
 

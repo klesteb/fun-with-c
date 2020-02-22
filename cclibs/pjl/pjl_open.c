@@ -15,16 +15,18 @@
 /*----------------------------------------------------------------------*/
 
 int pjl_open(
-#if __STDC__
-    char *host, char *port, double timeout, PjlHandle *handle)
-#else
-    host, port, timeout,handle)
 
+#if __STDC__
+    PjlHandle handle, char *host, char *port, double timeout)
+#else
+    handle, host, port, timeout)
+
+    PjlHandle handle;
     char *host;
     char *port;
     double timeout;
-    PjlHandle *handle;
 #endif
+
 {
 /*
  * Function: pjl_open.c
@@ -39,7 +41,7 @@ int pjl_open(
  *
  *    Invocation:
  *
- *        status = pjl_open(host, port, timeout, &handle);
+ *        status = pjl_open(handle, host, port, timeout);
  *
  *    where
  *
@@ -69,33 +71,16 @@ int pjl_open(
  */
 
     int stat = ERR;
-    int offset = 0; 
-    const char *error;
     TcpEndpoint connection;
-    char service[PJL_K_BUFSIZ];
-    char *config1 = "^(\\w+)$";
-    char *config2 = "^(.+)\\b=(.+)";
-    char *config3 = "^(.+)\\b\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
-    char *ustatus = "^(\\w+)=(\\w+)\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
-    char *variable = "^(\\w+)=(\\w+)\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
+    char service[PJL_K_BUFSIZ + 1];
 
 /*
  * Main part of function.
  */
 
-    if ((*handle = (_PjlHandle *)malloc(sizeof(_PjlHandle))) == NULL) {
-
-        vperror("(pjl_open) Error allocating session structure.\n");
-        stat = errno;
-        goto fini;
-
-    }
-
-    (*handle)->debug = 0;
-    (*handle)->timeout = timeout;
-    (*handle)->model = strdup("unknown");
-
-    sprintf(service, "%s@%s", port, host);
+    handle->timeout = timeout;
+    memset(service, '\0', PJL_K_BUFSIZ);
+    snprintf(service, PJL_K_BUFSIZ, "%s@%s", port, host);
 
     if ((stat = tcp_call(service, 0, 0, &connection)) != 0) {
 
@@ -104,48 +89,9 @@ int pjl_open(
 
     }
 
-    if ((stat = lfn_create(connection, NULL, &(*handle)->stream)) != 0) {
+    if ((stat = lfn_create(connection, NULL, &handle->stream)) != 0) {
 
         vperror("(pjl_open) Error creating LFN connection.\n");
-        goto fini;
-
-    }
-
-    que_init(&(*handle)->configs);
-    que_init(&(*handle)->ustatus);
-    que_init(&(*handle)->variables);
-
-    if (((*handle)->rustatus = pcre_compile(ustatus, 0, &error, &offset, NULL)) == NULL) {
-
-        vperror("(pjl_core) Parsing error: %s, offset: %d\n", error, offset);
-        goto fini;
-
-    }
-
-    if (((*handle)->rvariable = pcre_compile(variable, 0, &error, &offset, NULL)) == NULL) {
-
-        vperror("(pjl_core) Parsing error: %s, offset: %d\n", error, offset);
-        goto fini;
-
-    }
-
-    if (((*handle)->rconfig1 = pcre_compile(config1, 0, &error, &offset, NULL)) == NULL) {
-
-        vperror("(pjl_core) Parsing error: %s, offset: %d\n", error, offset);
-        goto fini;
-
-    }
-
-    if (((*handle)->rconfig2 = pcre_compile(config2, 0, &error, &offset, NULL)) == NULL) {
-
-        vperror("(pjl_core) Parsing error: %s, offset: %d\n", error, offset);
-        goto fini;
-
-    }
-
-    if (((*handle)->rconfig3 = pcre_compile(config3, 0, &error, &offset, NULL)) == NULL) {
-
-        vperror("(pjl_core) Parsing error: %s, offset: %d\n", error, offset);
 
     }
 

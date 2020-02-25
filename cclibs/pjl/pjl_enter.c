@@ -67,7 +67,7 @@ int pjl_enter(
                 if (strcmp(language, option) == 0) {
 
                     memset(buffer, '\0', PJL_K_BUFSIZ);
-                    sprintf(buffer, command, language);
+                    snprintf(buffer, PJL_K_BUFSIZ - 1, command, language);
 
                     if ((stat = _pjl_put(handle, buffer)) != OK) {
 

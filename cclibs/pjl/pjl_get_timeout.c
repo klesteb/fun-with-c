@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*                 Copyright (c) 2004 by Kevin L. Esteb                      */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,46 +14,62 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_ustatusoff(
+int pjl_get_timeout(
 
 #if __STDC__
-    PjlHandle handle)
+    PjlHandle handle, double *timeout)
 #else
-    handle)
+    handle, timeout)
 
     PjlHandle handle;
+    double *timeout;
 #endif
 
 {
 /*
- * Function: pjl_ustatusoff.c
+ * Function: pjl_get_timeout.c
  * Version : 1.0
- * Created : 09-Nov-2000
+ * Created : 24-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    This function will turn off the pjl ustatus.
+ *    Function pjl_get_timeout() returns the timeout for the network.
+ *
+ *    Invocation:
+ *
+ *        status = pjl_get_timeout(handle, &timeout);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle for subsequent operations.
+ *
+ *        <timeout>           - O
+ *            The timeout value.
+ *
+ *        <status>            - O
+ *            This function will always return 0.
  *
  * Modification History
  *
  * Variables Used
  */
 
-    int stat;
-    char *command = "@PJL USTATUSOFF \r\n";
+    int stat = ERR;
 
 /*
  * Main part of function.
  */
 
-    if ((stat = _pjl_put(handle, command)) != OK) {
+    if (handle != NULL) {
 
-        vperror("(pjl_ustatusoff) Unable to send the USTATUSOFF command.\n");
+        stat = OK;
+        *timeout = handle->timeout;
 
     }
 
-    return(stat);
+    return stat;
 
 }
 

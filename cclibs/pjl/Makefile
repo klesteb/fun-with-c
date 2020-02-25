@@ -21,9 +21,10 @@ OBJS = pjl_close.o pjl_core.o pjl_dump_config.o pjl_dump_ustatus.o \
        pjl_ustatus.o pjl_ustatusoff.o pjl_set_debug.o pjl_load_config.o \
        pjl_load_variables.o pjl_load_ustatus.o pjl_stop.o pjl_start.o \
        pjl_load_model.o pjl_get_model.o pjl_dump_model.o pjl_job.o \
-       pjl_comment.o pjl_create.o pjl_destroy.o
+       pjl_comment.o pjl_create.o pjl_destroy.o pjl_get_timeout.o \
+       pjl_set_timeout.o pjl_stmsg.o pjl_opmsg.o pjl_write.o
 #
-all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8
 #
 debug:
 #CFLAGS = -ggdb -Wall -c -I.. -I../misc
@@ -40,6 +41,7 @@ clean:
 	rm -f test5
 	rm -f test6
 	rm -f test7
+	rm -f test8
 #
 test1: test1.c $(INCS)
 	$(CC) $(CFLAGS) test1.c
@@ -68,6 +70,10 @@ test6: test6.c $(INCS)
 test7: test7.c $(INCS)
 	$(CC) $(CFLAGS) test7.c
 	$(LINK) $(LFLAGS) test7 test7.o $(OLBS)
+#
+test8: test8.c $(INCS)
+	$(CC) $(CFLAGS) test8.c
+	$(LINK) $(LFLAGS) test8 test8.o $(OLBS)
 #
 pjl_close.o: pjl_close.c $(INCS)
 	$(CC) $(CFLAGS) pjl_close.c
@@ -176,6 +182,26 @@ pjl_create.o: pjl_create.c $(INCS)
 pjl_destroy.o: pjl_destroy.c $(INCS)
 	$(CC) $(CFLAGS) pjl_destroy.c
 	$(LIBR) $(LIBS) pjl_destroy.o
+#
+pjl_get_timeout.o: pjl_get_timeout.c $(INCS)
+	$(CC) $(CFLAGS) pjl_get_timeout.c
+	$(LIBR) $(LIBS) pjl_get_timeout.o
+#
+pjl_set_timeout.o: pjl_set_timeout.c $(INCS)
+	$(CC) $(CFLAGS) pjl_set_timeout.c
+	$(LIBR) $(LIBS) pjl_set_timeout.o
+#
+pjl_opmsg.o: pjl_opmsg.c $(INCS)
+	$(CC) $(CFLAGS) pjl_opmsg.c
+	$(LIBR) $(LIBS) pjl_opmsg.o
+#
+pjl_stmsg.o: pjl_stmsg.c $(INCS)
+	$(CC) $(CFLAGS) pjl_stmsg.c
+	$(LIBR) $(LIBS) pjl_stmsg.o
+#
+pjl_write.o: pjl_write.c $(INCS)
+	$(CC) $(CFLAGS) pjl_write.c
+	$(LIBR) $(LIBS) pjl_write.o
 #
 # eof
 #

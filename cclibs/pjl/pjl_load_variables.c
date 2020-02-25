@@ -55,6 +55,7 @@ int pjl_load_variables(
     queue list;
     int stat = ERR;
     int toggle = 0;
+    double timeout;
     char *line = NULL;
     PjlResponse *response = NULL;
     char *command = "@PJL INFO VARIABLES \r\n";
@@ -64,6 +65,8 @@ int pjl_load_variables(
  */
 
     que_init(&list);
+    pjl_get_timeout(handle, &timeout);
+    pjl_set_timeout(handle, timeout + 20.0);
 
     /* Ask for the printer variables.                               */
 
@@ -112,6 +115,8 @@ int pjl_load_variables(
     que_push_head(&handle->variables, response);
 
     fini:
+    pjl_set_timeout(handle, timeout);
+
     return stat;
 
 }

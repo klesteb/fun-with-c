@@ -16,15 +16,15 @@
 
 int pjl_ustatus(
 
-#    if __STDC__
+#if __STDC__
     PjlHandle handle, char *type, char *action)
-#    else
+#else
     handle, type, action)
 
     PjlHandle handle;
     char *type;
     char *action;
-#    endif
+#endif
 
 {
 /*
@@ -44,42 +44,31 @@ int pjl_ustatus(
  * Variables Used
  */
 
-    int stat = 0;
-    char *buff = NULL;
-    char *wanted = "USTATUS";
+    int stat = ERR;
+    char *option = NULL;
+    char buffer[PJL_K_BUFSIZ];
+    PjlResponse *response = NULL;
+    char *command = "@PJL USTATUS %s = %s \r\n";
 
 /*
  * Main part of function.
  */
 
-    if ((stricmp(action, "ON") != 0) ||
-        (stricmp(action, "OFF") != 0) ||
-        (stricmp(action, "VERBOSE") != 0)) return(-1);
+    for (response = que_first(&handle->ustatus);
+         response != NULL;
+         response = que_next(&handle->ustatus)) {
 
-    for (buff = que_first(&handle->configs);
-         buff != NULL;
-         buff = que_next(&handle->configs)) {
+        if (strcmp(response->name, type) == 0) {
 
-        if (strnicmp(buff, wanted, strlen(wanted)) == 0) {
+            for (option = que_first(&response->options);
+                 option != NULL;
+                 option = que_next(&response->options)) {
 
-            for (;
-                 buff != NULL;
-                 buff = que_next(&handle->configs)) {
+                if (strcmp(option, action) == 0) {
 
-                if (buff[0] == '\t') {
-
-                    if (stricmp(type, buff) == 0) {
-
-                        stat = lfn_putline(handle->stream, handle->timeout,
-                                           "@PJL USTATUS %s = %s \r\n",
-                                           type, action);
-                        goto fini;
-
-                    }
-
-                } else {
-
-                    stat = -1;
+                    memset(buffer, '\0', PJL_K_BUFSIZ);
+                    snprintf(buffer, PJL_K_BUFSIZ - 1, command, type, action);
+                    stat = _pjl_put(handle, buffer);
                     goto fini;
 
                 }

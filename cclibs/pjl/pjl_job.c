@@ -47,6 +47,7 @@ int pjl_job(
  */
 
     char temp[32];
+    int stat = ERR;
     char *fend = "END = %d ";
     char buffer[PJL_K_BUFSIZ];
     char *fstart = "START = %d ";
@@ -68,7 +69,7 @@ int pjl_job(
     if (start > 0) {
 
         memset(temp, '\0', 32);
-        sprintf(temp, fstart, start);
+        snprintf(temp, 31, fstart, start);
         strcat(buffer, temp);
 
     }
@@ -76,7 +77,7 @@ int pjl_job(
     if (end > 0) {
 
         memset(temp, '\0', 32);
-        sprintf(temp, fend, end);
+        snprintf(temp, 31, fend, end);
         strcat(buffer, temp);
 
     }
@@ -84,14 +85,20 @@ int pjl_job(
     if (password > 0) {
 
         memset(temp, '\0', 32);
-        sprintf(temp, fpassword, password);
+        snprintf(temp, 31, fpassword, password);
         strcat(buffer, temp);
 
     }
 
     strcat(buffer, "\r\n");
 
-    return lfn_putline(handle->stream, handle->timeout, buffer);
+    if ((stat = _pjl_put(handle, buffer)) != OK) {
+
+        vperror("(pjl_job) Unable to send the JOB command.\n");
+
+    }
+
+    return stat;
 
 }
 

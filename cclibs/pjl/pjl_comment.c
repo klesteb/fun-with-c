@@ -55,7 +55,7 @@ int pjl_comment(
 
     if ((stat = _pjl_put(handle, buffer)) != OK) {
 
-        vperror("(pjl_comment) Unable to send COMMENT command.\n");
+        vperror("(pjl_comment) Unable to send the COMMENT command.\n");
 
     }
 

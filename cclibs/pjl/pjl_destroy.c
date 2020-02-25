@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*                Copyright (c) 2020 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,7 +14,7 @@
 
 /*----------------------------------------------------------------------*/
 
-int pjl_ustatusoff(
+int pjl_destroy(
 
 #if __STDC__
     PjlHandle handle)
@@ -26,34 +26,49 @@ int pjl_ustatusoff(
 
 {
 /*
- * Function: pjl_ustatusoff.c
+ * Function: pjl_destroy.c
  * Version : 1.0
- * Created : 09-Nov-2000
+ * Created : 22-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    This function will turn off the pjl ustatus.
+ *    Function pjl_destroy() frees resources.
+ *
+ *    Invocation:
+ *
+ *        status = pjl_destroy(handle);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle created with pjl_create().
+ *
+ *        <status>            - O
+ *            This function will always return 0.
  *
  * Modification History
  *
  * Variables Used
  */
 
-    int stat;
-    char *command = "@PJL USTATUSOFF \r\n";
-
 /*
  * Main part of function.
  */
 
-    if ((stat = _pjl_put(handle, command)) != OK) {
+    if (handle != NULL) {
 
-        vperror("(pjl_ustatusoff) Unable to send the USTATUSOFF command.\n");
+        if (handle->model != NULL) free(handle->model);
+
+        _pjl_clear_response(&handle->ustatus);
+        _pjl_clear_response(&handle->configs);
+        _pjl_clear_response(&handle->variables);
+
+        free(handle);
 
     }
 
-    return(stat);
+    return 0;
 
 }
 

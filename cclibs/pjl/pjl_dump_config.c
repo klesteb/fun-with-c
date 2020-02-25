@@ -53,7 +53,6 @@ int pjl_dump_config(
  * Variables Used
  */
 
-    char model[256];
     char *option = NULL;
     char *fmt1 = "%s\n";
     char *fmt2 = "%s=%s\n";
@@ -98,7 +97,7 @@ int pjl_dump_config(
 
     }
 
-    return(0);
+    return OK;
 
 }
 

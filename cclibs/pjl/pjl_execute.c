@@ -74,11 +74,11 @@ int pjl_execute(
             (strcmp("PRTCONFIG", operation) == 0)) {
 
             memset(buff, '\0', PJL_K_BUFSIZ);
-            sprintf(buff, command, operation);
+            snprintf(buff, PJL_K_BUFSIZ - 1, command, operation);
 
             if ((stat = _pjl_put(handle, buff)) != OK) {
 
-                vperror("(pjl_execute) Unable to EXECUTE command \"%s\".", operation);
+                vperror("(pjl_execute) Unable to send the EXECUTE command \"%s\".", operation);
 
             }
 

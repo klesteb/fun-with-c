@@ -58,7 +58,7 @@ int pjl_eoj(
     }
 
     memset(buffer, '\0', PJL_K_BUFSIZ);
-    sprintf(buffer, command, jobname);
+    snprintf(buffer, PJL_K_BUFSIZ - 1, command, jobname);
 
     if ((stat = pjl_start(handle)) == OK) {
 

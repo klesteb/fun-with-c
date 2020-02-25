@@ -50,7 +50,7 @@ int pjl_initialize(
 
     if ((stat = _pjl_put(handle, command)) != OK) {
 
-        vperror("(pjl_initialize) Unable to send INITIALIZE command.");
+        vperror("(pjl_initialize) Unable to send the INITIALIZE command.");
 
     }
 

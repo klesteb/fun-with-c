@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*                  Copyright (c) 2020 by Kevin L. Esteb                     */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -14,7 +14,7 @@
 
 /*----------------------------------------------------------------------*/
 
-int  pjl_rdymsg(
+int  pjl_opmsg(
 
 #if __STDC__
     PjlHandle handle, char *msg)
@@ -27,14 +27,14 @@ int  pjl_rdymsg(
 
 {
 /*
- * Function: pjl_rdymsg.c
+ * Function: pjl_opmsg.c
  * Version : 1.0
- * Created : 09-Nov-2000
+ * Created : 24-Feb-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    This function will set the ready message on the printer front panel.
+ *    This function will set the operator message on the printer front panel.
  *    It will search the configuration to find the display size. If one is
  *    not found it will default to 15 characters.
  *
@@ -48,7 +48,7 @@ int  pjl_rdymsg(
     char buffer[PJL_K_BUFSIZ];
     PjlResponse *response = NULL;
     char *wanted = "DISPLAY CHARACTER SIZE";
-    char *command = "@PJL RDYMSG DISPLAY = \"  %s\" \r\n";
+    char *command = "@PJL OPMSG DISPLAY = \"  %s\" \r\n";
 
 /*
  * Main part of function.
@@ -71,11 +71,11 @@ int  pjl_rdymsg(
 
     if ((stat = _pjl_put(handle, buffer)) != OK) {
 
-        vperror("(pjl_rdymsg) Unable to send the RDYMSG command.\n");
+        vperror("(pjl_opmsg) Unable to send the OPMSG command.");
 
     }
 
-    return(stat);
+    return stat;
 
 }
 

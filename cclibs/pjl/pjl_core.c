@@ -53,7 +53,6 @@ int _pjl_get_response(
     int len = 0;
     int stat = ERR;
     char *y = NULL;
-    char *buff = NULL;
     
 /*
  * Main part of function.
@@ -67,12 +66,12 @@ int _pjl_get_response(
                 len = strlen(y);
                 if ((a = pos(y, "\f", 0)) > 0) {
                     if (len > 1) {
-                        buff = strndup(y, len);
+                        char *buff = strndup(y, len);
                         que_push_tail(list, buff);
                     }
                     goto fini;
                 } else {
-                    buff = strndup(y, len);
+                    char *buff = strndup(y, len);
                     que_push_tail(list, buff);
                 }
                 break;
@@ -194,6 +193,54 @@ int _pjl_put(
     if ((stat = lfn_putline(handle->stream, handle->timeout, command)) != 0) {
 
         vperror("(pjl_put) Communications error.\n");
+
+    }
+
+    return stat;
+
+}
+
+int _pjl_write(
+
+#if __STDC__
+    PjlHandle handle, void *buffer, int size)
+#else
+    handle, buffer, size)
+
+    PjlHandle handle;
+    void *buffer;
+    int size;
+#endif
+
+{
+/*
+ * Function: _pjl_write.c
+ * Version : 1.0
+ * Created : 24-Feb-2020
+ * Author  : Kevin Esteb
+ *
+ * Description
+ *
+ *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+    int stat = ERR;
+    int written = 0;
+
+/*
+ * Main part of function.
+ */
+
+    if ((stat = lfn_write(handle->stream, handle->timeout, size, buffer, &written)) == 0) {
+
+        if (size == written) {
+
+            stat = OK;
+
+        }
 
     }
 
@@ -474,46 +521,75 @@ int _pjl_parse_variables(
  * Main part of function.
  */
 
-    if ((count = pcre_exec(handle->rvariable, NULL, line, strlen(line), 0, 0, ovector, 30)) < 0) {
+    if ((count = pcre_exec(handle->rvariable1, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
 
-        vperror("(pjl_parse_variable) Unable to parse buffer, error: %d\n", count);
+        if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) { 
+
+            vperror("(pjl_parse_variable) Unable to retrieve name, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        if ((rc = pcre_copy_substring(line, ovector, count, 2, value, 31)) < 0) { 
+
+            vperror("(pjl_parse_variable) Unable to retrieve value, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        if ((rc = pcre_copy_substring(line, ovector, count, 3, items, 31)) < 0) { 
+
+            vperror("(pjl_parse_variable) Unable to retrieve items, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        if ((rc = pcre_copy_substring(line, ovector, count, 4, type, 31)) < 0){ 
+
+            vperror("(pjl_parse_variable) Unable to retrieve type, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        stat = OK;
+        response->name = strdup(name);
+        response->value = strdup(value);
+        response->items = strdup(items);
+        response->type = strdup(type);
         goto fini;
 
     }
 
-    if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) { 
+    if ((count = pcre_exec(handle->rvariable2, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
 
-        vperror("(pjl_parse_variable) Unable to retrieve name, error: %d\n", rc);
-        goto fini;
+        if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) { 
+
+            vperror("(pjl_parse_variable) Unable to retrieve name, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        if ((rc = pcre_copy_substring(line, ovector, count, 2, items, 31)) < 0) { 
+
+            vperror("(pjl_parse_variable) Unable to retrieve items, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        if ((rc = pcre_copy_substring(line, ovector, count, 3, type, 31)) < 0){ 
+
+            vperror("(pjl_parse_variable) Unable to retrieve type, error: %d\n", rc);
+            goto fini;
+
+        }
+
+        stat = OK;
+        response->name = strdup(name);
+        response->value = strdup("NULL");
+        response->items = strdup(items);
+        response->type = strdup(type);
 
     }
-
-    if ((rc = pcre_copy_substring(line, ovector, count, 2, value, 31)) < 0) { 
-
-        vperror("(pjl_parse_variable) Unable to retrieve value, error: %d\n", rc);
-        goto fini;
-
-    }
-
-    if ((rc = pcre_copy_substring(line, ovector, count, 3, items, 31)) < 0) { 
-
-        vperror("(pjl_parse_variable) Unable to retrieve items, error: %d\n", rc);
-        goto fini;
-
-    }
-
-    if ((rc = pcre_copy_substring(line, ovector, count, 4, type, 31)) < 0){ 
-
-        vperror("(pjl_parse_variable) Unable to retrieve type, error: %d\n", rc);
-        goto fini;
-
-    }
-
-    stat = OK;
-    response->name = strdup(name);
-    response->value = strdup(value);
-    response->items = strdup(items);
-    response->type = strdup(type);
 
     fini:
     return stat;

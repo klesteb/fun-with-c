@@ -56,6 +56,8 @@ int pjl_destroy(
  * Main part of function.
  */
 
+printf("pjl_destroy\n");
+    
     if (handle != NULL) {
 
         if (handle->model != NULL) free(handle->model);

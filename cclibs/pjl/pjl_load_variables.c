@@ -66,7 +66,7 @@ int pjl_load_variables(
 
     que_init(&list);
     pjl_get_timeout(handle, &timeout);
-    pjl_set_timeout(handle, timeout + 20.0);
+    pjl_set_timeout(handle, timeout + 60.0);
 
     /* Ask for the printer variables.                               */
 

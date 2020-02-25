@@ -59,27 +59,24 @@ int pjl_close(
  * Main part of function.
  */
 
+printf("entering pjl_close()\n");
     if (handle != NULL) {
-
-        /* Terminate the connection to the printer.                     */
 
         if (handle->stream != NULL) {
 
+printf("before lfn_destroy()\n");
             if ((stat = lfn_destroy(handle->stream)) != 0) {
 
-                vperror("(pjl_close) Unable to close connection.\n");
-                goto fini;
+                vperror("(pjl_close) Unable to close network connection.\n");
 
             }
-
-            stat = OK;
-            handle->stream = NULL;
+printf("after lfn_destroy()\n");
 
         }
 
     }
 
-    fini:
+printf("leaving pjl_close()\n");
     return stat;
 
 }

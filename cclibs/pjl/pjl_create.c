@@ -59,7 +59,8 @@ int pjl_create(
     char *config2 = "^(.+)\\b=(.+)";
     char *config3 = "^(.+)\\b\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
     char *ustatus = "^(\\w+)=(\\w+)\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
-    char *variable = "^(\\w+)=(\\w+)\\s+\\[(\\d+)\\s+(\\w+)\\]"; 
+    char *variable1 = "^(.+)\\b=(.*)\\b\\s+\\[(\\d+)\\s+(.+)\\b\\]"; 
+    char *variable2 = "^(.+)\\b=\\s+\\[(\\d+)\\s+(.+)\\b\\]"; 
 
 /*
  * Main part of function.
@@ -89,13 +90,20 @@ int pjl_create(
 
     }
 
-    if (((*handle)->rvariable = pcre_compile(variable, 0, &error, &offset, NULL)) == NULL) {
+    if (((*handle)->rvariable1 = pcre_compile(variable1, 0, &error, &offset, NULL)) == NULL) {
 
         vperror("(pjl_create) Parsing error: %s, offset: %d\n", error, offset);
         goto fini;
 
     }
 
+    if (((*handle)->rvariable2 = pcre_compile(variable2, 0, &error, &offset, NULL)) == NULL) {
+
+        vperror("(pjl_create) Parsing error: %s, offset: %d\n", error, offset);
+        goto fini;
+
+    }
+    
     if (((*handle)->rconfig1 = pcre_compile(config1, 0, &error, &offset, NULL)) == NULL) {
 
         vperror("(pjl_create) Parsing error: %s, offset: %d\n", error, offset);

@@ -13,12 +13,14 @@
 int main (int argc, char **argv) {
 
     /* print a text file on a printer */
+    /* with job seperation            */
 
     int stat;
     FILE *fd = NULL;
     PjlHandle handle;
     char buffer[1024];
     char *fmt = "%s\r\n";
+    char *jobname = "kevin";
 
     /* lfn_util_debug = 1; */
     /* tcp_util_debug = 1; */
@@ -88,6 +90,13 @@ int main (int argc, char **argv) {
 
     }
 
+    if ((stat = pjl_job(handle, jobname, 0, 0, 0)) != OK) {
+        
+        printf("unable to declare job\n");
+        goto fini;
+        
+    }
+    
     if ((stat = pjl_enter(handle, "PCL")) != OK) {
 
         printf("unable to set language\n");
@@ -122,6 +131,12 @@ int main (int argc, char **argv) {
     }
 
     printf("File %s has been sent\n", argv[3]);
+
+    if ((stat = pjl_eoj(handle, jobname)) != OK) {
+
+        printf("unable to terminate job\n");
+
+    }
 
     fini:
     pjl_stop(handle);

@@ -45,6 +45,7 @@ int pjl_eoj(
 
     int stat = ERR;
     char buffer[PJL_K_BUFSIZ];
+    char *attention = "\033%%-12345X@PJL \r\n";
     char *command = "@PJL EOJ NAME = \"%s\" \r\n";
 
 /*
@@ -60,16 +61,20 @@ int pjl_eoj(
     memset(buffer, '\0', PJL_K_BUFSIZ);
     snprintf(buffer, PJL_K_BUFSIZ - 1, command, jobname);
 
-    if ((stat = pjl_start(handle)) == OK) {
+    if ((stat = _pjl_put(handle, attention)) != OK) {
 
-        if ((stat = _pjl_put(handle, buffer)) == OK) {
-
-            stat = pjl_stop(handle);
-
-        }
+        vperror("(pjl_eoj) Unable to send the ATTENTION command\n");
+        goto fini;
 
     }
 
+    if ((stat = _pjl_put(handle, buffer)) != OK) {
+
+        vperror("(pjl_eoj) Unable to send the EOJ command.\n");
+
+    }
+
+    fini:
     return stat;
 
 }

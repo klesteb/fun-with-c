@@ -32,7 +32,7 @@ int main (int argc, char **argv) {
 
     if ((stat = pjl_create(&handle)) == OK) {
 
-        if ((stat = pjl_open(handle, argv[1], argv[2], 20.0)) == OK) {
+        if ((stat = pjl_open(handle, argv[1], argv[2], 2.0)) == OK) {
 
             pjl_start(handle);
 

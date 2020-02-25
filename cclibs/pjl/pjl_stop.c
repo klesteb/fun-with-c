@@ -59,11 +59,15 @@ int pjl_stop(
  * Main part of function.
  */
 
-    /* Send the UEL. */
+    if (handle != NULL) {
 
-    if ((stat = _pjl_put(handle, uel)) != OK) {
+        /* Send the UEL. */
 
-        vperror("(pjl_stop) Error sending RESET command.\n");
+        if ((stat = _pjl_put(handle, uel)) != OK) {
+
+            vperror("(pjl_stop) Error sending the universal reset command.\n");
+
+        }
 
     }
 

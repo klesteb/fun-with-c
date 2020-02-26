@@ -43,6 +43,7 @@ int pjl_echo(
  * Variables Used
  */
 
+    int stat = ERR;
     char buff[1024];
     time_t t = time(NULL);
     struct tm *tb = localtime(&t);
@@ -52,7 +53,17 @@ int pjl_echo(
  * Main part of function.
  */
 
-    return _pjl_send_command(handle, buff);
-    
+    if (handle != NULL) {
+
+        if ((stat = _pjl_send_command(handle, buff)) != OK) {
+
+            vperror("(pjl_echo) Unable to send the ECHO command.\n");
+
+        }
+
+    }
+
+    return stat;
+
 }
 

@@ -341,6 +341,129 @@ int _pjl_clear_list(
 
 }
 
+int _pjl_response_find(
+
+#if __STDC__
+    void *data, void *name)
+#else
+    data, name)
+
+    void *data;
+    void *name;
+#endif
+
+{
+/*
+ * Function: _pjl_response_find.c
+ * Version : 1.0
+ * Created : 25-Feb-2020
+ * Author  : Kevin Esteb
+ *
+ * Description
+ *
+ *
+ *    Invocation:
+ *
+ *        status = _pjl_response_find(data, name);
+ *
+ *    where
+ *
+ *        <data>              - I
+ *            The response to be compared.
+ *
+ *        <name>           - I
+ *            The name to be compared too.
+ *
+ *        <status>            - O
+ *            This function will return FALSE if there is a match.
+ *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+    int stat = TRUE;
+    PjlResponse *response = (PjlResponse *)data;
+
+/*
+ * Main part of function.
+ */
+
+    if (data != NULL) {
+
+        if (strncmp(response->name, name, strlen(name)) == 0) {
+
+            stat = FALSE;
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int _pjl_option_find(
+
+#if __STDC__
+    void *option, void *name)
+#else
+    option, name)
+
+    void *option;
+    void *name;
+#endif
+
+{
+/*
+ * Function: _pjl_option_find.c
+ * Version : 1.0
+ * Created : 25-Feb-2020
+ * Author  : Kevin Esteb
+ *
+ * Description
+ *
+ *
+ *    Invocation:
+ *
+ *        status = _pjl_option_find(option, name);
+ *
+ *    where
+ *
+ *        <option>             - I
+ *            The option to be compared.
+ *
+ *        <name>              - I
+ *            The name to be compared too.
+ *
+ *        <status>            - O
+ *            This function will return FALSE if there is a match.
+ *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+    int stat = TRUE;
+
+/*
+ * Main part of function.
+ */
+
+    if (name != NULL) {
+
+        if (strncmp(option, name, strlen(name)) == 0) {
+
+            stat = FALSE;
+
+        }
+
+    }
+
+    return stat;
+
+}
+
 int _pjl_clear_response(
 #if __STDC__
     queue *responses)

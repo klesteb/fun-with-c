@@ -59,24 +59,20 @@ int pjl_close(
  * Main part of function.
  */
 
-printf("entering pjl_close()\n");
     if (handle != NULL) {
 
         if (handle->stream != NULL) {
 
-printf("before lfn_destroy()\n");
             if ((stat = lfn_destroy(handle->stream)) != 0) {
 
                 vperror("(pjl_close) Unable to close network connection.\n");
 
             }
-printf("after lfn_destroy()\n");
 
         }
 
     }
 
-printf("leaving pjl_close()\n");
     return stat;
 
 }

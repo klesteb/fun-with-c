@@ -54,29 +54,18 @@ int pjl_enter(
  * Main part of function.
  */
 
-    for (response = que_first(&handle->configs);
-         response != NULL;
-         response = que_next(&handle->configs)) {
+    if (que_find(&handle->configs, wanted, _pjl_response_find) == QUE_OK) {
 
-        if (strcmp(response->name, wanted) == 0) {
+        response = que_get(&handle->configs);
 
-            for (option = que_first(&response->options);
-                 option != NULL;
-                 option = que_next(&response->options)) {
+        if (que_find(&response->options, language, _pjl_option_find) == QUE_OK) {
 
-                if (strcmp(language, option) == 0) {
+            memset(buffer, '\0', PJL_K_BUFSIZ);
+            snprintf(buffer, PJL_K_BUFSIZ - 1, command, language);
 
-                    memset(buffer, '\0', PJL_K_BUFSIZ);
-                    snprintf(buffer, PJL_K_BUFSIZ - 1, command, language);
+            if ((stat = _pjl_put(handle, buffer)) != OK) {
 
-                    if ((stat = _pjl_put(handle, buffer)) != OK) {
-
-                        vperror("(pjl_enter) Unable to send ENTER command.\n");
-
-                    }
-                    goto fini;
-
-                }
+                vperror("(pjl_enter) Unable to send ENTER command.\n");
 
             }
 
@@ -84,7 +73,6 @@ int pjl_enter(
 
     }
 
-    fini:
     return(stat);
 
 }

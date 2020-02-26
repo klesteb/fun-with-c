@@ -83,6 +83,8 @@ typedef struct _PjlResponse {
 extern int _pjl_put P_((PjlHandle, char *));
 extern int _pjl_clear_list P_((queue *));
 extern int _pjl_clear_response P_((queue *));
+extern int _pjl_option_find P_((void *, void *));
+extern int _pjl_response_find P_((void *, void *));
 extern int _pjl_write P_((PjlHandle, void *, int));
 extern int _pjl_send_command P_((PjlHandle, char *));
 extern int _pjl_get_response P_((PjlHandle, queue *));

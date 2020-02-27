@@ -40,12 +40,19 @@ int pjl_ustatusoff(
  * Variables Used
  */
 
-    int stat;
+    int stat = ERR;
     char *command = "@PJL USTATUSOFF \r\n";
 
 /*
  * Main part of function.
  */
+
+    if (handle == NULL) {
+
+        vperror("(pjl_ustatusoff) Invalid parameters.\n");
+        goto fini;
+
+    }
 
     if ((stat = _pjl_put(handle, command)) != OK) {
 
@@ -53,7 +60,8 @@ int pjl_ustatusoff(
 
     }
 
-    return(stat);
+    fini:
+    return stat;
 
 }
 

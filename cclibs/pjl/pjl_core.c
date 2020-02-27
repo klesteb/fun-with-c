@@ -60,7 +60,7 @@ int _pjl_get_response(
 
     for (;;) {
 
-        stat = lfn_getline(handle->stream, handle->timeout, &y);
+        stat = pjl_getline(handle, &y);
         switch (stat) {
             case 0:                         /* Normal read.         */
                 len = strlen(y);
@@ -134,7 +134,7 @@ int _pjl_send_command(
 
     }
 
-    while ((stat = lfn_getline(handle->stream, handle->timeout, &y))) {
+    while ((stat = pjl_getline(handle, &y))) {
 
         if (strnicmp(command, y, len) == 0) {
 

@@ -41,14 +41,24 @@ int pjl_get_model(
  * Variables Used
  */
 
+    int stat = OK;
 
 /*
  * Main part of function.
  */
 
+    if (handle == NULL) {
+
+        stat = ERR;
+        vperror("(pjl_get_model) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     strncpy(model, handle->model, len);
 
-    return OK;
+    fini:
+    return stat;
 
 }
 

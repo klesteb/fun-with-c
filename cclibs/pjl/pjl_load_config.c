@@ -64,6 +64,13 @@ int pjl_load_config(
  * Main part of function.
  */
 
+    if (handle == NULL) {
+
+        vperror("(pjl_job) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     que_init(&list);
 
     /* Ask for the printer configuration.                               */

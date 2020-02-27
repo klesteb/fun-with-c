@@ -59,18 +59,22 @@ int pjl_stop(
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    if (handle == NULL) {
 
-        /* Send the UEL. */
-
-        if ((stat = _pjl_put(handle, uel)) != OK) {
-
-            vperror("(pjl_stop) Error sending the universal reset command.\n");
-
-        }
+        vperror("(pjl_stop) Invalid parameters.\n");
+        goto fini;
 
     }
 
+    /* Send the UEL. */
+
+    if ((stat = _pjl_put(handle, uel)) != OK) {
+
+        vperror("(pjl_stop) Unable to send the universal reset command.\n");
+
+    }
+
+    fini:
     return stat;
 
 }

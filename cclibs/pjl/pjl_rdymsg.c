@@ -54,27 +54,30 @@ int  pjl_rdymsg(
  * Main part of function.
  */
 
-    for (response = que_first(&handle->configs);
-         response != NULL;
-         response = que_next(&handle->configs)) {
+    if (handle == NULL) {
 
-        if (strcmp(response->name, wanted) == 0) {
+        vperror("(pjl_rdymsg) Invalid parameters.\n");
+        goto fini;
 
-            len = atoi(response->value);
+    }
+
+    if (que_find(&handle->configs, wanted, _pjl_response_find) == QUE_OK) {
+
+        response = que_get(&handle->configs);
+        len = atoi(response->value);
+
+        memset(buffer, '\0', PJL_K_BUFSIZ);
+        snprintf(buffer, len, command, msg);
+
+        if ((stat = _pjl_put(handle, buffer)) != OK) {
+
+            vperror("(pjl_rdymsg) Unable to send the RDYMSG command.\n");
 
         }
 
     }
 
-    memset(buffer, '\0', PJL_K_BUFSIZ);
-    snprintf(buffer, len, command, msg);
-
-    if ((stat = _pjl_put(handle, buffer)) != OK) {
-
-        vperror("(pjl_rdymsg) Unable to send the RDYMSG command.\n");
-
-    }
-
+    fini:
     return(stat);
 
 }

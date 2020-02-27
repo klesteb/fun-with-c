@@ -65,27 +65,31 @@ int pjl_execute(
  * Main part of function.
  */
 
-    if ((handle != NULL) && (operation != NULL)) {
+    if ((handle == NULL) || (operation == NULL)) {
 
-        if ((strcmp("SHUTDOWN", operation) == 0) ||
-            (strcmp("DEMOPAGE", operation) == 0) ||
-            (strcmp("RESIFONT", operation) == 0) ||
-            (strcmp("PERMFONT", operation) == 0) ||
-            (strcmp("PRTCONFIG", operation) == 0)) {
+        vperror("(pjl_execute) Invalid parameters.\n");
+        goto fini;
 
-            memset(buff, '\0', PJL_K_BUFSIZ);
-            snprintf(buff, PJL_K_BUFSIZ - 1, command, operation);
+    }
 
-            if ((stat = _pjl_put(handle, buff)) != OK) {
+    if ((strcmp("SHUTDOWN", operation) == 0) ||
+        (strcmp("DEMOPAGE", operation) == 0) ||
+        (strcmp("RESIFONT", operation) == 0) ||
+        (strcmp("PERMFONT", operation) == 0) ||
+        (strcmp("PRTCONFIG", operation) == 0)) {
 
-                vperror("(pjl_execute) Unable to send the EXECUTE command \"%s\".", operation);
+        memset(buff, '\0', PJL_K_BUFSIZ);
+        snprintf(buff, PJL_K_BUFSIZ - 1, command, operation);
 
-            }
+        if ((stat = _pjl_put(handle, buff)) != OK) {
+
+            vperror("(pjl_execute) Unable to send the EXECUTE command \"%s\".", operation);
 
         }
 
     }
 
+    fini:
     return stat;
 
 }

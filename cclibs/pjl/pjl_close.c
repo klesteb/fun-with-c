@@ -59,20 +59,24 @@ int pjl_close(
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    if (handle == NULL) {
 
-        if (handle->stream != NULL) {
+        vperror("(pjl_close) Invalid parameters.\n");
+        goto fini;
 
-            if ((stat = lfn_destroy(handle->stream)) != 0) {
+    }
 
-                vperror("(pjl_close) Unable to close network connection.\n");
+    if (handle->stream != NULL) {
 
-            }
+        if ((stat = lfn_destroy(handle->stream)) != 0) {
+
+            vperror("(pjl_close) Unable to close network connection.\n");
 
         }
 
     }
 
+    fini:
     return stat;
 
 }

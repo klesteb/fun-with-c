@@ -56,18 +56,22 @@ int pjl_destroy(
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    if (handle == NULL) {
 
-        if (handle->model != NULL) free(handle->model);
-
-        _pjl_clear_response(&handle->ustatus);
-        _pjl_clear_response(&handle->configs);
-        _pjl_clear_response(&handle->variables);
-
-        free(handle);
+        vperror("(pjl_destroy) Invalid parameters.\n");
+        goto fini;
 
     }
 
+    if (handle->model != NULL) free(handle->model);
+
+    _pjl_clear_response(&handle->ustatus);
+    _pjl_clear_response(&handle->configs);
+    _pjl_clear_response(&handle->variables);
+
+    free(handle);
+
+    fini:
     return 0;
 
 }

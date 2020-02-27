@@ -8,20 +8,40 @@
 
 /*----------------------------------------------------------------------*/
 
+extern int vperror_print;
+
 /*----------------------------------------------------------------------*/
+
+int file_read(FILE *fp, void *line, int *size) {
+
+    int count = 0;
+    int stat = ERR;
+    char **buffer = NULL;
+    char *fmt = "%s\r\n";
+printf("entering file_read()\n");
+
+    if ((count = getline(buffer, (size_t *)size, fp)) > 0) {
+
+        stat = OK;
+        snprintf(line, count + 2, fmt, buffer);
+
+    }
+
+printf("leaving file_read()\n");
+    return stat;
+
+}
 
 int main (int argc, char **argv) {
 
     /* print a text file on a printer */
 
-    int stat;
-    FILE *fd = NULL;
+    int stat = ERR;
     PjlHandle handle;
-    char buffer[1024];
-    char *fmt = "%s\r\n";
 
     /* lfn_util_debug = 1; */
     /* tcp_util_debug = 1; */
+    vperror_print = 1;
 
     if (argc < 4) {
 
@@ -97,27 +117,10 @@ int main (int argc, char **argv) {
 
     printf("Sending file %s to the printer\n", argv[3]);
 
-    if ((fd = fopen(argv[3], "r")) != NULL) {
+    if ((stat = pjl_print(handle, argv[3], &file_read)) != OK) {
 
-        int count = 0;
-        size_t length = 0;
-        char *line = NULL;
-
-        while ((count = getline(&line, &length, fd)) > 0) {
-
-            snprintf(buffer, count + 2, fmt, line);
-
-            if ((stat = _pjl_write(handle, buffer, strlen(buffer))) != OK) {
-
-                printf("Error printing file\n");
-                break;
-
-            }
-
-        }
-
-        free(line);
-        fclose(fd);
+        printf("Unable to send file %s\n", argv[3]);
+        goto fini;
 
     }
 

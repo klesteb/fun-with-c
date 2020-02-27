@@ -90,11 +90,11 @@ int main (int argc, char **argv) {
 
     }
 
-    if ((stat = pjl_job(handle, jobname, 0, 0, 0)) != OK) {
-        
+    if ((stat = pjl_job(handle, jobname, 0, 0, 0, NULL)) != OK) {
+
         printf("unable to declare job\n");
         goto fini;
-        
+
     }
     
     if ((stat = pjl_enter(handle, "PCL")) != OK) {

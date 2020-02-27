@@ -72,15 +72,23 @@ int pjl_open(
 
     int stat = ERR;
     TcpEndpoint connection;
-    char service[PJL_K_BUFSIZ + 1];
+    char service[PJL_K_BUFSIZ];
 
 /*
  * Main part of function.
  */
 
+    if ((handle == NULL) || (port == NULL) || 
+        (host == NULL) || (timeout == 0)) {
+
+        vperror("(pjl_open) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     handle->timeout = timeout;
     memset(service, '\0', PJL_K_BUFSIZ);
-    snprintf(service, PJL_K_BUFSIZ, "%s@%s", port, host);
+    snprintf(service, PJL_K_BUFSIZ - 1, "%s@%s", port, host);
 
     if ((stat = tcp_call(service, 0, 0, &connection)) != 0) {
 

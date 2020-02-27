@@ -22,7 +22,8 @@ OBJS = pjl_close.o pjl_core.o pjl_dump_config.o pjl_dump_ustatus.o \
        pjl_load_variables.o pjl_load_ustatus.o pjl_stop.o pjl_start.o \
        pjl_load_model.o pjl_get_model.o pjl_dump_model.o pjl_job.o \
        pjl_comment.o pjl_create.o pjl_destroy.o pjl_get_timeout.o \
-       pjl_set_timeout.o pjl_stmsg.o pjl_opmsg.o
+       pjl_set_timeout.o pjl_stmsg.o pjl_opmsg.o pjl_print.o \
+       pjl_getline.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9
 #
@@ -203,6 +204,14 @@ pjl_opmsg.o: pjl_opmsg.c $(INCS)
 pjl_stmsg.o: pjl_stmsg.c $(INCS)
 	$(CC) $(CFLAGS) pjl_stmsg.c
 	$(LIBR) $(LIBS) pjl_stmsg.o
+#
+pjl_print.o: pjl_print.c $(INCS)
+	$(CC) $(CFLAGS) pjl_print.c
+	$(LIBR) $(LIBS) pjl_print.o
+#
+pjl_getline.o: pjl_getline.c $(INCS)
+	$(CC) $(CFLAGS) pjl_getline.c
+	$(LIBR) $(LIBS) pjl_getline.o
 #
 # eof
 #

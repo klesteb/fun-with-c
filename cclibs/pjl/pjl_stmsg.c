@@ -60,25 +60,24 @@ int  pjl_stmsg(
  */
 
     que_init(&list);
+    pjl_get_timeout(handle, &timeout);
 
-    if ((response != NULL) && (length > 0)) {
-        
-        for (response = que_first(&handle->configs);
-             response != NULL;
-             response = que_next(&handle->configs)) {
+    if ((handle == NULL) || (msg == NULL) || 
+        (status == NULL) || (length < 1)) {
 
-            if (strcmp(response->name, wanted) == 0) {
+        vperror("(pjl_stmsg) Invalid parameters.\n");
+        goto fini;
 
-                len = atoi(response->value);
+    }
 
-            }
+    if (que_find(&handle->configs, wanted, _pjl_response_find) == QUE_OK) {
 
-        }
+        response = que_get(&handle->configs);
+        len = atoi(response->value);
 
         memset(buffer, '\0', PJL_K_BUFSIZ);
         snprintf(buffer, len, command, msg);
 
-        pjl_get_timeout(handle, &timeout);
         pjl_set_timeout(handle, -1.0);
 
         if ((stat = _pjl_do_command(handle, buffer, &list)) != OK) {
@@ -91,8 +90,8 @@ int  pjl_stmsg(
         if ((line = que_pop_head(&list)) != NULL) {
 
             stat = OK;
-            int a = (strlen(line) > length) ? length : strlen(line); 
-            strncpy(status, line, a);
+            int l = (strlen(line) > length) ? length : strlen(line); 
+            strncpy(status, line, l);
 
         }
 

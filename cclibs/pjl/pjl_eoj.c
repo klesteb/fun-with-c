@@ -52,6 +52,13 @@ int pjl_eoj(
  * Main part of function.
  */
 
+    if ((handle == NULL) || (jobname == NULL)) {
+
+        vperror("(pjl_eoj) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     if (strlen(jobname) > 80) {
 
         jobname[80] = '\0';

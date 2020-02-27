@@ -17,7 +17,7 @@
 int pjl_job(
 
 #if __STDC__
-    PjlHandle handle, char *jobname, int start, int end, int password)
+    PjlHandle handle, char *jobname, int start, int end, int password, char *display)
 #else
     handle, jobname, start, end, password)
 
@@ -26,7 +26,7 @@ int pjl_job(
     int start;
     int end;
     int password;
-    
+
 #endif
 
 {
@@ -51,12 +51,20 @@ int pjl_job(
     char *fend = "END = %d ";
     char buffer[PJL_K_BUFSIZ];
     char *fstart = "START = %d ";
+    char *fdisplay = "DISPLAY = \"%s\" ";
     char *fpassword = "PASSWORD = \"%d\" ";
     char *command = "@PJL JOB NAME = \"%s\" ";
 
 /*
  * Main part of function.
  */
+
+    if (handle == NULL) {
+
+        vperror("(pjl_job) Invalid parameters.\n");
+        goto fini;
+
+    }
 
     if (strlen(jobname) > 80) {
 
@@ -90,6 +98,14 @@ int pjl_job(
 
     }
 
+    if (display != NULL) {
+
+        memset(temp, '\0', 32);
+        snprintf(temp, 31, fdisplay, display);
+        strcat(buffer, temp);
+
+    }
+
     strcat(buffer, "\r\n");
 
     if ((stat = _pjl_put(handle, buffer)) != OK) {
@@ -98,6 +114,7 @@ int pjl_job(
 
     }
 
+    fini:
     return stat;
 
 }

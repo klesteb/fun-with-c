@@ -53,6 +53,7 @@ int pjl_dump_config(
  * Variables Used
  */
 
+    int stat = OK;
     char *option = NULL;
     char *fmt1 = "%s\n";
     char *fmt2 = "%s=%s\n";
@@ -63,7 +64,15 @@ int pjl_dump_config(
  * Main part of function.
  */
 
-    printf("\nPrinter Config:\n\n");
+    if (handle == NULL) {
+
+        stat = ERR;
+        vperror("(pjl_dump_config) Invalid parameters.\n");
+        goto fini;
+
+    }
+
+    printf("\nPrinter config:\n\n");
 
     for (response = que_first(&handle->configs);
          response != NULL;
@@ -97,7 +106,8 @@ int pjl_dump_config(
 
     }
 
-    return OK;
+    fini:
+    return stat;
 
 }
 

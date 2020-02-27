@@ -43,15 +43,22 @@ int pjl_comment(
  */
 
     int stat = ERR;
-    char buffer[PJL_K_BUFSIZ + 1];
+    char buffer[PJL_K_BUFSIZ];
     char *command = "@PJL COMMENT %s \r\n";
 
 /*
  * Main part of function.
  */
 
+    if ((handle == NULL) || (comment == NULL)) {
+
+        vperror("(pjl_comment) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     memset(buffer, '\0', PJL_K_BUFSIZ);
-    snprintf(buffer, PJL_K_BUFSIZ, command, comment);
+    snprintf(buffer, PJL_K_BUFSIZ - 1, command, comment);
 
     if ((stat = _pjl_put(handle, buffer)) != OK) {
 
@@ -59,6 +66,7 @@ int pjl_comment(
 
     }
 
+    fini:
     return stat;
 
 }

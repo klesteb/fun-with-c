@@ -66,6 +66,14 @@ int pjl_load_variables(
 
     que_init(&list);
     pjl_get_timeout(handle, &timeout);
+
+    if (handle == NULL) {
+
+        vperror("(pjl_load_variables) Invalide parameters.\n");
+        goto fini;
+
+    }
+
     pjl_set_timeout(handle, timeout + 60.0);
 
     /* Ask for the printer variables.                               */

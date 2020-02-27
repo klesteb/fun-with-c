@@ -58,11 +58,18 @@ int pjl_reset(
  * Main part of function.
  */
 
+    if (handle == NULL) {
+
+        vperror("(pjl_reset) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     /* Put the printer into command mode. */
 
     if ((stat = _pjl_put(handle, command)) != OK) {
 
-        vperror("(pjl_reset) Error putting printer into command mode.\n");
+        vperror("(pjl_reset) Unable to send the ATTENTION command.\n");
         goto fini:
 
     }
@@ -71,7 +78,7 @@ int pjl_reset(
 
     if ((stat = _pjl_put(handle, reset)) != OK) {
 
-        vperror("(pjl_reset) Error resetting printer environment.\n");
+        vperror("(pjl_reset) Unable to send the RESET command.\n");
 
     }
 

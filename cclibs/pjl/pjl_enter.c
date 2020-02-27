@@ -44,7 +44,6 @@ int pjl_enter(
  */
 
     int stat = ERR;
-    char *option = NULL;
     char buffer[PJL_K_BUFSIZ];
     char *wanted = "LANGUAGES";
     PjlResponse *response = NULL;
@@ -53,6 +52,13 @@ int pjl_enter(
 /*
  * Main part of function.
  */
+
+    if ((handle == NULL) || (language == NULL)) {
+
+        vperror("(pjl_enter) Invalid parameters.\n");
+        goto fini;
+
+    }
 
     if (que_find(&handle->configs, wanted, _pjl_response_find) == QUE_OK) {
 
@@ -73,7 +79,8 @@ int pjl_enter(
 
     }
 
-    return(stat);
+    fini:
+    return stat;
 
 }
 

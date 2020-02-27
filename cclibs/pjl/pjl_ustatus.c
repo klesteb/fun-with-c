@@ -45,7 +45,6 @@ int pjl_ustatus(
  */
 
     int stat = ERR;
-    char *option = NULL;
     char buffer[PJL_K_BUFSIZ];
     PjlResponse *response = NULL;
     char *command = "@PJL USTATUS %s = %s \r\n";
@@ -54,26 +53,22 @@ int pjl_ustatus(
  * Main part of function.
  */
 
-    for (response = que_first(&handle->ustatus);
-         response != NULL;
-         response = que_next(&handle->ustatus)) {
+    if ((handle == NULL) || (type == NULL) || (action == NULL)) {
 
-        if (strcmp(response->name, type) == 0) {
+        vperror("(pjl_ustatus) Invalid parameters.\n");
+        goto fini;
 
-            for (option = que_first(&response->options);
-                 option != NULL;
-                 option = que_next(&response->options)) {
+    }
 
-                if (strcmp(option, action) == 0) {
+    if (que_find(&handle->ustatus, type, _pjl_response_find) == QUE_OK) {
 
-                    memset(buffer, '\0', PJL_K_BUFSIZ);
-                    snprintf(buffer, PJL_K_BUFSIZ - 1, command, type, action);
-                    stat = _pjl_put(handle, buffer);
-                    goto fini;
+        response = que_get(&handle->ustatus);
 
-                }
+        if (que_find(&response->options, action, _pjl_option_find) == QUE_OK) {
 
-            }
+            memset(buffer, '\0', PJL_K_BUFSIZ);
+            snprintf(buffer, PJL_K_BUFSIZ - 1, command, type, action);
+            stat = _pjl_put(handle, buffer);
 
         }
 

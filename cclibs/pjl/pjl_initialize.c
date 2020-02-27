@@ -48,12 +48,20 @@ int pjl_initialize(
  * Main part of function.
  */
 
+    if (handle == NULL) {
+
+        vperror("(pjl_initialize) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     if ((stat = _pjl_put(handle, command)) != OK) {
 
         vperror("(pjl_initialize) Unable to send the INITIALIZE command.");
 
     }
 
+    fini:
     return stat;
 
 }

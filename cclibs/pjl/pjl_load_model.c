@@ -49,6 +49,13 @@ int pjl_load_model(
  * Main part of function.
  */
 
+    if (handle == NULL) {
+
+        vperror("(pjl_load_model) Invalid parameters.\n");
+        goto fini;
+
+    }
+
     que_init(&list);
 
     if ((stat = _pjl_do_command(handle, command, &list)) == OK) {
@@ -58,6 +65,7 @@ int pjl_load_model(
 
     }
 
+    fini:
     return stat;
 
 }

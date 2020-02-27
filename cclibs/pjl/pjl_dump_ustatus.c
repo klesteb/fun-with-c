@@ -53,6 +53,7 @@ int pjl_dump_ustatus(
  * Variables Used
  */
 
+    int stat = OK;
     char *option = NULL;
     PjlResponse *response = NULL;
     char *format = "%s=%s [%s %s]\n";
@@ -60,6 +61,14 @@ int pjl_dump_ustatus(
 /*
  * Main part of function.
  */
+
+    if (handle == NULL) {
+
+        stat = ERR;
+        vperror("(pjl_dump_ustatus) Invalid parameters.\n");
+        goto fini;
+
+    }
 
     printf("\nPrinter ustatus:\n\n");
 
@@ -69,7 +78,7 @@ int pjl_dump_ustatus(
 
         printf(format, response->name, response->value, 
                response->items, response->type);
-        
+
         for (option = que_first(&response->options);
              option != NULL;
              option = que_next(&response->options)) {
@@ -80,7 +89,8 @@ int pjl_dump_ustatus(
 
     }
 
-    return(0);
+    fini:
+    return stat;
 
 }
 

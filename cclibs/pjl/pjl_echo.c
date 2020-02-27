@@ -53,16 +53,20 @@ int pjl_echo(
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    if (handle == NULL) {
 
-        if ((stat = _pjl_send_command(handle, buff)) != OK) {
-
-            vperror("(pjl_echo) Unable to send the ECHO command.\n");
-
-        }
+        vperror("(pjl_echo) Invalid parameters.\n");
+        goto fini;
 
     }
 
+    if ((stat = _pjl_send_command(handle, buff)) != OK) {
+
+        vperror("(pjl_echo) Unable to send the ECHO command.\n");
+
+    }
+
+    fini:
     return stat;
 
 }

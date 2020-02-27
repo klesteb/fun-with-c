@@ -52,6 +52,7 @@ int pjl_dump_variables(
  * Variables Used
  */
 
+    int stat = OK;
     char *option = NULL;
     PjlResponse *response = NULL;
     char *format = "%s=%s [%s %s]\n";
@@ -60,7 +61,15 @@ int pjl_dump_variables(
  * Main part of function.
  */
 
-    printf("\nPrinter Variables:\n\n");
+    if (handle == NULL) {
+
+        stat = ERR;
+        vperror("(pjl_dump_variables) Invalid parameters.\n");
+        goto fini;
+
+    }
+
+    printf("\nPrinter variables:\n\n");
 
     for (response = que_first(&handle->variables);
          response != NULL;
@@ -68,7 +77,7 @@ int pjl_dump_variables(
 
         printf(format, response->name, response->value, 
                response->items, response->type);
-        
+
         for (option = que_first(&response->options);
              option != NULL;
              option = que_next(&response->options)) {
@@ -76,10 +85,11 @@ int pjl_dump_variables(
             printf("    %s\n", option);
 
         }
-
+        
     }
 
-    return(0);
+    fini:
+    return stat;
 
 }
 

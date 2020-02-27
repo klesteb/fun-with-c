@@ -59,12 +59,20 @@ int pjl_dump_model(
  * Main part of function.
  */
 
-    if ((stat = pjl_get_model(handle, model, 255)) == OK) {
+    if (handle == NULL) {
 
-        printf("\nPrinter Model: %s\n", model);
+        vperror("(pjl_dump_model) Invalid parameters.\n");
+        goto fini;
 
     }
 
+    if ((stat = pjl_get_model(handle, model, 255)) == OK) {
+
+        printf("\nPrinter model: %s\n", model);
+
+    }
+
+    fini:
     return stat;
 
 }

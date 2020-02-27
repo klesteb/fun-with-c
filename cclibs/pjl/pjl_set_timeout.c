@@ -56,19 +56,23 @@ int pjl_set_timeout(
  * Variables Used
  */
 
-    int stat = ERR;
+    int stat = OK;
 
 /*
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    if ((handle == NULL) || (timeout == 0)) {
 
-        stat = OK;
-        handle->timeout = timeout;
+        stat = ERR;
+        vperror("(pjl_set_timeout) Invalid parameters.\n");
+        goto fini;
 
     }
 
+    handle->timeout = timeout;
+
+    fini:
     return stat;
 
 }

@@ -57,24 +57,27 @@ int pjl_start(
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    if (handle == NULL) {
 
-        /* Put the printer into command mode. */
+        vperror("(pjl_start) Invalid parameters.\n");
+        goto fini;
 
-        if ((stat = _pjl_put(handle, command)) != OK) {
+    }
 
-            vperror("(pjl_start) Error placing printer into command mode.\n");
-            goto fini;
+    /* Put the printer into command mode. */
 
-        }
+    if ((stat = _pjl_put(handle, command)) != OK) {
 
-        /* Sync with the printer. */
+        vperror("(pjl_start) Unable to send the ATTENTION command.\n");
+        goto fini;
 
-        if ((stat = pjl_echo(handle)) != OK) {
+    }
 
-            vperror("(pjl_start) Error syncing with the printer.\n");
+    /* Sync with the printer. */
 
-        }
+    if ((stat = pjl_echo(handle)) != OK) {
+
+        vperror("(pjl_start) Unabl to  send the ECHO command.\n");
 
     }
 

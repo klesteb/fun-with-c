@@ -56,17 +56,24 @@ int pjl_set_debug(
  * Variables Used
  */
 
+    int stat = OK;
+
 /*
  * Main part of function.
  */
 
-    if (handle != NULL) {
+    if (handle == NULL) {
 
-        handle->debug = toggle;
+        stat = ERR;
+        vperror("(pjl_set_debud) Invalid parameters.\n");
+        goto fini;
 
     }
 
-    return(0);
+    handle->debug = toggle;
+
+    fini:
+    return stat;
 
 }
 

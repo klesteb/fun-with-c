@@ -60,8 +60,12 @@ int pjl_load_model(
 
     if ((stat = _pjl_do_command(handle, command, &list)) == OK) {
 
-        model = que_pop_head(&list);
-        handle->model = strdup(model);
+        if (que_size(&list) > 0) {
+
+            model = que_pop_head(&list);
+            handle->model = strdup(model);
+
+        }
 
     }
 

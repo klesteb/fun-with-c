@@ -12,6 +12,7 @@
 
 #include <pcre.h>
 #include "pjl_priv.h"
+#include "meo_util.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -42,7 +43,7 @@ int _pjl_get_response(
  *    \f\r\n
  *
  *    The \f indicates the end of the response. The LFN layer strips off
- *    the \r\n.
+ *    the \r.
  * 
  * Modification History
  *
@@ -53,7 +54,8 @@ int _pjl_get_response(
     int len = 0;
     int stat = ERR;
     char *y = NULL;
-    
+    char *c = NULL;
+
 /*
  * Main part of function.
  */
@@ -64,7 +66,10 @@ int _pjl_get_response(
         switch (stat) {
             case 0:                         /* Normal read.         */
                 len = strlen(y);
-                if ((a = pos(y, "\f", 0)) > 0) {
+                if ((c = strchr(y, '\f')) != NULL) {
+                    a = c - y;
+                }
+                if (a > 0) {
                     if (len > 1) {
                         char *buff = strndup(y, len);
                         que_push_tail(list, buff);
@@ -90,7 +95,7 @@ int _pjl_get_response(
     }
 
     fini:
-    return(stat);
+    return stat;
 
 }
 
@@ -136,14 +141,14 @@ int _pjl_send_command(
 
     while ((stat = pjl_getline(handle, &y))) {
 
-        if (strnicmp(command, y, len) == 0) {
+        if (stat == EWOULDBLOCK) {
 
             stat = OK;
             break;
 
         }
 
-        if (stat == EWOULDBLOCK) {
+        if (strnicmp(command, y, len) == 0) {
 
             stat = OK;
             break;

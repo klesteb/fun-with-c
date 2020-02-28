@@ -167,7 +167,7 @@ int  lfn_getline (
 
         printf("(lfn_getline) From %s: \"%s\"\n",
                lfn_name(stream), stream->inputString);
-        meo_dumpx(stdout, "    ", 0, stream->inputString, strlen(*string));
+        meo_dumpd(stdout, "    ", 0, stream->inputString, strlen(*string));
 
     }
 

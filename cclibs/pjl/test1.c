@@ -8,6 +8,8 @@
 
 /*----------------------------------------------------------------------*/
 
+extern int vperror_print;
+
 /*----------------------------------------------------------------------*/
 
 int main (int argc, char **argv) {
@@ -17,6 +19,7 @@ int main (int argc, char **argv) {
 
     /* tcp_util_debug = 1; */
     /* lfn_util_debug = 1; */
+    vperror_print = 1;
     
     if (argc < 3) {
 

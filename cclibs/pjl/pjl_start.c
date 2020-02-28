@@ -15,6 +15,7 @@
 /*----------------------------------------------------------------------*/
 
 int pjl_start(
+
 #if __STDC__
     PjlHandle handle)
 #else
@@ -22,6 +23,7 @@ int pjl_start(
 
     PjlHandle handle;
 #endif
+
 {
 /*
  * Function: pjl_start.c

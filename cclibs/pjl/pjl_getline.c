@@ -53,7 +53,7 @@ int  pjl_getline (
  *            the string does NOT include the trailing CR/LF.  The string is
  *            stored in memory private to the LFN stream and, although the
  *            caller can modify the string, it should be used or duplicated
- *            before calling lfn_getline() again.
+ *            before calling pjl_getline() again.
  *
  *        <status>            - O
  *            returns the status of reading the input line, zero if there
@@ -64,8 +64,10 @@ int  pjl_getline (
  * Variables Used
  */
 
+    int stat = OK;
     char  *buf, *line;
     int  last, length, next;
+    double timeout;
     struct  timeval  expirationTime;
 
 /*
@@ -74,18 +76,20 @@ int  pjl_getline (
 
     if ((handle == NULL) || (handle->stream == NULL)) {
 
-        errno = EINVAL;
+        errno = stat = EINVAL;
         vperror("(pjl_getline) Invalid parameters.\n");
-        return(errno);
+        goto fini;
 
     }
+
+    timeout = handle->timeout;
 
     /* If a timeout interval was specified, then compute the expiration */
     /* time of the interval as the current time plus the interval.      */
 
     if (handle->timeout >= 0.0) {
 
-        expirationTime = tv_add(tv_tod(), tv_createf(handle->timeout));
+        expirationTime = tv_add(tv_tod(), tv_createf(timeout));
 
     }
 
@@ -100,26 +104,25 @@ int  pjl_getline (
     for (;;) {
 
         /* Copy buffered input to the input string until the LF or      */
-        /* FF or CR/LF terminator is reached.                           */
+        /* CR/LF terminator is reached.                                 */
 
         while ((next <= last) && (buf[next] != '\n')) {
 
             if (length < handle->stream->maxLength) {
 
-                if ((line[length] = buf[next]) == '\f') break;
                 if ((line[length++] = buf[next++]) == '\r') length--;
 
             } else {
 
-                errno = EMSGSIZE;
+                errno = stat = EMSGSIZE;
                 vperror("(pjl_getline) Input line from %s exceeds %d bytes.\n",
                         lfn_name(handle->stream), handle->stream->maxLength);
-                return(errno);
+                goto fini;
 
             }
 
         }
-    
+
         line[length] = '\0';
 
         if ((next <= last) && (buf[next] == '\n')) break;
@@ -130,17 +133,18 @@ int  pjl_getline (
 
         if (handle->timeout > 0.0) {
 
-            handle->timeout = tv_float(tv_subtract(expirationTime, tv_tod()));
+            timeout = tv_float(tv_subtract(expirationTime, tv_tod()));
 
         }
 
-        if (tcp_read(handle->stream->connection, handle->timeout, 
+        if (tcp_read(handle->stream->connection, timeout, 
                      -handle->stream->bufferSize,
                      handle->stream->inputBuffer, &last)) {
 
             vperror("(pjl_getline) Error reading %d bytes from %s stream.\ntcp_read: ",
                     handle->stream->bufferSize, lfn_name(handle->stream));
-            return(errno);
+            stat = errno;
+            goto fini;
 
         }
 
@@ -160,11 +164,12 @@ int  pjl_getline (
 
         printf("(pjl_getline) From %s: \"%s\"\n",
                lfn_name(handle->stream), handle->stream->inputString);
-        meo_dumpx(stdout, "    ", 0, handle->stream->inputString, strlen(*string));
+        meo_dumpd(stdout, "    ", 0, handle->stream->inputString, strlen(*string));
 
     }
 
-    return(0);
+    fini:
+    return stat;
 
 }
 

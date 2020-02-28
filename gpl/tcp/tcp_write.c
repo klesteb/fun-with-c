@@ -188,7 +188,7 @@ int  tcp_write (
 
             printf("(tcp_write) Wrote %d bytes to %s, socket %d.\n",
                     length, dataPoint->name, dataPoint->fd);
-            meo_dumpx(stdout, "    ", 0, buffer, length);
+            meo_dumpd(stdout, "    ", 0, buffer, length);
 
         }
 

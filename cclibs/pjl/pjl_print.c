@@ -14,18 +14,14 @@
 #include "pjl_priv.h"
 
 /*----------------------------------------------------------------------*/
-/* private routines                                                     */
+/* private data                                                         */
 /*----------------------------------------------------------------------*/
 
 typedef struct _file_s {
     FILE *fp;
     PjlHandle handle;
-    int (*read)(FILE *, void *, int *);
+    int (*read)(FILE *, void *, int);
 } file_t;
-
-/*----------------------------------------------------------------------*/
-/* private data                                                         */
-/*----------------------------------------------------------------------*/
 
 NxInputId read_id;             /* id for file read processor      */
 NxWorkProcId file_id;          /* id for network status processor */
@@ -36,14 +32,14 @@ NxWorkProcId file_id;          /* id for network status processor */
 
 static int _file_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
-    int size = 0;
     int stat = ERR;
-    void *content = NULL;
+    char content[PJL_K_BUFSIZ];
+    int size = PJL_K_BUFSIZ - 1;
     file_t *file = (file_t *)data;
 
-printf("entering _file_handler()\n");
-    
-    if ((stat = file->read(file->fp, content, &size)) != OK) {
+    memset(content, '\0', PJL_K_BUFSIZ);
+
+    if ((stat = file->read(file->fp, (void *)content, size)) != OK) {
 
         vperror("(pjl_print) Unable to read content from file.\n");
         goto fini;
@@ -60,7 +56,6 @@ printf("entering _file_handler()\n");
     file_id = NxAddWorkProc(NULL, &_file_handler, (void *)data);
 
     fini:
-printf("leaving _file_handler()\n");
     return stat;
 
 }
@@ -76,13 +71,13 @@ printf("leaving _file_handler()\n");
 int pjl_print(
 
 #if __STDC__
-    PjlHandle handle, char *filename, int (*file_read)(FILE *, void *, int *))
+    PjlHandle handle, char *filename, int (*file_read)(FILE *, void *, int))
 #else
     handle, filename, file_read)
 
     PjlHandle handle;
     char *filename;
-    int (*file_read)(FILE *, void *, int *);
+    int (*file_read)(FILE *, void *, int);
 #endif
 
 {
@@ -98,7 +93,7 @@ int pjl_print(
  *
  *    Invocation:
  *
- *        status = pjl_printf(handle, filename);
+ *        status = pjl_printf(handle, filename, file_reader);
  *
  *    where
  *
@@ -108,6 +103,9 @@ int pjl_print(
  *        <filename>          - I
  *            The file to send to the printer.
  * 
+ *        <file_reader>       - I
+ *            A callback to read and process the file.
+ * 
  *        <status>            - O
  *            This function will always return 0.
  *
@@ -116,7 +114,7 @@ int pjl_print(
  * Variables Used
  */
 
-    int stat = ERR;
+    int stat = OK;
     FILE *fp = NULL;
     file_t *file = NULL;
 
@@ -126,6 +124,7 @@ int pjl_print(
 
     if ((handle == NULL) || (filename == NULL) || (file_read == NULL)) {
 
+        stat = ERR;
         vperror("(pjl_print) Invalid parameters.\n");
         goto fini;
 
@@ -133,6 +132,7 @@ int pjl_print(
 
     if ((fp = fopen(filename, "r")) == NULL) {
 
+        stat = ERR;
         vperror("(pjl_print) Unable to open file: %s\n", filename);
         goto fini;
 
@@ -140,6 +140,7 @@ int pjl_print(
 
     if ((file = (file_t *)xmalloc(sizeof(file_t))) == NULL) {
 
+        stat = ERR;
         vperror("(pjl_print) Unable to alloc file reader memory\n.");
         goto fini;
 
@@ -151,7 +152,7 @@ int pjl_print(
 
     file_id = NxAddWorkProc(NULL, &_file_handler, (void *)file);
 
-    stat = NxMainLoop(NULL);
+    NxMainLoop(NULL);
 
     free(file);
 

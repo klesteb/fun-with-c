@@ -5,6 +5,7 @@
 #include "pjl_util.h"
 #include "lfn_util.h"
 #include "tcp_util.h"
+#include "misc/misc.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -12,22 +13,23 @@ extern int vperror_print;
 
 /*----------------------------------------------------------------------*/
 
-int file_read(FILE *fp, void *line, int *size) {
+int file_read(FILE *fp, void *line, int size) {
 
-    int count = 0;
     int stat = ERR;
-    char **buffer = NULL;
-    char *fmt = "%s\r\n";
-printf("entering file_read()\n");
 
-    if ((count = getline(buffer, (size_t *)size, fp)) > 0) {
+    if (fgets(line, size, fp) != NULL) {
+
+        if (strlen(line) < (size - 2)) {
+
+            rtrim(line);
+            strcat(line, "\r\n");
+
+        }
 
         stat = OK;
-        snprintf(line, count + 2, fmt, buffer);
 
     }
 
-printf("leaving file_read()\n");
     return stat;
 
 }
@@ -41,7 +43,7 @@ int main (int argc, char **argv) {
 
     /* lfn_util_debug = 1; */
     /* tcp_util_debug = 1; */
-    vperror_print = 1;
+    /* vperror_print = 1; */
 
     if (argc < 4) {
 

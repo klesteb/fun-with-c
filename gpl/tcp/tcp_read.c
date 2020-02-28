@@ -216,7 +216,7 @@ int  tcp_read (
 
             printf("(tcp_read) Read %d bytes from %s, socket %d.\n",
                     length, dataPoint->name, dataPoint->fd);
-            meo_dumpx(stdout, "    ", 0, buffer, length);
+            meo_dumpd(stdout, "    ", 0, buffer, length);
 
         }
 

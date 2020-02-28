@@ -153,7 +153,7 @@ int  lfn_read (
 
         printf("(lfn_read) From %s: %d bytes of unformatted data\n",
                 lfn_name(stream), *numBytesRead);
-        meo_dumpx(stdout, "    ", 0, stream->inputBuffer, *numBytesRead);
+        meo_dumpd(stdout, "    ", 0, stream->inputBuffer, *numBytesRead);
 
     }
 

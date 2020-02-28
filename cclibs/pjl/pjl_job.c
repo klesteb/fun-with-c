@@ -72,6 +72,7 @@ int pjl_job(
 
     }
 
+    handle->jobname = strdup(jobname);
     sprintf(buffer, command, jobname);
 
     if (start > 0) {

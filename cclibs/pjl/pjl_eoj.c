@@ -65,6 +65,13 @@ int pjl_eoj(
 
     }
 
+    if (strcmp(jobname, handle->jobname) != 0) {
+
+        vperror("(pjl_eoj) Wrong job.\n");
+        goto fini;
+
+    }
+
     memset(buffer, '\0', PJL_K_BUFSIZ);
     snprintf(buffer, PJL_K_BUFSIZ - 1, command, jobname);
 
@@ -80,6 +87,8 @@ int pjl_eoj(
         vperror("(pjl_eoj) Unable to send the EOJ command.\n");
 
     }
+
+    free(handle->jobname);
 
     fini:
     return stat;

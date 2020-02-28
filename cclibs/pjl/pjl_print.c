@@ -23,8 +23,13 @@ typedef struct _file_s {
     int (*read)(FILE *, void *, int);
 } file_t;
 
-NxInputId read_id;             /* id for file read processor      */
-NxWorkProcId file_id;          /* id for network status processor */
+typedef struct _status_s {
+    PjlHandle handle;
+    int (*read)(PjlHandle);
+} status_t;
+
+NxInputId status_id;           /* id for status processor   */
+NxWorkProcId file_id;          /* id for file processor     */
 
 /*----------------------------------------------------------------------*/
 /* private routines                                                     */
@@ -60,24 +65,36 @@ static int _file_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
 }
 
-/* static int _status_handler(NxAppContext context, NxInputId id, int source, void *data) { */
+static int _status_handler(NxAppContext context, NxInputId id, int source, void *data) {
+
+    int stat = ERR;
+    status_t *status = (status_t *)data;
+
+    if ((stat = status->read(status->handle)) != OK) {
+
+        NxRemoveInput(NULL, status_id);
+
+    }
     
-/*     return 0; */
-    
-/* } */
+    return stat;
+
+}
 
 /*----------------------------------------------------------------------*/
 
 int pjl_print(
 
 #if __STDC__
-    PjlHandle handle, char *filename, int (*file_read)(FILE *, void *, int))
+    PjlHandle handle, char *filename, 
+    int (*file_read)(FILE *, void *, int),
+    int (*status_read)(PjlHandle))
 #else
-    handle, filename, file_read)
+    handle, filename, file_read, status_read)
 
     PjlHandle handle;
     char *filename;
     int (*file_read)(FILE *, void *, int);
+    int (*status_read)(PjlHandle);
 #endif
 
 {
@@ -106,6 +123,9 @@ int pjl_print(
  *        <file_reader>       - I
  *            A callback to read and process the file.
  * 
+ *        <status_reader>     - I
+ *            A callback to read status messages from the printer.
+ * 
  *        <status>            - O
  *            This function will always return 0.
  *
@@ -114,9 +134,11 @@ int pjl_print(
  * Variables Used
  */
 
+    int fd;
     int stat = OK;
     FILE *fp = NULL;
     file_t *file = NULL;
+    status_t *status = NULL;
 
 /*
  * Main part of function.
@@ -150,13 +172,34 @@ int pjl_print(
     file->handle = handle;
     file->read = file_read;
 
-    file_id = NxAddWorkProc(NULL, &_file_handler, (void *)file);
+    if (status_read != NULL) {
+
+        if ((status = (status_t *)xmalloc(sizeof(status_t))) == NULL) {
+
+            stat = ERR;
+            vperror("(pjl_print) Unable to alloc status reader memory\n.");
+            goto fini;
+
+        }
+
+        fd = lfn_fd(handle->stream);
+
+        status->handle = handle;
+        status->read = status_read;
+
+        status_id = NxAddInput(NULL, fd, NxInputReadMask, _status_handler, (void *)status);
+
+    }
+
+    file_id = NxAddWorkProc(NULL, _file_handler, (void *)file);
 
     NxMainLoop(NULL);
 
-    free(file);
-
     fini:
+    fclose(fp);
+    if (file != NULL) free(file);
+    if (status != NULL) free(status);
+
     return stat;
 
 }

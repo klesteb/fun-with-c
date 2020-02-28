@@ -43,6 +43,7 @@
 
 typedef struct _PjlHandle {
     LfnStream stream;           /* Underlaying LFN data stream.         */
+    char *jobname;              /* The name of a print job.             */
     char *model;                /* The printer model.                   */
     double timeout;             /* Timeout for network operations.      */
     queue ustatus;              /* The ustatus of the printer.          */

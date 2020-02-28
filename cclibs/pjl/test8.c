@@ -3,13 +3,13 @@
 #include <string.h>
 
 #include "pjl_util.h"
-#include "lfn_util.h"
-#include "tcp_util.h"
 #include "misc/misc.h"
 
 /*----------------------------------------------------------------------*/
 
 extern int vperror_print;
+extern int lfn_util_debug;
+extern int tcp_util_debug;
 
 /*----------------------------------------------------------------------*/
 
@@ -119,7 +119,7 @@ int main (int argc, char **argv) {
 
     printf("Sending file %s to the printer\n", argv[3]);
 
-    if ((stat = pjl_print(handle, argv[3], &file_read)) != OK) {
+    if ((stat = pjl_print(handle, argv[3], &file_read, NULL)) != OK) {
 
         printf("Unable to send file %s\n", argv[3]);
         goto fini;

@@ -45,12 +45,14 @@ int pjl_destroy(
  *            The handle created with pjl_create().
  *
  *        <status>            - O
- *            This function will always return 0.
+ *            This function should return 0.
  *
  * Modification History
  *
  * Variables Used
  */
+
+    int stat = OK;
 
 /*
  * Main part of function.
@@ -58,12 +60,14 @@ int pjl_destroy(
 
     if (handle == NULL) {
 
+        stat = ERR;
         vperror("(pjl_destroy) Invalid parameters.\n");
         goto fini;
 
     }
 
     if (handle->model != NULL) free(handle->model);
+    if (handle->jobname != NULL) free(handle->jobname);
 
     _pjl_clear_response(&handle->ustatus);
     _pjl_clear_response(&handle->configs);
@@ -72,7 +76,7 @@ int pjl_destroy(
     free(handle);
 
     fini:
-    return 0;
+    return stat;
 
 }
 

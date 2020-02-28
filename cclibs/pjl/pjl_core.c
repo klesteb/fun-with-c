@@ -17,6 +17,7 @@
 /*----------------------------------------------------------------------*/
 
 int _pjl_get_response(
+
 #if __STDC__
     PjlHandle handle, queue *list)
 #else
@@ -25,6 +26,7 @@ int _pjl_get_response(
     PjlHandle handle;
     queue *list;
 #endif
+
 {
 /*
  * Function: _pjl_get_response.c
@@ -100,6 +102,7 @@ int _pjl_get_response(
 }
 
 int _pjl_send_command(
+
 #if __STDC__
     PjlHandle handle, char *command)
 #else
@@ -108,6 +111,7 @@ int _pjl_send_command(
     PjlHandle handle;
     char *command;
 #endif
+
 {
 /*
  * Function: _pjl_send_command.c
@@ -254,6 +258,7 @@ int _pjl_write(
 }
 
 int _pjl_do_command(
+
 #if __STDC__
     PjlHandle handle, char *command, queue *list)
 #else
@@ -263,6 +268,7 @@ int _pjl_do_command(
     char *command;
     queue *list;
 #endif
+
 {
 /*
  * Function: _pjl_do_command.c
@@ -296,6 +302,7 @@ int _pjl_do_command(
 }
 
 int _pjl_clear_list(
+
 #if __STDC__
     queue *list)
 #else
@@ -303,6 +310,7 @@ int _pjl_clear_list(
 
     queue *list;
 #endif
+
 {
 /*
  * Function: _pjl_clear_list.c
@@ -470,6 +478,7 @@ int _pjl_option_find(
 }
 
 int _pjl_clear_response(
+
 #if __STDC__
     queue *responses)
 #else
@@ -477,6 +486,7 @@ int _pjl_clear_response(
 
     queue *responses;
 #endif
+
 {
 /*
  * Function: _pjl_clear_response.c

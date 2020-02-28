@@ -25,7 +25,8 @@ OBJS = pjl_close.o pjl_core.o pjl_dump_config.o pjl_dump_ustatus.o \
        pjl_set_timeout.o pjl_stmsg.o pjl_opmsg.o pjl_print.o \
        pjl_getline.o
 #
-all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
+             test10
 #
 debug:
 #CFLAGS = -ggdb -Wall -c -I.. -I../misc
@@ -44,6 +45,7 @@ clean:
 	rm -f test7
 	rm -f test8
 	rm -f test9
+	rm -f test10
 #
 test1: test1.c $(INCS)
 	$(CC) $(CFLAGS) test1.c
@@ -80,6 +82,10 @@ test8: test8.c $(INCS)
 test9: test9.c $(INCS)
 	$(CC) $(CFLAGS) test9.c
 	$(LINK) $(LFLAGS) test9 test9.o $(OLBS)
+#
+test10: test10.c $(INCS)
+	$(CC) $(CFLAGS) test10.c
+	$(LINK) $(LFLAGS) test10 test10.o $(OLBS)
 #
 pjl_close.o: pjl_close.c $(INCS)
 	$(CC) $(CFLAGS) pjl_close.c

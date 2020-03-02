@@ -17,13 +17,11 @@
 int pjl_eoj(
 
 #if __STDC__
-    PjlHandle handle, char *jobname)
+    PjlHandle handle)
 #else
     handle, jobname)
 
     PjlHandle handle;
-    char *jobname;
-    
 #endif
 
 {
@@ -52,28 +50,15 @@ int pjl_eoj(
  * Main part of function.
  */
 
-    if ((handle == NULL) || (jobname == NULL)) {
+    if ((handle == NULL) && (handle->jobname != NULL)) {
 
         vperror("(pjl_eoj) Invalid parameters.\n");
         goto fini;
 
     }
 
-    if (strlen(jobname) > 80) {
-
-        jobname[80] = '\0';
-
-    }
-
-    if (strcmp(jobname, handle->jobname) != 0) {
-
-        vperror("(pjl_eoj) Wrong job.\n");
-        goto fini;
-
-    }
-
     memset(buffer, '\0', PJL_K_BUFSIZ);
-    snprintf(buffer, PJL_K_BUFSIZ - 1, command, jobname);
+    snprintf(buffer, PJL_K_BUFSIZ - 1, command, handle->jobname);
 
     if ((stat = _pjl_put(handle, attention)) != OK) {
 

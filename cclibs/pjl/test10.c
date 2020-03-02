@@ -1,33 +1,85 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "pjl_util.h"
-#include "lfn_util.h"
-#include "tcp_util.h"
+#include "meo_util.h"
+#include "misc/misc.h"
 
 /*----------------------------------------------------------------------*/
 
+extern int vperror_print;
+extern int lfn_util_debug;
+extern int tcp_util_debug;
+
 /*----------------------------------------------------------------------*/
+
+int status_read(PjlHandle handle) {
+
+    int stat = OK;
+    char *y = NULL;
+
+    while ((pjl_getline(handle, &y) != EWOULDBLOCK)) {
+
+        if (pos(y, "END", 0) > 0) {
+
+            stat = ERR;
+
+        }
+
+        meo_dumpd(stdout, "    ", 0, y, strlen(y));
+        printf("\n");
+
+    }
+
+    return stat;
+
+}
+
+int file_read(FILE *fp, void *line, int size) {
+
+    int count = 0;
+    int stat = ERR;
+    size_t length = 0;
+    char *buffer = NULL;
+
+    if ((count = getline(&buffer, &length, fp)) > 0) {
+
+        if ((count + 2 ) < size) {
+
+            snprintf(line, count + 2, "%s\r\n", buffer);
+
+        } else {
+
+            snprintf(line, size, "%s", buffer);
+
+        }
+
+        stat = OK;
+        free(buffer);
+
+    }
+
+    return stat;
+
+}
 
 int main (int argc, char **argv) {
 
     /* print a text file on a printer */
-    /* with job seperation            */
 
-    int stat;
-    FILE *fd = NULL;
+    int stat = ERR;
     PjlHandle handle;
-    char buffer[1024];
-    char *fmt = "%s\r\n";
     char *jobname = "kevin";
 
     /* lfn_util_debug = 1; */
     /* tcp_util_debug = 1; */
+    /* vperror_print = 1; */
 
     if (argc < 4) {
 
-        printf("\nusage: test8 <host> <port> <filename>\n\n");
+        printf("\nusage: test10 <host> <port> <filename>\n\n");
         return(0);
 
     }
@@ -90,13 +142,20 @@ int main (int argc, char **argv) {
 
     }
 
-    if ((stat = pjl_job(handle, jobname, 0, 0, 0, NULL)) != OK) {
+    if ((stat = pjl_ustatus(handle, "JOB", "ON")) != OK) {
 
-        printf("unable to declare job\n");
+        printf("unable to set ustatus JOB to ON\n");
         goto fini;
 
     }
-    
+
+    if ((stat = pjl_job(handle, jobname, 0, 0, 0, NULL)) != OK) {
+
+        printf("unable to set language\n");
+        goto fini;
+
+    }
+
     if ((stat = pjl_enter(handle, "PCL")) != OK) {
 
         printf("unable to set language\n");
@@ -106,37 +165,14 @@ int main (int argc, char **argv) {
 
     printf("Sending file %s to the printer\n", argv[3]);
 
-    if ((fd = fopen(argv[3], "r")) != NULL) {
+    if ((stat = pjl_print(handle, argv[3], &file_read, &status_read)) != OK) {
 
-        int count = 0;
-        size_t length = 0;
-        char *line = NULL;
-
-        while ((count = getline(&line, &length, fd)) > 0) {
-
-            snprintf(buffer, count + 2, fmt, line);
-
-            if ((stat = _pjl_write(handle, buffer, strlen(buffer))) != OK) {
-
-                printf("Error printing file\n");
-                break;
-
-            }
-
-        }
-
-        free(line);
-        fclose(fd);
+        printf("Unable to send file %s\n", argv[3]);
+        goto fini;
 
     }
 
     printf("File %s has been sent\n", argv[3]);
-
-    if ((stat = pjl_eoj(handle)) != OK) {
-
-        printf("unable to terminate job\n");
-
-    }
 
     fini:
     pjl_stop(handle);

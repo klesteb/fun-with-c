@@ -43,8 +43,8 @@
 
 typedef struct _PjlHandle {
     LfnStream stream;           /* Underlaying LFN data stream.         */
-    char *jobname;              /* The name of a print job.             */
     char *model;                /* The printer model.                   */
+    char *jobname;              /* The name of the print job.           */
     double timeout;             /* Timeout for network operations.      */
     queue ustatus;              /* The ustatus of the printer.          */
     queue variables;            /* Info variables from the printer.     */
@@ -65,13 +65,6 @@ typedef struct _PjlResponse {
     char *type;
     queue options;
 } PjlResponse;
-
-/*----------------------------------------------------------------------*/
-/*    Miscellaneous declarations.                                       */
-/*----------------------------------------------------------------------*/
-
-#define PJL_K_BUFSIZ 1024           /* Input buffer size of 1024 bytes  */
-#define PJL_K_MODEL  256            /* the size of the model name       */
 
 /*----------------------------------------------------------------------*/
 /* External routines needed by the package.                             */

@@ -47,6 +47,13 @@ static int _file_handler(NxAppContext context, NxWorkProcId id, void *data) {
     if ((stat = file->read(file->fp, (void *)content, size)) != OK) {
 
         vperror("(pjl_print) Unable to read content from file.\n");
+
+        if (file->handle->jobname != NULL) {
+
+            stat = pjl_eoj(file->handle);
+
+        }
+
         goto fini;
 
     }
@@ -75,7 +82,7 @@ static int _status_handler(NxAppContext context, NxInputId id, int source, void 
         NxRemoveInput(NULL, status_id);
 
     }
-    
+
     return stat;
 
 }
@@ -85,7 +92,7 @@ static int _status_handler(NxAppContext context, NxInputId id, int source, void 
 int pjl_print(
 
 #if __STDC__
-    PjlHandle handle, char *filename, 
+    PjlHandle handle, char *filename,
     int (*file_read)(FILE *, void *, int),
     int (*status_read)(PjlHandle))
 #else
@@ -172,6 +179,8 @@ int pjl_print(
     file->handle = handle;
     file->read = file_read;
 
+    file_id = NxAddWorkProc(NULL, _file_handler, (void *)file);
+
     if (status_read != NULL) {
 
         if ((status = (status_t *)xmalloc(sizeof(status_t))) == NULL) {
@@ -190,8 +199,6 @@ int pjl_print(
         status_id = NxAddInput(NULL, fd, NxInputReadMask, _status_handler, (void *)status);
 
     }
-
-    file_id = NxAddWorkProc(NULL, _file_handler, (void *)file);
 
     NxMainLoop(NULL);
 

@@ -38,6 +38,21 @@ int pjl_enter(
  *    check the printer configuration to see if the desired language is
  *    supported. If not ERR is returned.
  *
+ *    Invocation:
+ *
+ *        status = pjl_enter(handle, language);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <language>          - I
+ *            The print language to use.
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

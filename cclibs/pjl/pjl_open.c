@@ -63,7 +63,7 @@ int pjl_open(
  *            The handle for subsequent operations.
  *
  *        <status>            - O
- *            This function will return 0 on success or ERRNO.
+ *            This function will return OK on success or ERRNO.
  *
  * Modification History
  *

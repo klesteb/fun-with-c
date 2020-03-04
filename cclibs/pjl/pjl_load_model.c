@@ -35,6 +35,18 @@ int pjl_load_model(
  *
  *    This function will load the printers model name.
  *
+ *    Invocation:
+ *
+ *        status = pjl_load_model(handle);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle for this connection.
+ *
+ *        <status>            - O
+ *            This function will return 0 on success or ERRNO.
+ *
  * Modification History
  *
  * Variables Used

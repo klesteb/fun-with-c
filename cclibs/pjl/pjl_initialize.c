@@ -36,6 +36,18 @@ int pjl_initialize(
  *    This function will initialize the printer and reset it back to
  *    "PJL Current Environment" and "User Default Environment".
  *
+ *    Invocation:
+ *
+ *        status = pjl_initialize(handle);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

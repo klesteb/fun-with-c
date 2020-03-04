@@ -45,7 +45,7 @@ int pjl_dump_variables(
  *            The handle for subsequent operations.
  *
  *        <status>            - O
- *            This function will return 0 or errno.
+ *            This function will return OK or ERR.
  *
  * Modification History
  *

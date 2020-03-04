@@ -35,6 +35,18 @@ int pjl_ustatusoff(
  *
  *    This function will turn off the pjl ustatus.
  *
+ *    Invocation:
+ *
+ *        status = pjl_ustatusoff(handle);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

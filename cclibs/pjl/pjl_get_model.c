@@ -36,6 +36,24 @@ int pjl_get_model(
  *
  *    This function will return the model name.
  *
+ *    Invocation:
+ *
+ *        status = pjl_get_model(handle, buffer, size);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <buffer>            - O
+ *            The buffer to hold the model name.
+ *
+ *        <size>              - I
+ *            The size of buffer.
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

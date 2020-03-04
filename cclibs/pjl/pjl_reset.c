@@ -40,7 +40,7 @@ int pjl_reset(
  *    where
  *
  *        <handle>            - I
- *            The handle for subsequent operations.
+ *            The handle from pjl_create().
  *
  *        <status>            - O
  *            This function will always return 0.

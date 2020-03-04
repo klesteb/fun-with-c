@@ -39,6 +39,24 @@ int pjl_ustatus(
  *    configuration. If the type is not in the configuration a -1 will be
  *    returned. If the action is not defined then a -1 will be returned.
  *
+ *    Invocation:
+ *
+ *        status = pjl_ustatus(handle, type, action);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <type>              - I
+ *            The type of ustatus.
+ *
+ *        <action>            - I
+ *            The action to perform.
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

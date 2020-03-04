@@ -38,6 +38,21 @@ int  pjl_opmsg(
  *    It will search the configuration to find the display size. If one is
  *    not found it will default to 15 characters.
  *
+ *    Invocation:
+ *
+ *        status = pjl_opmsg(handle, message);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <message>           - I
+ *            The comment to insert.
+ * 
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

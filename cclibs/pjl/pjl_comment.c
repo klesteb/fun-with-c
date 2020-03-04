@@ -37,6 +37,21 @@ int pjl_comment(
  *
  *    This function will place a comment into the pjl stream.
  *
+ *    Invocation:
+ *
+ *        status = pjl_comment(handle, comment);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <comment>           - I
+ *            The comment to insert.
+ * 
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

@@ -43,10 +43,10 @@ int pjl_close(
  *    where
  *
  *        <handle>            - I
- *            The handle for subsequent operations.
+ *            The handle from pjl_create().
  *
  *        <status>            - O
- *            This function will always return 0.
+ *            This function will return either OK or ERR.
  *
  * Modification History
  *

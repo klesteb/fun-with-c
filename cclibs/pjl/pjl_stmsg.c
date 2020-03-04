@@ -40,6 +40,21 @@ int  pjl_stmsg(
  *    It will wait until the "operator" clears the message. This message will
  *    be returned.
  *
+ *    Invocation:
+ *
+ *        status = pjl_stmsg(handle, message);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <message>           - I
+ *            The comment to insert.
+ * 
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

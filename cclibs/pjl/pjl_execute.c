@@ -50,7 +50,7 @@ int pjl_execute(
  *            The operation for the printer to perform.
  * 
  *        <status>            - O
- *            This function will always return 0.
+ *            This function will return either OK or ERR.
  *
  * Modification History
  *

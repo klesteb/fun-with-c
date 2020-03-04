@@ -38,6 +38,18 @@ int pjl_echo(
  *    with the printer. An echo command will cause the printer to flush the
  *    pjl command buffer. This information can be ignored.
  *
+ *    Invocation:
+ *
+ *        status = pjl_echo(handle);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used
@@ -66,8 +78,11 @@ int pjl_echo(
     if ((stat = _pjl_do_command(handle, buff, &list)) != OK) {
 
         vperror("(pjl_echo) Unable to send the ECHO command.\n");
+        goto fini;
 
     }
+
+    stat = _pjl_clear_list(&list);
 
     fini:
     return stat;

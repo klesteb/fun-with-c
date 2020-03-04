@@ -36,7 +36,7 @@ int _pjl_get_response(
  *
  * Description
  *
- *    This function will read the response back from the lazer printer.
+ *    This function will read the response back from the printer.
  * 
  *    The format of a response is as follows:
  * 
@@ -46,6 +46,21 @@ int _pjl_get_response(
  *    \f
  *
  *    The \f indicates the end of the response. 
+ * 
+ *    Invocation:
+ *
+ *        status = _pjl_get_response(handle, list);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <list>           - I
+ *            The response.
+ *
+ *        <status>            - O
+ *            This function will return OK or ERR.
  * 
  * Modification History
  *
@@ -114,6 +129,21 @@ int _pjl_send_command(
  *
  *    Run a PJL command and wait for the echo back of the command.
  *
+ *    Invocation:
+ *
+ *        status = _pjl_send_command(handle, command);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <command>           - I
+ *            The command to send.
+ *
+ *        <status>            - O
+ *            This function will return OK or ERR.
+ * 
  * Modification History
  *
  * Variables Used
@@ -179,6 +209,21 @@ int _pjl_put(
  *
  *    Send a command.
  *
+ *    Invocation:
+ *
+ *        status = _pjl_put(handle, command);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <command>           - I
+ *            The command to send.
+ *
+ *        <status>            - O
+ *            This function will return OK or ERR.
+ * 
  * Modification History
  *
  * Variables Used
@@ -221,6 +266,23 @@ int _pjl_write(
  *
  * Description
  *
+ *    Invocation:
+ *
+ *        status = _pjl_write(handle, buffer, size);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <buffer>            - I
+ *            The data to be sent.
+ *
+ *        <size>              - I
+ *            The size of the data.
+ * 
+ *        <status>            - O
+ *            This function will return OK or ERR.
  *
  * Modification History
  *
@@ -271,6 +333,24 @@ int _pjl_do_command(
  *
  *    Run a PJL command and collect the response.
  *
+ *    Invocation:
+ *
+ *        status = _pjl_do_command(handle, command, list);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <command>           - I
+ *            The command to send.
+ *
+ *        <list>              - O
+ *            The response from the command.
+ * 
+ *        <status>            - O
+ *            This function will return OK or ERR.
+ * 
  * Modification History
  *
  * Variables Used
@@ -312,7 +392,19 @@ int _pjl_clear_list(
  * Description
  *
  *    This clear a list.
-  *
+ *
+ *    Invocation:
+ *
+ *        status = _pjl_clear_list(list);
+ *
+ *    where
+ *
+ *        <list>               - I
+ *            The list to deallocate.
+ *
+ *        <status>            - O
+ *            This function will return OK or ERR.
+ * 
  * Modification History
  *
  * Variables Used
@@ -488,7 +580,19 @@ int _pjl_clear_response(
  * Description
  *
  *    This clear a list.
-  *
+ *
+ *    Invocation:
+ *
+ *        status = _pjl_clear_response(respones);
+ *
+ *    where
+ *
+ *        <responses>         - I
+ *            A queue of responses.
+ *
+ *        <status>            - O
+ *            This function will return OK or ERR.
+ * 
  * Modification History
  *
  * Variables Used
@@ -545,6 +649,24 @@ int _pjl_parse_ustatus(
  *
  *    Parse the ustatus detail line.
  *
+ *    Invocation:
+ *
+ *        status = _pjl_parse_ustatus(handle, responses, line);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <response>          - O
+ *            The data structure to be filled in.
+ *
+ *        <line>              - I
+ *            The line to parse.
+ * 
+ *        <status>            - O
+ *            This function will return OK, or an error code from pcre.
+ * 
  * Modification History
  *
  * Variables Used
@@ -639,6 +761,24 @@ int _pjl_parse_variables(
  *
  *    Parse the variable detail line.
  *
+ *    Invocation:
+ *
+ *        status = _pjl_parse_variables(handle, responses, line);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <response>          - O
+ *            The data structure to be filled in.
+ *
+ *        <line>              - I
+ *            The line to parse.
+ * 
+ *        <status>            - O
+ *            This function will return OK, or an error code from pcre.
+ * 
  * Modification History
  *
  * Variables Used
@@ -765,6 +905,24 @@ int _pjl_parse_config(
  *
  *    Parse the config detail line.
  *
+ *    Invocation:
+ *
+ *        status = _pjl_parse_config(handle, responses, line);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle returned from pjl_create().
+ *
+ *        <response>          - O
+ *            The data structure to be filled in.
+ *
+ *        <line>              - I
+ *            The line to parse.
+ * 
+ *        <status>            - O
+ *            This function will return OK, or an error code from pcre.
+ * 
  * Modification History
  *
  * Variables Used

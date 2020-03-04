@@ -56,7 +56,7 @@ int  pjl_getline (
  *            before calling pjl_getline() again.
  *
  *        <status>            - O
- *            returns the status of reading the input line, zero if there
+ *            returns the status of reading the input line, OK if there
  *            were no errors and ERRNO if an error occurred.
  *
  * Modification History

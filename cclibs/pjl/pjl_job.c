@@ -19,14 +19,14 @@ int pjl_job(
 #if __STDC__
     PjlHandle handle, char *jobname, int start, int end, int password, char *display)
 #else
-    handle, jobname, start, end, password)
+    handle, jobname, start, end, password, display)
 
     PjlHandle handle;
     char *jobname;
     int start;
     int end;
     int password;
-
+    char *display;
 #endif
 
 {
@@ -40,6 +40,33 @@ int pjl_job(
  *
  *    This function will signal the pjl stream that new job is being
  *    started.
+ *
+ *    Invocation:
+ *
+ *        status = pjl_job(handle, jobname, start, end, password, display);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <jobname>           - I
+ *            The name of the print job.
+ *
+ *        <start>             - I
+ *            The page to start the print job on.
+ *
+ *        <end>               - I
+ *            The page to end the print job on.
+ *
+ *        <password>          - I
+ *            The password to use.
+ *
+ *        <display>           - I
+ *            The text to display on the printers panel.
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
  *
  * Modification History
  *

@@ -42,10 +42,10 @@ int pjl_load_ustatus(
  *    where
  *
  *        <handle>            - I
- *            The handle for this connection.
+ *            The handle from pjl_create().
  *
  *        <status>            - O
- *            This function will return 0 on success or ERRNO.
+ *            This function will return OK on success or ERRNO.
  *
  * Modification History
  *

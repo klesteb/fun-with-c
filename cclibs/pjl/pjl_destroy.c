@@ -45,7 +45,7 @@ int pjl_destroy(
  *            The handle created with pjl_create().
  *
  *        <status>            - O
- *            This function should return 0.
+ *            This function should return OK.
  *
  * Modification History
  *

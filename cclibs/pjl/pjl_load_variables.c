@@ -46,7 +46,7 @@ int pjl_load_variables(
  *            The handle for this connection.
  *
  *        <status>            - O
- *            This function will return 0 on success or ERRNO.
+ *            This function will return OK on success or ERRNO.
  *
  * Modification History
  *

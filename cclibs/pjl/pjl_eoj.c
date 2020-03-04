@@ -36,6 +36,18 @@ int pjl_eoj(
  *    This function will signal the pjl stream that the current job is
  *    finished.
  *
+ *    Invocation:
+ *
+ *        status = pjl_eoj(handle);
+ *
+ *    where
+ *
+ *        <handle>            - I
+ *            The handle from pjl_create().
+ *
+ *        <status>            - O
+ *            This function will return either OK or ERR.
+ *
  * Modification History
  *
  * Variables Used

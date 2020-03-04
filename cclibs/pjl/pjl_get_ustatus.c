@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*  Copyright (c) 2004 by Kevin L. Esteb                                     */
+/*                  Copyright (c) 2020 by Kevin L. Esteb                     */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -10,42 +10,51 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include <time.h>
 #include "pjl_priv.h"
 
 /*----------------------------------------------------------------------*/
 
-int pjl_echo(
+int pjl_get_ustatus(
 
 #if __STDC__
-    PjlHandle handle)
+    PjlHandle handle, char *name, char *buffer, int size)
 #else
-    handle)
+    handle, name, buffer, size)
 
     PjlHandle handle;
+    char *name;
+    char *bufffer;
+    int size;
 #endif
 
 {
 /*
- * Function: pjl_echo.c
+ * Function: pjl_get_ustatus.c
  * Version : 1.0
- * Created : 09-Nov-2000
+ * Created : 03-Mar-2020
  * Author  : Kevin Esteb
  *
  * Description
  *
- *    This function will send a pjl echo command to syncronize the job stream
- *    with the printer. An echo command will cause the printer to flush the
- *    pjl command buffer. This information can be ignored.
+ *    This function will return the value for the named ustatus item.
  *
  *    Invocation:
  *
- *        status = pjl_echo(handle);
+ *        status = pjl_get_ustatus(handle, name, buffer, size);
  *
  *    where
  *
  *        <handle>            - I
  *            The handle from pjl_create().
+ *
+ *        <name>              - I
+ *            The name of the ustatus item.
+ *
+ *        <buffer>            - O
+ *            The value of the ustatus item..
+ *
+ *        <size>              - I
+ *            This size of the buffer.
  *
  *        <status>            - O
  *            This function will return either OK or ERR.
@@ -55,35 +64,29 @@ int pjl_echo(
  * Variables Used
  */
 
-    queue list;
     int stat = ERR;
-    char buff[1024];
-    time_t t = time(NULL);
-    struct tm *tb = localtime(&t);
-    strftime(buff, 127, "@PJL ECHO VMS %d-%b-%Y %T \r\n", tb);
+    PjlResponse *response = NULL;
 
 /*
  * Main part of function.
  */
 
-    que_init(&list);
+    if ((handle == NULL) || (name == NULL) || (buffer == NULL) || (size < 1)) {
 
-    if (handle == NULL) {
-
-        vperror("(pjl_echo) Invalid parameters.\n");
+        vperror("(pjl_get_ustatus) Invalid parameters.\n");
         goto fini;
 
     }
 
-    if ((stat = _pjl_do_command(handle, buff, &list)) != OK) {
+    if (que_find(&handle->ustatus, name, _pjl_response_find) == QUE_OK) {
 
-        vperror("(pjl_echo) Unable to send the ECHO command.\n");
+        stat = OK;
+        response = que_get(&handle->ustatus);
+        strncpy(buffer, response->value, size);
 
     }
 
     fini:
-     _pjl_clear_list(&list);
-
     return stat;
 
 }

@@ -25,7 +25,7 @@ typedef struct _file_s {
 
 typedef struct _status_s {
     PjlHandle handle;
-    int (*read)(PjlHandle);
+    int (*handler)(PjlHandle, queue *);
 } status_t;
 
 NxInputId status_id;           /* id for status processor   */
@@ -50,7 +50,7 @@ static int _file_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
         if (file->handle->jobname != NULL) {
 
-            stat = pjl_eoj(file->handle);
+            pjl_eoj(file->handle);
 
         }
 
@@ -74,14 +74,27 @@ static int _file_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
 static int _status_handler(NxAppContext context, NxInputId id, int source, void *data) {
 
+    queue list;
     int stat = ERR;
     status_t *status = (status_t *)data;
 
-    if ((stat = status->read(status->handle)) != OK) {
+    que_init(&list);
+
+    if ((stat = _pjl_get_response(status->handle, &list)) != OK) {
+
+        vperror("(pjl_print) Unable to handle response\n");
+        goto fini;
+
+    }
+
+    if ((stat = status->handler(status->handle, &list)) != OK) {
 
         NxRemoveInput(NULL, status_id);
 
     }
+
+    fini:
+    _pjl_clear_list(&list);
 
     return stat;
 
@@ -94,14 +107,14 @@ int pjl_print(
 #if __STDC__
     PjlHandle handle, char *filename,
     int (*file_read)(FILE *, void *, int),
-    int (*status_read)(PjlHandle))
+    int (*status_handler)(PjlHandle, queue *))
 #else
     handle, filename, file_read, status_read)
 
     PjlHandle handle;
     char *filename;
     int (*file_read)(FILE *, void *, int);
-    int (*status_read)(PjlHandle);
+    int (*status_handler)(PjlHandle, queue *);
 #endif
 
 {
@@ -131,7 +144,7 @@ int pjl_print(
  *            A callback to read and process the file.
  * 
  *        <status_reader>     - I
- *            A callback to read status messages from the printer.
+ *            A callback to handle the status messages from the printer.
  * 
  *        <status>            - O
  *            This function will always return 0.
@@ -181,12 +194,12 @@ int pjl_print(
 
     file_id = NxAddWorkProc(NULL, _file_handler, (void *)file);
 
-    if (status_read != NULL) {
+    if (status_handler != NULL) {
 
         if ((status = (status_t *)xmalloc(sizeof(status_t))) == NULL) {
 
             stat = ERR;
-            vperror("(pjl_print) Unable to alloc status reader memory\n.");
+            vperror("(pjl_print) Unable to alloc status handler memory\n.");
             goto fini;
 
         }
@@ -194,7 +207,7 @@ int pjl_print(
         fd = lfn_fd(handle->stream);
 
         status->handle = handle;
-        status->read = status_read;
+        status->handler = status_handler;
 
         status_id = NxAddInput(NULL, fd, NxInputReadMask, _status_handler, (void *)status);
 

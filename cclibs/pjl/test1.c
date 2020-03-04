@@ -16,6 +16,7 @@ int main (int argc, char **argv) {
 
     int stat;
     PjlHandle handle;
+    char options[PJL_K_BUFSIZ];
 
     /* lfn_util_debug = 1; */
     /* tcp_util_debug = 1; */
@@ -41,6 +42,14 @@ int main (int argc, char **argv) {
 
             pjl_dump_model(handle);
             pjl_dump_config(handle);
+
+            printf("\n");
+            pjl_get_config(handle, "MEMORY", options, PJL_K_BUFSIZ - 1);
+            printf("MEMORY = %s\n", options);
+
+            pjl_get_config(handle, "IN TRAYS", options, PJL_K_BUFSIZ - 1);
+            printf("IN TRAYS = %s\n", options);
+            printf("\n");
 
             pjl_stop(handle);
             pjl_close(handle);

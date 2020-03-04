@@ -15,23 +15,26 @@ extern int tcp_util_debug;
 
 /*----------------------------------------------------------------------*/
 
-int status_read(PjlHandle handle) {
+int status_handler(PjlHandle handle, queue *list) {
 
     int stat = OK;
-    char *y = NULL;
+    char *line = NULL;
 
-    while ((pjl_getline(handle, &y) != EWOULDBLOCK)) {
+    for (line = que_first(list);
+         line != NULL;
+         line = que_next(list)) {
 
-        if (pos(y, "END", 0) > 0) {
+        printf("%s\n", line);
+
+        if (strcmp(line, "END") == 0) {
 
             stat = ERR;
 
         }
 
-        meo_dumpd(stdout, "    ", 0, y, strlen(y));
-        printf("\n");
-
     }
+
+    printf("\n");
 
     return stat;
 
@@ -172,7 +175,7 @@ int main (int argc, char **argv) {
 
     printf("Sending file %s to the printer\n", argv[3]);
 
-    if ((stat = pjl_print(handle, argv[3], &file_read, &status_read)) != OK) {
+    if ((stat = pjl_print(handle, argv[3], &file_read, &status_handler)) != OK) {
 
         printf("Unable to send file %s\n", argv[3]);
         goto fini;

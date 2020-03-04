@@ -43,6 +43,7 @@ int pjl_echo(
  * Variables Used
  */
 
+    queue list;
     int stat = ERR;
     char buff[1024];
     time_t t = time(NULL);
@@ -60,7 +61,9 @@ int pjl_echo(
 
     }
 
-    if ((stat = _pjl_send_command(handle, buff)) != OK) {
+    que_init(&list);
+
+    if ((stat = _pjl_do_command(handle, buff, &list)) != OK) {
 
         vperror("(pjl_echo) Unable to send the ECHO command.\n");
 

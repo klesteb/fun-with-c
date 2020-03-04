@@ -79,7 +79,7 @@ int pjl_start(
 
     if ((stat = pjl_echo(handle)) != OK) {
 
-        vperror("(pjl_start) Unabl to  send the ECHO command.\n");
+        vperror("(pjl_start) Unable to send the ECHO command.\n");
 
     }
 

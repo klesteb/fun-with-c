@@ -3,12 +3,12 @@
 #include <string.h>
 
 #include "pjl_util.h"
-#include "tcp_util.h"
-#include "lfn_util.h"
 
 /*----------------------------------------------------------------------*/
 
 extern int vperror_print;
+extern int lfn_util_debug;
+extern int tcp_util_debug;
 
 /*----------------------------------------------------------------------*/
 
@@ -17,9 +17,9 @@ int main (int argc, char **argv) {
     int stat;
     PjlHandle handle;
 
-    /* tcp_util_debug = 1; */
     /* lfn_util_debug = 1; */
-    vperror_print = 1;
+    /* tcp_util_debug = 1; */
+    /* vperror_print = 1; */
     
     if (argc < 3) {
 

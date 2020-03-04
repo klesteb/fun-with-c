@@ -56,6 +56,7 @@ int pjl_load_ustatus(
     int stat = ERR;
     int toggle = 0;
     char *line = NULL;
+    char *header = NULL;
     PjlResponse *response = NULL;
     char *command = "@PJL INFO USTATUS \r\n";
 
@@ -81,42 +82,48 @@ int pjl_load_ustatus(
 
     }
 
-    while ((line = que_pop_head(&list))) {
+    if (que_size(&list) > 0) {
 
-        if (line[0] != '\t') {
+        header = que_pop_head(&list);
 
-            if (toggle) {
+        while ((line = que_pop_head(&list))) {
 
-                que_push_head(&handle->ustatus, response);
-                toggle = 0;
+            if (line[0] != '\t') {
+
+                if (toggle) {
+
+                    que_push_head(&handle->ustatus, response);
+                    toggle = 0;
+
+                }
+
+                if ((response = xmalloc(sizeof(PjlResponse))) == NULL) {
+
+                    stat = ERR;
+                    goto fini;
+
+                }
+
+                que_init(&response->options);
+
+                if ((stat = _pjl_parse_ustatus(handle, response, line)) != OK) {
+
+                    goto fini;
+
+                }
+
+            } else {
+
+                que_push_head(&response->options, (void *)trim(line));
+                toggle = 1;
 
             }
-
-            if ((response = xmalloc(sizeof(PjlResponse))) == NULL) {
-
-                stat = ERR;
-                goto fini;
-
-            }
-
-            que_init(&response->options);
-
-            if ((stat = _pjl_parse_ustatus(handle, response, line)) != OK) {
-
-                goto fini;
-
-            }
-
-        } else {
-
-            que_push_head(&response->options, (void *)trim(line));
-            toggle = 1;
 
         }
 
-    }
+        que_push_head(&handle->ustatus, response);
 
-    que_push_head(&handle->ustatus, response);
+    }
 
     fini:
     return stat;

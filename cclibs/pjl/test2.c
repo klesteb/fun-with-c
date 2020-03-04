@@ -3,10 +3,12 @@
 #include <string.h>
 
 #include "pjl_util.h"
-#include "tcp_util.h"
-#include "lfn_util.h"
 
 /*----------------------------------------------------------------------*/
+
+extern int vperror_print;
+extern int lfn_util_debug;
+extern int tcp_util_debug;
 
 /*----------------------------------------------------------------------*/
 
@@ -17,6 +19,7 @@ int main (int argc, char **argv) {
 
     /* lfn_util_debug = 1; */
     /* tcp_util_debug = 1; */
+    /* vperror_print = 1; */
 
     /* works on our HP Laser Jet 4350, which takes around 20 seconds  */
     /* to load the printer variables                                  */

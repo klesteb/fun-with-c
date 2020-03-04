@@ -57,6 +57,7 @@ int pjl_load_config(
     int stat = ERR;
     int toggle = 0;
     char *line = NULL;
+    char *header = NULL;
     PjlResponse *response = NULL;
     char *command = "@PJL INFO CONFIG \r\n";
 
@@ -82,45 +83,51 @@ int pjl_load_config(
 
     }
 
-    while ((line = que_pop_head(&list))) {
+    if (que_size(&list) > 0) {
 
-        if (line[0] == '\t') {
+        header = que_pop_head(&list);
 
-            que_push_head(&response->options, (void *)trim(line));
-            toggle = 1;
+        while ((line = que_pop_head(&list))) {
 
-        } else {
+            if (line[0] == '\t') {
 
-            if (toggle) {
+                que_push_head(&response->options, (void *)trim(line));
+                toggle = 1;
 
-                que_push_head(&handle->configs, response);
-                toggle = 0;
+            } else {
 
-            }
+                if (toggle) {
 
-            if ((response = xmalloc(sizeof(PjlResponse))) == NULL) {
+                    que_push_head(&handle->configs, response);
+                    toggle = 0;
 
-                stat = ERR;
-                goto fini;
+                }
 
-            }
+                if ((response = xmalloc(sizeof(PjlResponse))) == NULL) {
 
-            que_init(&response->options);
+                    stat = ERR;
+                    goto fini;
 
-            if ((stat = _pjl_parse_config(handle, response, line)) != OK) {
+                }
 
-                goto fini;
+                que_init(&response->options);
 
-            }
+                if ((stat = _pjl_parse_config(handle, response, line)) != OK) {
 
-            if (pos(line, "=", 0) > 0) {
+                    goto fini;
 
-                que_push_head(&handle->configs, response);
+                }
+
+                if (pos(line, "=", 0) > 0) {
+
+                    que_push_head(&handle->configs, response);
+
+                }
 
             }
 
         }
-
+        
     }
 
     fini:

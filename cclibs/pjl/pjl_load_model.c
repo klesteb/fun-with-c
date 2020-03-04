@@ -43,6 +43,7 @@ int pjl_load_model(
     queue list;
     int stat = ERR;
     char *model = NULL;
+    char *header = NULL;
     char *command = "@PJL INFO ID \r\n";
 
 /*
@@ -62,6 +63,7 @@ int pjl_load_model(
 
         if (que_size(&list) > 0) {
 
+            header = que_pop_head(&list);
             model = que_pop_head(&list);
             handle->model = strdup(model);
 

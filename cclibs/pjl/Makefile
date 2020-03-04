@@ -29,7 +29,7 @@ all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10
 #
 debug:
-#CFLAGS = -ggdb -Wall -c -I.. -I../misc
+#CFLAGS = -ggdb -Wall -c -I.. -I../misc -I../../gpl
 #LFLAGS = -ggdb -o 
 #
 clean:

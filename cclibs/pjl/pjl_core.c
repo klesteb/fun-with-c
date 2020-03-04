@@ -40,23 +40,20 @@ int _pjl_get_response(
  * 
  *    The format of a response is as follows:
  * 
+ *    @PJL <command>\r\n
  *    \t<item>\r\n
  *    \t<item>\r\n
- *    \f\r\n
+ *    \f
  *
- *    The \f indicates the end of the response. The LFN layer strips off
- *    the \r.
+ *    The \f indicates the end of the response. 
  * 
  * Modification History
  *
  * Variables Used
  */
 
-    int a = 0;
-    int len = 0;
     int stat = ERR;
     char *y = NULL;
-    char *c = NULL;
 
 /*
  * Main part of function.
@@ -67,24 +64,18 @@ int _pjl_get_response(
         stat = pjl_getline(handle, &y);
         switch (stat) {
             case 0:                         /* Normal read.         */
-                len = strlen(y);
-                if ((c = strchr(y, '\f')) != NULL) {
-                    a = c - y;
-                }
-                if (a > 0) {
-                    if (len > 1) {
-                        char *buff = strndup(y, len);
-                        que_push_tail(list, buff);
-                    }
+                if (strchr(y, '\f') != NULL) {
+                    stat = OK;
                     goto fini;
                 } else {
+                    int len = strlen(y);
                     char *buff = strndup(y, len);
                     que_push_tail(list, buff);
                 }
                 break;
 
             case EWOULDBLOCK:               /* Timeout condition.   */
-                stat = 0;
+                stat = OK;
                 goto fini;
                 break;
 
@@ -136,7 +127,7 @@ int _pjl_send_command(
  * Main part of function.
  */
 
-    if ((stat = _pjl_put(handle, command)) != OK) {
+    if ((stat = _pjl_send_command(handle, command)) != OK) {
 
         vperror("(pjl_send_command) Error sending the command.\n");
         goto fini;
@@ -152,7 +143,7 @@ int _pjl_send_command(
 
         }
 
-        if (strnicmp(command, y, len) == 0) {
+        if (strncmp(command, y, len) == 0) {
 
             stat = OK;
             break;
@@ -291,7 +282,7 @@ int _pjl_do_command(
  * Main part of function.
  */
 
-    if ((stat = _pjl_send_command(handle, command)) == OK) {
+    if ((stat = _pjl_put(handle, command)) == OK) {
 
         stat = _pjl_get_response(handle, list);
 
@@ -572,6 +563,13 @@ int _pjl_parse_ustatus(
  * Main part of function.
  */
 
+    if (strncmp(line,"@PJL", 4) == 0) { 
+
+        stat = OK;
+        goto fini;
+
+    }
+
     if ((count = pcre_exec(handle->rustatus, NULL, line, strlen(line), 0, 0, ovector, 30)) < 0) {
 
         vperror("(pjl_parse_ustatus) Unable to parse buffer, error: %d\n", count);
@@ -659,6 +657,13 @@ int _pjl_parse_variables(
  * Main part of function.
  */
 
+    if (strncmp(line,"@PJL", 4) == 0) { 
+
+        stat = OK;
+        goto fini;
+
+    }
+
     if ((count = pcre_exec(handle->rvariable1, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
 
         if ((rc = pcre_copy_substring(line, ovector, count, 1, name, 31)) < 0) { 
@@ -726,8 +731,11 @@ int _pjl_parse_variables(
         response->value = strdup("NULL");
         response->items = strdup(items);
         response->type = strdup(type);
+        goto fini;
 
     }
+
+    vperror("(pjl_parse_variables) Unable to parse buffer, error: %d\n", count);
 
     fini:
     return stat;
@@ -774,6 +782,13 @@ int _pjl_parse_config(
 /*
  * Main part of function.
  */
+
+    if (strncmp(line,"@PJL", 4) == 0) { 
+        
+        stat = OK;
+        goto fini;
+        
+    }
 
     if ((count = pcre_exec(handle->rconfig1, NULL, line, strlen(line), 0, 0, ovector, 30)) > 0) {
         

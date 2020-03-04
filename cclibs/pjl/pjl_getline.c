@@ -99,7 +99,9 @@ int  pjl_getline (
     next = handle->stream->nextChar;
     last = handle->stream->lastChar;
     line = handle->stream->inputString;
+
     length = 0;
+    memset(line, '\0', handle->stream->maxLength);
 
     for (;;) {
 
@@ -110,7 +112,21 @@ int  pjl_getline (
 
             if (length < handle->stream->maxLength) {
 
-                if ((line[length++] = buf[next++]) == '\r') length--;
+                if (buf[next] == '\f') {
+
+                    line[length++] = buf[next];
+                    break;
+
+                }
+
+                if (buf[next] == '\r') {
+
+                    next++;
+                    continue;
+
+                }
+
+                line[length++] = buf[next++];
 
             } else {
 
@@ -125,6 +141,7 @@ int  pjl_getline (
 
         line[length] = '\0';
 
+        if ((next <= last) && (buf[next] == '\f')) break;
         if ((next <= last) && (buf[next] == '\n')) break;
 
         /* If the buffered input has been exhausted before completing   */

@@ -149,6 +149,13 @@ int main (int argc, char **argv) {
 
     }
 
+    if ((stat = pjl_ustatus(handle, "PAGE", "ON")) != OK) {
+
+        printf("unable to set ustatus PAGE to ON\n");
+        goto fini;
+
+    }
+
     if ((stat = pjl_job(handle, jobname, 0, 0, 0, NULL)) != OK) {
 
         printf("unable to set language\n");

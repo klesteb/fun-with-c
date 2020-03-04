@@ -11,6 +11,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include "pjl_priv.h"
+#include "meo_util.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -57,6 +58,7 @@ int pjl_load_variables(
     int toggle = 0;
     double timeout;
     char *line = NULL;
+    char *header = NULL;
     PjlResponse *response = NULL;
     char *command = "@PJL INFO VARIABLES \r\n";
 
@@ -69,58 +71,64 @@ int pjl_load_variables(
 
     if (handle == NULL) {
 
-        vperror("(pjl_load_variables) Invalide parameters.\n");
+        vperror("(pjl_load_variables) Invalid parameters.\n");
         goto fini;
 
     }
 
-    pjl_set_timeout(handle, timeout + 60.0);
+    pjl_set_timeout(handle, -1.0);
 
     /* Ask for the printer variables.                               */
 
     if ((stat = _pjl_do_command(handle, command, &list)) != OK) {
 
-        vperror("(pjl_load_variables) Error requesting printer config.\n");
+        vperror("(pjl_load_variables) Error requesting printer variables.\n");
         goto fini;
 
     }
 
-    while ((line = que_pop_head(&list))) {
+    if (que_size(&list) > 0) {
+        
+        header = que_pop_head(&list);
+        
+        while ((line = que_pop_head(&list))) {
+        
+            if (line[0] != '\t') {
 
-        if (line[0] != '\t') {
+                if (toggle) {
 
-            if (toggle) {
+                    que_push_head(&handle->variables, response);
+                    toggle = 0;
 
-                que_push_head(&handle->variables, response);
-                toggle = 0;
+                }
+
+                if ((response = xmalloc(sizeof(PjlResponse))) == NULL) {
+
+                    stat = ERR;
+                    goto fini;
+
+                }
+
+                que_init(&response->options);
+
+                if ((stat = _pjl_parse_variables(handle, response, line)) != OK) {
+
+                    goto fini;
+
+                }
+
+            } else {
+
+                que_push_head(&response->options, (void *)trim(line));
+                toggle = 1;
 
             }
-
-            if ((response = xmalloc(sizeof(PjlResponse))) == NULL) {
-
-                stat = ERR;
-                goto fini;
-
-            }
-
-            que_init(&response->options);
-
-            if ((stat = _pjl_parse_variables(handle, response, line)) != OK) {
-
-                goto fini;
-
-            }
-
-        } else {
-
-            que_push_head(&response->options, (void *)trim(line));
-            toggle = 1;
 
         }
 
-    }
+        que_push_head(&handle->variables, response);
 
-    que_push_head(&handle->variables, response);
+    }
 
     fini:
     pjl_set_timeout(handle, timeout);

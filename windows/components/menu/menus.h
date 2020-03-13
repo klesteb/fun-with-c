@@ -25,8 +25,17 @@ typedef struct _item_data_s {
     int index;
     char *label;
     char *description;
+    void *data;
+    int data_size;
+    int (*callback)(void *, int);
     ITEM *item;
 } item_data_t;
+
+typedef struct _userptr_data_s {
+    int (*callback)(void *, int);
+    int data_size;
+    void *data;
+} userptr_data_t;
 
 /*----------------------------------------------------------------*/
 /* constants                                                      */

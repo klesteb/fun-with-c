@@ -17,6 +17,7 @@
 #include "object.h"
 #include "container.h"
 #include "menu_priv.h"
+#include "components/menu/menus.h"
 
 require_klass(CONTAINER_KLASS);
 
@@ -26,8 +27,9 @@ require_klass(CONTAINER_KLASS);
 
 int _bar_menu_event(container_t *self, event_t *event) {
 
-    int stat = ERR;
+    int stat = OK;
     ITEM *item = NULL;
+    userptr_data_t *userptr = NULL;
     menu_data_t *data = (menu_data_t *)self->data;
 
     if (data != NULL) {
@@ -59,7 +61,11 @@ int _bar_menu_event(container_t *self, event_t *event) {
                     menu_driver(data->menu, REQ_TOGGLE_ITEM);
                     item = current_item(data->menu);
                     if (item != NULL) {
-                        
+                        if ((userptr = item_userptr(item)) != NULL) {
+                            if (userptr->callback != NULL) {
+                                stat = userptr->callback(userptr->data, userptr->data_size);
+                            }
+                        }
                     }
                     break;
                 }
@@ -70,7 +76,6 @@ int _bar_menu_event(container_t *self, event_t *event) {
 
             self->focus = (void *)current_item(data->menu);
             self->data = (void *)data;
-            stat = OK;
 
         }
 

@@ -11,6 +11,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <ncurses.h>
+#include <errno.h>
 #include <menu.h>
 
 #include "menus.h"
@@ -64,18 +65,41 @@ component_t *menu_item_create(item_data_t *data) {
     ITEM *temp = NULL;
     item_list_t items[2];
     component_t *self = NULL;
+    userptr_data_t *userptr = NULL;
 
     if ((self = component_create(1, 1, NULL, 0))) {
 
         self->type = COMPONENT_T_MENU_ITEM;
 
-        temp = new_item(data->label, data->description);
-
-        if (temp != NULL) {
+        errno = 0;
+        if ((temp = new_item(data->label, data->description)) != NULL) {
 
             data->item = temp;
             self->data = (void *)data;
             self->size = sizeof(item_data_t);
+
+            set_item_userptr(temp, NULL);
+
+            errno = 0;
+            if ((userptr = calloc(1, sizeof(userptr_data_t))) != NULL) {
+
+                userptr->data = data->data;
+                userptr->callback = data->callback;
+                userptr->data_size = data->data_size;
+
+                set_item_userptr(temp, userptr);
+
+            } else {
+
+                object_set_error(self, errno);
+                goto fini;
+
+            }
+
+        } else {
+
+            object_set_error(self, errno);
+            goto fini;
 
         }
 
@@ -86,6 +110,7 @@ component_t *menu_item_create(item_data_t *data) {
 
     }
 
+    fini:
     return self;
 
 }

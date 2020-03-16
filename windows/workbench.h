@@ -73,6 +73,7 @@ struct _workbench_s {
 extern workbench_t *workbench_create(item_list_t *);
 extern int workbench_loop(workbench_t *);
 extern int workbench_destroy(workbench_t *);
+extern int workbench_refresh(workbench_t *);
 extern int workbench_get_focus(workbench_t *, window_t *);
 extern int workbench_set_focus(workbench_t *, window_t *);
 extern int workbench_compare(workbench_t *, workbench_t *);

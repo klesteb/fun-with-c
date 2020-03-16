@@ -363,6 +363,38 @@ int workbench_set_focus(workbench_t *self, window_t *window) {
 
 }
 
+int workbench_refresh(workbench_t *self) {
+
+    int stat = OK;
+
+    when_error {
+
+        if (self != NULL) {
+
+            stat = self->_refresh(self);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int workbench_loop(workbench_t *self) {
 
     int stat = OK;

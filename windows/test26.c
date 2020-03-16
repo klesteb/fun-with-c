@@ -13,25 +13,46 @@ workbench_t *wb = NULL;
 int menu_callback(void *data, int size) {
 
     int stat;
-    event_t *event = NULL;
+    window_t *win = NULL;
 
-    if ((event = calloc(1, sizeof(event_t))) != NULL) {
+    when_error {
 
-        event->type = EVENT_K_MESSAGE;
+        win = window_create(6, 4, 10, 40);
+        check_creation(win);
+
+        stat = window_box(win, "window 1");
+        check_return(stat, win);
 
         if (data != NULL) {
 
-            event->data = (void *)strndup(data, size);
+            stat = window_output(win, 1, 0, "%*s", size, data);
 
         } else {
 
-            event->data = (void *)strdup("no data provided");
+            stat = window_output(win, 1, 0, "no data");
 
         }
 
-        stat = workbench_inject_event(wb, event);
+        check_return(stat, win);
 
-    }
+        stat = workbench_add_window(wb, win);
+        check_return(stat, wb);
+
+        stat = workbench_set_focus(wb, win);
+        check_return(stat, wb);
+
+        stat = workbench_refresh(wb);
+        check_return(stat, wb);
+
+        exit_when;
+
+    } use {
+
+        fprintf(stderr, "Error: %d, line: %d, file: %s, function: %s\n",
+               trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 

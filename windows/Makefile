@@ -34,7 +34,7 @@ OBJS = container.o colors.o component.o workbench.o window.o \
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14 test15 test16 test17 test18 \
-     test19 test20 test21 test22 test23 test24 test25
+     test19 test20 test21 test22 test23 test24 test25 test26
 #
 libs: $(OBJS)
 #
@@ -181,6 +181,10 @@ test24: test24.o
 test25: test25.o
 	$(CC) $(CFLAGS) test25.c
 	$(LINK) $(LFLAGS) test25 test25.o  $(OLBS)
+#
+test26: test26.o
+	$(CC) $(CFLAGS) test26.c
+	$(LINK) $(LFLAGS) test26 test26.o  $(OLBS)
 #
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c

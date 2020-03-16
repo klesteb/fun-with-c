@@ -41,6 +41,8 @@ int _menu_item_dtor(object_t *object) {
 
         if (data->item != NULL) {
 
+            userptr_data_t *junk = item_userptr(data->item);
+            free(junk);
             free_item(data->item);
 
         }

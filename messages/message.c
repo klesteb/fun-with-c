@@ -381,7 +381,7 @@ int _message_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
-        object_set_error(object, OK);
+        object_set_error1(object, OK);
 
         /* initialize our derived klass here */
 
@@ -408,7 +408,7 @@ int _message_ctor(object_t *object, item_list_t *items) {
         stat = self->_load_messages(self, defaults, sizeof(defaults));
         if (stat != OK) {
 
-            object_set_error(self, E_NOLOAD);
+            object_set_error1(self, E_NOLOAD);
             goto fini;
 
         }
@@ -420,7 +420,7 @@ int _message_ctor(object_t *object, item_list_t *items) {
             stat = self->_load_messages(self, messages, msg_size);
             if (stat != OK) {
 
-                object_set_error(self, E_NOLOAD);
+                object_set_error1(self, E_NOLOAD);
 
             }
 

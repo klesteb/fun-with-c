@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 
     if ((temp = template_create(NULL))) {
 
-        object_set_error(OBJECT(temp), EAGAIN);
+        object_set_error1(OBJECT(temp), EAGAIN);
         object_get_error(OBJECT(temp), &trace);
 
         printf("errno:    %d\n", trace.errnum);

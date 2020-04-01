@@ -382,7 +382,7 @@ int _log_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
-        object_set_error(object, OK);
+        object_set_error1(object, OK);
 
         /* initialize our derived klass here */
 
@@ -405,7 +405,7 @@ int _log_ctor(object_t *object, item_list_t *items) {
         if (log4c_extensions_init()) {
 
             stat = ERR;
-            object_set_error(self, E_NOLOAD);
+            object_set_error1(self, E_NOLOAD);
             goto fini;
 
         }
@@ -413,7 +413,7 @@ int _log_ctor(object_t *object, item_list_t *items) {
         if (log4c_init()) {
 
             stat = ERR;
-            object_set_error(self, E_NOLOAD);
+            object_set_error1(self, E_NOLOAD);
             goto fini;
 
         }
@@ -422,7 +422,7 @@ int _log_ctor(object_t *object, item_list_t *items) {
         if ((hostname = calloc(1, 1024)) == NULL) {
 
             stat = ERR;
-            object_set_error(self, errno);
+            object_set_error1(self, errno);
             goto fini;
 
         }
@@ -431,7 +431,7 @@ int _log_ctor(object_t *object, item_list_t *items) {
         if ((rc = gethostname(hostname, 1023)) == -1) {
 
             stat = ERR;
-            object_set_error(self, errno);
+            object_set_error1(self, errno);
             goto fini;
 
         }

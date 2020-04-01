@@ -65,11 +65,11 @@ struct _object_s {
 #define object_clone(klass) \
             _klass_clone((klass))
 
-#define object_set_error(object, error) \
-            _klass_set_error(OBJECT((object)), (error), __LINE__, __FILE__, __func__)
+#define object_set_error1(object, error) \
+            object_set_error(OBJECT((object)), (error), __LINE__, __FILE__, __func__)
 
 #define object_set_error2(object, error, lineno, file, func) \
-            _klass_set_error(OBJECT((object)), (error), (lineno), (file), (func))
+            object_set_error(OBJECT((object)), (error), (lineno), (file), (func))
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */
@@ -79,6 +79,7 @@ extern object_t *object_construct(const void *, item_list_t *, int *);
 extern int object_destroy(object_t *);
 extern int object_compare(object_t *, object_t *);
 extern int object_get_error(object_t *, error_trace_t *);
+extern int object_set_error(object_t *self, int, int, char *, const char *);
 
 static inline int _klass_assert(char *kn1, char *kn2, int ks1, int ks2) {
 
@@ -111,37 +112,6 @@ static inline object_t *_klass_clone(void *klass) {
 	}
 
 	return temp;
-
-}
-
-static inline void _klass_set_error(object_t *self, int errnum, int lineno, char *file, const char *function) {
-
-    if (self->error != NULL) {
-
-        free(self->error->filename);
-        free(self->error->function);
-
-        self->error->errnum = errnum;
-        self->error->lineno = lineno;
-        self->error->filename = strdup(file);
-        self->error->function = strdup(function);
-
-    } else {
-
-        error_trace_t *error = NULL;
-
-        if ((error = calloc(1, sizeof(error_trace_t)))) {
-
-            error->errnum = errnum;
-            error->lineno = lineno;
-            error->filename = strdup(file);
-            error->function = strdup(function);
-
-            self->error = error;
-
-        }
-
-    }
 
 }
 

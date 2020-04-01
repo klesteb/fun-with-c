@@ -66,15 +66,81 @@ static const char *logstash_format(
 
 }
 
+static const char *console_format(
+    const log4c_layout_t        *layout,
+    const log4c_logging_event_t *event)
+{
+
+    /* 
+     * console format
+     * 
+     * <category> - <message>
+     */
+
+    char *format = "%-5s - %s";
+
+    snprintf(event->evt_buffer.buf_data, event->evt_buffer.buf_size,
+             format, event->evt_category, event->evt_msg
+    );
+
+    return event->evt_buffer.buf_data;
+
+}
+
+static const char *batch_format(
+    const log4c_layout_t        *layout,
+    const log4c_logging_event_t *event)
+{
+
+    /* 
+     * batch format
+     * 
+     * [<timestamp>] <priority> -  <message>
+     */
+
+    char timestamp[30];
+    time_t ltime = event->evt_timestamp.tv_sec;
+    struct tm *tm = localtime(&ltime);
+    char *format = "[%s] %-5s - %s";
+
+    snprintf(timestamp, sizeof(timestamp),  
+             "%04d-%02d-%02d %02d:%02d:%02d",
+             tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+             tm->tm_hour, tm->tm_min, tm->tm_sec,
+             event->evt_timestamp.tv_usec / 1000
+    );
+
+    snprintf(event->evt_buffer.buf_data, event->evt_buffer.buf_size,
+             format, timestamp, 
+             log4c_priority_to_string(event->evt_priority),
+             event->evt_msg
+    );
+
+    return event->evt_buffer.buf_data;
+
+}
+
 /* layouts */
 
-static const log4c_layout_type_t log4c_layout_type_logstash  = {
+static const log4c_layout_type_t log4c_layout_type_logstash = {
     "logstash",
     logstash_format,
 };
 
+static const log4c_layout_type_t log4c_layout_type_console = {
+    "console",
+    console_format,
+};
+
+static const log4c_layout_type_t log4c_layout_type_batch = {
+    "batch",
+    batch_format,
+};
+
 static const log4c_layout_type_t * const layout_types[] = {
     &log4c_layout_type_logstash,
+    &log4c_layout_type_console,
+    &log4c_layout_type_batch,
 };
 
 static int nlayout_types =

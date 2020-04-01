@@ -723,7 +723,7 @@ int _window_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
-        object_set_error(object, OK);
+        object_set_error1(object, OK);
 
         /* initialize our derived klass here */
 
@@ -760,7 +760,7 @@ int _window_ctor(object_t *object, item_list_t *items) {
         errno = 0;
         if ((self->outer = newwin(height + 2, width + 2, row, col)) == NULL) {
             
-            object_set_error(self, errno);
+            object_set_error1(self, errno);
             goto fini;
             
         }
@@ -768,7 +768,7 @@ int _window_ctor(object_t *object, item_list_t *items) {
         errno = 0;
         if ((self->inner = derwin(self->outer, height, width, 1, 1)) == NULL) {
 
-            object_set_error(self, errno);
+            object_set_error1(self, errno);
             goto fini;
             
         }

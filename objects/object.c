@@ -82,7 +82,7 @@ int object_destroy(object_t *object) {
 
     free(object);
 
-    return 0;
+    return OK;
 
 }
 
@@ -120,6 +120,39 @@ int object_get_error(object_t *self, error_trace_t *error) {
     }
 
     return stat;
+
+}
+
+int object_set_error(object_t *self, int errnum, int lineno, char *file, const char *function) {
+
+    if (self->error != NULL) {
+
+        free(self->error->filename);
+        free(self->error->function);
+
+        self->error->errnum = errnum;
+        self->error->lineno = lineno;
+        self->error->filename = strdup(file);
+        self->error->function = strdup(function);
+
+    } else {
+
+        error_trace_t *error = NULL;
+
+        if ((error = calloc(1, sizeof(error_trace_t)))) {
+
+            error->errnum = errnum;
+            error->lineno = lineno;
+            error->filename = strdup(file);
+            error->function = strdup(function);
+
+            self->error = error;
+
+        }
+
+    }
+
+    return OK;
 
 }
 

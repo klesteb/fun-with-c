@@ -529,7 +529,7 @@ static int _init_self_pipe(workbench_t *self) {
     if (pipe(pfd) == -1) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -540,7 +540,7 @@ static int _init_self_pipe(workbench_t *self) {
     if ((flags = fcntl(pfd[0], F_GETFL)) == -1) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -550,7 +550,7 @@ static int _init_self_pipe(workbench_t *self) {
     if (fcntl(pfd[0], F_SETFL, flags) == -1) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -561,7 +561,7 @@ static int _init_self_pipe(workbench_t *self) {
     if ((flags = fcntl(pfd[1], F_GETFL)) == -1) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -571,7 +571,7 @@ static int _init_self_pipe(workbench_t *self) {
     if (fcntl(pfd[1], F_SETFL, flags) == -1) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -603,7 +603,7 @@ static int _init_self_pipe(workbench_t *self) {
     if ((sigaction(SIGTERM, NULL, &old_sigterm)) != 0) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -612,7 +612,7 @@ static int _init_self_pipe(workbench_t *self) {
     if ((sigaction(SIGINT, NULL, &old_sigint)) != 0) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -627,7 +627,7 @@ static int _init_self_pipe(workbench_t *self) {
     if (sigaction(SIGINT, &sa, NULL) == -1) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -636,7 +636,7 @@ static int _init_self_pipe(workbench_t *self) {
     if (sigaction(SIGTERM, &sa, NULL) == -1) {
 
         stat = ERR;
-        object_set_error(self, errno);
+        object_set_error1(self, errno);
         goto fini;
 
     }
@@ -670,7 +670,7 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
                 if (sigaction(SIGINT, &old_sigint, NULL) != 0) {
 
                     stat = ERR;
-                    object_set_error(self, errno);
+                    object_set_error1(self, errno);
                     goto fini;
 
                 }
@@ -679,7 +679,7 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
                 if (sigaction(SIGTERM, &old_sigterm, NULL) != 0) {
 
                     stat = ERR;
-                    object_set_error(self, errno);
+                    object_set_error1(self, errno);
                     goto fini;
 
                 }
@@ -694,7 +694,7 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
         } else {
 
             stat = ERR;
-            object_set_error(self, errno);
+            object_set_error1(self, errno);
             goto fini;
 
         }
@@ -820,7 +820,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
-        object_set_error(object, OK);
+        object_set_error1(object, OK);
 
         /* initialize our derived klass here */
 
@@ -863,7 +863,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
             errno = 0;
             if ((initscr() == NULL)) {
 
-                object_set_error(self, errno);
+                object_set_error1(self, errno);
                 goto fini;
 
             }

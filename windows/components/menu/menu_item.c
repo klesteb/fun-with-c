@@ -93,14 +93,14 @@ component_t *menu_item_create(item_data_t *data) {
 
             } else {
 
-                object_set_error(self, errno);
+                object_set_error1(self, errno);
                 goto fini;
 
             }
 
         } else {
 
-            object_set_error(self, errno);
+            object_set_error1(self, errno);
             goto fini;
 
         }

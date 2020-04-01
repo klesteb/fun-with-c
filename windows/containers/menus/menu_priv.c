@@ -27,14 +27,14 @@ require_klass(CONTAINER_KLASS);
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-#define process_error(stat) {           \
-    if ((stat) == E_SYSTEM_ERROR) {     \
-        object_set_error(self, errno);  \
-    } else {                            \
-        object_set_error(self, (stat)); \
-    }                                   \
-    stat = ERR;                         \
-    goto fini;                          \
+#define process_error(stat) {            \
+    if ((stat) == E_SYSTEM_ERROR) {      \ 
+        object_set_error1(self, errno);  \
+    } else {                             \
+        object_set_error1(self, (stat)); \
+    }                                    \
+    stat = ERR;                          \
+    goto fini;                           \
 }
 
 static int _menu_remove(container_t *self) {

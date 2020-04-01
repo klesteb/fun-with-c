@@ -12,11 +12,11 @@ message_t *msgs = NULL;
 int setup(error_trace_t *error) {
 
     int stat = OK;
-    char *process = "test8";
-    char *category = "test8";
+    char *process = "test9";
+    char *category = "test9";
     char *facility = "system";
 
-    when_error {
+    when_error_in {
 
         logs = log_create(facility, category, process);
         check_creation(logs);

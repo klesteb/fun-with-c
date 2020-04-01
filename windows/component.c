@@ -686,7 +686,7 @@ int _component_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
-        object_set_error(object, 0);
+        object_set_error1(object, 0);
 
         /* initialize our derived klass here */
 

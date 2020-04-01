@@ -333,7 +333,7 @@ int _errors_ctor(object_t *object, item_list_t *items) {
 
         /* initilize our base klass here */
 
-        object_set_error(object, OK);
+        object_set_error1(object, OK);
 
         /* initialize our derived klass here */
 
@@ -363,10 +363,10 @@ int _errors_ctor(object_t *object, item_list_t *items) {
 
         stat = self->_load_errors(self, error_codes, sizeof(error_codes));
         if (stat != OK) {
-            
-            object_set_error(self, E_NOLOAD);
+
+            object_set_error1(self, E_NOLOAD);
             goto fini;
-            
+
         }
 
         stat = OK;

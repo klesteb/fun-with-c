@@ -1,30 +1,24 @@
-{"@version":1,"@timestamp":"2019-11-08T13:21:27.234-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":15854,"lineno":15,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:21:27.235-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":15854,"lineno":16,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:21:27.235-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":15854,"lineno":17,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:21:27.235-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":15854,"lineno":18,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:21:27.235-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":15854,"lineno":19,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:21:27.235-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":15854,"lineno":20,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:51:38.688-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":30430,"lineno":15,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:51:38.689-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":30430,"lineno":16,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:51:38.689-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":30430,"lineno":17,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:51:38.689-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":30430,"lineno":18,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:51:38.689-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":30430,"lineno":19,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-08T13:51:38.689-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":30430,"lineno":20,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T10:01:03.352-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":17246,"lineno":15,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T10:01:03.352-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":17246,"lineno":16,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T10:01:03.352-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":17246,"lineno":17,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T10:01:03.352-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":17246,"lineno":18,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T10:01:03.352-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":17246,"lineno":19,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T10:01:03.352-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":17246,"lineno":20,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T13:43:36.933-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":55895,"lineno":15,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T13:43:36.933-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":55895,"lineno":16,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T13:43:36.934-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":55895,"lineno":17,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T13:43:36.934-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":55895,"lineno":18,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T13:43:36.934-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":55895,"lineno":19,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T13:43:36.934-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":55895,"lineno":20,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T14:27:11.320-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":12318,"lineno":15,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T14:27:11.320-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":12318,"lineno":16,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T14:27:11.320-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":12318,"lineno":17,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T14:27:11.320-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":12318,"lineno":18,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T14:27:11.320-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":12318,"lineno":19,"filename":"test3.c","function":"main"}
-{"@version":1,"@timestamp":"2019-11-14T14:27:11.320-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":12318,"lineno":20,"filename":"test3.c","function":"main"}
+[2020-04-01 14:33:15] INFO  - info works
+[2020-04-01 14:33:15] WARN  - warn works
+[2020-04-01 14:33:15] ERROR - error works
+[2020-04-01 14:33:15] FATAL - fatal works
+[2020-04-01 14:33:15] DEBUG - debug works
+[2020-04-01 14:33:15] TRACE - trace works
+[2020-04-01 14:35:57] INFO  - info works
+[2020-04-01 14:35:57] WARN  - warn works
+[2020-04-01 14:35:57] ERROR - error works
+[2020-04-01 14:35:57] FATAL - fatal works
+[2020-04-01 14:35:57] DEBUG - debug works
+[2020-04-01 14:35:57] TRACE - trace works
+[2020-04-01 14:37:56] INFO  - info works
+[2020-04-01 14:37:56] WARN  - warn works
+[2020-04-01 14:37:56] ERROR - error works
+[2020-04-01 14:37:56] FATAL - fatal works
+[2020-04-01 14:37:56] DEBUG - debug works
+[2020-04-01 14:37:56] TRACE - trace works
+[2020-04-01 14:39:53] INFO  - info works
+[2020-04-01 14:39:53] WARN  - warn works
+[2020-04-01 14:39:53] ERROR - error works
+[2020-04-01 14:39:53] FATAL - fatal works
+[2020-04-01 14:39:53] DEBUG - debug works
+[2020-04-01 14:39:53] TRACE - trace works

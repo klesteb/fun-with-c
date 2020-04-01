@@ -42,6 +42,7 @@
  **/
 
 #define when_error { static error_trace_t _er_trace;
+#define when_error_in { static error_trace_t _er_trace;
 #define use handler:
 #define end_when } exit_handler: 
 #define exit_when goto exit_handler

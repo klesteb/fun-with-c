@@ -17,7 +17,7 @@ INCS = logger.h log4c_extensions.h
 #
 OBJS = logger.o log4c_extensions.o
 #
-all: $(OBJS) test1 test2 test3 test4
+all: $(OBJS) test1 test2 test3 test4 test5 test6
 #
 debug:
 #
@@ -28,6 +28,7 @@ clean:
 	rm -f test2
 	rm -f test3
 	rm -f test4
+	rm -f test5
 	rm -f ../libs/liblogger.a
 #
 #
@@ -46,6 +47,14 @@ test3: test3.o
 test4: test4.o
 	$(CC) $(CFLAGS) test4.c
 	$(LINK) -o test4 test4.o  $(OLBS)
+#
+test5: test5.o
+	$(CC) $(CFLAGS) test5.c
+	$(LINK) -o test5 test5.o  $(OLBS)
+#
+test6: test6.o
+	$(CC) $(CFLAGS) test6.c
+	$(LINK) -o test6 test6.o  $(OLBS)
 #
 logger.o: logger.c $(INCS)
 	$(CC) $(CFLAGS) logger.c

@@ -40,25 +40,25 @@ object_t *object_construct(const void *klass, item_list_t *items, int *stat) {
     
     if (klass != NULL) {
 
-	    if ((object = calloc(1, OBJECT(klass)->size))) {
+        if ((object = calloc(1, OBJECT(klass)->size))) {
 
-			/* copy template to newly allocated object */
+            /* copy template to newly allocated object */
 
-			memcpy(object, klass, sizeof(object_t));
+            memcpy(object, klass, sizeof(object_t));
 
-			if (object->ctor != NULL) {
+            if (object->ctor != NULL) {
 
                 object->error = NULL;
 
-				/* pass the pointer to the argument list structure */
+                /* pass the pointer to the argument list structure */
 
-				*stat = object->ctor(object, items);
+                *stat = object->ctor(object, items);
 
-			}
+            }
 
-		}
+        }
 
-	}
+    }
 
     return object;
 
@@ -125,6 +125,8 @@ int object_get_error(object_t *self, error_trace_t *error) {
 
 int object_set_error(object_t *self, int errnum, int lineno, char *file, const char *function) {
 
+    int stat = OK;
+
     if (self->error != NULL) {
 
         free(self->error->filename);
@@ -148,11 +150,15 @@ int object_set_error(object_t *self, int errnum, int lineno, char *file, const c
 
             self->error = error;
 
+        } else {
+
+            stat = ERR;
+
         }
 
     }
 
-    return OK;
+    return stat;
 
 }
 

@@ -62,9 +62,6 @@ struct _object_s {
             _klass_demote(OBJECT(object), \
             (char *) #type, sizeof(type))
 
-#define object_clone(klass) \
-            _klass_clone((klass))
-
 #define object_set_error1(object, error) \
             object_set_error(OBJECT((object)), (error), __LINE__, __FILE__, __func__)
 
@@ -95,23 +92,6 @@ static inline void _klass_demote(object_t *object, char *kn, int ks) {
     object->size = ks;
 
     return;
-
-}
-
-static inline object_t *_klass_clone(void *klass) {
-
-	/* this is a shallow clone */
-
-	object_t *temp = NULL;
-	int size = OBJECT(klass)->size;
-
-	if ((temp = calloc(1, size)) != NULL) {
-
-		memcpy(temp, klass, size);
-
-	}
-
-	return temp;
 
 }
 

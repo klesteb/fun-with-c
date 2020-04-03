@@ -14,7 +14,7 @@
 	<category name="test3" priority="trace" appender="testing1" />
 	<category name="test4" priority="trace" appender="testing2" />
 	<category name="test8" priority="trace" appender="stderr2" />
-	<category name="test9" priority="trace" appender="testing2" />
+	<category name="test9" priority="trace" appender="testing3" />
 
 	<!-- default appenders ===================================== -->
 	<appender name="stdout" type="stream" layout="basic"/>
@@ -23,6 +23,7 @@
 	<appender name="syslog" type="syslog" layout="basic"/>
 	<appender name="testing1" logdir="." prefix="testing1.log" type="staticfile" layout="logstash"/>
 	<appender name="testing2" logdir="." prefix="testing2.log" type="staticfile" layout="batch"/>
+	<appender name="testing3" type="stderr" layout="batch"/>
 
 	<rollingpolicy name="myrollingpolicy" type="sizewin" maxsize="1024" maxnum="10" />
 	<appender name="myrollingfile" type="rollingfile" logdir="." prefix="myprefix" layout="logstash" rollingpolicy="myrollingpolicy" />

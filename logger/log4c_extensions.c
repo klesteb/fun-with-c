@@ -80,7 +80,9 @@ static const char *console_format(
     char *format = "%-5s - %s";
 
     snprintf(event->evt_buffer.buf_data, event->evt_buffer.buf_size,
-             format, event->evt_category, event->evt_msg
+             format, 
+             log4c_priority_to_string(event->evt_priority),
+             event->evt_msg
     );
 
     return event->evt_buffer.buf_data;

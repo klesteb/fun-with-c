@@ -1,5 +1,7 @@
 
 #include <stdio.h>
+#include <log4c.h>
+
 #include "when.h"
 #include "logger.h"
 #include "errors.h"
@@ -27,6 +29,8 @@ int setup(error_trace_t *error) {
         msgs = message_create(NULL, 0);
         check_creation(msgs);
 
+log4c_appender_print(stderr);
+        
         exit_when;
 
     } use {

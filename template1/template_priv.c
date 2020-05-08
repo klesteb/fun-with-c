@@ -11,9 +11,10 @@
 /*---------------------------------------------------------------------------*/
 
 #include "object.h"
-#include "template.h"
 #include "item_list.h"
 #include "error_codes.h"
+#include "template_priv.h"
+#include "template_klass.h"
 
 require_klass(OBJECT_KLASS);
 

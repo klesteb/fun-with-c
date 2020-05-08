@@ -6,7 +6,7 @@
 #include "common.h"
 #include "workbench.h"
 #include "containers/menus/bar.h"
-#include "components/menu/menus.h"
+#include "components/menu/menu_items.h"
 
 workbench_t *wb = NULL;
 
@@ -64,8 +64,8 @@ window_t *create_menu(int *stat) {
     int row = 1;
     int width = 60;
     int height = 2;
+    menus_t *menu = NULL;
     window_t *window = NULL;
-    container_t *menu = NULL;
     component_t *item1 = NULL;
     component_t *item2 = NULL;
     component_t *item3 = NULL;
@@ -103,7 +103,7 @@ window_t *create_menu(int *stat) {
         item1 = menu_item_create(&item1_data);
         check_creation(item1);
 
-        *stat = container_add_component(menu, item1);
+        *stat = menus_add_component(menu, item1);
         check_return(*stat, menu);
 
         item2_data.label = "item 2";
@@ -112,7 +112,7 @@ window_t *create_menu(int *stat) {
         item2 = menu_item_create(&item2_data);
         check_creation(item2);
 
-        *stat = container_add_component(menu, item2);
+        *stat = menus_add_component(menu, item2);
         check_return(*stat, menu);
 
         item3_data.label = "item 3";
@@ -121,7 +121,7 @@ window_t *create_menu(int *stat) {
         item3 = menu_item_create(&item3_data);
         check_creation(item3);
 
-        *stat = container_add_component(menu, item3);
+        *stat = menus_add_component(menu, item3);
         check_return(*stat, menu);
 
         item4_data.label = "item 4";
@@ -130,7 +130,7 @@ window_t *create_menu(int *stat) {
         item4 = menu_item_create(&item4_data);
         check_creation(item4);
 
-        *stat = container_add_component(menu, item4);
+        *stat = menus_add_component(menu, item4);
         check_return(*stat, menu);
 
         item5_data.label = "item 5";
@@ -139,7 +139,7 @@ window_t *create_menu(int *stat) {
         item5 = menu_item_create(&item5_data);
         check_creation(item5);
 
-        *stat = container_add_component(menu, item5);
+        *stat = menus_add_component(menu, item5);
         check_return(*stat, menu);
 
         item6_data.label = "item 6";
@@ -148,10 +148,10 @@ window_t *create_menu(int *stat) {
         item6 = menu_item_create(&item6_data);
         check_creation(item6);
 
-        *stat = container_add_component(menu, item6);
+        *stat = menus_add_component(menu, item6);
         check_return(*stat, menu);
         
-        *stat = window_add_container(window, menu);
+        *stat = window_add_container(window, (container_t *)menu);
         check_return(*stat, window);
 
         exit_when;

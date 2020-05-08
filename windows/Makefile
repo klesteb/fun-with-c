@@ -14,19 +14,19 @@ LIBS = ../libs/libwindows.a
 LIBR = ar -r
 #
 INCS = common.h container.h colors.h events.h component.h workbench.h \
-       window.h containers/horizontal.h containers/vertical.h \
+       window.h widget.h containers/horizontal.h containers/vertical.h \
        containers/scrollable.h containers/form.h containers/menus/bar.h \
        containers/menus/box.h containers/menus/list.h \
-       containers/menus/menu_priv.h \
+       containers/menus/menus.h containers/menus/menus_priv.h \
        components/label.h components/hline.h components/vline.h \
        components/text.h components/textarea.h components/forms/forms.h \
-       components/menu/menus.h
+       components/menu/menu_items.h
 #
-OBJS = container.o colors.o component.o workbench.o window.o \
+OBJS = container.o colors.o component.o workbench.o window.o widget.o \
        containers/horizontal.o containers/vertical.o \
        containers/scrollable.o containers/form.o containers/menus/bar.o \
        containers/menus/box.o containers/menus/list.o \
-       containers/menus/menu_priv.o components/label.o components/hline.o \
+       containers/menus/menus.o components/label.o components/hline.o \
        components/vline.o components/text.o components/textarea.o \
        components/forms/form_field.o components/forms/form_label.o \
        components/forms/form_textarea.o components/forms/form_header.o \
@@ -34,7 +34,8 @@ OBJS = container.o colors.o component.o workbench.o window.o \
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14 test15 test16 test17 test18 \
-     test19 test20 test21 test22 test23 test24 test25 test26
+     test19 test20 test21 test22 test23 test24 test25 test26 test27 \
+     test28
 #
 libs: $(OBJS)
 #
@@ -80,6 +81,9 @@ clean:
 	rm -f test23
 	rm -f test24
 	rm -f test25
+	rm -f test26
+	rm -f test27
+	rm -f test28
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -186,6 +190,14 @@ test26: test26.o
 	$(CC) $(CFLAGS) test26.c
 	$(LINK) $(LFLAGS) test26 test26.o  $(OLBS)
 #
+test27: test27.o
+	$(CC) $(CFLAGS) test27.c
+	$(LINK) $(LFLAGS) test27 test27.o  $(OLBS)
+#
+test28: test28.o
+	$(CC) $(CFLAGS) test28.c
+	$(LINK) $(LFLAGS) test28 test28.o  $(OLBS)
+#
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c
 	$(LIBR) $(LIBS) container.o
@@ -197,6 +209,10 @@ colors.o: colors.c $(INCS)
 component.o: component.c $(INCS)
 	$(CC) $(CFLAGS) component.c
 	$(LIBR) $(LIBS) component.o
+#
+widget.o: widget.c $(INCS)
+	$(CC) $(CFLAGS) widget.c
+	$(LIBR) $(LIBS) widget.o
 #
 window.o: window.c $(INCS)
 	$(CC) $(CFLAGS) window.c
@@ -234,9 +250,9 @@ containers/menus/list.o: containers/menus/list.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/list.o containers/menus/list.c 
 	$(LIBR) $(LIBS) containers/menus/list.o
 #
-containers/menus/menu_priv.o: containers/menus/menu_priv.c $(INCS)
-	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/menu_priv.o containers/menus/menu_priv.c 
-	$(LIBR) $(LIBS) containers/menus/menu_priv.o
+containers/menus/menus.o: containers/menus/menus.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) containers/menus/menus.o containers/menus/menus.c 
+	$(LIBR) $(LIBS) containers/menus/menus.o
 #
 components/label.o: components/label.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) components/label.o components/label.c

@@ -100,31 +100,43 @@ void init_colorpairs(void) {
 
 }
 
-void wcoloron(WINDOW *win, int fg, int bg) {
+int wcoloron(WINDOW *win, int fg, int bg) {
+
+    int stat = OK;
 
     /* set the color pair (colornum) and bold/bright (A_BOLD) */
 
     if (_is_bold(fg)) {
 
-        wattron(win, A_BOLD);
+        stat = wattron(win, A_BOLD);
+        if (stat == ERR) goto fini;
 
     }
 
-    wattron(win, COLOR_PAIR(colornum(fg, bg)));
+    stat = wattron(win, COLOR_PAIR(colornum(fg, bg)));
+
+    fini:
+    return stat;
 
 }
 
-void wcoloroff(WINDOW *win, int fg, int bg) {
+int wcoloroff(WINDOW *win, int fg, int bg) {
+
+    int stat = OK;
 
     /* unset the color pair (colornum) and bold/bright (A_BOLD) */
 
     if (_is_bold(fg)) {
 
-        wattroff(win, A_BOLD);
+        stat = wattroff(win, A_BOLD);
+        if (stat == ERR) goto fini;
 
     }
 
-    wattroff(win, COLOR_PAIR(colornum(fg, bg)));
+    stat = wattroff(win, COLOR_PAIR(colornum(fg, bg)));
+
+    fini:
+    return stat;
 
 }
 

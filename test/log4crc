@@ -13,17 +13,17 @@
 	<!-- category name="root"  priority="trace" appender="stderr" /-->
 	<category name="test3" priority="trace" appender="testing1" />
 	<category name="test4" priority="trace" appender="testing2" />
-	<category name="test8" priority="trace" appender="stderr2" />
-	<category name="test9" priority="trace" appender="testing3" />
+	<category name="test8" priority="trace" appender="testing3" />
+	<category name="test9" priority="trace" appender="testing4" />
 
 	<!-- default appenders ===================================== -->
 	<appender name="stdout" type="stream" layout="basic"/>
 	<appender name="stderr" type="stream" layout="dated"/>
-	<appender name="stderr2" type="stream" layout="basic"/>
 	<appender name="syslog" type="syslog" layout="basic"/>
 	<appender name="testing1" logdir="." prefix="testing1.log" type="staticfile" layout="logstash"/>
 	<appender name="testing2" logdir="." prefix="testing2.log" type="staticfile" layout="batch"/>
 	<appender name="testing3" type="stderr" layout="batch"/>
+	<appender name="testing4" type="stdout" layout="console"/>
 
 	<rollingpolicy name="myrollingpolicy" type="sizewin" maxsize="1024" maxnum="10" />
 	<appender name="myrollingfile" type="rollingfile" logdir="." prefix="myprefix" layout="logstash" rollingpolicy="myrollingpolicy" />
@@ -31,9 +31,9 @@
 	<!-- default layouts ======================================= -->
 	<layout name="basic"    type="basic"/>
 	<layout name="dated"    type="dated"/>
-    <layout name="logstash" type="logstash"/>
-    <layout name="console"  type="console"/>
     <layout name="batch"    type="batch"/>
+    <layout name="console"  type="console"/>
+    <layout name="logstash" type="logstash"/>
 
 </log4c>
 

@@ -10,7 +10,7 @@ CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl
 OLBS = template.o ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 LINK = gcc
 LFLAGS = -o 
-LIBR = ar -r
+LIBR = ar -rs
 #
 INCS = template.h
 #

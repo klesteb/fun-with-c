@@ -14,11 +14,11 @@
 #include <errno.h>
 #include <menu.h>
 
-#include "menus.h"
 #include "colors.h"
 #include "misc/misc.h"
 #include "component.h"
 #include "item_list.h"
+#include "menu_items.h"
 
 require_klass(COMPONENT_KLASS);
 

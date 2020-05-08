@@ -7,7 +7,7 @@
 #
 CC = gcc
 LINK = gcc 
-LIBR = ar -r
+LIBR = ar rs
 WORKING = $(shell pwd)
 CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl
 LFLAGS = -o 

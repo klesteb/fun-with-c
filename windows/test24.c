@@ -9,8 +9,8 @@
 #include "containers/form.h"
 #include "components/vline.h"
 #include "containers/menus/box.h"
-#include "components/menu/menus.h"
 #include "components/forms/forms.h"
+#include "components/menu/menu_items.h"
 
 workbench_t *wb = NULL;
 

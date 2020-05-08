@@ -13,13 +13,13 @@
 #ifndef _BAR_MENU_H
 #define _BAR_MENU_H
 
-#include "container.h"
+#include "menus.h"
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern container_t *bar_menu_create(int);
+extern menus_t *bar_menu_create(int);
 
 #endif
 

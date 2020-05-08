@@ -47,8 +47,8 @@
 
 extern int  colornum(int, int);
 extern void init_colorpairs(void);
-extern void wcoloron(WINDOW *, int, int);
-extern void wcoloroff(WINDOW *, int, int);
+extern int wcoloron(WINDOW *, int, int);
+extern int wcoloroff(WINDOW *, int, int);
 
 #endif
 

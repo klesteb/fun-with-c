@@ -6,7 +6,7 @@
 #include "common.h"
 #include "workbench.h"
 #include "containers/menus/bar.h"
-#include "components/menu/menus.h"
+#include "components/menu/menu_items.h"
 
 workbench_t *wb = NULL;
 

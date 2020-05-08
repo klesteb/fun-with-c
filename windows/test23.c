@@ -5,7 +5,7 @@
 #include "when.h"
 #include "common.h"
 #include "containers/menus/box.h"
-#include "components/menu/menus.h"
+#include "components/menu/menu_items.h"
 
 
 workbench_t *wb = NULL;

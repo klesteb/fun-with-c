@@ -29,8 +29,6 @@ int setup(error_trace_t *error) {
         msgs = message_create(NULL, 0);
         check_creation(msgs);
 
-log4c_appender_print(stderr);
-        
         exit_when;
 
     } use {
@@ -93,7 +91,7 @@ int main(int argc, char **argv) {
 
         char text[32]; 
         char reason[256];
-        char *fmt = "%s, reason: %s, line: %d, file: %s, function: %s";
+        char *fmt = "%s, reason: %s; line: %d, file: %s, function: %s";
 
         errors_get_text(errs, trace_errnum, text, 31);
         errors_get_message(errs, trace_errnum, reason, 255);

@@ -18,6 +18,18 @@
 #include "template_klass.h"
 
 /*----------------------------------------------------------------*/
+/* klass defination                                               */
+/*----------------------------------------------------------------*/
+
+struct _template_s {
+    object_t parent_klass;
+    int (*ctor)(object_t *, item_list_t *);
+    int (*dtor)(object_t *);
+    int (*_compare)(template_t *, template_t *);
+    int (*_override)(template_t *, item_list_t *);
+};
+
+/*----------------------------------------------------------------*/
 /* klass methods                                                  */
 /*----------------------------------------------------------------*/
 

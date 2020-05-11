@@ -9,6 +9,8 @@ int main(int argc, char **argv) {
     if ((temp = template_create(NULL))) {
 
         printf("Created object\n");
+        printf("Version: %s\n", template_version(temp));
+
         template_destroy(temp);
 
     }

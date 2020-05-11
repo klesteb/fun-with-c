@@ -13,22 +13,11 @@
 #ifndef _TEMPLATE_KLASS_H
 #define _TEMPLATE_KLASS_H
 
-#include "object.h"
-#include "item_list.h"
-
 /*-------------------------------------------------------------*/
-/* klass defination                                            */
+/* klass public interface                                      */
 /*-------------------------------------------------------------*/
 
 typedef struct _template_s template_t;
-
-struct _template_s {
-    object_t parent_klass;
-    int (*ctor)(object_t *, item_list_t *);
-    int (*dtor)(object_t *);
-    int (*_compare)(template_t *, template_t *);
-    int (*_override)(template_t *, item_list_t *);
-};
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

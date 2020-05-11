@@ -5,11 +5,16 @@
 #
 # Makefile to build template.
 #
+MAJOR=0
+MINOR=1
+PATCH=0
+VERSION="$(MAJOR).$(MINOR).$(PATCH)"
+#
 CC = gcc
 LINK = gcc 
 LIBR = ar rs
 WORKING = $(shell pwd)
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../include -I../cclibs -I../objects -I../gpl
 LFLAGS = -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -o
 SHARED = -shared -o libtemplate.so
@@ -28,7 +33,7 @@ clean:
 	rm -f *.o
 	rm -f *~
 	rm -f libtemplate.a
-	rm -f libtemplate.so
+	rm -f libtemplate.so*
 	rm -f test1
 	rm -f test2
 #

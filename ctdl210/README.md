@@ -1,4 +1,4 @@
-== Citadel 2.10
+# Citadel 2.10
 
 This is purported to be the original source for Citadel as released
 into the public domain in 1983. This ran on CP/M 2.22 and was written
@@ -14,7 +14,7 @@ Well, that is a problem, "complex groupware" is not what I am
 looking for. A small, simple, BBS interface is what I am looking for.
 So I am starting back at first principles.
 
-== About Me
+# About Me
 
 I have been in the IT industry for about 40 years now. I became
 interesting ind BBSing back in the early '90s running on an Amiga 500

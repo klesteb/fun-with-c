@@ -1,0 +1,73 @@
+/************************************************************************/
+/*				operatn.doc				*/
+/************************************************************************/
+
+/************************************************************************/
+/*				History 				*/
+/*									*/
+/* 82Dec07 CrT	Created.						*/
+/************************************************************************/
+
+/************************************************************************/
+/*				Audience				*/
+/*									*/
+/*  People who have successfully installed the Citadel system.		*/
+/************************************************************************/
+
+/************************************************************************/
+/*				Purpose 				*/
+/*									*/
+/*  Hints and general comments on running the system.			*/
+/************************************************************************/
+
+/************************************************************************/
+/*				General 				*/
+/************************************************************************/
+
+Citadel systems haven't had great reliability problems to date, but
+reasonably regular backups aren't a bad idea anyhow.  An incremental
+archive program is contemplated.
+
+There's no proper way to expand the message files in a running system yet.
+If you can tack the required number of empty sectors onto ctdlMsg.sys,
+you should be able to change MESSAGEK in ctdlcnfg.sys, rerun configur.com,
+and be off without losing any messages.  Best for now is just to start out
+with as big a MESSAGEK setting as you need, and stick with it.
+
+There's nothing compiled into the system concerning the number or structure
+of .hlp files.	The system just looks for a ".hlp" file with the requested
+name, and prints it.  Feel free to edit existing help files and add new
+ones as typical points of confusion become clear.  Helpfiles may also be
+put in directory rooms, of course.  A local-BBs listing probably makes more
+sense as a .hlp file, while the full RCPM list would be a download file.
+
+Pointlets:
+ o  The system does a 20-sec wait on bad passwords, to discourage
+    password guessing.	If you're establishing a new account, use a
+    single-letter pw on first password prompt, and you can bypass this.
+
+ o  The system converts messages from uppercase-only folks to lowercase,
+    then does a simple capitalization algorithm.  This is lots easier
+    on the eyes, but will confuse someone sooner or later.
+
+ o  Be careful to leave the system in MODEM rather than CONSOLE mode when
+    you quit playing around.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+************************************

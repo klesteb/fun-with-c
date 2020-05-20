@@ -1,0 +1,16 @@
+ Enter options: 
+  
+ To change screen formatting:
+      .Enter Configuration
+
+ To upload a message via WardC protocol:
+      .Enter File
+
+ To enter a message:
+      .Enter Message
+
+ To change password:
+      .Enter Password
+
+ To create a new room:
+      .Enter Room

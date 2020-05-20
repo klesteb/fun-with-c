@@ -1,0 +1,17 @@
+ If someone has entered a message in a room since you were last in that
+room, Citadel will consider it to be new to you.
+ To go to a room containing new messages use:
+      Goto
+ If there are no more rooms with new messages, you will be left in the Lobby>.
+
+ To go to a particular room "ROOMNAME":
+      .Goto ROOMNAME
+
+ To list all known rooms:
+      .Goto ?
+ or just
+      Known rooms
+
+    SEE ALSO:
+     .Help HIDDEN
+     .Help ENTER  (.Enter Room)

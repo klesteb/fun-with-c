@@ -1,0 +1,40 @@
+ EXTENDED COMMAND SUMMARY
+  (note periods: ".")
+  
+   .Aide ?
+   .Aide Delete-empty-rooms
+   .Aide Edit-room
+   .Aide Insert pulled message
+   .Aide Kill-room
+
+   .Enter ?
+   .Enter Configuration
+   .Enter File
+   .Enter Message
+   .Enter Password
+   .Enter Room
+
+   .Goto ?
+   .Goto ANYROOM
+
+   .Help ?
+   .Help ANYFILE
+
+   .Login PASSWORD
+
+   .Read All
+   .Read Forward
+   .Read Global
+   .Read New
+   .Read Old
+   .Read Reverse
+
+   .Read Status
+   .Read Directory
+   .Read Directory *.DOC
+   .Read Binaryfile PROGRAM.COM
+   .Read Textfile ANYFILE.EXT
+   .Read Textfile *.DOC
+
+   .Terminate Stay
+   .Terminate Quit-also

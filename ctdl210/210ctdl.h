@@ -130,7 +130,7 @@ char	weAre;			/* set first thing by main()		*/
 #define SAMESTRING	0	/* value for strcmp() & friend		*/
 
 /* ASCII characters: */
-#define NULL		0
+#define NUL		0
 #define SOH		1
 #define CNTRLC		3
 #define EOT		4
@@ -177,6 +177,7 @@ int  roomfl;			/* file descriptor for ctdlRoom.sys	*/
 #define PUBLIC		2	/* flags mask				*/
 #define CPMDIR		4	/* flags mask				*/
 #define PERMROOM	8	/* flags mask				*/
+
 struct {
     char     rtgen;		/* generation # of room 		*/
     char     rtflags;		/* public/private flag etc		*/
@@ -184,7 +185,7 @@ struct {
     unsigned rtlastMessage;	/* # of most recent message in room	*/
 } roomTab[MAXROOMS];
 
-struct {
+struct roomBuffer {
     char     rbgen;		/* generation # of room 		*/
     char     rbflags;		/* same bits as flags above		*/
     char     rbname[NAMESIZE];	/* name of room 			*/
@@ -429,7 +430,7 @@ int  pulledMId; 		/* id number of message to be pulled	*/
 /************************************************************************/
 #define NSECTS		8	/*  8 sectors == 1024 byte buffer	*/
 
-#define BUFSIZ		(NSECTS * SECTSIZE + 6)
+#define BUFSIZE		(NSECTS * SECTSIZE + 6)
 
 struct	_buf {
 	int  _fd;

@@ -56,11 +56,11 @@ obvious BDS C nemonics and change them to ANSI C. Remove obvious CP/M
 semantics. Compile with gcc <file name> to find undefined stuff. Fix
 compile errors.
 
-### Note to self
+    Note to self
 
-210msgs.c uses a lot of disk based character I/O. 210modem.c will most
-likely require a rewrite. There is no modem, we are using the terminal
-interface. No provisions for multi-user usage.
+    210msgs.c uses a lot of disk based character I/O. 210modem.c will most
+    likely require a rewrite. There is no modem, we are using the terminal
+    interface. No provisions for multi-user usage.
 
 ## Phase III
 

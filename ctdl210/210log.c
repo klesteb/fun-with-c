@@ -20,6 +20,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -59,14 +60,14 @@
 void crypte(char *buf, unsigned len, unsigned seed) {
 
     seed = (seed + cryptSeed) & 0xFF;
-    b    = buf;
-    c    = len;
-    s    = seed;
+    b = buf;
+    c = len;
+    s = seed;
 
-    for (;  c; c--) {
+    for (; c; c--) {
 
         *b++ ^= s;
-        s    = (s + CRYPTADD)  &  0xFF;
+        s = (s + CRYPTADD)  &  0xFF;
 
     }
 
@@ -102,7 +103,7 @@ int hash(char *str) {
 
     for (h = shift = 0; *str; shift =(shift + 1) & 7, str++) {
 
-        h ^= (i=toupper(*str)) << shift;
+        h ^= (i = toupper(*str)) << shift;
 
     }
 
@@ -116,8 +117,7 @@ int hash(char *str) {
 void login(char *password) {
 /* password - TRUE if parameters follow    */
 
-    int  i, j;
-    int  foundIt, ltentry, match, ourSlot;
+    int foundIt, ltentry;
 
     foundIt = ((ltentry = PWSlot(password)) != ERROR);
 
@@ -151,9 +151,9 @@ void login(char *password) {
 
         /* discourage password-guessing: */
 
-        if (strlen(password) > 1) pause(2000);
+        if (strlen(password) > 1) usleep(2000);
 
-        if (!unlogLoginOk && whichIO == MODEM) {
+        if (!unlogLoginOk) {
 
             printf(" No record -- leave message to 'sysop' in Mail>\n ");
 
@@ -168,7 +168,7 @@ void login(char *password) {
 }
 
 /************************************************************************/
-/*    logInit() indexes userlog.buf                    */
+/*    logInit() indexes userlog.buf                                     */
 /************************************************************************/
 void logInit(void) {
 
@@ -179,7 +179,7 @@ void logInit(void) {
 
     /* clear logTab */
 
-    for (i=0; i<MAXLOGTAB; i++) {
+    for (i = 0; i < MAXLOGTAB; i++) {
 
         logTab[i].ltnewest = ERROR;
 
@@ -220,7 +220,7 @@ void newPW(void) {
     char oldPw[NAMESIZE];
     char pw[NAMESIZE];
     char *s;
-    int i, goodPW;
+    int goodPW;
 
     /* save password so we can find current user again: */
 
@@ -235,18 +235,18 @@ void newPW(void) {
         echo    = BOTH;
 
         /* check that PW isn't already claimed: */
-        goodPW = (PWSlot(pw) == ERROR  &&  strlen(pw) >= 2);
+        goodPW = (PWSlot(pw) == ERROR && strlen(pw) >= 2);
 
         if (!goodPW) printf("\n Poor password\n ");
 
-    } while ((strlen(pw) < 2 || !goodPW ) &&
-             (haveCarrier || whichIO==CONSOLE));
+    } while ((strlen(pw) < 2 || !goodPW ));
 
     doCR();
-    PWSlot(oldPw);            /* reload old log entry         */
-    pw[NAMESIZE-1] = 0x00;        /* insure against loss of carrier:  */
 
-    if (goodPW  && strlen(pw) > 1) {    /* accept new PW:            */
+    PWSlot(oldPw);            /* reload old log entry         */
+    pw[NAMESIZE - 1] = 0x00;  /* insure against loss of carrier:  */
+
+    if (goodPW && strlen(pw) > 1) {    /* accept new PW:            */
 
         strcpy(logBuf.lbpw, pw);
         logTab[0].ltpwhash = hash(pw);
@@ -254,18 +254,9 @@ void newPW(void) {
     }
 
     printf("\n %s\n pw: ", logBuf.lbname);
-    
-    if (whichIO == CONSOLE) {
+    printf("%s\n ", logBuf.lbpw);
 
-        printf("%s\n ", logBuf.lbpw);
-
-    } else {
-
-        s = logBuf.lbpw;
-        while (*s) outMod(*s++);
-        doCR();
-
-    }
+    doCR();
 
 }
 
@@ -277,7 +268,7 @@ void newUser(void) {
     char    fullnm[NAMESIZE];
     char    pw[NAMESIZE];
     char    *s;
-    int     good, g, h, i, ok, ourSlot, zero;
+    int     good, g, h, i, ourSlot;
     unsigned    low;
 
 
@@ -301,18 +292,17 @@ void newUser(void) {
 
             }
 
-            if (!h ||
-                h == hash("Citadel") ||
-                h == hash("Sysop")) {
-                
+            if (!h || h == hash("Citadel") || h == hash("Sysop")) {
+
                 good = FALSE;
+
             }
             
             /* lie sometimes -- hash collision !=> name collision */
             
             if (!good) printf("We already have a %s\n", fullnm);
             
-        } while (!good && (haveCarrier || whichIO == CONSOLE));
+        } while (!good);
 
         /* get password and check for uniqueness...    */
 
@@ -334,88 +324,81 @@ void newUser(void) {
                 printf("\n Poor password\n ");
             }
 
-        } while( !good && (haveCarrier || whichIO == CONSOLE));
+        } while( !good);
 
         printf("\n nm: %s", fullnm);
         printf("\n pw: ");
+        printf("%s\n ", pw);
 
-        if (whichIO == CONSOLE) {
+    } while (!getYesNo("OK"));
 
-            printf("%s\n ", pw);
+    /* kick least recent caller out of userlog and claim entry:    */
+
+    ourSlot = logTab[MAXLOGTAB - 1].ltlogSlot;
+    slideLTab(0, MAXLOGTAB -1 );
+    logTab[0].ltlogSlot = ourSlot;
+    getLog(&logBuf, ourSlot);
+
+    /* copy info into record:    */
+
+    strcpy(logBuf.lbname, fullnm);
+    strcpy(logBuf.lbpw, pw);
+
+    low = newestLo - 50;
+    if (oldestLo - low < 0x8000)   low = oldestLo;
+
+    for (i = 1; i < MAXVISIT; i++) {
+
+        logBuf.lbvisit[i]= low;
+
+    }
+        
+    logBuf.lbvisit[0]= newestLo;
+    logBuf.lbvisit[(MAXVISIT - 1)]= oldestLo;
+
+    /* initialize rest of record:    */
+
+    for (i = 0; i < MAXROOMS; i++) {
+            
+        if (roomTab[i].rtflags & PUBLIC) {
+
+            g = (roomTab[i].rtgen);
+            logBuf.lbgen[i] = (g << GENSHIFT) + (MAXVISIT-1);
 
         } else {
 
-            echo = CALLER;
-            printf("%s\n ", pw);
-            echo = BOTH;
-        }
+            /* set to one less */
 
-    } while (!getYesNo("OK") && (haveCarrier || whichIO == CONSOLE ));
-
-    if (ok && (haveCarrier || whichIO==CONSOLE)) {
-
-        /* kick least recent caller out of userlog and claim entry:    */
-        ourSlot         = logTab[MAXLOGTAB-1].ltlogSlot;
-        slideLTab(0, MAXLOGTAB-1);
-        logTab[0].ltlogSlot = ourSlot;
-        getLog(&logBuf, ourSlot);
-
-        /* copy info into record:    */
-        strcpy(logBuf.lbname, fullnm);
-        strcpy(logBuf.lbpw, pw);
-
-        low = newestLo-50;
-        if (oldestLo-low < 0x8000)   low = oldestLo;
-        for (i=1;  i<MAXVISIT;    i++) {
-            logBuf.lbvisit[i]= low;
-        }
-        
-        logBuf.lbvisit[0]= newestLo;
-        logBuf.lbvisit[(MAXVISIT - 1)]= oldestLo;
-
-        /* initialize rest of record:    */
-
-        for (i = 0; i < MAXROOMS; i++) {
-            
-            if (roomTab[i].rtflags & PUBLIC) {
-
-                g = (roomTab[i].rtgen);
-                logBuf.lbgen[i] = (g << GENSHIFT) + (MAXVISIT-1);
-
-            } else {
-
-                /* set to one less */
-                g = (roomTab[i].rtgen + (MAXGEN-1)) % MAXGEN;
-                logBuf.lbgen[i] = (g << GENSHIFT) + (MAXVISIT-1);
-
-            }
+            g = (roomTab[i].rtgen + (MAXGEN-1)) % MAXGEN;
+            logBuf.lbgen[i] = (g << GENSHIFT) + (MAXVISIT-1);
 
         }
-        
-        for (i = 0; i < MAILSLOTS; i++) {
-
-            logBuf.lbslot[i] = 0;
-            logBuf.lbId[i]   = oldestLo - 1;
-        }
-
-        /* fill in logTab entries    */
-
-        logTab[0].ltpwhash  = hash(pw);
-        logTab[0].ltnmhash  = hash(fullnm);
-        logTab[0].ltlogSlot = thisLog;
-        logTab[0].ltnewest  = logBuf.lbvisit[0];
-
-        /* special kludge for Mail> room, to signal no new mail:   */
-        
-        roomTab[MAILROOM].rtlastMessage = logBuf.lbId[MAILSLOTS-1];
-
-        loggedIn = TRUE;
-
-        storeLog();
-
-        listRooms(/* doDull== */ !expert);
 
     }
+        
+    for (i = 0; i < MAILSLOTS; i++) {
+
+        logBuf.lbslot[i] = 0;
+        logBuf.lbId[i]   = oldestLo - 1;
+
+    }
+
+    /* fill in logTab entries    */
+
+    logTab[0].ltpwhash  = hash(pw);
+    logTab[0].ltnmhash  = hash(fullnm);
+    logTab[0].ltlogSlot = thisLog;
+    logTab[0].ltnewest  = logBuf.lbvisit[0];
+
+    /* special kludge for Mail> room, to signal no new mail:   */
+        
+    roomTab[MAILROOM].rtlastMessage = logBuf.lbId[MAILSLOTS-1];
+
+    loggedIn = TRUE;
+
+    storeLog();
+
+    listRooms(/* doDull== */ !expert);
 
 }
 
@@ -424,7 +407,7 @@ void newUser(void) {
 /************************************************************************/
 void noteLog(void) {
     
-    int i, j, slot;
+    int i, slot;
 
     /* figure out who it belongs between:    */
 
@@ -433,7 +416,7 @@ void noteLog(void) {
     /* note location and open it up:        */
 
     slot = i;
-    slideltab(slot, MAXLOGTAB-1);
+    slideLTab(slot, MAXLOGTAB - 1);
 
     /* insert new record */
 
@@ -451,7 +434,7 @@ void putLog(struct logBuffer *lBuf, int n) {
 
     n *= SECSPERLOG;
 
-    crypte((char *)lBuf, (SECSPERLOG*SECTSIZE), n);    /* encode buffer    */
+    crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* encode buffer    */
 
     lseek(logfl, n, SEEK_CUR);
 
@@ -461,17 +444,16 @@ void putLog(struct logBuffer *lBuf, int n) {
 
     }
 
-    crypte((char *)lBuf, (SECSPERLOG*SECTSIZE), n);    /* decode buffer    */
+    crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* decode buffer    */
 
 }
 
 /************************************************************************/
-/*    PWSlot() returns userlog.buf slot password is in, else ERROR    */
-/*    NB: we also leave the record for the user in logBuf.        */
+/*    PWSlot() returns userlog.buf slot password is in, else ERROR      */
+/*    NB: we also leave the record for the user in logBuf.              */
 /************************************************************************/
-int PWSlot(pw)
-char pw[NAMESIZE];
-{
+int PWSlot(char *pw) {
+
     int  h, i;
     int  foundIt, ourSlot;
 
@@ -479,7 +461,7 @@ char pw[NAMESIZE];
 
     /* Check all passwords in memory: */
 
-    for(i = 0, foundIt = FALSE; !foundIt && i < MAXLOGTAB; i++) {
+    for (i = 0, foundIt = FALSE; !foundIt && i < MAXLOGTAB; i++) {
 
         /* check for password match here */
 
@@ -514,7 +496,7 @@ char pw[NAMESIZE];
 /************************************************************************/
 void slideLTab(int slot, int last) {
 
-    int i, j;
+    int i;
 
     /* open slot up: (movmem isn't guaranteed on overlaps) */
 
@@ -539,13 +521,13 @@ void sortLog(void ) {
 
     if (sizeLTentry > TSIZE) {
 
-        printf("!!!increase TSIZE in sortLog to %>d\n", sizeLTentry);
+        printf("!!!increase TSIZE in sortLog to %d\n", sizeLTentry);
 
     }
 
     intCount = 0;
 
-    for(finis = FALSE, step = MAXLOGTAB >> 1; !finis || step>1; ) {
+    for (finis = FALSE, step = MAXLOGTAB >> 1; !finis || step>1; ) {
 
         if (finis) {
 
@@ -611,41 +593,13 @@ void terminate(char discon) {
     /* 4.  returns no values                             */
     /*          modified    dvm 9-82                     */
 
-    if (loggedIn) {
+    printf(" %s logged out\n ", logBuf.lbname);
 
-        printf(" %s logged out\n ", logBuf.lbname);
+    logBuf.lbgen[thisRoom] = roomBuf.rbgen << GENSHIFT;
 
-        logBuf.lbgen[thisRoom] = roomBuf.rbgen << GENSHIFT;
-        
-        if (haveCarrier || onConsole) {
-            
-            storeLog();
-            
-        }
-
-        loggedIn = FALSE;
-
-        setUp(TRUE);
-
-    }
-
-    if (discon)  {
-
-        switch (whichIO) {
-            case MODEM:
-                if (rcpm) {
-                    exitToCpm = TRUE;
-                } else {
-                    interpret(pHangUp);
-                }
-                break;
-            case CONSOLE:
-                whichIO =  MODEM;
-                printf("\n'MODEM' mode.\n ");
-                break;
-        }
-
-    }
+    storeLog();
+    loggedIn = FALSE;
+    setUp(TRUE);
 
 }
 

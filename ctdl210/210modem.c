@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <ctype.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -45,7 +47,6 @@
 /*    mOReady()       returns true if modem can accept a char           */
 /*    oChar()         top-level user-output function                    */
 /*  #    outMod()     bottom-level modem output                         */
-/*    pause()         pauses for N/100 seconds                          */
 /*    putChar()                                                         */
 /*    recieve()       read modem char or time out                       */
 /*    readFile()      accept a file using WC protocol                   */
@@ -375,16 +376,17 @@ void interact(void) {
 /*    interpret() interprets a configuration routine                    */
 /*    Returns byte value computed                                       */
 /************************************************************************/
-/* char interpret(char instr) { */
+char interpret(char *wanted) {
 
-/*     union { */
-/*         char **pp; */
-/*         int  *pi; */
-/*         char *pc; */
-/*     } instr; */
 
+    /* union { */
+    /*     char **pp; */
+    /*     int  *pi; */
+    /*     char *pc; */
+    /* } instr; */
+    
 /*     char inp(); */
-/*     char accum;     /* our sole accumulator */ */
+/*     char accum;     * our sole accumulator */
 /*     char *prompt; */
 /*     int  lowLim, topLim; */
 
@@ -405,24 +407,25 @@ void interact(void) {
 /*     case STOREX:    scratch[*instr.pc++]    = accum;    break; */
 /*     case OPRNUMBER: */
 /*         prompt    = instr.pc; */
-/*         while(*instr.pc++);     /* step over prompt    */ */
+/*         while(*instr.pc++);     * step over prompt    */
 /*         lowLim    = *instr.pc++; */
 /*         topLim    = *instr.pc++; */
 /*         accum    = getNumber(prompt, lowLim, topLim); */
 /*         break; */
 /*     case OUTSTRING: */
 /*         while(*instr.pc) { */
-/*         pause(5);    /* SmartModem can't handle 300 baud    */ */
-/*         outMod(*instr.pc++);    /* output string */ */
+/*         pause(5);    * SmartModem can't handle 300 baud    */
+/*         outMod(*instr.pc++);    * output string */
 /*         } */
-/*         instr.pc++;                 /* skip null     */ */
+/*         instr.pc++;                 * skip null     */
 /*         break; */
 /*     default: */
 /*         printf("intrp-no opcod%d", *(instr.pc-1)); */
 /*         break; */
 /*     } */
 /*     } */
-/* } */
+
+}
 
 /************************************************************************/
 /*    KBReady() returns TRUE if a console char is ready                 */
@@ -443,8 +446,6 @@ char KBReady(void) {
 /*    300 baud     -dvm                        */
 /************************************************************************/
 void modemInit(void) {
-    
-    char c;
 
     newCarrier      = FALSE;
     visibleMode     = FALSE;
@@ -457,11 +458,11 @@ void modemInit(void) {
 /* #ifdef FDC-1 */
 /* #define MONBASE 0xF800 */
 /* #define STSSP    MONBASE+0x045 */
-/*     call(STSSP, 0, 0, 0x0B, 0x05);    /* 300 baud on SIO-B */ */
+/*     call(STSSP, 0, 0, 0x0B, 0x05); */   /* 300 baud on SIO-B */
 /* #endif */
 
 /* #ifdef VFC-2 */
-/*     /* dummy call (to CONSTAT) to make code size equal for both systems */ */
+/**/     /* dummy call (to CONSTAT) to make code size equal for both systems */
 /*     call(0xF006, 0, 0, 0x0B, 0x05); */
 /* #endif */
 
@@ -505,18 +506,18 @@ char modIn(void) {
             
             /* carrier changed     */
 
-            if (c)  {       /* carrier present    */
+            if (c) {       /* carrier present    */
 
                 printf("Carr-detect\n");
                 haveCarrier = TRUE;
-                pause(200);
+                usleep(200);
                 modStat     = c;
                 newCarrier  = TRUE;
                 return(0);
 
             } else {
 
-                pause(200);            /* confirm it's not a glitch */
+                usleep(200);            /* confirm it's not a glitch */
 
                 if (!interpret(pCarrDetect)) {      /* check again */
 
@@ -631,7 +632,6 @@ void oChar(char c) {
 
 }
 
-
 /************************************************************************/
 /*    outMod stuffs a char out the modem port                           */
 /************************************************************************/
@@ -639,20 +639,6 @@ void outMod(char c) {
 
     while (!interpret(pMOReady));
     outp(mData, c);
-
-}
-
-/************************************************************************/
-/*    pause() busy-waits N/100 seconds                                  */
-/************************************************************************/
-void pause(int i) {
-
-    int j;
-
-#define SECONDSFACTOR 55
-    for (;  i;    i--) {
-        for (j = (SECONDSFACTOR*megaHz); j; j--);
-    }
 
 }
 
@@ -679,7 +665,7 @@ int receive(int seconds) {
 
     count = seconds * 100;
 
-    while (!interpret(pMIReady) && --count) pause(1);
+    while (!interpret(pMIReady) && --count) usleep(1);
 
     if (count) {
         
@@ -696,7 +682,7 @@ int receive(int seconds) {
 /*    protocol.  (ie, compatable with xModem, modem7, yam, modem2...) */
 /*    Returns:    TRUE on successful transfer, else FALSE     */
 /************************************************************************/
-char readFile(int (*pc)()) {
+char readFile(int (*pc)(char)) {
 
     /* pc will accept the file one character at a time.    */
     /* returns ERROR on any problem, and closes the file   */
@@ -724,40 +710,53 @@ char readFile(int (*pc)()) {
         badSector = FALSE;
 
         /* get synchronized: */
+
         do {
+
             firstchar = receive(10);
-        } while (
-                 firstchar != SOH &&
-                 firstchar != EOT &&
-                 firstchar != ERROR
-                 );
+
+        } while ( firstchar != SOH && firstchar != EOT && firstchar != ERROR);
 
         if (firstchar == ERROR)   badSector = TRUE;
 
         if (firstchar == SOH)  {
+
             /* found StartOfHeader -- read sector# in: */
+
             thisSector        = receive (1);
             thisComplement    = receive (1);    /* 1's comp of thisSector */
 
-            if ((thisSector + thisComplement) != 0xFF)    badSector = TRUE;
-            else {
-                if (thisSect == lastSector +1) {
+            if ((thisSector + thisComplement) != 0xFF) {
+                
+                badSector = TRUE;
+
+            } else {
+
+                if (thisSector == lastSector + 1) {
+
                     /* right sector... let's read it in */
-                    checksum    = 0;
-                    nextChar    = sectBuf;
-                    for (i=SECTSIZE;  i;  i--) {
-                        *nextChar    = receive (1);
-                        checksum    = (checksum + *nextChar++) & 0xFF;
+
+                    checksum = 0;
+                    nextChar = sectBuf;
+
+                    for (i = SECTSIZE; i; i--) {
+
+                        *nextChar = receive (1);
+                        checksum  = (checksum + *nextChar++) & 0xFF;
+
                     }
 
-                    if (checksum != receive (1))  badSector = TRUE;
-                    else {
-                        tries        = 0;
-                        lastSector    = thisSector;
+                    if (checksum != receive (1)) {
+                        
+                        badSector = TRUE;
+
+                    } else {
+
+                        tries     = 0;
+                        lastSector = thisSector;
 
                         printf("Awaiting #%d (Try=0, Errs=%d)  \r",
-                               thisSector, toterr
-                               );
+                               thisSector, toterr );
 
                         if (tries && toterr) putchar('\n');
                         
@@ -816,13 +815,13 @@ void ringSysop(void) {
 
     int  i;
 
-    mprintf("\n Ringing sysop.\n ");
+    printf("\n Ringing sysop.\n ");
 
     for (i = 0;  !BBSCharReady() && !KBReady();  i = ++i % 7) {
         
         /* play shave-and-a-haircut/two bits... as best we can: */
         oChar(BELL);
-        pause(shave[i]);
+        usleep(shave[i]);
 
     }
 

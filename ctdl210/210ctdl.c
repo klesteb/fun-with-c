@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <ctype.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -53,17 +55,17 @@ char doAide(char moreYet, char first) {
 
     if (moreYet) first = '\0';
 
-    mprintf("ide special fn: ");
+    printf("ide special fn: ");
 
     if (first) oChar(first);
 
     switch (toupper(  first ? first : iChar() )) {
         case 'D':
-            mPrintf("elete empty rooms\n ");
+            printf("elete empty rooms\n ");
             strcpy(oldName, roomBuf.rbname);
             indexRooms();
 
-            if ((rm = roomExist(oldName)) != ERROR) {
+            if ((rm = roomExists(oldName)) != ERROR) {
 
                 getRoom(rm, &roomBuf);
 
@@ -77,7 +79,7 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage== */ FALSE );
             break;
         case 'E':
-            mprintf("dit room\n  \n");
+            printf("dit room\n  \n");
             strcpy(oldName, roomBuf.rbname);
             if (!renameRoom())   break;
             sprintf(
@@ -90,9 +92,9 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage == */ FALSE);
             break;
         case 'I':
-            mPrintf("nsert message\n ");
+            printf("nsert message\n ");
             if (thisRoom == AIDEROOM || pulledMLoc == ERROR)   {
-                mPrintf("nope!");
+                printf("nope!");
                 break;
             }
             note2Message(pulledMId, pulledMLoc);
@@ -228,11 +230,6 @@ void doEnter(char moreYet, char first) {
             case 'C':
                 printf("onfiguration ");
                 what    = CONFIGURATION;
-                done    = TRUE;
-                break;
-            case 'F':
-                printf("ile upload ");
-                WC      = TRUE;
                 done    = TRUE;
                 break;
             case 'M':
@@ -430,8 +427,6 @@ void doRead(char moreYet, char first) {
 /* moreYet - TRUE to accept following parameters */
 /* first -   first parameter if TRUE             */
 
-    char iChar();
-    int  fileDir(), transmitFile();
     char abort, doDir, done, hostFile, whichMess, revOrder, status, WC;
     char fileName[NAMESIZE];
 
@@ -559,11 +554,11 @@ void doRead(char moreYet, char first) {
         if (strlen(fileName)) {
 
             wildCard(fileDir, fileName);
-            
+
         } else {
-            
-            wildCard(fileDir, "*.*"   );
-            
+
+            wildCard(fileDir, "*.*");
+
         }
 
         printf("\n %d sectors total\n ", FDSectCount);
@@ -600,7 +595,7 @@ void doRead(char moreYet, char first) {
         while (outFlag != OUTSKIP && gotoRoom("")) {
 
             givePrompt();
-            mPrintf("read new\n ");
+            printf("read new\n ");
             showMessages(NEWoNLY, revOrder);
 
         }
@@ -736,7 +731,7 @@ char doSysop(char c, char first) {
                 putLog(&lBuf, logNo);
 
                 /* see if it is us: */
-                if (loggedIn  &&  strCmpU(logBuf.lbname, who)==SAMESTRING) {
+                if (loggedIn && strcasecmp(logBuf.lbname, who)==SAMESTRING) {
                     aide = lBuf.lbflags & AIDE;
                 }
                 break;
@@ -761,7 +756,7 @@ char doSysop(char c, char first) {
                 if (!expert) {
                     printf(" ?(Type '?' for menu)\n");
                 } else {
-                    mprintf(" ?\n");
+                    printf(" ?\n");
                 }
                 break;
         }
@@ -815,7 +810,8 @@ void greeting(void) {
     
     if (loggedIn) terminate(FALSE);
 
-    setUp(TRUE);     pause(10);
+    setUp(TRUE);     
+    usleep(10);
 
     printf("\n Welcome to Citadel");
     printf("\n V2.1 at %s \n \n ", nodeTitle);
@@ -835,15 +831,14 @@ void greeting(void) {
 }
 
 /************************************************************************/
-/*    main() contains the central menu code                */
+/*    main() contains the central menu code                             */
 /************************************************************************/
 int main(void) {
     
     char c, x;
-    char getCommand(), init();
     
-    if (FALSE) putChar();    /* pick up our own in modem.c */
-    if (FALSE) getNumber();  /* dummy to force load        */
+    /* if (FALSE) putChar(""); */            /* pick up our own in modem.c */
+    /* if (FALSE) getNumber(NULL, 0, 0); */  /* dummy to force load        */
 
     /* don't put any code above init()... readSysTab() will defeat it.    */
 
@@ -875,7 +870,6 @@ int main(void) {
     }
 
     if (loggedIn) terminate( /* hangUp == */ TRUE);
-    writeSysTab(); 
 
     return(EXIT_SUCCESS);
     

@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -62,7 +63,6 @@
 int editText(char *buf, int lim) {
 
     char c;
-    int  i;
 
     do {
 
@@ -84,7 +84,7 @@ int editText(char *buf, int lim) {
                 printDate(interpret(pGetYear ), interpret(pGetMonth), interpret(pGetDay));
                 if (loggedIn)  printf(" from %s", msgBuf.mbauth);
                 doCR();
-                mformat(buf);
+                mFormat(buf);
                 break;
             case 'R':
                 printf("eplace string\n ");
@@ -132,7 +132,7 @@ int getNumber(char *prompt, unsigned bottom, unsigned top) {
     do {
 
         outFlag = OUTOK;
-        getstring(prompt, numstring, NAMESIZE);
+        getString(prompt, numstring, NAMESIZE);
 
         try = atoi(numstring);
 
@@ -190,7 +190,7 @@ void getString(char *prompt, char *buf, int lim) {
     if (strlen(prompt) > 0) {
 
         doCR();
-        printf("Enter %s\n : ", prompt, lim);
+        printf("Enter %s\n : ", prompt);
 
     }
 
@@ -309,7 +309,7 @@ char getText(char *prompt, char *buf, int lim) {
             while (!((c = iChar()) == NEWLINE && buf[i-1] == NEWLINE ) && 
                    i < lim && (haveCarrier || onConsole)) {
 
-                if (debug) putCh(visible(c));
+                if (debug) putChar(visible(c));
 
                 if (c != BACKSPACE) {
 
@@ -599,7 +599,7 @@ char *matchString(char *buf, char *pattern, char *bufEnd) {
 /************************************************************************/
 void normalizeString(char *s) {
 
-    char *pc, *s2;
+    char *pc;
 
     pc = s;
 
@@ -826,7 +826,7 @@ void replaceString(char *buf, int lim) {
 
     /* delete old string: */
 
-    for (pc = loc, incr = strlen(oldString); *pc = *(pc+incr); pc++);
+    for (pc = loc, incr = strlen(oldString); *pc = *(pc + incr); pc++);
 
     textEnd -= incr;
 

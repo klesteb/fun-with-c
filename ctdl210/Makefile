@@ -17,7 +17,7 @@ INCS = 210ctdl.h 210protos.h
 #
 OBJS = 210log.o 210misc.o 210modem.o 210msg.o 210rooma.o 210roomb.o
 #
-all: $(OBJS) 
+all: $(OBJS) 210ctdl 210confg
 #
 debug:
 #

@@ -110,23 +110,25 @@ void dumpRoom(void) {
 /************************************************************************/
 /*    fileDir() prints out one filename and size, for a dir listing     */
 /************************************************************************/
-void fileDir(char *fileName) {
+int fileDir(char *fileName) {
 
     struct stat buffer;
     char tBuf[SECTSIZE];
 
     if ((stat(fileName, &buffer)) == 0) {
 
-        sprintf(tBuf, "%s%5d  ", fileName, buffer.st_size);
+        sprintf(tBuf, "%s%5d  ", fileName, (int)buffer.st_size);
         putWord(tBuf);
         mAbort();        /* chance to next(!)/pause/skip */
-        
+
     }
+
+    return TRUE;
 
 }
 
 /************************************************************************/
-/*    fillMailRoom()                            */
+/*    fillMailRoom()                                                    */
 /************************************************************************/
 void fillMailRoom(void) {
 
@@ -243,11 +245,9 @@ void init(void) {
     
     char *msgFile;
 
-    if (!readSysTab()) exit(EXIT_FAILURE);
-
     setSpace(homeDisk, homeUser);
 
-    if (FALSE) getText();        /* dummy to force load        */
+    if (FALSE) getText(NULL, NULL, 0);  /* dummy to force load        */
 
     exitToCpm   = FALSE;        /* not time to quit yet!    */
     sizeLTentry = sizeof(logTab[0]);    /* just had to try that feature */
@@ -572,7 +572,7 @@ void setUp(char justIn) {
             /* Slide entry to top of log table: */
 
             ourSlot = logTab[thisSlot].ltlogSlot;
-            slideltab(0, thisSlot);
+            slideLTab(0, thisSlot);
 
             logTab[0].ltpwhash  = hash(logBuf.lbpw);
             logTab[0].ltnmhash  = hash(logBuf.lbname);
@@ -609,8 +609,6 @@ void setUp(char justIn) {
 /************************************************************************/
 void systat(void) {
     
-    int i;
-
     printDate(interpret(pGetYear ), interpret(pGetMonth), interpret(pGetDay));
 
 #ifdef XYZZY
@@ -661,7 +659,7 @@ void systat(void) {
 void unspace(char *from, char *to) {
 
     while (*to = *from++)
-        if (*to != ' ') to++;
+        if ((*to != ' ')) to++;
 
 }
 
@@ -671,7 +669,7 @@ void unspace(char *from, char *to) {
 /************************************************************************/
 #define UFNsIZE        13    /* size of "filename.ext" plus a null.    */
 
-void wildCard(void (*fn)(char *), char *filename) {
+void wildCard(int (*fn)(char *), char *filename) {
 
     /* may be ambiguous.  No drive or user numbers. */
 
@@ -717,7 +715,7 @@ void wildCard(void (*fn)(char *), char *filename) {
     /* ) { */
 
     /* figure out where BDOS stashed our fcb:   */
-    /* pBlock = tBuf + 32*(byteAddr % 4);  /* "% 4"? --CrT            */
+    /* pBlock = tBuf + 32*(byteAddr % 4); */ /* "% 4"? --CrT            */
 
     /* p   = fp; */
 

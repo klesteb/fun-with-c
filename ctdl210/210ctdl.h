@@ -211,7 +211,7 @@ struct roomBuffer {
 				/* is exactly 256 at present		*/
 } roomBuf;			/* buffer current room is held in	*/
 
-char thisRoom;			/* room currently in roomBuf	*/
+int thisRoom;			/* room currently in roomBuf	*/
 
 /************************************************************************/
 /*			      userlog stuff				*/

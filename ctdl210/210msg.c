@@ -22,6 +22,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <ctype.h>
+#include <stdarg.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -43,7 +45,6 @@
 /*    makeMessage()    menu-level message-entry routine                 */
 /*    mFormat()        formats a string to modem and console            */
 /*    mPeek()          sysop debugging tool--shows ctdlmsg.sys          */
-/*    mPrintf()        writes a line to modem & console                 */
 /*    mWCprintf()      special mprintf for WC transfers                 */
 /*    msgInit()        sets up catChar, catSect etc.                    */
 /*    noteLogMessage() enter message into log record                    */
@@ -153,14 +154,17 @@ char dGetWord(char *dest, int lim) {
 /************************************************************************/
 /*    dPrintf() write from format+args to disk                          */
 /************************************************************************/
-void dPrintf(char *format /* plus an unknown #arguments for format */) {
+void dPrintf(char *format, ...) {
 #define MAXWORD 256    /* maximum length of a word */
 
+    int n;
+    va_list ap;
     char *s, string[MAXWORD];
 
-    string[0]    = 0;
-    _spr(string, &format);
-
+    va_start(ap, format);
+    n = vsnprintf(string, MAXWORD, format, ap);
+    va_end(ap);
+    
     s = string;
     while (*s) putMsgChar(*s++);
 
@@ -340,7 +344,6 @@ void getMessage(void) {
 char getMsgChar(void) {
     
     char toReturn;
-    int  mark, val;
 
     if (GMCCache) {    /* someone did an unGetMsgChar() --return it    */
 
@@ -356,7 +359,7 @@ char getMsgChar(void) {
     toReturn  = sectBuf[thisChar];
 
 #ifdef XYZZY
-    if (debug) putCh(visible(toReturn));
+    if (debug) putChar(visible(toReturn));
 #endif
 
     thisChar = ++thisChar % SECTSIZE;
@@ -389,7 +392,7 @@ void getMsgStr(char *dest, int lim) {
 
     char c;
 
-    while (c = getMsgChar()) {  /* read the complete string    */
+    while ((c = getMsgChar())) {  /* read the complete string    */
         
         if (lim) {              /* if we have room then        */
 
@@ -498,7 +501,6 @@ int makeMessage(char uploading) {
 /* uploading - TRUE if message is coming via WC protocol    */
     
     char   allUpper, *pc, toReturn;
-    char   toName[NAMESIZE];
     struct logBuffer lBuf;
     int    logNo;
 
@@ -535,7 +537,7 @@ int makeMessage(char uploading) {
 
     strcpy(msgBuf.mbauth, logBuf.lbname);        /* record author*/
 
-    if (uploading || gettext("message", msgBuf.mbtext, MAXTEXT)) {
+    if (uploading || getText("message", msgBuf.mbtext, MAXTEXT)) {
         
         if (!uploading) {
             
@@ -615,38 +617,18 @@ void mPeek(void) {
 }
 
 /************************************************************************/
-/*    mPrintf() formats format+args to modem and console                */
-/************************************************************************/
-void mPrintf(char *format /* plus an unknown #arguments for format */) {
-#define MAXWORD 256    /* maximum length of a word */
-
-    char string[MAXWORD], wordBuf[MAXWORD];
-    int  i;
-
-    string[0] = 0;
-    _spr(string, &format);
-
-    for (i = 0; string[i] && (!outFlag  || outFlag == OUTPARAGRAPH);) {
-        
-        i = getWord(wordBuf, string, i, MAXWORD);
-        putWord(wordBuf);
-
-        if (mAbort()) return;
-
-    }
-
-}
-
-/************************************************************************/
 /*    mWCprintf() formats format+args to sendWCChar()         */
 /************************************************************************/
-void mWCprintf(char *format /* plus an unknown #arguments for format */) {
+void mWCprintf(char *format, ...) {
 
+    int n;
     char *s;
     char string[MAXWORD];
+    va_list ap;
 
-    string[0] = 0;
-    _spr(string, &format);
+    va_start(ap, format);
+    n = vsnprintf(string, MAXWORD, format, ap);
+    va_end(ap);
 
     s = string;
 
@@ -756,8 +738,6 @@ void noteLogMessage(struct logBuffer *lBuf, int logNo) {
 /*    noteMessage() slots message into current room            */
 /************************************************************************/
 void noteMessage(struct logBuffer *lBuf, int logNo) {
-
-    int i, roomNo;
 
     if (!++newestLo) ++newestHi;    /* 32-bit '++' by hand    */
 
@@ -952,7 +932,7 @@ void printMessage(int loc, unsigned id) {
 /************************************************************************/
 void pullIt(int m) {
 
-    int i, low;
+    int i;
 
     /* confirm that we're removing the right one:    */
 
@@ -1006,7 +986,7 @@ char putMessage(char uploading) {
 
     /* write message ID */
 
-    dPrintf("%u %u", newestHi, newestLo+1);
+    dPrintf("%u %u", newestHi, newestLo + 1);
     putMsgChar(0);
 
     /* write date:    */
@@ -1071,7 +1051,7 @@ char putMessage(char uploading) {
 
         /* erase start-of-message indicator: */
         startAt(catSector, catChar);
-        putmsgChar(0);        /* overwrite 0xFF byte    */
+        putMsgChar(0);        /* overwrite 0xFF byte    */
 
     }
 
@@ -1091,7 +1071,7 @@ int putMsgChar(char c) {
     toReturn = TRUE;
 
 #ifdef XYZZY
-    if (debug) putch(visible(c));
+    if (debug) putChar(visible(c));
 #endif
 
     if (sectBuf[thisChar] == 0xFF)  {
@@ -1190,7 +1170,6 @@ void putWord(char *st) {
 /************************************************************************/
 void showMessages(char whichMess, char revOrder) {
 
-    char c;
     int i;
     int start, finish, increment, msgNo;
     unsigned lowLim, highLim;

@@ -34,6 +34,7 @@ extern void sortLog(void );
 extern void storeLog(void);
 extern void terminate(char discon);
 extern void zapLogFile(void);
+extern int PWSlot(char *pw);
 
 /* 210misc.c */
 
@@ -67,12 +68,13 @@ extern int  receive(int seconds);
 extern char readFile(int (*pc)(char));
 extern void ringSysop(void);
 extern int  sendWCChar(int c);
+extern char interpret(char *wanted);
 
 /* 210msg.c */
 
 extern void aideMessage(char noteDeletedMessage);
 extern char dGetWord(char *dest, int lim);
-extern void dPrintf(char *format);
+extern void dPrintf(char *format, ...);
 extern void fakeFullCase(char *text);
 extern int  findPerson(char *name, struct logBuffer *lBuf);
 extern void flushMsgBuf(void);
@@ -84,8 +86,7 @@ extern char mAbort(void);
 extern int  makeMessage(char uploading);
 extern void mFormat(char *string);
 extern void mPeek(void);
-extern void mPrintf(char *format);
-extern void mWCprintf(char *format);
+extern void mWCprintf(char *format, ...);
 extern void msgInit(void);
 extern void noteLogMessage(struct logBuffer *lBuf, int logNo);
 extern void note2Message(int id, int loc);
@@ -103,7 +104,7 @@ extern void noteMessage(struct logBuffer *lBuf, int logNo);
 /* 210rooma.c */
 
 extern void dumpRoom(void);
-extern void fileDir(char *fileName);
+extern int  fileDir(char *fileName);
 extern char gotoRoom(char *nam);
 extern void init(void);
 extern void initCitadel(void);
@@ -114,7 +115,8 @@ extern void setSpace(char disk, char user);
 extern void setUp(char justIn);
 extern void systat(void);
 extern void unspace(char *from, char *to);
-extern void wildCard(void (*fn)(char *), char *filename);
+extern void wildCard(int (*fn)(char *), char *filename);
+extern void fillMailRoom(void);
 
 /* 210roomb.c */
 

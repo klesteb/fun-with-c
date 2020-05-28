@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -212,9 +213,10 @@ void fakeFullCase(char *text) {
     }
 
     /* little state machine to search for ' i ': */
-#define NUTHIN        0
-#define FIRSTBLANK    1
-#define BLANKI        2
+#define NUTHIN     0
+#define FIRSTBLANK 1
+#define BLANKI     2
+
     for (state = NUTHIN, c = text; *c;  c++) {
 
         switch (state) {
@@ -249,11 +251,11 @@ int findPerson(char *name, struct logBuffer *lBuf) {
     h = hash(name);
 
     for (foundIt = i = 0;  i < MAXLOGTAB && !foundIt; i++) {
-        
+
         if (logTab[i].ltnmhash == h) {
-            
+
             getLog(lBuf, logNo = logTab[i].ltlogSlot);
-            
+
             if (strcasecmp(name, lBuf->lbname) == SAMESTRING) {
 
                 foundIt = TRUE;
@@ -275,9 +277,10 @@ void flushMsgBuf(void) {
     
     crypte(sectBuf, SECTSIZE, 0);
 
+    errno = 0;
     if (write(msgfl, sectBuf, 1) != 1) {
         
-        printf("?ctdlmsg.sys write fail");
+        printf("?ctdlmsg.sys write fail, reason; %d", errno);
 
     }
 
@@ -363,18 +366,18 @@ char getMsgChar(void) {
 #endif
 
     thisChar = ++thisChar % SECTSIZE;
-    
+
     if (thisChar == 0) {
 
         /* time to read next sector in: */
 
         thisSector = ++thisSector % maxMSector;
         lseek(msgfl, thisSector, SEEK_SET);
-        
+
         if (read(msgfl, sectBuf, 1) >= 1000) {
-            
+
             printf("?nextMsgChar-read fail");
-            
+
         }
 
         crypte(sectBuf, SECTSIZE, 0);
@@ -452,11 +455,10 @@ char mAbort(void) {
 
     if (!BBSCharReady()) {
 
-        toReturn    = FALSE;
+        toReturn = FALSE;
 
     } else {
 
-        echo = NEITHER;
         c = toupper(iChar());
 
         switch (c) {
@@ -469,23 +471,18 @@ char mAbort(void) {
                 toReturn = FALSE;
                 break;
             case 'J':                    /* jump paragraph:*/
-                outFlag  = OUTPARAGRAPH;
                 toReturn = FALSE;
                 break;
             case 'N':                    /* next:          */
-                outFlag  = OUTNEXT;
                 toReturn = TRUE;
                 break;
             case 'S':                    /* skip:          */
-                outFlag  = OUTSKIP;
                 toReturn = TRUE;
                 break;
             default:
-                toReturn    = FALSE;
+                toReturn = FALSE;
                 break;
         }
-        
-        echo = BOTH;
         
     }
 
@@ -559,7 +556,7 @@ int makeMessage(char uploading) {
 
         }
 
-        if (toReturn = putMessage(uploading)) {
+        if ((toReturn = putMessage(uploading))) {
             
             noteMessage(&lBuf, logNo);
             
@@ -580,7 +577,7 @@ void mFormat(char *string) {
     char wordBuf[MAXWORD];
     int  i;
 
-    for (i = 0; string[i] && (!outFlag || outFlag == OUTPARAGRAPH);) {
+    for (i = 0; string[i];) {
 
         i = getWord(wordBuf, string, i, MAXWORD);
         putWord(wordBuf);
@@ -613,30 +610,6 @@ void mPeek(void) {
         }
 
     }
-
-}
-
-/************************************************************************/
-/*    mWCprintf() formats format+args to sendWCChar()         */
-/************************************************************************/
-void mWCprintf(char *format, ...) {
-
-    int n;
-    char *s;
-    char string[MAXWORD];
-    va_list ap;
-
-    va_start(ap, format);
-    n = vsnprintf(string, MAXWORD, format, ap);
-    va_end(ap);
-
-    s = string;
-
-    do {
-        
-        sendWCChar(*s); 
-        
-    } while (*s++);    /* send terminal null also    */
 
 }
 
@@ -833,7 +806,7 @@ void printMessage(int loc, unsigned id) {
 /* loc - sector in message.buf        */
 /* id  - unique-for-some-time ID#     */
 
-    char c, moreFollows;
+    char moreFollows;
     int hereHi, hereLo;
 
     startAt(loc, 0);
@@ -846,7 +819,7 @@ void printMessage(int loc, unsigned id) {
         sscanf(msgBuf.mbId, "%d %d", &hereHi, &hereLo),
         hereLo != id) && thisSector == loc);
 
-    if (hereLo != id && !usingWCprotocol) {
+    if (hereLo != id) {
 
         printf("?can't find message");
 #ifdef XYZZY
@@ -858,72 +831,35 @@ void printMessage(int loc, unsigned id) {
 
     }
 
-    if (!usingWCprotocol) {
+    doCR();
 
-        doCR();
+    if (msgBuf.mbdate[0])  printf(    "   %s ",  msgBuf.mbdate);
+    if (msgBuf.mbauth[0])  printf(    "from %s", msgBuf.mbauth);
+    if (msgBuf.mboname[0]) printf(    " @%s",    msgBuf.mboname);
 
-        if (msgBuf.mbdate[0])  printf(    "   %s ",  msgBuf.mbdate);
-        if (msgBuf.mbauth[0])  printf(    "from %s", msgBuf.mbauth);
-        if (msgBuf.mboname[0]) printf(    " @%s",    msgBuf.mboname);
-
-        if (msgBuf.mbroom[0] &&
-            strcmp(msgBuf.mbroom, roomBuf.rbname) != SAMESTRING) {
+    if (msgBuf.mbroom[0] &&
+        strcmp(msgBuf.mbroom, roomBuf.rbname) != SAMESTRING) {
             
-            printf(                " in %s>",    msgBuf.mbroom);
+        printf(                " in %s>",    msgBuf.mbroom);
             
-        }
+    }
 
-        if (msgBuf.mbto[0]) {
+    if (msgBuf.mbto[0]) {
 
-            printf(    " to %s", msgBuf.mbto);
-
-        }
-
-        doCR();
-
-        do {
-
-            moreFollows     = dGetWord(msgBuf.mbtext, 150);
-            putWord(msgBuf.mbtext);
-
-        } while (moreFollows && !mAbort());
-
-        doCR();
-
-    } else {
-
-        /* networking dump of message: */
-
-        /* fill in local node in origin fields if local message: */
-
-        if (!msgBuf.mborig[0])  strcpy(msgBuf.mborig, nodeId);
-        if (!msgBuf.mboname[0]) strcpy(msgBuf.mboname, nodeName);
-        if (!msgBuf.mbsrcId[0]) strcpy(msgBuf.mbsrcId, msgBuf.mbId);
-
-        /* send header fields out: */
-
-        if (msgBuf.mbauth[0])  mWCprintf("A%s", msgBuf.mbauth);
-        if (msgBuf.mbdate[0])  mWCprintf("D%s", msgBuf.mbdate);
-        if (msgBuf.mboname[0]) mWCprintf("N%s", msgBuf.mboname);
-        if (msgBuf.mborig[0])  mWCprintf("O%s", msgBuf.mborig);
-        if (msgBuf.mbroom[0])  mWCprintf("R%s", msgBuf.mbroom);
-        if (msgBuf.mbsrcId[0]) mWCprintf("S%s", msgBuf.mbsrcId);
-        if (msgBuf.mbto[0])    mWCprintf("T%s", msgBuf.mbto);
-
-        /* send message text proper: */
-
-        sendWCChar('M');
-
-        do  {
-            
-            c = getMsgChar();
-
-            if (c == '\n') c = '\r';
-            sendWCChar(c);
-
-        } while (c);
+        printf(    " to %s", msgBuf.mbto);
 
     }
+
+    doCR();
+
+    do {
+
+        moreFollows     = dGetWord(msgBuf.mbtext, 150);
+        putWord(msgBuf.mbtext);
+
+    } while (moreFollows && !mAbort());
+
+    doCR();
 
 }
 
@@ -936,7 +872,6 @@ void pullIt(int m) {
 
     /* confirm that we're removing the right one:    */
 
-    outFlag = OUTOK;
     printMessage(roomBuf.vp.msg[m].rbmsgLoc, roomBuf.vp.msg[m].rbmsgNo);
 
     if (!getYesNo("pull")) return;
@@ -980,6 +915,7 @@ char putMessage(char uploading) {
 /* uploading - true to get text via WC modem input, not RAM */
 
     char *s, allOk;
+    int year, month, day;
 
     startAt(catSector, catChar);    /* tell putMsgChar where to write    */
     putMsgChar(0xFF);               /* start-of-message         */
@@ -990,11 +926,8 @@ char putMessage(char uploading) {
     putMsgChar(0);
 
     /* write date:    */
-    dPrintf("D%d%s%02d",
-        interpret(pGetYear),
-        monthTab[interpret(pGetMonth)],
-        interpret(pGetDay)
-    );
+    getDate(&year, &month, &day);
+    dPrintf("D%d%s%02d", year, month, day);
 
     putMsgChar(0);
 
@@ -1023,21 +956,11 @@ char putMessage(char uploading) {
 
     putMsgChar('M');    /* M-for-message.    */
 
-    if (!uploading) {
-        
-        for (s = msgBuf.mbtext; *s;  s++) {
+    for (s = msgBuf.mbtext; *s; s++) {
             
-            putMsgChar(*s);
-            
-        }
-
+        putMsgChar(*s);
         allOk = TRUE;
-        
-    } else {
-
-        outFlag = FALSE;    /* setup for putWCChar()    */
-        allOk   = readFile(putWCChar);
-
+            
     }
 
     if (allOk) {
@@ -1079,7 +1002,7 @@ int putMsgChar(char c) {
         /* obliterating a msg    */
 
         if (!++oldestLo) ++oldestHi;    /* 32-bit increment by hand    */
-        logBuf.lbvisit[(MAXVISIT-1)] = oldestLo;
+        logBuf.lbvisit[(MAXVISIT - 1)] = oldestLo;
 
     }
 
@@ -1143,19 +1066,12 @@ void putWord(char *st) {
 
         if (crtColumn > termWidth) doCR();
 
-        if (prevChar!=NEWLINE || (*st > ' ')) {
+        if (prevChar != NEWLINE || (*st > ' ')) {
             
             oChar(*st);
             
         } else {
             
-            /* end of paragraph: */
-            if (outFlag == OUTPARAGRAPH)   {
-
-                outFlag = OUTOK;
-
-            }
-
             doCR();
             oChar(*st);
 
@@ -1193,15 +1109,15 @@ void showMessages(char whichMess, char revOrder) {
     }
 
     switch (whichMess) {
-        case NEWoNLY:
+        case newOnly:
             lowLim  = logBuf.lbvisit[ logBuf.lbgen[thisRoom] & CALLMASK] + 1;
             highLim = newestLo;
             break;
-        case OLDaNDnEW:
+        case oldAndNew:
             lowLim  = oldestLo;
             highLim = newestLo;
             break;
-        case OLDoNLY:
+        case oldOnly:
             lowLim  = oldestLo;
             highLim = logBuf.lbvisit[ logBuf.lbgen[thisRoom] & CALLMASK];
             break;
@@ -1210,34 +1126,19 @@ void showMessages(char whichMess, char revOrder) {
     /* stuff may have scrolled off system unseen, so: */
     /* was "if (lowLim < oldestLo)...", rigged for wraparound: */
 
-    if (oldestLo-lowLim < 0x8000) {
+    if (oldestLo - lowLim < 0x8000) {
 
         lowLim = oldestLo;
 
     }
 
-    if (!expert && !usingWCprotocol)  {
+    if (!expert)  {
 
         printf("\n <J>ump <N>ext <P>ause <S>top");
 
     }
 
     for (i = start; i != finish; i += increment) {
-
-        if (outFlag) {
-
-            if (outFlag == OUTNEXT || outFlag == OUTPARAGRAPH) {
-
-                outFlag = OUTOK;
-
-            } else if (outFlag == OUTSKIP) {
-
-                echo = BOTH;
-                return;
-
-            }
-
-        }
 
         /* "<" comparison with 64K wraparound in mind: */
 
@@ -1247,7 +1148,7 @@ void showMessages(char whichMess, char revOrder) {
 
             printMessage(roomBuf.vp.msg[i].rbmsgLoc, msgNo);
 
-            /*    Pull current message from room if flag set */
+            /* Pull current message from room if flag set */
 
             if (pullMessage) {
 
@@ -1257,8 +1158,8 @@ void showMessages(char whichMess, char revOrder) {
 
             }
 
-            if (thisRoom  == MAILROOM && whichMess == NEWoNLY && getYesNo("respond")) {
-                
+            if (thisRoom == MAILROOM && whichMess == newOnly && getYesNo("respond")) {
+
                 if (makeMessage( /* uploading== */ FALSE)) i--;
 
             }
@@ -1314,9 +1215,7 @@ void zapMsgFile(void) {
 
     int i, sect, val;
 
-    printf("\nDestroy all current messages? ");
-
-    if (toupper(getCh()) != 'Y')   return;
+    if (getYesNo("\nDestroy all current messages")) return;
 
     /* put null message in first sector... */
 

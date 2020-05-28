@@ -132,11 +132,9 @@ void login(char *password) {
         loggedIn = TRUE;
         setUp(TRUE);
 
-        showMessages(NEWoNLY, FALSE);
+        showMessages(newOnly, FALSE);
 
         listRooms(/* doDull== */ !expert);
-
-        outFlag = OUTOK;
 
         if ((logBuf.lbId[MAILSLOTS - 1] -
             (logBuf.lbvisit[logBuf.lbgen[MAILROOM] & CALLMASK] + 1) < 0x8000) &&
@@ -229,10 +227,8 @@ void newPW(void) {
 
     do {
 
-        echo    = CALLER;
         getString(" new password", pw, NAMESIZE);
         normalizeString(pw);
-        echo    = BOTH;
 
         /* check that PW isn't already claimed: */
         goodPW = (PWSlot(pw) == ERROR && strlen(pw) >= 2);
@@ -307,16 +303,15 @@ void newUser(void) {
         /* get password and check for uniqueness...    */
 
         do {
-            
-            echo = CALLER;
-            getString(" password",  pw, NAMESIZE);
+
+            getString(" password", pw, NAMESIZE);
             normalizeString(pw);
-            echo = BOTH    ;
 
             h = hash(pw);
             for (i = 0, good = strlen(pw) > 1;  i < MAXLOGTAB && good; i++) {
-                
+
                 if (h == logTab[i].ltpwhash) good = FALSE;
+
             }
 
             if (!h) good = FALSE;
@@ -604,15 +599,13 @@ void terminate(char discon) {
 }
 
 /************************************************************************/
-/*    zapLogFile() erases & re-initializes userlog.buf        */
+/*    zapLogFile() erases & re-initializes userlog.buf                  */
 /************************************************************************/
 void zapLogFile(void) {
 
     int  i;
 
-    printf("\nWipe out log file? ");
-
-    if (toupper(getCh()) != 'Y') return;
+    if (getYesNo("\nWipe out log file")) return;
 
     /* clear RAM buffer out:            */
 
@@ -635,7 +628,7 @@ void zapLogFile(void) {
     /* write empty buffer all over file;    */
 
     for (i = 0; i < MAXLOGTAB; i++) {
-        
+
         putLog(&logBuf, i);
 
     }

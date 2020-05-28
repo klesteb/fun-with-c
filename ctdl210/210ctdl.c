@@ -151,20 +151,8 @@ void doChat(char moreYet, char first) {
 /* moreYet - TRUE to accept following parameters */
 /* first -   first paramter if TRUE              */
 
-    if (moreYet) first = '\0';
-    if (first) oChar(first);
-
-    printf("hat ");
-
-    if (noChat)   {
-
-        tutorial("nochat.blb");
-        return;
-
-    }
-
-    if (whichIO == MODEM)    ringSysop();
-    else            interact() ;
+    printf("not implemented yet\n");
+    
 }
 
 /************************************************************************/
@@ -182,7 +170,6 @@ void doEnter(char moreYet, char first) {
 
     char what;            /* one of above five */
     char abort, done, WC;
-    char iChar();
 
 
     if (moreYet) first = '\0';
@@ -205,18 +192,16 @@ void doEnter(char moreYet, char first) {
 
     do {
 
-        outFlag = OUTOK;
-
         switch (toupper(first ? first : iChar())) {
             case '\r':
             case '\n':
-               moreYet    = FALSE;
+               moreYet = FALSE;
                break;
             case 'F':
                 if (roomBuf.rbflags & CPMDIR) {
                     printf("ile upload ");
-                    what    = FILE;
-                    done    = TRUE;
+                    what = FILE;
+                    done = TRUE;
                     break;
                 }
             default:
@@ -319,7 +304,7 @@ void doGoto(char expand, char first) {
 void doHelp(char expand, char first) {
 /* expand - TRUE to accept following parameters */
 /* first -  first parameter if TRUE             */
-{
+
     char fileName[NAMESIZE];
 
     if (!expand) {
@@ -370,16 +355,21 @@ void doLogin(char moreYet, char first) {
 
     printf("ogin ");
 
-    if (!moreYet) printf("\n");
-    if (loggedIn) {
-        printf("\n ?Already logged in!\n ");
-        return;
+    if (!moreYet) {
+
+        printf("\n");
+
     }
 
-    echo    = CALLER;
+    if (loggedIn) {
+
+        printf("\n ?Already logged in!\n ");
+        return;
+
+    }
+
     getString(moreYet ? "" : " password", passWord, NAMESIZE);
     normalizeString(passWord);
-    echo    = BOTH;
     login(passWord);
 
 }
@@ -436,8 +426,10 @@ void doRead(char moreYet, char first) {
     printf("\bread ");
 
     if (!loggedIn  &&  !unlogReadOk)   {
+
         printf("Must log in to read\n ");
         return;
+
     }
 
     if (first) oChar(first);
@@ -448,44 +440,41 @@ void doRead(char moreYet, char first) {
     hostFile  = FALSE;
     revOrder  = FALSE;
     status    = FALSE;
-    WC        = FALSE;
-    whichMess = NEWoNLY;
+    whichMess = newOnly;
 
     do {
 
-        outFlag = OUTOK;
-
-        switch (toupper(   first ? first : iChar()   )) {
+        switch (toupper(first ? first : iChar())) {
             case '\n':
             case '\r':
-                moreYet    = FALSE;
+                moreYet = FALSE;
                 break;
             case 'A':
                 printf("ll ");
-                whichMess    = OLDaNDnEW;
+                whichMess = oldAndNew;
                 break;
             case 'F':
                 printf("orward ");
-                revOrder    = FALSE;
-                whichMess    = OLDaNDnEW;
+                revOrder  = FALSE;
+                whichMess = oldAndNew;
                 break;
             case 'G':
                 printf("lobal new-messages ");
-                whichMess    = GLOBALnEW;
+                whichMess = globalNew;
                 break;
             case 'N':
                 printf("ew ");
-                whichMess    = NEWoNLY;
+                whichMess = newOnly;
                 break;
             case 'O':
                 printf("ld ");
                 revOrder  = TRUE;
-                whichMess = OLDoNLY;
+                whichMess = oldOnly;
                 break;
             case 'R':
                 printf("everse ");
                 revOrder  = TRUE;
-                whichMess = OLDaNDnEW;
+                whichMess = oldAndNew;
                 break;
             case 'S':
                 printf("tatus ");
@@ -499,9 +488,8 @@ void doRead(char moreYet, char first) {
             case 'B':
                 if (roomBuf.rbflags & CPMDIR) {
                     printf("inary file(s) ");
-                    done         = TRUE;
-                    hostFile     = TRUE;
-                    textDownload = FALSE;
+                    done     = TRUE;
+                    hostFile = TRUE;
                     break;
                 }
             case 'D':
@@ -514,9 +502,8 @@ void doRead(char moreYet, char first) {
             case 'T':
                 if (roomBuf.rbflags & CPMDIR) {
                     printf("extfile(s) ");
-                    done         = TRUE;
-                    hostFile     = TRUE;
-                    textDownload = TRUE;
+                    done     = TRUE;
+                    hostFile = TRUE;
                     break;
                 }
             case '?':
@@ -570,33 +557,24 @@ void doRead(char moreYet, char first) {
 
         getString("afn", fileName, NAMESIZE);
         normalizeString(fileName);
-        usingWCprotocol = WC;
-        wildCard(transmitFile, fileName);
-        usingWCprotocol = FALSE;
+        /* wildCard(transmitFile, fileName); */
         return;
 
     }
 
     doCR();
 
-    if (WC) {
-
-        download(whichMess, revOrder);
-        return;
-
-    }
-
-    if (whichMess != GLOBALnEW) {
+    if (whichMess != globalNew) {
 
         showMessages(whichMess, revOrder);
 
     } else {
 
-        while (outFlag != OUTSKIP && gotoRoom("")) {
+        while (gotoRoom("")) {
 
             givePrompt();
             printf("read new\n ");
-            showMessages(NEWoNLY, revOrder);
+            showMessages(newOnly, revOrder);
 
         }
 
@@ -637,9 +615,6 @@ char doRegular(char x, char c) {
             break;    /* irrelevant value */
         case '?':
             tutorial("mainopt.mnu");
-            if (whichIO == CONSOLE) {
-                printf(" ^p: privileged fns\n ");
-            }
             break;
 
         case 'A': 
@@ -677,8 +652,7 @@ char doSysop(char c, char first) {
                 printf("bort\n ");
                 return FALSE;
             case 'C':
-                printf("hat mode %sabled\n ",
-                       (noChat = !noChat) ? "dis" : "en");
+                printf("hat mode disabled\n");
                 break;
             case 'D':
                 debug = !debug;
@@ -706,9 +680,8 @@ char doSysop(char c, char first) {
                 break;
             case 'M':
                 printf("\bSystem now on MODEM\n ");
-                whichIO = MODEM;
                 setUp(FALSE);
-                printf("Chat mode %sabled\n ", noChat  ?  "dis"  :  "en");
+                printf("Chat mode disabled\n");
                 if (debug)       printf("Debug mode on\n "  );
                 if (visibleMode) printf("Visible mode on\n ");
                 return FALSE;
@@ -736,11 +709,10 @@ char doSysop(char c, char first) {
                 }
                 break;
             case 'R':
-                patchDebug();
+                printf("not implemented\n");
                 break;
             case 'S':
                 printf("et date\n \n");
-                interpret(pInitDate);
                 break;
             case 'V':
                 printf(" VisibleMode==%d\n ",  visibleMode = !visibleMode);
@@ -775,8 +747,6 @@ char getCommand(char *c) {
     char BBSCharReady(), iChar();
     char expand;
 
-    outFlag = OUTOK;
-
     /*if (*c)*/ givePrompt();
     
     while (BBSCharReady()) iChar();          /* eat type-ahead       */
@@ -792,13 +762,6 @@ char getCommand(char *c) {
 
     if (expand) *c = toupper(iChar());
 
-    if (justLostCarrier) {
-
-        justLostCarrier = FALSE;
-        if (loggedIn) terminate(FALSE);
-
-    }
-
     return expand;
 
 }
@@ -808,6 +771,8 @@ char getCommand(char *c) {
 /************************************************************************/
 void greeting(void) {
     
+    int year, month, day;
+
     if (loggedIn) terminate(FALSE);
 
     setUp(TRUE);     
@@ -815,11 +780,8 @@ void greeting(void) {
 
     printf("\n Welcome to Citadel");
     printf("\n V2.1 at %s \n \n ", nodeTitle);
-    printDate(
-        interpret(pGetYear ),
-        interpret(pGetMonth),
-        interpret(pGetDay  )
-    );
+    getDate(&year, &month, &day);
+    printDate(year, month, day);
 
     printf("\n H for Help\n ");
 
@@ -850,8 +812,6 @@ int main(void) {
     while (!exitToCpm) {
 
         x = getCommand(&c);
-
-        outFlag = OUTOK;
 
         if ((c == CNTRLp) ? doSysop(0, '\0') : doRegular(x, c)) {
             

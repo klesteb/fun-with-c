@@ -251,7 +251,6 @@ void init(void) {
 
     exitToCpm   = FALSE;        /* not time to quit yet!    */
     sizeLTentry = sizeof(logTab[0]);    /* just had to try that feature */
-    outFlag     = OUTOK;        /* not p(ausing)        */
 
     pullMessage = FALSE;        /* not pulling a message    */
     pulledMLoc  = ERROR;        /* haven't pulled one either    */
@@ -261,7 +260,6 @@ void init(void) {
     loggedIn    = FALSE;
     thisRoom    = LOBBY;
 
-    whichIO     = CONSOLE;
     loggedIn    = FALSE;
 
     setUp(TRUE);
@@ -283,8 +281,6 @@ void init(void) {
     monthTab[11] = "Nov";
     monthTab[12] = "Dec";
 
-    if (!clock)   interpret(pInitDate);
-
     /* open message files: */
 
     msgFile    = "ctdlmsg.sys";
@@ -304,7 +300,6 @@ void init(void) {
 /************************************************************************/
 void initCitadel(void) {
     
-    whichIO = MODEM;
     setUp(FALSE);
 
 }
@@ -447,9 +442,6 @@ void setUp(char justIn) {
 
     int g, i, j, ourSlot;
 
-    echo = BOTH;     /* just in case         */
-    usingWCprotocol = FALSE;    /* also redundant        */
-
     if (!loggedIn) {
 
         prevChar    = ' ';
@@ -584,21 +576,10 @@ void setUp(char justIn) {
     }
 
     logBuf.lbvisit[0] = newestLo;
-    onConsole = (whichIO == CONSOLE);
 
     if (thisRoom == MAILROOM) {
 
         fillMailRoom();
-
-        if (whichIO == MODEM) {
-
-            echo = CALLER;
-
-        } else  {
-
-            echo = BOTH;
-
-        }
 
     }
 
@@ -609,7 +590,10 @@ void setUp(char justIn) {
 /************************************************************************/
 void systat(void) {
     
-    printDate(interpret(pGetYear ), interpret(pGetMonth), interpret(pGetDay));
+    int year, month, day;
+
+    getDate(&year, &month, &day);
+    printDate(year, month, day);
 
 #ifdef XYZZY
     if (debug) printf(" *catChar=%d catSector=%d\n*", catChar, catSector);

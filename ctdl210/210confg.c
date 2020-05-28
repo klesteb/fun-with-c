@@ -33,7 +33,6 @@
 /************************************************************************/
 void init(void) {
 
-    char getCh();
     char c, *msgFile;
     int mode = (S_IRWXU & S_IRWXG);
                 
@@ -145,10 +144,8 @@ void init(void) {
 
     }
 
-    printf("\n Erase and initialize log, message and/or room files?");
-
-    if (toupper(getCh()) == 'Y') {
-
+    if (getYesNo("\n Erase and initialize log, message and/or room files")) {
+        
         /* each of these has an additional go/no-go interrogation: */
 
         zapMsgFile();

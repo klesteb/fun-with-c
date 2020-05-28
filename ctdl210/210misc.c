@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -31,7 +32,6 @@
 /*                                                                      */
 /*    configure()    sets terminal parameters via dialogue              */
 /*    doCR()         newline on modem and console                       */
-/*    patchDebug()   display/patch byte                                 */
 /*    printDate()    prints out date                                    */
 /*    tutorial()     prints a .hlp file                                 */
 /*    visible()      convert control chars to letters                   */
@@ -61,59 +61,25 @@ void doCR(void) {
 }
 
 /************************************************************************/
-/*    patchDebug()                                                      */
+/*    printDate() prints out a date packed in two-byte format     */
 /************************************************************************/
-void patchDebug(void) {
-    
-    unsigned  i, j, page;
-    char finished, *pc;
+void printDate(int year, int month, int day) {
 
-    printf("\bpatch\n ");
-    page = getNumber("page", 0, 255);
-    finished = FALSE;
-
-    do {
-
-        for (i = 16, pc = (page * 256);  i; i--) {
-
-            printf("%s ", pc);
-
-            for (j = 16; j; j--) {
-                
-                printf("%c", visible(*pc++));
-                
-            }
-
-            printf("\n ");
-            
-        }
-
-        switch (tolower(iChar()))   {
-            case 'r':
-                pc  = getNumber("adr", 0, 65355);
-                *pc = getNumber("val", 0, 255);
-                break;
-            case 'n':    
-                page++;
-                break;
-            case 'p':    
-                page--;         
-                break;
-            default:    
-                finished = TRUE;    
-                break;
-        }
-        
-    } while (!finished);
+    printf("%d%s%02d ", year, monthTab[month], day);
 
 }
 
 /************************************************************************/
-/*    printDate() prints out a date packed in two-byte format     */
+/*    getDate() retrieves the current date                              */
 /************************************************************************/
-void printDate(char year, char month, char day) {
+void getDate(int *year, int *month, int *day) {
 
-    printf("%d%s%02d ", year, monthTab[month], day);
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+
+    *year = tm->tm_year + 1900;
+    *month = tm->tm_mon + 1;
+    *day = tm->tm_mday;
 
 }
 
@@ -129,7 +95,6 @@ int tutorial(char *filename) {
     int  toReturn;
 
     toReturn = TRUE;
-    outFlag  = OUTOK;
 
     if ((fp = fopen(filename, "r+")) == NULL) {
 

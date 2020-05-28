@@ -63,10 +63,10 @@
 int editText(char *buf, int lim) {
 
     char c;
+    int year, month, day;
 
-    do {
+    for (;;) {
 
-        outFlag = OUTOK;
         printf("\n entry cmd: ");
 
         switch (c = toupper(iChar())) {
@@ -81,7 +81,8 @@ int editText(char *buf, int lim) {
                 printf("rint formatted\n ");
                 doCR();
                 printf("   ");
-                printDate(interpret(pGetYear ), interpret(pGetMonth), interpret(pGetDay));
+                getDate(&year, &month, &day);
+                printDate(year, month, day);
                 if (loggedIn)  printf(" from %s", msgBuf.mbauth);
                 doCR();
                 mFormat(buf);
@@ -98,7 +99,7 @@ int editText(char *buf, int lim) {
                 break;
         }
 
-    } while (haveCarrier || onConsole);
+    }
 
     return FALSE;
 
@@ -131,7 +132,6 @@ int getNumber(char *prompt, unsigned bottom, unsigned top) {
 
     do {
 
-        outFlag = OUTOK;
         getString(prompt, numstring, NAMESIZE);
 
         try = atoi(numstring);
@@ -148,8 +148,7 @@ int getNumber(char *prompt, unsigned bottom, unsigned top) {
 
         }
 
-    } while ((try < bottom ||  try > top)&& 
-             (haveCarrier  ||  onConsole));
+    } while ((try < bottom ||  try > top));
 
     return  try;
 
@@ -185,8 +184,6 @@ void getString(char *prompt, char *buf, int lim) {
     char c;
     int  i;
 
-    outFlag = OUTOK;
-
     if (strlen(prompt) > 0) {
 
         doCR();
@@ -196,9 +193,7 @@ void getString(char *prompt, char *buf, int lim) {
 
     i = 0;
 
-    while (c = iChar(), c != NEWLINE && i < lim && (haveCarrier || onConsole)) {
-
-        outFlag = OUTOK;
+    while (c = iChar(), c != NEWLINE && i < lim) {
 
         /* handle delete chars: */
 
@@ -252,28 +247,19 @@ void getString(char *prompt, char *buf, int lim) {
 char getText(char *prompt, char *buf, int lim) {
 
     char c, sysopAbort;
-    int  i, toReturn;
-
-    outFlag = OUTOK;
+    int  i, toReturn, year, month, day;
 
     if (!expert) {
 
         tutorial("entry.blb");
-
-    }
-
-    outFlag = OUTOK;
-
-    if (!expert) {
-
         printf("Enter %s (end with empty line)", prompt);
 
     }
 
-    outFlag = OUTOK;
     doCR();
     printf("   ");
-    printDate(interpret(pGetYear ), interpret(pGetMonth), interpret(pGetDay));
+    getDate(&year, &month, &day);
+    printDate(year, month, day);
 
     if (loggedIn) {
 
@@ -290,64 +276,50 @@ char getText(char *prompt, char *buf, int lim) {
 
     do {
 
-        if (whichIO == MODEM) {
+        /* this code would handle the modem as well...    */
+        /* fastIn() is a later addition to handle people  */
+        /* who like to upload fast without handshaking    */
 
-            fastIn(toReturn == ERROR);
+        while (!((c = iChar()) == NEWLINE && buf[i - 1] == NEWLINE ) && 
+                   i < lim) {
 
-            if (whichIO != MODEM) {
+            if (debug) putChar(visible(c));
 
-                sysopAbort = TRUE;
+            if (c != BACKSPACE) {
 
-            }
+                buf[i++] = c;
 
-        } else {
+            } else {
 
-            /* this code would handle the modem as well...    */
-            /* fastIn() is a later addition to handle people  */
-            /* who like to upload fast without handshaking    */
+                /* handle delete chars: */
+                oChar(' ');
+                oChar(BACKSPACE);
 
-            while (!((c = iChar()) == NEWLINE && buf[i-1] == NEWLINE ) && 
-                   i < lim && (haveCarrier || onConsole)) {
+                if (i > 0 && buf[i-1] != NEWLINE) {
 
-                if (debug) putChar(visible(c));
-
-                if (c != BACKSPACE) {
-
-                    buf[i++] = c;
+                    i--;
 
                 } else {
 
-                    /* handle delete chars: */
-                    oChar(' ');
-                    oChar(BACKSPACE);
-
-                    if (i > 0 && buf[i-1] != NEWLINE) {
-
-                        i--;
-
-                    } else {
-
-                        oChar(BELL);
+                    oChar(BELL);
                         
-                    }
-
                 }
-
-            }
-
-            buf[i] = 0x00;           /* null to terminate message    */
-
-            if (i == lim) {
-
-                printf(" buffer overflow\n ");
 
             }
 
         }
 
+        buf[i] = 0x00;           /* null to terminate message    */
+
+        if (i == lim) {
+
+            printf(" buffer overflow\n ");
+
+        }
+
         toReturn = (sysopAbort) ? FALSE : editText(buf, lim);
 
-    } while ((toReturn == ERROR) && (haveCarrier || onConsole));
+    } while ((toReturn == ERROR));
 
     return toReturn;
 
@@ -360,10 +332,8 @@ char getYesNo(char *prompt) {
 
     int toReturn;
 
-    for (doCR(), toReturn = ERROR; 
-         toReturn == ERROR && (haveCarrier || onConsole);) {
+    for (doCR(), toReturn = ERROR; toReturn == ERROR;) {
 
-        outFlag = OUTOK;
         printf("%s? (Y/N): ", prompt);
 
         switch (toupper(iChar())) {
@@ -576,7 +546,7 @@ char *matchString(char *buf, char *pattern, char *bufEnd) {
     char *loc, *pc1, *pc2;
     char foundIt;
 
-    for (loc = bufEnd, foundIt = FALSE; !foundIt && --loc>=buf;) {
+    for (loc = bufEnd, foundIt = FALSE; !foundIt && --loc >= buf;) {
 
         for (pc1 = pattern, pc2 = loc, foundIt=TRUE;  *pc1 && foundIt;) {
 
@@ -590,7 +560,7 @@ char *matchString(char *buf, char *pattern, char *bufEnd) {
 
     }
 
-    return (foundIt) ? loc : ERROR;
+    return (foundIt) ? loc : NULL;
 
 }
 
@@ -808,7 +778,7 @@ void replaceString(char *buf, int lim) {
 
     getString("string", oldString, (2 * SECTSIZE));
 
-    if ((loc = matchString(buf, oldString, textEnd)) == ERROR) {
+    if ((loc = matchString(buf, oldString, textEnd)) == NULL) {
 
         printf("?not found.\n ");
         return;
@@ -851,8 +821,7 @@ void zapRoomFile(void) {
 
     int i;
 
-    printf("\nWipe room file? ");
-    if (toupper(getCh()) != 'Y') return;
+    if (getYesNo("\nWipe room file")) return
 
     roomBuf.rbflags   = 0;
     roomBuf.rbgen     = 0;

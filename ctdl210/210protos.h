@@ -34,41 +34,28 @@ extern void sortLog(void );
 extern void storeLog(void);
 extern void terminate(char discon);
 extern void zapLogFile(void);
-extern int PWSlot(char *pw);
+extern int  PWSlot(char *pw);
 
 /* 210misc.c */
 
-extern void configure(void);
 extern void doCR(void);
-extern void download(char whichMess, char revOrder);
-extern void patchDebug(void);
-extern void printDate(char year, char month, char day);
-extern int  putFlChar(char c);
-extern int  putWCChar(char c);
-extern int  transmitFile(char *filename);
-extern int  tutorial(char *filename);
-extern void upLoad(void);
 extern char visible(char c);
+extern void configure(void);
+extern int  tutorial(char *filename);
+extern void printDate(int year, int month, int day);
+extern void getDate(int *year, int *month, int *day);
 
 /* 210modem.c */
 
 extern char BBSCharReady(void);
-extern void fastIn(char continuing);
-extern char getCh(void);
-extern char getMod(void);
-extern char iChar(void);
-extern void interact(void);
+extern int  getCh(void);
+extern void putCh(void);
+extern int  iChar(void);
 extern char KBReady(void);
 extern void modemInit(void);
-extern char modIn(void);
-extern void oChar(char c);
-extern void outMod(char c);
 extern void putChar(char c);
-extern int  receive(int seconds);
-extern char readFile(int (*pc)(char));
 extern void ringSysop(void);
-extern int  sendWCChar(int c);
-extern char interpret(char *wanted);
+extern void upLoad(void);
 
 /* 210msg.c */
 

@@ -7,7 +7,7 @@
 #
 CC = gcc
 CFLAGS = -Wall -c 
-OLBS = 210ctdl.a
+OLBS = 210ctdl.a -lncurses
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -rs

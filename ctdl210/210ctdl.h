@@ -237,6 +237,7 @@ struct logBuffer {
     char      lbnulls;            /* #nulls, lCase, lFeeds                */
     char      lbflags;            /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
     char      lbwidth;            /* terminal width                       */
+    char      lbheight;           /* terminal height                      */
     char      lbname[NAMESIZE];   /* caller's name                        */
     char      lbpw[NAMESIZE];     /* caller's password                    */
     char      lbgen[MAXROOMS];    /* 6 bits gen, two bits lastvisit       */
@@ -246,7 +247,7 @@ struct logBuffer {
 #ifdef TEST
     char      lbOverFlow[256];
 #else
-    char      lbOverFlow[84];
+    char      lbOverFlow[83];
 #endif
 } logBuf;
 
@@ -272,7 +273,6 @@ char loggedIn;          /* global have-caller flag */
 
 #define MONTHOFFSET 32  /* for packing month and year in a byte */
 char *monthTab[13];     /* month names (we don't use loc 0)     */
-char filter[128];       /* input character translation table    */
 
 char prevChar;          /* for EOLN/EOParagraph stuff           */
 char expert;            /* true to suppress hints & noise       */

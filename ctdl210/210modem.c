@@ -81,6 +81,7 @@ char BBSCharReady(void) {
 /************************************************************************/
 int getCh(void) {
 
+    doupdate();
     return (int)getch();
 
 }
@@ -90,7 +91,7 @@ int getCh(void) {
 /*    iChar() is the top-level user-input function -- this is the       */
 /*    function the rest of Citadel uses to obtain user input            */
 /************************************************************************/
-char iChar(void) {
+int iChar(void) {
 
     return (int)getch();
 
@@ -104,7 +105,7 @@ char KBReady(void) {
     chtype ch;
     char stat = ERR;
 
-    if ((ch = getch()) != ERR) {
+    if ((ch = getCh()) != ERR) {
 
         ungetch(ch);
         stat = OK;
@@ -151,7 +152,8 @@ void modemInit(void) {
 /************************************************************************/
 void oChar(char c) {
 
-   addch((chtype)c);
+    addch((chtype)c);
+    wnoutrefresh(stdscr);
 
 }
 
@@ -163,6 +165,7 @@ void putChar(char c) {
     if (thisRoom != 1) {
 
         addch((chtype)c);
+        wnoutrefresh(stdscr);
 
     }
 
@@ -174,7 +177,7 @@ void putChar(char c) {
 /************************************************************************/
 void ringSysop(void) {
 
-    printf("\n Ringing sysop.\n ");
+    putString("\n Ringing sysop.\n ");
 
 }
 
@@ -182,7 +185,7 @@ void ringSysop(void) {
 /************************************************************************/
 void upLoad(void) {
 
-    printf("not implemented\n ");
+    putString("not implemented\n ");
 
 }
 

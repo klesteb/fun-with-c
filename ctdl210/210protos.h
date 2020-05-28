@@ -42,6 +42,7 @@ extern void doCR(void);
 extern char visible(char c);
 extern void configure(void);
 extern int  tutorial(char *filename);
+extern void putString(char *format, ...);
 extern void printDate(int year, int month, int day);
 extern void getDate(int *year, int *month, int *day);
 
@@ -51,6 +52,7 @@ extern char BBSCharReady(void);
 extern int  getCh(void);
 extern void putCh(void);
 extern int  iChar(void);
+extern void oChar(char);
 extern char KBReady(void);
 extern void modemInit(void);
 extern void putChar(char c);
@@ -90,39 +92,40 @@ extern void noteMessage(struct logBuffer *lBuf, int logNo);
 
 /* 210rooma.c */
 
-extern void dumpRoom(void);
-extern int  fileDir(char *fileName);
-extern char gotoRoom(char *nam);
 extern void init(void);
-extern void initCitadel(void);
-extern void listRooms(char doDull);
-extern void openFile(char *filename, int *fd);
-extern int  roomExists(char *room);
-extern void setSpace(char disk, char user);
-extern void setUp(char justIn);
 extern void systat(void);
-extern void unspace(char *from, char *to);
-extern void wildCard(int (*fn)(char *), char *filename);
+extern void dumpRoom(void);
+extern void initCitadel(void);
 extern void fillMailRoom(void);
+extern void setUp(char justIn);
+extern char gotoRoom(char *nam);
+extern int  roomExists(char *room);
+extern void listRooms(char doDull);
+extern int  fileDir(char *fileName);
+extern void unspace(char *from, char *to);
+extern void setSpace(char disk, char user);
+extern void openFile(char *filename, int *fd);
+extern void wildCard(int (*fn)(char *), char *filename);
 
 /* 210roomb.c */
 
-extern int  editText(char *buf, int lim);
 extern int  findRoom(void);
-extern int  getNumber(char *prompt, unsigned bottom, unsigned top);
-extern void getRoom(int rm, struct roomBuffer *buf);
-extern void getString(char *prompt, char *buf, int lim);
-extern char getText(char *prompt, char *buf, int lim);
-extern char getYesNo(char *prompt);
+extern void makeRoom(void);
+extern void noteRoom(void);
 extern void givePrompt(void);
 extern void indexRooms(void);
-extern void makeRoom(void);
-extern char *matchString(char *buf, char *pattern, char *bufEnd);
-extern void normalizeString(char *s);
-extern void noteRoom(void);
-extern void putRoom(int rm, struct roomBuffer *buf);
 extern int  renameRoom(void);
+extern void zapRoomFile(void);
+extern char getYesNo(char *prompt);
+extern void normalizeString(char *s);
+extern int  editText(char *buf, int lim);
 extern void replaceString(char *buf, int lim);
+extern void getRoom(int rm, struct roomBuffer *buf);
+extern void putRoom(int rm, struct roomBuffer *buf);
+extern char getText(char *prompt, char *buf, int lim);
+extern void getString(char *prompt, char *buf, int lim);
+extern char *matchString(char *buf, char *pattern, char *bufEnd);
+extern int  getNumber(char *prompt, unsigned bottom, unsigned top);
 
 #endif
 

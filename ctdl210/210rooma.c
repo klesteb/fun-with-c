@@ -30,8 +30,7 @@
 /*    fileDir()      prints out a filename for a dir listing            */
 /*    fillMailRoom() set up Mail> from log record                       */
 /*    gotoRoom()     handles "g(oto)" command for menu                  */
-/*    init()         system startup initialization                      */
-/*    initCitadel()                                                     */
+/*    initCitadel()  system startup initialization                      */
 /*    initSysop()                                                       */
 /*    listRooms()    lists known rooms                                  */
 /*    openFile()     opens a .sys file                                  */
@@ -88,11 +87,11 @@ void dumpRoom(void) {
 
     }
 
-    printf(" %d messages\n ", count);
+    putString(" %d messages\n ", count);
 
     if (loggedIn && newCount > 0) {
 
-        printf(" %d new\n", newCount);
+        putString(" %d new\n", newCount);
 
     }
 
@@ -195,7 +194,7 @@ char gotoRoom(char *nam) {
         }
         
         getRoom(foundit, &roomBuf);
-        printf("%s\n ", roomBuf.rbname);
+        putString("%s\n ", roomBuf.rbname);
         
     } else {
 
@@ -204,7 +203,7 @@ char gotoRoom(char *nam) {
         if ((roomNo = roomExists(nam)) == ERROR ||
             (roomNo==AIDEROOM  &&  !aide)) {
             
-            printf(" ?no %s room\n", nam);
+            putString(" ?no %s room\n", nam);
 
         } else {
             
@@ -239,9 +238,9 @@ char gotoRoom(char *nam) {
 }
 
 /************************************************************************/
-/*    init() -- master system initialization                            */
+/*    initCitadel() does not reformat data files                        */
 /************************************************************************/
-void init(void) {
+void initCitadel(void) {
     
     char *msgFile;
 
@@ -291,16 +290,6 @@ void init(void) {
     openFile("ctdllog.sys",  &logfl);
 
     getRoom(0, &roomBuf);    /* load Lobby>    */
-    modemInit();
-
-}
-
-/************************************************************************/
-/*    initCitadel() does not reformat data files                        */
-/************************************************************************/
-void initCitadel(void) {
-    
-    setUp(FALSE);
 
 }
 
@@ -316,7 +305,7 @@ void listRooms(char doDull) {
 
     shownHidden = FALSE;
     boringRooms = FALSE;
-    printf("\n Rooms with unread messages:\n ");
+    putString("\n Rooms with unread messages:\n ");
 
     for (doBoringRooms = FALSE; doBoringRooms <= doDull; doBoringRooms++) {
 
@@ -364,7 +353,7 @@ void listRooms(char doDull) {
 
                     }
 
-                    printf(" %s", str);
+                    putString(" %s", str);
 
                 }
 
@@ -374,13 +363,13 @@ void listRooms(char doDull) {
 
         if (boringRooms && !doBoringRooms && doDull) {
 
-            printf("\n No unseen msgs in:\n ");
+            putString("\n No unseen msgs in:\n ");
 
         }
 
     }
 
-    if (!expert && shownHidden) printf("\n \n * => hidden room\n ");
+    if (!expert && shownHidden) putString("\n \n * => hidden room\n ");
 
 }
 
@@ -393,7 +382,7 @@ void openFile(char *filename, int *fd) {
 
     if ((*fd = open(filename, O_RDWR)) == ERROR) {
 
-        printf("?no %s", filename);
+        putString("?no %s", filename);
         exit(EXIT_FAILURE);
 
     }
@@ -596,10 +585,10 @@ void systat(void) {
     printDate(year, month, day);
 
 #ifdef XYZZY
-    if (debug) printf(" *catChar=%d catSector=%d\n*", catChar, catSector);
+    if (debug) putString(" *catChar=%d catSector=%d\n*", catChar, catSector);
 #endif
 
-    printf("\n Width %d, %s%slinefeeds, %d nulls\n",
+    putString("\n Width %d, %s%slinefeeds, %d nulls\n",
            termWidth,
            termUpper ? "UPPERCASE ONLY, " : "",
            termLF    ? ""                 : "no ",
@@ -607,7 +596,7 @@ void systat(void) {
     );
 
 #ifdef XYZZY
-    if (debug) printf(" *lowId=%u %u, highId=%u %u\n*",
+    if (debug) putString(" *lowId=%u %u, highId=%u %u\n*",
                       oldestHi, oldestLo,
                       newestHi, newestLo
     );
@@ -615,25 +604,25 @@ void systat(void) {
 
     if (loggedIn) {
         
-        printf(" Logged in as %s\n", logBuf.lbname);
+        putString(" Logged in as %s\n", logBuf.lbname);
 #ifdef XYZZY
         if (debug) {
             for (i=0; i<MAXVISIT; i++) {
-                printf("lbvisit[%d]=%u\n", i, logBuf.lbvisit[i]);
+                putString("lbvisit[%d]=%u\n", i, logBuf.lbvisit[i]);
             }
-            printf("lbgen>>GENSHIFT==%d; roomTab.rtgen==%d; roomBuf.rbgen==%d\n"
+            putString("lbgen>>GENSHIFT==%d; roomTab.rtgen==%d; roomBuf.rbgen==%d\n"
                    , logBuf.lbgen[thisRoom]>>GENSHIFT, roomTab[thisRoom].rtgen,
                    roomBuf.rbgen
                    );
-            printf("lbgen&CALLMASK==%d\n", logBuf.lbgen[thisRoom]&CALLMASK);
+            putString("lbgen&CALLMASK==%d\n", logBuf.lbgen[thisRoom]&CALLMASK);
         }
 #endif
     }
 
-    printf(" %d messages,",         newestLo - oldestLo + 1);
-    printf(" last is %u %u,\n",     newestHi, newestLo);
-    printf(" %dK message space,\n", maxMSector >> 3);
-    printf(" %d-entry log\n",       MAXLOGTAB);
+    putString(" %d messages,",         newestLo - oldestLo + 1);
+    putString(" last is %u %u,\n",     newestHi, newestLo);
+    putString(" %dK message space,\n", maxMSector >> 3);
+    putString(" %d-entry log\n",       MAXLOGTAB);
     
 }
 

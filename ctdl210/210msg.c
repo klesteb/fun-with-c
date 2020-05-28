@@ -280,7 +280,7 @@ void flushMsgBuf(void) {
     errno = 0;
     if (write(msgfl, sectBuf, 1) != 1) {
         
-        printf("?ctdlmsg.sys write fail, reason; %d", errno);
+        putString("?ctdlmsg.sys write fail, reason; %d", errno);
 
     }
 
@@ -376,7 +376,7 @@ char getMsgChar(void) {
 
         if (read(msgfl, sectBuf, 1) >= 1000) {
 
-            printf("?nextMsgChar-read fail");
+            putString("?nextMsgChar-read fail");
 
         }
 
@@ -513,7 +513,7 @@ int makeMessage(char uploading) {
         if (!loggedIn) {
 
             strcpy(msgBuf.mbto, "Sysop");
-            printf(" (private mail to 'sysop')\n ");
+            putString(" (private mail to 'sysop')\n ");
 
         } else {
 
@@ -523,7 +523,7 @@ int makeMessage(char uploading) {
 
             if (logNo == ERROR && hash(msgBuf.mbto) != hash("Sysop")) {
 
-                printf("No '%s' known", msgBuf.mbto);
+                putString("No '%s' known", msgBuf.mbto);
                 return FALSE;
 
             }
@@ -601,7 +601,7 @@ void mPeek(void) {
 
     for (row = 0; row < 2; row++) {
 
-        printf("\n ");
+        putString("\n ");
 
         for (col = 0; col < 64; col++) {
         
@@ -627,7 +627,7 @@ void msgInit(void) {
     /* get the ID# */
 
     sscanf(msgBuf.mbId, "%d %d", &firstHi, &firstLo);
-    printf("message# %d %d\n", firstHi, firstLo);
+    putString("message# %d %d\n", firstHi, firstLo);
 
     newestHi = firstHi;
     newestLo = firstLo;
@@ -645,7 +645,7 @@ void msgInit(void) {
 
     ) {
 
-        printf("message# %d %d\n", hereHi, hereLo);
+        putString("message# %d %d\n", hereHi, hereLo);
 
         /* find highest and lowest message IDs: */
         /* 32-bit "<" by hand: */
@@ -655,7 +655,7 @@ void msgInit(void) {
             oldestHi = hereHi;
             oldestLo = hereLo;
 
-            printf(" oldest=%u %u\n", oldestHi, oldestLo);
+            putString(" oldest=%u %u\n", oldestHi, oldestLo);
 
         }
 
@@ -664,7 +664,7 @@ void msgInit(void) {
             newestHi = hereHi;
             newestLo = hereLo;
 
-            printf(" newest=%u %u\n", newestHi, newestLo);
+            putString(" newest=%u %u\n", newestHi, newestLo);
 
             /* read rest of message in and remember where it ends,    */
             /* in case it turns out to be the last message        */
@@ -821,9 +821,9 @@ void printMessage(int loc, unsigned id) {
 
     if (hereLo != id) {
 
-        printf("?can't find message");
+        putString("?can't find message");
 #ifdef XYZZY
-        printf(" loc=%d, id=%u, mbIds=%s, here=%d %d\n",
+        putString(" loc=%d, id=%u, mbIds=%s, here=%d %d\n",
                loc, id, msgBuf.mbId, &hereHi, &hereLo);
 #endif
 
@@ -833,20 +833,20 @@ void printMessage(int loc, unsigned id) {
 
     doCR();
 
-    if (msgBuf.mbdate[0])  printf(    "   %s ",  msgBuf.mbdate);
-    if (msgBuf.mbauth[0])  printf(    "from %s", msgBuf.mbauth);
-    if (msgBuf.mboname[0]) printf(    " @%s",    msgBuf.mboname);
+    if (msgBuf.mbdate[0])  putString(    "   %s ",  msgBuf.mbdate);
+    if (msgBuf.mbauth[0])  putString(    "from %s", msgBuf.mbauth);
+    if (msgBuf.mboname[0]) putString(    " @%s",    msgBuf.mboname);
 
     if (msgBuf.mbroom[0] &&
         strcmp(msgBuf.mbroom, roomBuf.rbname) != SAMESTRING) {
             
-        printf(                " in %s>",    msgBuf.mbroom);
+        putString(                " in %s>",    msgBuf.mbroom);
             
     }
 
     if (msgBuf.mbto[0]) {
 
-        printf(    " to %s", msgBuf.mbto);
+        putString(    " to %s", msgBuf.mbto);
 
     }
 
@@ -901,7 +901,7 @@ void pullIt(int m) {
 
     /* note in Aide>: */
 
-    printf(msgBuf.mbtext, "Following message deleted by %s:", logBuf.lbname);
+    putString(msgBuf.mbtext, "Following message deleted by %s:", logBuf.lbname);
     aideMessage( /* noteDeletedMessage== */ TRUE);
 
 }
@@ -1017,7 +1017,7 @@ int putMsgChar(char c) {
 
         if (write(msgfl, sectBuf, 1) != 1) {
 
-            printf("?putMsgChar-rwrite fail");
+            putString("?putMsgChar-rwrite fail");
             toReturn    = ERROR;
 
         }
@@ -1027,7 +1027,7 @@ int putMsgChar(char c) {
 
         if (read(msgfl, sectBuf, 1) >= 1000) {
 
-            printf("?putMsgChar-rread fail");
+            putString("?putMsgChar-rread fail");
             toReturn = ERROR;
 
         }
@@ -1134,7 +1134,7 @@ void showMessages(char whichMess, char revOrder) {
 
     if (!expert)  {
 
-        printf("\n <J>ump <N>ext <P>ause <S>top");
+        putString("\n <J>ump <N>ext <P>ause <S>top");
 
     }
 
@@ -1179,7 +1179,7 @@ void startAt(int sect, int byt) {
 
     if (sect >= maxMSector) {
 
-        printf("?startAt s=%d,b=%d", sect, byt);
+        putString("?startAt s=%d,b=%d", sect, byt);
         return;
 
     }
@@ -1191,7 +1191,7 @@ void startAt(int sect, int byt) {
 
     if (read(msgfl, sectBuf, 1) >= 1000) {
 
-        printf("?startAt rread fail");
+        putString("?startAt rread fail");
 
     }
 
@@ -1234,7 +1234,7 @@ void zapMsgFile(void) {
 
     if ((val = write(msgfl, sectBuf, 1)) != 1) {
 
-        printf("zapMsgFil: rwrite failed, %d records!\n", val);
+        putString("zapMsgFil: rwrite failed, %d records!\n", val);
 
     }
 
@@ -1248,7 +1248,7 @@ void zapMsgFile(void) {
 
         if ((val = write(msgfl, sectBuf, 1)) != 1) {
 
-            printf("zapMsgFil: rwrite failed, wrote %d records!\n", val);
+            putString("zapMsgFil: rwrite failed, wrote %d records!\n", val);
 
         }
 

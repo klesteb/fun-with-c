@@ -67,32 +67,32 @@ int editText(char *buf, int lim) {
 
     for (;;) {
 
-        printf("\n entry cmd: ");
+        putString("\n entry cmd: ");
 
         switch (c = toupper(iChar())) {
             case 'A':
-                printf("bort\n ");
+                putString("bort\n ");
                 if (getYesNo(" confirm")) return FALSE;
                 break;
             case 'C':
-                printf("ontinue\n ");
+                putString("ontinue\n ");
                 return ERROR;
             case 'P':
-                printf("rint formatted\n ");
+                putString("rint formatted\n ");
                 doCR();
-                printf("   ");
+                putString("   ");
                 getDate(&year, &month, &day);
                 printDate(year, month, day);
-                if (loggedIn)  printf(" from %s", msgBuf.mbauth);
+                if (loggedIn)  putString(" from %s", msgBuf.mbauth);
                 doCR();
                 mFormat(buf);
                 break;
             case 'R':
-                printf("eplace string\n ");
+                putString("eplace string\n ");
                 replaceString(buf, lim);
                 break;
             case 'S':
-                printf("ave buffer\n ");
+                putString("ave buffer\n ");
                 return TRUE;
             default:
                 tutorial("edit.mnu");
@@ -138,13 +138,13 @@ int getNumber(char *prompt, unsigned bottom, unsigned top) {
 
         if (try < bottom) {
 
-            printf("Sorry, must be at least %d\n", bottom);
+            putString("Sorry, must be at least %d\n", bottom);
 
         }
 
         if (try > top) {
 
-            printf("Sorry, must be no more than %d\n", top);
+            putString("Sorry, must be no more than %d\n", top);
 
         }
 
@@ -168,7 +168,7 @@ void getRoom(int rm, struct roomBuffer *buf) {
 
     if ((val = read(roomfl, &roomBuf, SECSPERROOM)) >= 1000) {
 
-        printf(" ?getRoom(): rread failed, val=%d\n", val);
+        putString(" ?getRoom(): rread failed, val=%d\n", val);
 
     }
 
@@ -187,7 +187,7 @@ void getString(char *prompt, char *buf, int lim) {
     if (strlen(prompt) > 0) {
 
         doCR();
-        printf("Enter %s\n : ", prompt);
+        putString("Enter %s\n : ", prompt);
 
     }
 
@@ -252,18 +252,18 @@ char getText(char *prompt, char *buf, int lim) {
     if (!expert) {
 
         tutorial("entry.blb");
-        printf("Enter %s (end with empty line)", prompt);
+        putString("Enter %s (end with empty line)", prompt);
 
     }
 
     doCR();
-    printf("   ");
+    putString("   ");
     getDate(&year, &month, &day);
     printDate(year, month, day);
 
     if (loggedIn) {
 
-        printf("from %s", msgBuf.mbauth);
+        putString("from %s", msgBuf.mbauth);
 
     }
 
@@ -313,7 +313,7 @@ char getText(char *prompt, char *buf, int lim) {
 
         if (i == lim) {
 
-            printf(" buffer overflow\n ");
+            putString(" buffer overflow\n ");
 
         }
 
@@ -334,7 +334,7 @@ char getYesNo(char *prompt) {
 
     for (doCR(), toReturn = ERROR; toReturn == ERROR;) {
 
-        printf("%s? (Y/N): ", prompt);
+        putString("%s? (Y/N): ", prompt);
 
         switch (toupper(iChar())) {
             case 'Y': toReturn = TRUE ; break;
@@ -358,17 +358,17 @@ void givePrompt(void) {
 
     if (loggedIn) {
 
-        printf("(%s)\n", logBuf.lbname);
+        putString("(%s)\n", logBuf.lbname);
 
     }
 
     if (roomBuf.rbflags & CPMDIR) {
 
-        printf("%s] ", roomBuf.rbname);
+        putString("%s] ", roomBuf.rbname);
 
     } else {
 
-        printf("%s> ", roomBuf.rbname);
+        putString("%s> ", roomBuf.rbname);
 
     }
 
@@ -426,7 +426,7 @@ void indexRooms(void) {
 
     }
 #ifdef XYZZY
-    printf(" %d of %d rooms in use\n", roomCount, MAXROOMS);
+    putString(" %d of %d rooms in use\n", roomCount, MAXROOMS);
 #endif
 }
 
@@ -451,7 +451,7 @@ void makeRoom(void) {
 
         if ((thisRoom = findRoom()) == ERROR) {
 
-            printf(" ?no room");
+            putString(" ?no room");
 
             /* may have reclaimed old room, so: */
 
@@ -473,7 +473,7 @@ void makeRoom(void) {
 
     if (roomExists(nm) >= 0) {
 
-        printf(" A '%s' already exists.\n", nm);
+        putString(" A '%s' already exists.\n", nm);
 
         /* may have reclaimed old room, so: */
 
@@ -498,7 +498,7 @@ void makeRoom(void) {
 
     }
 
-    printf("'%s', a %s room", 
+    putString("'%s', a %s room", 
            nm, (roomBuf.rbflags & PUBLIC) ? "public" : "private" );
 
     if (!getYesNo("Install it")) {
@@ -648,7 +648,7 @@ void putRoom(int rm, struct roomBuffer *buf) {
 
     if ((val = write(roomfl, &roomBuf, SECSPERROOM)) != SECSPERROOM) {
 
-        printf("?putRoom()%d", val);
+        putString("?putRoom()%d", val);
 
     }
 
@@ -670,7 +670,7 @@ int renameRoom(void) {
 
     if (thisRoom == LOBBY || thisRoom == MAILROOM || thisRoom == AIDEROOM) {
 
-        printf("? -- may not edit this room.\n ");
+        putString("? -- may not edit this room.\n ");
         return FALSE;
 
     }
@@ -689,7 +689,7 @@ int renameRoom(void) {
 
         if (r >= 0 && r != thisRoom) {
 
-            printf("A %s exists already!\n", nm);
+            putString("A %s exists already!\n", nm);
 
         } else {
 
@@ -699,11 +699,11 @@ int renameRoom(void) {
 
     }
 
-    printf("%s, ", (roomBuf.rbflags & PUBLIC) ? "public" : "private");
-    printf("%s, ", (roomBuf.rbflags & PERMROOM) ? " permanent" : " temporary");
+    putString("%s, ", (roomBuf.rbflags & PUBLIC) ? "public" : "private");
+    putString("%s, ", (roomBuf.rbflags & PERMROOM) ? " permanent" : " temporary");
 
     wasDirectory = roomBuf.rbflags & CPMDIR;
-    printf("%sdirectory room\n ", (wasDirectory) ? "" : "non");
+    putString("%sdirectory room\n ", (wasDirectory) ? "" : "non");
 
     roomBuf.rbflags = INUSE;
 
@@ -725,7 +725,7 @@ int renameRoom(void) {
 
         roomBuf.rbflags |= CPMDIR;
 
-        printf(" now space %c%c\n", 'A'+roomBuf.rbdisk, '0'+roomBuf.rbuser);
+        putString(" now space %c%c\n", 'A'+roomBuf.rbdisk, '0'+roomBuf.rbuser);
 
         for (goodOne = FALSE; !goodOne;) {
 
@@ -739,14 +739,14 @@ int renameRoom(void) {
 
             } else {
 
-                printf("?");
+                putString("?");
 
             }
 
         }
 
         roomBuf.rbuser = getNumber("user", 0, 31);
-        printf(" space %c%c\n", 'A'+roomBuf.rbdisk, '0'+roomBuf.rbuser);
+        putString(" space %c%c\n", 'A'+roomBuf.rbdisk, '0'+roomBuf.rbuser);
 
     }
 
@@ -780,7 +780,7 @@ void replaceString(char *buf, int lim) {
 
     if ((loc = matchString(buf, oldString, textEnd)) == NULL) {
 
-        printf("?not found.\n ");
+        putString("?not found.\n ");
         return;
 
     }
@@ -789,7 +789,7 @@ void replaceString(char *buf, int lim) {
 
     if ((strlen(newString) - strlen(oldString)) >= (&buf[lim] - textEnd)) {
 
-        printf("?Overflow!\n ");
+        putString("?Overflow!\n ");
         return;
 
     }
@@ -821,7 +821,7 @@ void zapRoomFile(void) {
 
     int i;
 
-    if (getYesNo("\nWipe room file")) return
+    if (getYesNo("\nWipe room file")) return;
 
     roomBuf.rbflags   = 0;
     roomBuf.rbgen     = 0;
@@ -835,11 +835,11 @@ void zapRoomFile(void) {
 
     }
 
-    printf("maxrooms = %d\n", MAXROOMS);
+    putString("maxrooms = %d\n", MAXROOMS);
 
     for (i = 0; i < MAXROOMS; i++) {
 
-        printf("clearing room %d\n", i);
+        putString("clearing room %d\n", i);
         putRoom(i, &roomBuf);
 
     }

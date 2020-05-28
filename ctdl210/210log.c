@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <ncurses.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -86,7 +87,7 @@ void getLog(struct logBuffer *lBuf, int n) {
 
     if (read(logfl, lBuf, SECSPERLOG) >= 1000) {
 
-        printf("?getLog-rread fail");
+        putString("?getLog-rread fail");
 
     }
 
@@ -125,7 +126,7 @@ void login(char *password) {
 
         /* recite caller's name, etc:     */
 
-        printf(" %s\n", logBuf.lbname);
+        putString(" %s\n", logBuf.lbname);
 
         /* update userlog entries: */
 
@@ -141,7 +142,7 @@ void login(char *password) {
             logBuf.lbId[MAILSLOTS-1] - oldestLo < 0x8000 &&
             thisRoom != MAILROOM) {
 
-            printf("\n  * You have private mail in Mail> *\n ");
+            putString("\n  * You have private mail in Mail> *\n ");
 
         }
 
@@ -153,7 +154,7 @@ void login(char *password) {
 
         if (!unlogLoginOk) {
 
-            printf(" No record -- leave message to 'sysop' in Mail>\n ");
+            putString(" No record -- leave message to 'sysop' in Mail>\n ");
 
         } else if (getYesNo(" No record: Enter as new user")) {
 
@@ -187,7 +188,7 @@ void logInit(void) {
 
     for (thisLog = 0; thisLog < MAXLOGTAB; thisLog++) {
 
-        printf("log#%d\n", thisLog);
+        putString("log#%d\n", thisLog);
         getLog(&logBuf, thisLog);
 
         /* count valid entries:         */
@@ -203,7 +204,7 @@ void logInit(void) {
 
     }
 
-    printf(" logInit--%d valid log entries\n", count);
+    putString(" logInit--%d valid log entries\n", count);
     sortLog();
 
 }
@@ -233,7 +234,7 @@ void newPW(void) {
         /* check that PW isn't already claimed: */
         goodPW = (PWSlot(pw) == ERROR && strlen(pw) >= 2);
 
-        if (!goodPW) printf("\n Poor password\n ");
+        if (!goodPW) putString("\n Poor password\n ");
 
     } while ((strlen(pw) < 2 || !goodPW ));
 
@@ -249,8 +250,8 @@ void newPW(void) {
 
     }
 
-    printf("\n %s\n pw: ", logBuf.lbname);
-    printf("%s\n ", logBuf.lbpw);
+    putString("\n %s\n pw: ", logBuf.lbname);
+    putString("%s\n ", logBuf.lbpw);
 
     doCR();
 
@@ -296,7 +297,7 @@ void newUser(void) {
             
             /* lie sometimes -- hash collision !=> name collision */
             
-            if (!good) printf("We already have a %s\n", fullnm);
+            if (!good) putString("We already have a %s\n", fullnm);
             
         } while (!good);
 
@@ -316,14 +317,14 @@ void newUser(void) {
 
             if (!h) good = FALSE;
             if (!good) {
-                printf("\n Poor password\n ");
+                putString("\n Poor password\n ");
             }
 
         } while( !good);
 
-        printf("\n nm: %s", fullnm);
-        printf("\n pw: ");
-        printf("%s\n ", pw);
+        putString("\n nm: %s", fullnm);
+        putString("\n pw: ");
+        putString("%s\n ", pw);
 
     } while (!getYesNo("OK"));
 
@@ -435,7 +436,7 @@ void putLog(struct logBuffer *lBuf, int n) {
 
     if (write(logfl, lBuf, SECSPERLOG) != SECSPERLOG) {
 
-        printf("?putLog-rwrite fail");
+        putString("?putLog-rwrite fail");
 
     }
 
@@ -512,11 +513,11 @@ void sortLog(void ) {
     char *temp[TSIZE];
     int finis, i, intCount, step;
 
-    printf("sortLog...\n");
+    putString("sortLog...\n");
 
     if (sizeLTentry > TSIZE) {
 
-        printf("!!!increase TSIZE in sortLog to %d\n", sizeLTentry);
+        putString("!!!increase TSIZE in sortLog to %d\n", sizeLTentry);
 
     }
 
@@ -533,7 +534,7 @@ void sortLog(void ) {
 
         finis = TRUE;
 
-        printf("stepsize=%d\n", step);
+        putString("stepsize=%d\n", step);
 
         for(i = step; i < MAXLOGTAB; i++) {
             
@@ -554,7 +555,7 @@ void sortLog(void ) {
 
     }
 
-    printf("sortLog: %d interchanges\n", intCount);
+    putString("sortLog: %d interchanges\n", intCount);
 
 }
 
@@ -588,14 +589,15 @@ void terminate(char discon) {
     /* 4.  returns no values                             */
     /*          modified    dvm 9-82                     */
 
-    printf(" %s logged out\n ", logBuf.lbname);
+    putString(" %s logged out\n ", logBuf.lbname);
 
     logBuf.lbgen[thisRoom] = roomBuf.rbgen << GENSHIFT;
 
     storeLog();
     loggedIn = FALSE;
     setUp(TRUE);
-
+    endwin();
+    
 }
 
 /************************************************************************/

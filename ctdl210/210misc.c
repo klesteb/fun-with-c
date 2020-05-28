@@ -23,6 +23,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <stdarg.h>
+#include <ncurses.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -35,19 +37,20 @@
 /*    printDate()    prints out date                                    */
 /*    tutorial()     prints a .hlp file                                 */
 /*    visible()      convert control chars to letters                   */
+/*    putString()    print string                                       */
 /************************************************************************/
 
 /************************************************************************/
 /*    configure() sets up terminal width etc via dialogue               */
 /************************************************************************/
 void configure(void) {
-    
+
     termWidth = getNumber(" Screen width", 10, 255);
     termNulls = getNumber(" #Nulls", 0, 255);
     termUpper = getYesNo(" Uppercase only") ? UCMASK : 0;
     termLF    = getYesNo(" Linefeeds") ? LFMASK : 0;
     /* termTab    = getYesNo(" Tabs") ? TABMASK : 0; */
-    expert     =!getYesNo(" Helpful hints") ? EXPERT : 0;
+    expert    = !getYesNo(" Helpful hints") ? EXPERT : 0;
 
 }
 
@@ -56,7 +59,7 @@ void configure(void) {
 /************************************************************************/
 void doCR(void) {
 
-    printf("\n");
+    putString("\n");
 
 }
 
@@ -65,7 +68,7 @@ void doCR(void) {
 /************************************************************************/
 void printDate(int year, int month, int day) {
 
-    printf("%d%s%02d ", year, monthTab[month], day);
+    putString("%d%s%02d ", year, monthTab[month], day);
 
 }
 
@@ -84,6 +87,34 @@ void getDate(int *year, int *month, int *day) {
 }
 
 /************************************************************************/
+/*    putString() print out a string                                    */
+/************************************************************************/
+void putString(char *format, ...) {
+#define MAXWORD 256
+
+    int n;
+    int row;
+    int col;
+    va_list ap;
+    char string[MAXWORD];
+
+    va_start(ap, format);
+    n = vsnprintf(string, MAXWORD, format, ap);
+    va_end(ap);
+
+    getyx(stdscr, row, col);
+    if (row > 23) {
+
+        scrl(1);
+
+    }
+
+    printw(string);
+    wnoutrefresh(stdscr);
+
+}
+
+/************************************************************************/
 /*    tutorial() prints file <filename> on the modem & console          */
 /*    Returns:    TRUE on success else ERROR                            */
 /************************************************************************/
@@ -98,23 +129,23 @@ int tutorial(char *filename) {
 
     if ((fp = fopen(filename, "r+")) == NULL) {
 
-        printf("\n No %s.\n", filename);
+        putString("\n No %s.\n", filename);
         toReturn = ERROR;
-        
+
     } else {
 
         if (!expert) {
-        
-            printf("\n <J>ump <P>ause <S>top\n");
-        
+
+            putString("\n <J>ump <P>ause <S>top\n");
+
         }
 
-        printf(" \n");
+        putString(" \n");
 
         while (fgets(line, MAXWORD, fp)) {
-        
-            printf("%s", line);
-        
+
+            putString("%s", line);
+
         }
 
         fclose(fp);

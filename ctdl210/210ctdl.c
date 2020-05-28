@@ -55,13 +55,13 @@ char doAide(char moreYet, char first) {
 
     if (moreYet) first = '\0';
 
-    printf("ide special fn: ");
+    putString("ide special fn: ");
 
     if (first) oChar(first);
 
     switch (toupper(  first ? first : iChar() )) {
         case 'D':
-            printf("elete empty rooms\n ");
+            putString("elete empty rooms\n ");
             strcpy(oldName, roomBuf.rbname);
             indexRooms();
 
@@ -79,7 +79,7 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage== */ FALSE );
             break;
         case 'E':
-            printf("dit room\n  \n");
+            putString("dit room\n  \n");
             strcpy(oldName, roomBuf.rbname);
             if (!renameRoom())   break;
             sprintf(
@@ -92,9 +92,9 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage == */ FALSE);
             break;
         case 'I':
-            printf("nsert message\n ");
+            putString("nsert message\n ");
             if (thisRoom == AIDEROOM || pulledMLoc == ERROR)   {
-                printf("nope!");
+                putString("nope!");
                 break;
             }
             note2Message(pulledMId, pulledMLoc);
@@ -109,11 +109,11 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage == */ TRUE);
             break;
         case 'K':
-            printf("ill room\n ");
+            putString("ill room\n ");
             if (thisRoom == LOBBY || 
                 thisRoom == MAILROOM || 
                 thisRoom == AIDEROOM ) {
-                printf(" not here!");
+                putString(" not here!");
                 break;
             }
             if (!getYesNo("confirm")) break;
@@ -135,8 +135,8 @@ char doAide(char moreYet, char first) {
             tutorial("aide.mnu");
             break;
         default:
-            if (!expert) printf(" ?(Type '?' for menu)\n "    );
-            else printf(" ?\n "             );
+            if (!expert) putString(" ?(Type '?' for menu)\n "    );
+            else putString(" ?\n "             );
            break;
     }
 
@@ -151,7 +151,7 @@ void doChat(char moreYet, char first) {
 /* moreYet - TRUE to accept following parameters */
 /* first -   first paramter if TRUE              */
 
-    printf("not implemented yet\n");
+    putString("not implemented yet\n");
     
 }
 
@@ -179,11 +179,11 @@ void doEnter(char moreYet, char first) {
     WC    = FALSE;
     what  = MESSAGE;
 
-    printf("nter ");
+    putString("nter ");
 
     if (!loggedIn && !unlogLoginOk && thisRoom != MAILROOM) {
         
-        printf("--Must log in to enter (except in Mail>)\n ");
+        putString("--Must log in to enter (except in Mail>)\n ");
         return;
 
     }
@@ -199,13 +199,13 @@ void doEnter(char moreYet, char first) {
                break;
             case 'F':
                 if (roomBuf.rbflags & CPMDIR) {
-                    printf("ile upload ");
+                    putString("ile upload ");
                     what = FILE;
                     done = TRUE;
                     break;
                 }
             default:
-                printf("? ");
+                putString("? ");
                 abort    = TRUE;
                 if (expert)  break;
             case '?':
@@ -213,24 +213,24 @@ void doEnter(char moreYet, char first) {
                 abort    = TRUE;
                 break;
             case 'C':
-                printf("onfiguration ");
+                putString("onfiguration ");
                 what    = CONFIGURATION;
                 done    = TRUE;
                 break;
             case 'M':
-                printf("essage ");
+                putString("essage ");
                 what    = MESSAGE;
                 done    = TRUE;
                 break;
             case 'P':
-                printf("assword ");
+                putString("assword ");
                 what    = PASSWORD;
                 done    = TRUE;
                 break;
             case 'R':
-                printf("oom ");
+                putString("oom ");
                 if (!nonAideRoomOk && !aide)   {
-                    printf(" ?-- must be aide to create room\n ");
+                    putString(" ?-- must be aide to create room\n ");
                     abort    = TRUE;
                     break;
                 }
@@ -276,7 +276,7 @@ void doGoto(char expand, char first) {
 
     char roomName[NAMESIZE];
 
-    printf("oto ");
+    putString("oto ");
 
     if (!expand) {
         gotoRoom("");
@@ -308,12 +308,12 @@ void doHelp(char expand, char first) {
     char fileName[NAMESIZE];
 
     if (!expand) {
-        printf("elp\n \n ");
+        putString("elp\n \n ");
         tutorial("dohelp.hlp");
         return;
     }
 
-    printf("elp ");
+    putString("elp ");
     getString("", fileName, NAMESIZE);
     normalizeString(fileName);
 
@@ -339,7 +339,7 @@ void doKnown(char expand, char first) {
 /* expand - TRUE to accept following parameters */
 /* first -  first parameter if TRUE             */
 
-    printf("nown rooms\n ");
+    putString("nown rooms\n ");
     listRooms(/* doDull== */ TRUE);
 
 }
@@ -353,17 +353,17 @@ void doLogin(char moreYet, char first) {
 
     char passWord[NAMESIZE];
 
-    printf("ogin ");
+    putString("ogin ");
 
     if (!moreYet) {
 
-        printf("\n");
+        putString("\n");
 
     }
 
     if (loggedIn) {
 
-        printf("\n ?Already logged in!\n ");
+        putString("\n ?Already logged in!\n ");
         return;
 
     }
@@ -381,29 +381,27 @@ void doLogout(char expand, char first) {
 /* expand - TRUE to accept following parameters */
 /* first -  first parameter if TRUE             */
 
-    char iChar();
-
     if (expand) first = '\0';
 
-    printf("erminate ");
+    putString("erminate ");
 
     if (first) oChar(first);
 
     switch (toupper(    first ? first : iChar()    )) {
         case '?':
-            printf("\n Logout options:\n \n ");
-            printf("Quit-also\n "        );
-            printf("Stay\n "        );
+            putString("\n Logout options:\n \n ");
+            putString("Quit-also\n "        );
+            putString("Stay\n "        );
             break;
         case 'Q':
-            printf("uit-also\n ");
+            putString("uit-also\n ");
             if (!expand)   {
                 if (!getYesNo("confirm"))   break;
             }
             terminate( /* hangUp == */ TRUE);
             break;
         case 'S':
-            printf("tay\n ");
+            putString("tay\n ");
             terminate( /* hangUp == */ FALSE);
             break;
     }
@@ -423,11 +421,11 @@ void doRead(char moreYet, char first) {
 
     if (moreYet) first = '\0';
 
-    printf("\bread ");
+    putString("\bread ");
 
     if (!loggedIn  &&  !unlogReadOk)   {
 
-        printf("Must log in to read\n ");
+        putString("Must log in to read\n ");
         return;
 
     }
@@ -450,58 +448,58 @@ void doRead(char moreYet, char first) {
                 moreYet = FALSE;
                 break;
             case 'A':
-                printf("ll ");
+                putString("ll ");
                 whichMess = oldAndNew;
                 break;
             case 'F':
-                printf("orward ");
+                putString("orward ");
                 revOrder  = FALSE;
                 whichMess = oldAndNew;
                 break;
             case 'G':
-                printf("lobal new-messages ");
+                putString("lobal new-messages ");
                 whichMess = globalNew;
                 break;
             case 'N':
-                printf("ew ");
+                putString("ew ");
                 whichMess = newOnly;
                 break;
             case 'O':
-                printf("ld ");
+                putString("ld ");
                 revOrder  = TRUE;
                 whichMess = oldOnly;
                 break;
             case 'R':
-                printf("everse ");
+                putString("everse ");
                 revOrder  = TRUE;
                 whichMess = oldAndNew;
                 break;
             case 'S':
-                printf("tatus ");
+                putString("tatus ");
                 status = TRUE;
                 done   = TRUE;
                 break;
             case 'W':
-                printf("C protocol ");
+                putString("C protocol ");
                 WC = TRUE;
                 break;
             case 'B':
                 if (roomBuf.rbflags & CPMDIR) {
-                    printf("inary file(s) ");
+                    putString("inary file(s) ");
                     done     = TRUE;
                     hostFile = TRUE;
                     break;
                 }
             case 'D':
                 if (roomBuf.rbflags & CPMDIR) {
-                    printf("irectory ");
+                    putString("irectory ");
                     doDir = TRUE;
                     done  = TRUE;
                     break;
                 }
             case 'T':
                 if (roomBuf.rbflags & CPMDIR) {
-                    printf("extfile(s) ");
+                    putString("extfile(s) ");
                     done     = TRUE;
                     hostFile = TRUE;
                     break;
@@ -511,7 +509,7 @@ void doRead(char moreYet, char first) {
                 abort = TRUE;
                 break;
             default:
-                printf("? ");
+                putString("? ");
                 abort = TRUE;
                 setUp(FALSE);
                 if (expert) break;
@@ -548,7 +546,7 @@ void doRead(char moreYet, char first) {
 
         }
 
-        printf("\n %d sectors total\n ", FDSectCount);
+        putString("\n %d sectors total\n ", FDSectCount);
         return;
 
     }
@@ -573,7 +571,7 @@ void doRead(char moreYet, char first) {
         while (gotoRoom("")) {
 
             givePrompt();
-            printf("read new\n ");
+            putString("read new\n ");
             showMessages(newOnly, revOrder);
 
         }
@@ -645,30 +643,30 @@ char doSysop(char c, char first) {
 
     while (TRUE) {
 
-        printf("\n privileged fn: ");
+        putString("\n privileged fn: ");
 
         switch (toupper(first ? first : iChar())) {
             case 'A':
-                printf("bort\n ");
+                putString("bort\n ");
                 return FALSE;
             case 'C':
-                printf("hat mode disabled\n");
+                putString("hat mode disabled\n");
                 break;
             case 'D':
                 debug = !debug;
-                printf("ebug switch=%d\n \n", debug);
+                putString("ebug switch=%d\n \n", debug);
                 break;
             case 'K':
-                printf("ill account\n ");
+                putString("ill account\n ");
                 if (!getYesNo("Confirm")) break;
                 getString("who", who, NAMESIZE);
                 normalizeString(who);
                 logNo = findPerson(who, &lBuf);
                 if (logNo == ERROR)   {
-                    printf("No such person\n ");
+                    putString("No such person\n ");
                     break;
                 }
-                printf("%s deleted\n ", who);
+                putString("%s deleted\n ", who);
                 ltabSlot = PWSlot(lBuf.lbpw);
                 lBuf.lbname[0] = '\0';
                 lBuf.lbpw[0  ] = '\0';
@@ -679,24 +677,24 @@ char doSysop(char c, char first) {
                 logTab[ltabSlot].ltnmhash = 0;
                 break;
             case 'M':
-                printf("\bSystem now on MODEM\n ");
+                putString("\bSystem now on MODEM\n ");
                 setUp(FALSE);
-                printf("Chat mode disabled\n");
-                if (debug)       printf("Debug mode on\n "  );
-                if (visibleMode) printf("Visible mode on\n ");
+                putString("Chat mode disabled\n");
+                if (debug)       putString("Debug mode on\n "  );
+                if (visibleMode) putString("Visible mode on\n ");
                 return FALSE;
             case 'P':
-                printf("\baide privilege set/clear\n ");
+                putString("\baide privilege set/clear\n ");
                 getString("who", who, NAMESIZE);
                 normalizeString(who);
                 logNo = findPerson(who, &lBuf);
                 if (logNo == ERROR) {
-                    printf("No such person\n ");
+                    putString("No such person\n ");
                     break;
                 }
 
                 lBuf.lbflags ^= AIDE;
-                printf("%s %s aide privileges\n ", who,
+                putString("%s %s aide privileges\n ", who,
                        (lBuf.lbflags & AIDE)  ?  "gets"  :  "loses"
                 );
                 if (!getYesNo("Confirm")) break;
@@ -709,16 +707,16 @@ char doSysop(char c, char first) {
                 }
                 break;
             case 'R':
-                printf("not implemented\n");
+                putString("not implemented\n");
                 break;
             case 'S':
-                printf("et date\n \n");
+                putString("et date\n \n");
                 break;
             case 'V':
-                printf(" VisibleMode==%d\n ",  visibleMode = !visibleMode);
+                putString(" VisibleMode==%d\n ",  visibleMode = !visibleMode);
                 break;
             case 'X':
-                printf("\bexit to CP/M\n \n");
+                putString("\bexit to CP/M\n \n");
                 exitToCpm = TRUE;
                 return FALSE;
             case '?':
@@ -726,9 +724,9 @@ char doSysop(char c, char first) {
                 break;
             default:
                 if (!expert) {
-                    printf(" ?(Type '?' for menu)\n");
+                    putString(" ?(Type '?' for menu)\n");
                 } else {
-                    printf(" ?\n");
+                    putString(" ?\n");
                 }
                 break;
         }
@@ -744,7 +742,6 @@ char doSysop(char c, char first) {
 /************************************************************************/
 char getCommand(char *c) {
 
-    char BBSCharReady(), iChar();
     char expand;
 
     /*if (*c)*/ givePrompt();
@@ -778,15 +775,15 @@ void greeting(void) {
     setUp(TRUE);     
     usleep(10);
 
-    printf("\n Welcome to Citadel");
-    printf("\n V2.1 at %s \n \n ", nodeTitle);
+    putString("\n Welcome to Citadel");
+    putString("\n V2.1 at %s \n \n ", nodeTitle);
     getDate(&year, &month, &day);
     printDate(year, month, day);
 
-    printf("\n H for Help\n ");
+    putString("\n H for Help\n ");
 
-    printf("\n 'MODEM' mode.\n");
-    printf("(<ESC> for CONSOLE mode.)\n");
+    putString("\n 'MODEM' mode.\n");
+    putString("(<ESC> for CONSOLE mode.)\n");
 
     gotoRoom("Lobby");
 
@@ -796,15 +793,14 @@ void greeting(void) {
 /*    main() contains the central menu code                             */
 /************************************************************************/
 int main(void) {
-    
+
     char c, x;
-    
+
     /* if (FALSE) putChar(""); */            /* pick up our own in modem.c */
     /* if (FALSE) getNumber(NULL, 0, 0); */  /* dummy to force load        */
 
     /* don't put any code above init()... readSysTab() will defeat it.    */
 
-    init();
     initCitadel();
     weAre = CITADEL;
     greeting();
@@ -817,11 +813,11 @@ int main(void) {
             
             if (!expert) {
 
-                printf(" ? (Type '?' for menu)\n \n");
+                putString(" ? (Type '?' for menu)\n \n");
 
             } else {
 
-                printf(" ?\n \n");
+                putString(" ?\n \n");
 
             }
 

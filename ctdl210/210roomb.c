@@ -32,6 +32,7 @@
 
 #include "210ctdl.h"
 #include "210protos.h"
+#include "210common.h"
 
 /************************************************************************/
 /*                Contents                                              */
@@ -821,7 +822,7 @@ void zapRoomFile(void) {
 
     int i;
 
-    if (getYesNo("\nWipe room file")) return;
+    if (!getYesNo("\nWipe room file")) return;
 
     roomBuf.rbflags   = 0;
     roomBuf.rbgen     = 0;

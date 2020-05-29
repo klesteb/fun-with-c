@@ -28,6 +28,7 @@
 
 #include "210ctdl.h"
 #include "210protos.h"
+#include "210common.h"
 
 /************************************************************************/
 /*                contents                                              */
@@ -101,7 +102,7 @@ void aideMessage(char noteDeletedMessage) {
 /************************************************************************/
 char dGetWord(char *dest, int lim) {
 
-    char c;
+    unsigned char c;
 
     --lim;    /* play it safe */
 
@@ -294,8 +295,7 @@ void flushMsgBuf(void) {
 /************************************************************************/
 void getMessage(void) {
 
-    char c;
-putString("entering getMessage()\n");
+    unsigned char c;
     
     /* clear msgBuf out */
 
@@ -334,21 +334,20 @@ putString("entering getMessage()\n");
             case 'T':    getMsgStr(msgBuf.mbto,    NAMESIZE);    break;
             default:
                 getMsgStr(msgBuf.mbtext, MAXTEXT);    /* discard unknown field  */
-                msgBuf.mbtext[0]    = '\0';
+                msgBuf.mbtext[0] = '\0';
                 break;
         }
-        
+
     } while (c != 'M' && isalpha(c));
 
-putString("leaving getMessage()\n");
 }
 
 /************************************************************************/
 /*    getMsgChar() returns sequential chars from message on disk        */
 /************************************************************************/
-char getMsgChar(void) {
-    
-    char toReturn;
+unsigned char getMsgChar(void) {
+
+    unsigned char toReturn;
 
     if (GMCCache) {    /* someone did an unGetMsgChar() --return it    */
 
@@ -360,7 +359,6 @@ char getMsgChar(void) {
 
     oldChar   = thisChar;
     oldSector = thisSector;
-
     toReturn  = sectBuf[thisChar];
 
 #ifdef XYZZY
@@ -374,11 +372,18 @@ char getMsgChar(void) {
         /* time to read next sector in: */
 
         thisSector = ++thisSector % maxMSector;
-        lseek(msgfl, thisSector, SEEK_SET);
 
-        if (read(msgfl, sectBuf, 1) >= 1000) {
+        errno = 0;
+        if ((lseek(msgfl, thisSector, SEEK_SET)) < 0) {
 
-            putString("?nextMsgChar-read fail");
+            putString("?nextMsgChar-seek fail, reason: %d\n", errno);
+
+        }
+
+        errno = 0;
+        if (read(msgfl, sectBuf, 1) < 0) {
+
+            putString("?nextMsgChar-read fail, reason: %d\n", errno);
 
         }
 
@@ -395,10 +400,11 @@ char getMsgChar(void) {
 /************************************************************************/
 void getMsgStr(char *dest, int lim) {
 
-    char c;
+    unsigned char c;
 
     while ((c = getMsgChar())) {  /* read the complete string    */
-        
+
+        if (c == NULL) break;
         if (lim) {              /* if we have room then        */
 
             lim--;
@@ -616,26 +622,22 @@ void mPeek(void) {
 }
 
 /************************************************************************/
-/*    msgInit() sets up lowId, highId, catSector and catChar,     */
-/*    by scanning over message.buf                    */
+/*    msgInit() sets up lowId, highId, catSector and catChar,           */
+/*    by scanning over message.buf                                      */
 /************************************************************************/
 void msgInit(void) {
 
     int firstLo, firstHi, hereLo, hereHi;    /* 32 bits by halves    */
 
-    thisChar = 0;
-    thisSector = 0;
-
     startAt(0, 0);
-putString("after startAt()\n");
     getMessage();
-putString("after getMessage()\n");
 
     /* get the ID# */
 
     sscanf(msgBuf.mbId, "%d %d", &firstHi, &firstLo);
     putString("message# %d %d\n", firstHi, firstLo);
-
+getch();
+    
     newestHi = firstHi;
     newestLo = firstLo;
     oldestHi = firstHi;
@@ -1178,7 +1180,7 @@ void showMessages(char whichMess, char revOrder) {
 }
 
 /************************************************************************/
-/*    startAt() sets location to begin reading message from        */
+/*    startAt() sets location to begin reading message from             */
 /************************************************************************/
 void startAt(int sect, int byt) {
 
@@ -1194,70 +1196,72 @@ void startAt(int sect, int byt) {
     thisChar   = byt;
     thisSector = sect;
 
-    lseek(msgfl, sect, SEEK_SET);
+    errno = 0;
+    if ((lseek(msgfl, sect, SEEK_SET)) < 0) {
 
-    if (read(msgfl, sectBuf, 1) >= 1000) {
+        putString("?startAt lseek fail, reason: %d\n", errno);
+        goto fini;
 
-        putString("?startAt rread fail");
+    }
+
+    errno = 0;
+    if (read(msgfl, sectBuf, 1) < 0) {
+
+        putString("?startAt read fail, reason: %d\n", errno);
+        goto fini;
 
     }
 
     crypte(sectBuf, SECTSIZE, 0);
+
+    fini:
+    return;
 
 }
 
 /************************************************************************/
 /*    unGetMsgChar() returns (at most one) char to getMsgChar()    */
 /************************************************************************/
-void unGetMsgChar(char c) {
+void unGetMsgChar(unsigned char c) {
 
     GMCCache = c;
 
 }
 
 /************************************************************************/
-/*    zapMsgFl() initializes message.buf                */
+/*    zapMsgFl() initializes message.buf                                */
 /************************************************************************/
 void zapMsgFile(void) {
 
     int i, sect, val;
 
-    if (getYesNo("\nDestroy all current messages")) return;
+    if (!getYesNo("\nDestroy all current messages")) return;
 
     /* put null message in first sector... */
 
-    sectBuf[0] = 0xFF; /*   \                */
-    sectBuf[1] =  '0'; /*    \             */
-    sectBuf[2] =  ' '; /*     > Message ID "0 1"    */
-    sectBuf[3] =  '1'; /*    /             */
-    sectBuf[4] = '\0'; /*   /                */
-    sectBuf[5] =  'M'; /*   \    Null messsage        */
-    sectBuf[6] = '\0'; /*   /                */
+    sectBuf[0] = 0xFF; /*   \                    */
+    sectBuf[1] =  '0'; /*    \                   */
+    sectBuf[2] =  ' '; /*     > Message ID "0 1" */
+    sectBuf[3] =  '1'; /*    /                   */
+    sectBuf[4] = '\0'; /*   /                    */
+    sectBuf[5] =  'M'; /*   \    Null messsage   */
+    sectBuf[6] = '\0'; /*   /                    */
 
     for (i = 7;  i < SECTSIZE; i++) sectBuf[i] = 0;
 
-    lseek(msgfl, 0, SEEK_SET);
     crypte(sectBuf, SECTSIZE, 0);    /* encrypt    */
 
-    if ((val = write(msgfl, sectBuf, 1)) != 1) {
+    errno = 0;
+    if ((lseek(msgfl, 0, SEEK_SET)) < 0) {
 
-        putString("zapMsgFil: rwrite failed, %d records!\n", val);
+        putString("zapMsgFil: lseek failed, reason: %d\n\n", errno);
 
     }
 
-    crypte(sectBuf, SECTSIZE, 0);    /* decrypt    */
-    sectBuf[0] = 0;
-    crypte(sectBuf, SECTSIZE, 0);    /* encrypt    */
+    errno = 0;
+    if ((val = write(msgfl, sectBuf, sizeof(sectBuf))) < 0) {
 
-    for (sect=1;  sect<maxMSector;  sect++) {
-
-        lseek(msgfl, sect, SEEK_SET);
-
-        if ((val = write(msgfl, sectBuf, 1)) != 1) {
-
-            putString("zapMsgFil: rwrite failed, wrote %d records!\n", val);
-
-        }
+        putString("zapMsgFil: write failed, %d records, reason: %d!\n", val, errno);
 
     }
 

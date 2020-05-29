@@ -13,7 +13,7 @@ LFLAGS = -o
 LIBR = ar -rs
 STATIC = 210ctdl.a
 #
-INCS = 210ctdl.h 210protos.h
+INCS = 210ctdl.h 210protos.h 210common.h 210common.c
 #
 OBJS = 210log.o 210misc.o 210modem.o 210msg.o 210rooma.o 210roomb.o
 #
@@ -26,6 +26,7 @@ clean:
 	rm -f *~
 	rm -f 210config
 	rm -f 210ctdl
+	rm -f libctdl.a
 #
 #
 210ctdl: 210ctdl.o

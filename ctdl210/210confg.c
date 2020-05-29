@@ -15,6 +15,7 @@
 
 #include "210ctdl.h"
 #include "210protos.h"
+#include "210common.c"
 
 /************************************************************************/
 /*                History                                               */
@@ -35,19 +36,6 @@
 /*    init() -- master system initialization                            */
 /************************************************************************/
 void init(void) {
-
-    exitToCpm   = FALSE;        /* not time to quit yet!    */
-    sizeLTentry = sizeof(logTab[0]);    /* just had to try that feature */
-
-    pullMessage = FALSE;        /* not pulling a message    */
-    pulledMLoc  = ERROR;        /* haven't pulled one either    */
-    pulledMId   = ERROR;
-
-    debug       = FALSE;
-    loggedIn    = FALSE;
-    termWidth   = 79;
-    termUpper   = FALSE;
-    termTab     = FALSE;
 
     /* open message file */
 
@@ -123,9 +111,6 @@ void init(void) {
 /************************************************************************/
 void wrapup(void) {
 
-    putString("\ncreating ctdltabl.sys table\n");
-    doupdate();
-
     msgInit();
 putString("after msgInit()\n");
     indexRooms();
@@ -145,7 +130,7 @@ int main(void) {
     loadConfig("ctdlcnfg.sys");
     init();
     wrapup();
-    endwin();
+    endTerminal();
 
     return(EXIT_SUCCESS);
 

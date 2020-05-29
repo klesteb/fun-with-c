@@ -1,31 +1,32 @@
+
 /************************************************************************/
-/*				hack.doc				*/
+/*                hack.doc                                              */
 /************************************************************************/
 
 /************************************************************************/
-/*				History 				*/
-/*									*/
-/* 82Dec07 CrT	Completed.						*/
-/* 82Nov23 CrT	Created.						*/
+/*                History                                               */
+/*                                                                      */
+/* 82Dec07 CrT    Completed.                                            */
+/* 82Nov23 CrT    Created.                                              */
 /************************************************************************/
 
 /************************************************************************/
-/*				Audience				*/
-/*									*/
-/* Folks trying to read or modify the Citadel code.			*/
+/*                Audience                                              */
+/*                                                                      */
+/* Folks trying to read or modify the Citadel code.                     */
 /************************************************************************/
 
 /************************************************************************/
-/*				Purpose 				*/
-/*									*/
-/* Explain the basic data structures and algorithms.			*/
+/*                Purpose                                               */
+/*                                                                      */
+/* Explain the basic data structures and algorithms.                    */
 /************************************************************************/
 
 /************************************************************************/
-/*				Overview				*/
+/*                Overview                                              */
 /************************************************************************/
 
-    The fundamental structure of the system is very simple.  CtdlMsg.sys
+    The fundamental structure of the system is very simple. Ctdlmsg.sys
 is a circular file.  New messages are simply written around the buffer
 in an endless circle, overwriting old messages in their way.  There is
 no other way of deleting messages, and text is never shuffled on disk.
@@ -35,24 +36,26 @@ file have the high bit set to 0.  This means that in principle it is
 trivial to scan through the message file and locate message N if it
 exists, or return error.  (Complexities, as usual, crop up when we
 try for efficiency...)
-    Each room is basically just a list of message numbers.  Each time
+
+    Each room is basically just a list of message numbers. Each time
 we enter a new message in a room, we slide all the old message-numbers
-down a slot, and probably the oldest one falls off the bottom.	Reading
+down a slot, and probably the oldest one falls off the bottom. Reading
 a room is just a matter looking up the messages one by one and printing
 them out.  If the message has been overwritten already, we just ignore it.
+
     Implementing the "new message" function is also trivial in principle:
 we just keep track, for each caller in the userlog, of the highest-numbered
-message which existed on the >last< call.  (Remember, message numbers are
+message which existed on the >last< call. (Remember, message numbers are
 simply assigned sequentially each time a message is created.  This
 sequence is global to the entire system, not local within a room.)  If
 we ignore all message-numbers in the room less than this, only new messages
 will be printed.  Voila!  Code up the system described thus far, and
-you'll have a good approximation to Version 1.	Better stop and reread
+you'll have a good approximation to Version 1. Better stop and reread
 everything to here, so you can pick out the fundamental mechanisms among
 all of Version 2's bells and whistles.
 
 /************************************************************************/
-/*		message format on disk	(ctdlMsg.sys)			*/
+/*        message format on disk    (ctdlmsg.sys)                       */
 /************************************************************************/
 
 Message format has changed relative to V1, in the direction of using
@@ -68,40 +71,39 @@ can do wildcard matching without worrying about unpacking binary data such
 as dates first.  To provide later downward compatability,
 all software should be written to IGNORE fields not currently defined.
 
-
 /************************************************************************/
-/*		  The type bytes currently defined are: 		*/
+/*          The type bytes currently defined are:         */
 /************************************************************************/
 
-BYTE	Mnemonic	Comments
+BYTE    Mnemonic    Comments
 
-0xFF			Start-of-message indicator.  Followed by local
-			message ID# as ASCII string, null-terminated as
-			always.  This byte is the >only< byte which has
-			the high bit set in a Citadel message.buf file.
-			This field must be present in every message.
-A	Author		Name of originator of message.
-D	Date		Date message was created.
-M	Message 	Text of message.  Is last field in a message, by
-			definition.  Following data will be ignored.
-			This field must be present in every message.
-N	Name		Human name for node originated on.  Used on
-			title line of foreign messages.  Ex:
-			ODD-DATA
-			will produce a title message something like
-			82Nov23 from Cynbe ru Taren @ODD-DATA
-O	Origin		ID of node message originated on: Country code plus
-			phone number of system.  (Not stored for locally
-			originated messages.)  Ex:
-			US 206 633 3282
-R	Room		Room of origin.  Topic.
-S	Source ID#	Message ID # on system message was created on.
-			Two 16-bit integers (high and low halves of
-			full 32-bit ID#) separated by a blank.	Ex:
-			0 13654
-T	To		Addressee.  Used only for private messages in Mail>,
-			in version 2.00 .
-			EXAMPLE
+0xFF                Start-of-message indicator.  Followed by local
+                    message ID# as ASCII string, null-terminated as
+                    always.  This byte is the >only< byte which has
+                    the high bit set in a Citadel message.buf file.
+                    This field must be present in every message.
+A    Author         Name of originator of message.
+D    Date           Date message was created.
+M    Message        Text of message.  Is last field in a message, by
+                    definition.  Following data will be ignored.
+                    This field must be present in every message.
+N    Name           Human name for node originated on.  Used on
+                    title line of foreign messages.  Ex:
+                        ODD-DATA
+                        will produce a title message something like
+                        82Nov23 from Cynbe ru Taren @ODD-DATA
+O    Origin         ID of node message originated on: Country code plus
+                    phone number of system.  (Not stored for locally
+                    originated messages.)  Ex:
+                    US 206 633 3282
+R    Room          Room of origin.  Topic.
+S    Source ID#    Message ID # on system message was created on.
+                   Two 16-bit integers (high and low halves of
+                   full 32-bit ID#) separated by a blank.    Ex:
+                       0 13654
+T    To            Addressee.  Used only for private messages in Mail>,
+                   in version 2.00 .
+                   EXAMPLE
 
 Let <FF> be a 0xFF byte, and <0> be a null (0x00) byte.  Then a message
 which prints as
@@ -127,7 +129,7 @@ Lines are marked with C NewLine (ASCII LF) characters, within the message
 text proper.
 
 /************************************************************************/
-/*			    Networking					*/
+/*                Networking                                            */
 /************************************************************************/
 
 Citadel nodes network by sharing one or more rooms.  Any Citadel node
@@ -158,11 +160,12 @@ cycle indefinitely.
 The above discussion should make the function of the new
 fields reasonably clear:
 
- o  Every message needs a local ID#, so the system can determine if
-    a given caller has seen it before.
- o  Travelling messages need to carry system of origin, date of
-    origin, and original ID# with them, to keep reproduction and
-    cycling under control.
+ o Every message needs a local ID#, so the system can determine if
+   a given caller has seen it before.
+
+ o Travelling messages need to carry system of origin, date of
+   origin, and original ID# with them, to keep reproduction and
+   cycling under control.
 
 
 (Uncoincidentally) the format used to transmit messages for networking
@@ -174,7 +177,7 @@ format, date field or whatever in ways which will make their local node
 incompatable with the network at large.
 
 /************************************************************************/
-/*			portability problems				*/
+/*            portability problems                */
 /************************************************************************/
 
 Modem code is covered elsewhere.
@@ -182,29 +185,29 @@ Modem code is covered elsewhere.
 If porting to a C compiler other than BDS C, various problems are likely
 where low-level I/O takes place.  Look in particular at:
 
-bios()		direct BIOS calls -- console access mostly.
+bios()        direct BIOS calls -- console access mostly.
 getc()
 getw()
-inp()		input from Z80 port.  Mostly modem-related.
-movmem()	block transfer in RAM
-outp()		output to Z80 port.   Mostly modem-related.
-putch() 	console output
-rsrec() 	set random-access mode for file
-rread() 	random file read  by sectors
-rwrite()	random file write by sectors
-_spr()		mprintf(), dprintf() use this printf() support routine.
+inp()        input from Z80 port.  Mostly modem-related.
+movmem()    block transfer in RAM
+outp()        output to Z80 port.   Mostly modem-related.
+putch()     console output
+rsrec()     set random-access mode for file
+rread()     random file read  by sectors
+rwrite()    random file write by sectors
+_spr()        mprintf(), dprintf() use this printf() support routine.
 
 /************************************************************************/
-/*			"Room" records (ctdlRoom.sys)			*/
+/*            "Room" records (ctdlRoom.sys)            */
 /************************************************************************/
-The rooms are basically indices into ctdlMsg.sys, the message file.
+The rooms are basically indices into ctdlmsg.sys, the message file.
 As noted in the overview, each is essentially an array of pointers into
 the message file.  The pointers consist of a 16-bit message ID number
 (we will wrap around at 64K for these purposes) together with a 16-bit
-sector offset within ctdlMsg.sys telling us where the message begins.
+sector offset within ctdlmsg.sys telling us where the message begins.
 
 Since messages are number sequentially and written circularly, the
-set of messages existing in ctdlMsg.sys will always form a continuous
+set of messages existing in ctdlmsg.sys will always form a continuous
 sequence at any given time.  Thus, by remembering the ID numbers of the
 oldest and newest messages in the message file, we can check to see
 if a message exists >before< going to disk, saving ourselves (and the
@@ -229,29 +232,35 @@ That should be enough background to tackle a full-scale room.  From
 200ctdl.h :
 
 struct {
-    char    rbgen;		/* generation number of room		*/
-    char    rbflags;		/* same bits as flags above		*/
-    char    rbname[NAMESIZE];	/* name of this room			*/
-    char    rbdisk;		/* disk this room's files are in	*/
-    char    rbuser;		/* user area for this room's files	*/
+    char    rbgen;              /* generation number of room       */
+    char    rbflags;            /* same bits as flags above        */
+    char    rbname[NAMESIZE];   /* name of this room               */
+    char    rbdisk;             /* disk this room's files are in   */
+    char    rbuser;             /* user area for this room's files */
     union {
-	struct {
-	    unsigned rbmsgNo;	/* every message gets unique#		*/
-	    int      rbmsgLoc;	/* sector message starts in		*/
-	} msg[MSGSPERRM];
-	/* we'll ignore the other component here -- not used currently	*/
+        struct {
+            unsigned rbmsgNo;   /* every message gets unique#       */
+            int      rbmsgLoc;  /* sector message starts in         */
+        } msg[MSGSPERRM];
+        /* we'll ignore the other component here -- not used currently    */
     } vp;
-    char rbOverRun[2];		/* actually unneeded just now		*/
+    char rbOverRun[2];        /* actually unneeded just now        */
 } roomBuf;
 
 [Note that all components start with "rb" for roomBuf, to make sure we
  don't accidentally use an offset in the wrong structure. Be very careful
  also to get a meaningful sequence of components --
-	roomBuf.vp.msg[i].rbmsgNo;
+
+    roomBuf.vp.msg[i].rbmsgNo;
+
  not
-	roomBuf.msg[i].rbmsgNo;
+
+    roomBuf.msg[i].rbmsgNo;
+
  and certainly not
-	roomBuf.rbmsgNo;
+
+    roomBuf.rbmsgNo;
+
  BDS C provides no checking on this sort of stuff either.  (Fast
  compilation on an 8080 has its prices!)]
 
@@ -262,11 +271,12 @@ bumped by one each time it is recycled.
 
 Rbflags is just a bag of bits recording the status of the room.  The
 defined bits are:
-Bit 0:	INUSE.	  1 if the room is valid, 0 if it is free for re-assignment.
-Bit 1:	PUBLIC.   1 if the room is visible by default, else 0.
-Bit 2:	CPMDIR.   1 if the room is a window onto some disk/userspace, else 0.
-Bit 3:	PERMROOM. 1 if the room should not be recycled even if empty, else 0.
-	(Lobby>, Mail> and all CPMDIRs are automatically permanent.)
+
+Bit 0:    INUSE.      1 if the room is valid, 0 if it is free for re-assignment.
+Bit 1:    PUBLIC.   1 if the room is visible by default, else 0.
+Bit 2:    CPMDIR.   1 if the room is a window onto some disk/userspace, else 0.
+Bit 3:    PERMROOM. 1 if the room should not be recycled even if empty, else 0.
+    (Lobby>, Mail> and all CPMDIRs are automatically permanent.)
 
 Rbname is just an ASCII string (null-terminated, like all strings)
 giving the name of the room.
@@ -281,7 +291,7 @@ in.  (For NIL, we stick the value -1 in RbmsgLoc.)
 
 RbOverRun[] at the tail end is a little kludge.  We read disk sectors
 directly into roomBuf, so it has to be two sectors long or something
-following will be overwritten.	If you resize msg[], be sure to
+following will be overwritten.    If you resize msg[], be sure to
 recalculate the length of roomBuf and resize rbOverRun[] accordingly.
 
 
@@ -299,10 +309,11 @@ messages a given caller hasn't seen, we can check this number in RAM
 and avoid unprofitable disk accesses.
 
 /************************************************************************/
-/*			log records (ctdlLog.sys)			*/
+/*            log records (ctdllog.sys)                                 */
 /************************************************************************/
+
 This is the fun one.  Get some fresh air and plug in your thinking cap
-first.	(Time, space and complexity are the eternal software rivals.
+first. (Time, space and complexity are the eternal software rivals.
 We've got 256 log entries x about 500 messages spread over up to 128
 rooms to worry about, and with floppies disk access time is important...
 so perforce, we opt for lots of complexity to keep time and space in bounds.)
@@ -311,58 +322,57 @@ To understand what is happening in the log code takes a little persistence.
 You also have to disentangle the different activities going on and
 tackle them one by one.
 
- o	We want to remember some random things such as terminal screen
-	size, and automatically set them up for each caller at login.
+ o We want to remember some random things such as terminal screen
+   size, and automatically set them up for each caller at login.
 
- o	We want to be able to locate all new messages, and only new
-	messages, efficiently.	Messages should stay new even if it
-	takes a caller a couple of calls to get around to them.
+ o We want to be able to locate all new messages, and only new
+   messages, efficiently.    Messages should stay new even if it
+   takes a caller a couple of calls to get around to them.
 
- o	We want to remember which private rooms a given caller knows
-	about, and treat them as normal rooms.	This means mostly
-	automatically seeking out those with new messages.  (Obviously,
-	we >don't< want to do this for unknown private rooms!)	This
-	has to be secure against the periodic recycling of rooms
-	between calls.
+ o We want to remember which private rooms a given caller knows
+   about, and treat them as normal rooms.    This means mostly
+   automatically seeking out those with new messages.  (Obviously,
+   we >don't< want to do this for unknown private rooms!)    This
+   has to be secure against the periodic recycling of rooms
+   between calls.
 
- o	We want to support private mail to a caller.
+ o We want to support private mail to a caller.
 
- o	We want to provide some protection of this information (via
-	passwords at login) and some assurance that messages are from
-	who they purport to be from (within the system -- one shouldn't
-	be able to forge messages from established users).
+ o We want to provide some protection of this information (via
+   passwords at login) and some assurance that messages are from
+   who they purport to be from (within the system -- one shouldn't
+   be able to forge messages from established users).
 
 Lifting another page from 200ctdl.h gives us:
 
 struct logBuffer {
-    char	lbnulls;	    /* # nulls to print after newline	*/
-    char	lbflags;	    /* UCMASK, LFMASK, EXPERT		*/
-    char	lbwidth;	    /* terminal width			*/
-    char	lbname[NAMESIZE];   /* caller's name			*/
-    char	lbpw[NAMESIZE];     /* caller's password		*/
-    char	lbgen[MAXROOMS];    /* 5 bits gen, 3 bits lastVisit	*/
-    char	lbvisit[MAXVISIT];  /* newestLo on last few calls	*/
-    char	lbslot[MAILSLOTS];  /* for private mail 		*/
-    char	lbId[MAILSLOTS];    /* for private mail 		*/
-
-    char	lbOverFlow[]	    /*					*/
+    char lbnulls;           /* # nulls to print after newline */
+    char lbflags;           /* UCMASK, LFMASK, EXPERT         */
+    char lbwidth;           /* terminal width                 */
+    char lbname[NAMESIZE];  /* caller's name                  */
+    char lbpw[NAMESIZE];    /* caller's password              */
+    char lbgen[MAXROOMS];   /* 5 bits gen, 3 bits lastVisit   */
+    char lbvisit[MAXVISIT]; /* newestLo on last few calls     */
+    char lbslot[MAILSLOTS]; /* for private mail               */
+    char lbId[MAILSLOTS];   /* for private mail               */
+    char lbOverFlow[]       /*                                */
 }
 
 Looks simple enough, doesn't it?  One topic at a time:
 
-		RANDOM CONFIGURATION PARAMETERS
+        RANDOM CONFIGURATION PARAMETERS
 
 These are in the first three bytes in the record.  Lbnulls gives the
 number of nulls to print after a newline, for folks who like
-simultaneous hardcopy.	Or any remaining ASR33 aficionados calling up...
+simultaneous hardcopy.    Or any remaining ASR33 aficionados calling up...
 Lbwidth is the caller's screen width.  We format all messages to this
-width, as best we can.	Lbflags is another bit-bag, recording
+width, as best we can.    Lbflags is another bit-bag, recording
 uppercase-only folks, people who need a linefeed after a carraige-return,
 and people who want to suppress the little automatic hints all through
 the system.
 
 
-		     FINDING NEW MESSAGES
+             FINDING NEW MESSAGES
 
 This is the most important.  Thus, it winds up being the most
 elaborate.  Conceptually, what we would like to do is mark each
@@ -389,14 +399,15 @@ to be 256 bytes or less, and we have other stuff to do yet.
 
 So, we complicate a little more.  We record in lbvisit[MAXVISIT] the
 most recent message ID# in the system on each of the last six calls
-or so.	Now, for each room, we can just indicate which call we last
+or so.    Now, for each room, we can just indicate which call we last
 visited the room on.  This takes 3 bits per room, which we stash in
-the low three bits of lbgen[MAXROOMS].	Now we're down to
+the low three bits of lbgen[MAXROOMS].    Now we're down to
 128 rooms x 3 bits (plus a few bytes in lbvisit[], of course),
 which is quite reasonable.
 
 Putting it all together, we can now compute whether a given room
 has new messages for our current caller without going to disk at all:
+
  > We get the lbgen[] entry for the room in question
  > We mask off the lower 3 bits
  > We use the result as an index into lbvisit[], getting the ID number
@@ -406,18 +417,18 @@ has new messages for our current caller without going to disk at all:
    what the most recent message in the room is currently.
 
 
-	     REMEMBERING WHICH PRIVATE ROOMS TO VISIT
+         REMEMBERING WHICH PRIVATE ROOMS TO VISIT
 
 This looks trivial at first glance -- just record one bit per room per
 caller in the log records.  The problem is that rooms get recycled
 periodically, and we'd rather not run through 256 log entries each
-time we do it.	So we adopt a kludge which should work 99% of the time.
+time we do it.    So we adopt a kludge which should work 99% of the time.
 
 As previously noted, each room has a generation number, which is bumped
 by one each time it is recycled.  As not noted, this generation number
 runs from 0 -> 31 (and then wraps around and starts over).  Thus, these
 numbers take 5 bits to represent.  By a miraculous coincidence, we have
-exactly 5 bits left in the lbgen[] entries in the log records.	[Anyone
+exactly 5 bits left in the lbgen[] entries in the log records.    [Anyone
 familiar with "capability" pointers will be encountering deja vu here...]
 
 When someone visits a room, we set the generation number in lbgen[]
@@ -430,7 +441,7 @@ all this stuff is irrelevant.)
 This leaves only the problem of an accidental matchup between the two
 numbers giving someone access to a Forbidden Room.  We can't eliminate
 this danger completely, but it can be reduced to insignificance for
-most purposes.	(Just don't bet megabucks on the security of this system!)
+most purposes.    (Just don't bet megabucks on the security of this system!)
 Each time someone logs in, we set all "wrong" generation numbers to be
 one less than the actual generation of the room. This means that the
 room must be recycled thirty-one times before an accidental matchup
@@ -447,24 +458,24 @@ The danger of this is much less than the danger that someone will
 simply guess the name of the room outright...
 
 
-		     SUPPORTING PRIVATE MAIL
+             SUPPORTING PRIVATE MAIL
 
 Can one have an elegant kludge?  This must come pretty close.
 
 Private mail is sent and recieved in the Mail> room, which otherwise
-behaves pretty much as any other room.	To make this work, we store
+behaves pretty much as any other room.    To make this work, we store
 the actual message pointers in lbslot[] and lbId[] in the caller's
 log record, and then copy them into the Mail> room array whenever we
 enter the room.  This requires a little fiddling to get things just
-right.	We have to update roomTab[MAILROOM].rtlastMessage at login
+right.    We have to update roomTab[MAILROOM].rtlastMessage at login
 to reflect the presence or absence of new messages, for example.  And
 MakeMessage() has to be kludged to ask for the name of the recipient
-of the message whenever a message is entered in Mail>.	But basically
+of the message whenever a message is entered in Mail>.    But basically
 it works pretty well, keeping the code and user interface simple and
 regular.
 
 
-		   PASSWORDS AND NAME VALIDATION
+           PASSWORDS AND NAME VALIDATION
 
 LogTab[] indexes ctdlLog.sys, giving us a quick way of finding people.
 It is basically a chronologically sorted hash table.  We keep a two-byte
@@ -474,6 +485,8 @@ on the password hash and loading the matching logfile entry in.  Bogus
 hits are eliminated by the simple expedient of refusing to acknowledge
 a new user who's name or password hashes on top of an existing user.
 Computer chauvinism at it's best...
+
 This makes it difficult to forge messages from an existing user.  (Fine
 point: nonprinting characters are converted to printing characters, and
 leading, trailing, and double blanks are deleted.)
+

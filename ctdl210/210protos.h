@@ -20,7 +20,7 @@ extern void greeting(void);
 
 /* 210log.c */
 
-extern void crypte(char *buf, unsigned len, unsigned seed);
+extern void crypte(void *buf, unsigned len, unsigned seed);
 extern void getLog(struct logBuffer *lBuf, int n);
 extern int hash(char *str);
 extern void login(char *password);
@@ -59,6 +59,7 @@ extern void modemInit(void);
 extern void putChar(char c);
 extern void ringSysop(void);
 extern void upLoad(void);
+extern void endTerminal(void);
 extern void initTerminal(void);
 
 /* 210msg.c */
@@ -70,7 +71,7 @@ extern void fakeFullCase(char *text);
 extern int  findPerson(char *name, struct logBuffer *lBuf);
 extern void flushMsgBuf(void);
 extern void getMessage(void);
-extern char getMsgChar(void);
+extern unsigned char getMsgChar(void);
 extern void getMsgStr(char *dest, int lim);
 extern int  getWord(char *dest, char *source, int offset, int lim);
 extern char mAbort(void);
@@ -88,7 +89,7 @@ extern int  putMsgChar(char c);
 extern void putWord(char *st);
 extern void showMessages(char whichMess, char revOrder);
 extern void startAt(int sect, int byt);
-extern void unGetMsgChar(char c);
+extern void unGetMsgChar(unsigned char c);
 extern void zapMsgFile(void);
 extern void noteMessage(struct logBuffer *lBuf, int logNo);
 

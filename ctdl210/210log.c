@@ -25,6 +25,7 @@
 
 #include "210ctdl.h"
 #include "210protos.h"
+#include "210common.h"
 
 /************************************************************************/
 /*                  contents                                            */
@@ -58,10 +59,8 @@
 #define c    fi1
 #define s    fi2
 
-void crypte(char *buf, unsigned len, unsigned seed) {
+void crypte(void *buf, unsigned len, unsigned seed) {
 
-fprintf(stderr, "entering crypte\n");
-    
     seed = (seed + cryptSeed) & 0xFF;
     b = buf;
     c = len;
@@ -74,7 +73,6 @@ fprintf(stderr, "entering crypte\n");
 
     }
 
-fprintf(stderr, "leaving crypte\n");
 }
 
 /************************************************************************/
@@ -432,8 +430,6 @@ void noteLog(void) {
 void putLog(struct logBuffer *lBuf, int n) {
 
     n *= SECSPERLOG;
-
-fprintf(stderr, "entering putLog()\n");
     
     crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* encode buffer    */
 
@@ -447,7 +443,6 @@ fprintf(stderr, "entering putLog()\n");
 
     crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* decode buffer    */
 
-fprintf(stderr, "leaving putLog()\n");
 }
 
 /************************************************************************/
@@ -602,7 +597,7 @@ void terminate(char discon) {
     storeLog();
     loggedIn = FALSE;
     setUp(TRUE);
-    endwin();
+    endTerminal();
     
 }
 
@@ -613,7 +608,7 @@ void zapLogFile(void) {
 
     int  i;
 
-    if (getYesNo("\nWipe out log file")) return;
+    if (!getYesNo("\nWipe out log file")) return;
 
     /* clear RAM buffer out:            */
 

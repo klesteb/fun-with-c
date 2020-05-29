@@ -12,6 +12,7 @@
 
 #include "210ctdl.h"
 #include "210protos.h"
+#include "210common.c"
 
 /************************************************************************/
 /*                history                                               */
@@ -796,11 +797,7 @@ int main(void) {
 
     char c, x;
 
-    /* if (FALSE) putChar(""); */            /* pick up our own in modem.c */
-    /* if (FALSE) getNumber(NULL, 0, 0); */  /* dummy to force load        */
-
-    /* don't put any code above init()... readSysTab() will defeat it.    */
-
+    loadConfig("ctdlcnfg.sys");
     initCitadel();
     weAre = CITADEL;
     greeting();

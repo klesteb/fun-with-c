@@ -22,6 +22,7 @@
 
 #include "210ctdl.h"
 #include "210protos.h"
+#include "210common.h"
 
 /************************************************************************/
 /*                Contents                                              */
@@ -248,37 +249,11 @@ void initCitadel(void) {
 
     if (FALSE) getText(NULL, NULL, 0);  /* dummy to force load        */
 
-    exitToCpm   = FALSE;        /* not time to quit yet!    */
-    sizeLTentry = sizeof(logTab[0]);    /* just had to try that feature */
-
-    pullMessage = FALSE;        /* not pulling a message    */
-    pulledMLoc  = ERROR;        /* haven't pulled one either    */
-    pulledMId   = ERROR;
-
-    debug       = FALSE;
-    loggedIn    = FALSE;
-    thisRoom    = LOBBY;
-
-    loggedIn    = FALSE;
-
     setUp(TRUE);
 
     /* we init modem at beginning & end both...*/
 
     modemInit();
-
-    monthTab[1]  = "Jan";
-    monthTab[2]  = "Feb";
-    monthTab[3]  = "Mar";
-    monthTab[4]  = "Apr";
-    monthTab[5]  = "May";
-    monthTab[6]  = "Jun";
-    monthTab[7]  = "Jul";
-    monthTab[8]  = "Aug";
-    monthTab[9]  = "Sep";
-    monthTab[10] = "Oct";
-    monthTab[11] = "Nov";
-    monthTab[12] = "Dec";
 
     /* open message files: */
 

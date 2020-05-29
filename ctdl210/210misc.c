@@ -25,6 +25,10 @@
 #include <time.h>
 #include <stdarg.h>
 #include <ncurses.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -38,6 +42,7 @@
 /*    tutorial()     prints a .hlp file                                 */
 /*    visible()      convert control chars to letters                   */
 /*    putString()    print string                                       */
+/*    loadConfig()   load config file                                   */
 /************************************************************************/
 
 /************************************************************************/
@@ -93,8 +98,6 @@ void putString(char *format, ...) {
 #define MAXWORD 256
 
     int n;
-    int row;
-    int col;
     va_list ap;
     char string[MAXWORD];
 
@@ -102,15 +105,8 @@ void putString(char *format, ...) {
     n = vsnprintf(string, MAXWORD, format, ap);
     va_end(ap);
 
-    getyx(stdscr, row, col);
-    if (row > 23) {
-
-        scrl(1);
-
-    }
-
-    printw(string);
-    wnoutrefresh(stdscr);
+    wprintw(outWin, string);
+    wrefresh(outWin);
 
 }
 
@@ -167,6 +163,124 @@ char visible(char c) {
     if (c == 0x7F) c = '~';       /* catch DELETE too                   */
 
     return(c);
+
+}
+
+/************************************************************************/
+/*    loadConfig()  load config file                                    */
+/************************************************************************/
+void loadConfig(char *filename) {
+
+    int fd;
+    char line[128];               
+    char cmd[128], var[128], string[128];
+    int  arg, args;
+
+
+    if ((fd = open(filename, O_RDONLY)) == ERROR) {
+
+        putString("?Can't find %s\n", filename);
+        endwin();
+        exit(EXIT_FAILURE);
+
+    }
+
+    while ((read(fd, line, 128) > 0)) {
+
+        if ((args = sscanf(line, "%s %s %x ", cmd, var, &arg))) {
+
+            if (strcmp(cmd, "#define" ) == SAMESTRING && args == 3) {
+
+                putString("#define '%s' as %x\n", var, arg);
+
+                if (strcmp(var, "MDATA") == SAMESTRING) {
+
+                    mData = arg;
+
+                } else if (strcmp(var, "MEGAHZ") == SAMESTRING) {
+
+                    megaHz = arg;
+
+                } else if (strcmp(var, "CRYPTSEED") == SAMESTRING) {
+
+                    cryptSeed = arg;
+
+                } else if (strcmp(var, "RCPM") == SAMESTRING) {
+
+                    rcpm = arg;
+
+                } else if (strcmp(var, "CLOCK") == SAMESTRING) {
+
+                    /* clock = arg; */
+
+                } else if (strcmp(var, "MESSAGEK") == SAMESTRING) {
+
+                    maxMSector = arg * 8;
+
+                } else if (strcmp(var, "MSGDISK") == SAMESTRING) {
+
+                    msgDisk = arg;
+
+                } else if (strcmp(var, "HOMEDISK") == SAMESTRING) {
+
+                    homeDisk = arg;
+
+                } else if (strcmp(var, "HOMEUSER") == SAMESTRING) {
+
+                    homeUser = arg;
+
+                } else if (strcmp(var, "LOGINOK") == SAMESTRING) {
+
+                    unlogLoginOk = arg;
+
+                } else if (strcmp(var, "ENTEROK") == SAMESTRING) {
+
+                    unlogEnterOk = arg;
+
+                } else if (strcmp(var, "READOK") == SAMESTRING) {
+
+                    unlogReadOk = arg;
+
+                } else if (strcmp(var, "ROOMOK") == SAMESTRING) {
+
+                    nonAideRoomOk = arg;
+
+                } else {
+
+                    putString("? -- no variable '%s' known! -- ignored.\n", var);
+
+                }
+
+            } else if (strcmp(cmd, "#nodeTitle") == SAMESTRING) {
+
+                /* reparse by ";" terminator: */
+                sscanf(line, "%s \"%s\"", cmd, string);
+                /* copy string into code buffer: */
+                strcpy(nodeTitle, string);
+
+            } else if (strcmp(cmd, "#nodeName") == SAMESTRING) {
+
+                /* reparse by ";" terminator: */
+                sscanf(line, "%s \"%s\"", cmd, string);
+                /* copy string into code buffer: */
+                strcpy(nodeName, string);
+
+            } else if (strcmp(cmd, "#nodeId") == SAMESTRING) {
+
+                /* reparse by ";" terminator: */
+                sscanf(line, "%s \"%s\"", cmd, string);
+                /* copy string into code buffer: */
+                strcpy(nodeId, string);
+
+            } else if (strcmp(cmd, "#alldone") == SAMESTRING) {
+
+                break;
+
+            } else if (cmd[0] == '#') putString("? -- no '%s' command!\n", cmd);
+
+        }
+
+    }
 
 }
 

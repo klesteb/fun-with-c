@@ -42,6 +42,7 @@ extern void doCR(void);
 extern char visible(char c);
 extern void configure(void);
 extern int  tutorial(char *filename);
+extern void loadConfig(char *filename);
 extern void putString(char *format, ...);
 extern void printDate(int year, int month, int day);
 extern void getDate(int *year, int *month, int *day);
@@ -58,6 +59,7 @@ extern void modemInit(void);
 extern void putChar(char c);
 extern void ringSysop(void);
 extern void upLoad(void);
+extern void initTerminal(void);
 
 /* 210msg.c */
 

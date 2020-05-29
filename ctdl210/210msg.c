@@ -107,7 +107,7 @@ char dGetWord(char *dest, int lim) {
 
     /* pick up any leading blanks: */
 
-    for (c = getMsgChar(); c == ' ' && c && lim;  c = getMsgChar()) {
+    for (c = getMsgChar(); c == ' ' && c && lim; c = getMsgChar()) {
 
         if (lim) { 
             
@@ -120,13 +120,13 @@ char dGetWord(char *dest, int lim) {
 
     /* step through word: */
 
-    for (; c != ' ' && c && lim;  c = getMsgChar()) {
-        
+    for (; c != ' ' && c && lim; c = getMsgChar()) {
+
         if (lim) { 
-            
+
             *dest++ = c;   
             lim--; 
-        
+
         }
 
     }
@@ -295,7 +295,8 @@ void flushMsgBuf(void) {
 void getMessage(void) {
 
     char c;
-
+putString("entering getMessage()\n");
+    
     /* clear msgBuf out */
 
     msgBuf.mbauth[0]  = '\0';
@@ -339,6 +340,7 @@ void getMessage(void) {
         
     } while (c != 'M' && isalpha(c));
 
+putString("leaving getMessage()\n");
 }
 
 /************************************************************************/
@@ -350,8 +352,8 @@ char getMsgChar(void) {
 
     if (GMCCache) {    /* someone did an unGetMsgChar() --return it    */
 
-        toReturn= GMCCache;
-        GMCCache= '\0';
+        toReturn = GMCCache;
+        GMCCache = '\0';
         return toReturn;
 
     }
@@ -618,11 +620,16 @@ void mPeek(void) {
 /*    by scanning over message.buf                    */
 /************************************************************************/
 void msgInit(void) {
-    
-    int  firstLo, firstHi, hereLo, hereHi;    /* 32 bits by halves    */
-    
+
+    int firstLo, firstHi, hereLo, hereHi;    /* 32 bits by halves    */
+
+    thisChar = 0;
+    thisSector = 0;
+
     startAt(0, 0);
+putString("after startAt()\n");
     getMessage();
+putString("after getMessage()\n");
 
     /* get the ID# */
 
@@ -1179,7 +1186,7 @@ void startAt(int sect, int byt) {
 
     if (sect >= maxMSector) {
 
-        putString("?startAt s=%d,b=%d", sect, byt);
+        putString("?startAt s=%d,b=%d\n", sect, byt);
         return;
 
     }

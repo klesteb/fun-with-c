@@ -168,7 +168,7 @@ void getRoom(int rm, struct roomBuffer *buf) {
 
     if ((val = read(roomfl, &roomBuf, SECSPERROOM)) >= 1000) {
 
-        putString(" ?getRoom(): rread failed, val=%d\n", val);
+        putString(" ?getRoom(): read failed, val=%d\n", val);
 
     }
 
@@ -326,7 +326,7 @@ char getText(char *prompt, char *buf, int lim) {
 }
 
 /************************************************************************/
-/*    getYesNo() prompts for a yes/no response            */
+/*    getYesNo() prompts for a yes/no response                          */
 /************************************************************************/
 char getYesNo(char *prompt) {
 

@@ -38,7 +38,6 @@
 /*    KBReady()       returns TRUE if a console char is ready           */
 /*    getCh()         returns a console char                            */
 /*    iChar()         top-level user-input function                     */
-/*    interact()      chat mode                                         */
 /*    modemInit()     top-level initialize-all-modem-stuff              */
 /*    oChar()         top-level user-output function                    */
 /*    putChar()                                                         */
@@ -93,7 +92,7 @@ int getCh(void) {
 /************************************************************************/
 int iChar(void) {
 
-    return (int)getch();
+    return (int)getCh();
 
 }
 
@@ -129,17 +128,8 @@ void modemInit(void) {
 
     visibleMode = FALSE;
     exitToCpm   = FALSE;
-
-    /* initiize curses */
-
-    initscr();
-    cbreak();
-    noecho();
-    keypad(stdscr, TRUE);
-
-    erase();
-    curs_set(0);
-    refresh();
+    
+    initTerminal();
 
 }
 
@@ -178,6 +168,33 @@ void putChar(char c) {
 void ringSysop(void) {
 
     putString("\n Ringing sysop.\n ");
+
+}
+
+/************************************************************************/
+/*   initTerminal()  initialize the terminal                            */
+/************************************************************************/
+void initTerminal(void) {
+    
+    /* initiize curses */
+
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
+
+    erase();
+    curs_set(0);
+    refresh();
+
+    outWin = newwin(LINES - 2, COLS, 0, 0);
+    if (outWin != NULL) {
+
+        scrollok(outWin, TRUE);
+
+    }
+
+    inpWin = newwin(1, COLS, LINES, 1);
 
 }
 

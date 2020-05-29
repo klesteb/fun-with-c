@@ -47,11 +47,11 @@
 /************************************************************************/
 
 /************************************************************************/
-/*    crypte() encrypts/decrypts data blocks                */
-/*                                    */
-/*  This was at first using a full multiply/add pseudo-random sequence    */
-/*  generator, but 8080s don't like to multiply.  Slowed down I/O    */
-/*  noticably.    Rewrote for speed.                    */
+/*    crypte() encrypts/decrypts data blocks                            */
+/*                                                                      */
+/*  This was at first using a full multiply/add pseudo-random sequence  */
+/*  generator, but 8080s don't like to multiply.  Slowed down I/O       */
+/*  noticably. Rewrote for speed.                                       */
 /************************************************************************/
 
 #define b    fpc1
@@ -60,6 +60,8 @@
 
 void crypte(char *buf, unsigned len, unsigned seed) {
 
+fprintf(stderr, "entering crypte\n");
+    
     seed = (seed + cryptSeed) & 0xFF;
     b = buf;
     c = len;
@@ -68,10 +70,11 @@ void crypte(char *buf, unsigned len, unsigned seed) {
     for (; c; c--) {
 
         *b++ ^= s;
-        s = (s + CRYPTADD)  &  0xFF;
+        s = (s + CRYPTADD) & 0xFF;
 
     }
 
+fprintf(stderr, "leaving crypte\n");
 }
 
 /************************************************************************/
@@ -102,7 +105,7 @@ int hash(char *str) {
 
     int  h, i, shift;
 
-    for (h = shift = 0; *str; shift =(shift + 1) & 7, str++) {
+    for (h = shift = 0; *str; shift = (shift + 1) & 7, str++) {
 
         h ^= (i = toupper(*str)) << shift;
 
@@ -430,6 +433,8 @@ void putLog(struct logBuffer *lBuf, int n) {
 
     n *= SECSPERLOG;
 
+fprintf(stderr, "entering putLog()\n");
+    
     crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* encode buffer    */
 
     lseek(logfl, n, SEEK_CUR);
@@ -442,6 +447,7 @@ void putLog(struct logBuffer *lBuf, int n) {
 
     crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* decode buffer    */
 
+fprintf(stderr, "leaving putLog()\n");
 }
 
 /************************************************************************/
@@ -611,7 +617,7 @@ void zapLogFile(void) {
 
     /* clear RAM buffer out:            */
 
-    logBuf.lbvisit[0]    = ERROR;
+    logBuf.lbvisit[0] = ERROR;
 
     for (i = 0; i < MAILSLOTS; i++) {
 

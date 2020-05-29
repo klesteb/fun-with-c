@@ -5,6 +5,11 @@
 /*    #include file for all Citadel C files.                            */
 /************************************************************************/
 
+#ifndef _CTDL_H
+#define _CTDT_H
+
+#include <ncurses.h>
+
 /************************************************************************/
 /*                History                                               */
 /*                                                                      */
@@ -32,16 +37,15 @@
 /* #def TEST for special small-scale test version                       */
 /************************************************************************/
 
-
 char firstExtern;       /* this should ALWAYS be the first declaration */
 
 char mData;             /* Modem data port            */
 
 char megaHz;            /* Z80 clock rate (for wait loops)    */
 
-char *nodeName;
-char *nodeTitle;
-char *nodeId;
+char nodeName[32];
+char nodeTitle[32];
+char nodeId[32];
 
 int  cryptSeed;
 char rcpm;               /* TRUE to run in RCP/M mode        */
@@ -53,6 +57,9 @@ char unlogEnterOk;       /* TRUE if OK to enter messages anon    */
 char unlogReadOk;        /* TRUE if unlogged folks can read mess */
 char unlogLoginOk;       /* TRUE if spontan. new accounts ok.    */
 char nonAideRoomOk;      /* TRUE general folks can make rooms    */
+
+WINDOW *outWin;
+WINDOW *inpWin;
 
 /************************************************************************/
 /*                                                                      */
@@ -237,17 +244,16 @@ struct logBuffer {
     char      lbnulls;            /* #nulls, lCase, lFeeds                */
     char      lbflags;            /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
     char      lbwidth;            /* terminal width                       */
-    char      lbheight;           /* terminal height                      */
     char      lbname[NAMESIZE];   /* caller's name                        */
     char      lbpw[NAMESIZE];     /* caller's password                    */
     char      lbgen[MAXROOMS];    /* 6 bits gen, two bits lastvisit       */
-    int       lbvisit[MAXVISIT];  /* newestLo for this and 3 prev. visits */
-    int       lbslot[MAILSLOTS];  /* for private mail                     */
-    unsigned  lbId[MAILSLOTS];    /* for private mail                     */
+    short     lbvisit[MAXVISIT];  /* newestLo for this and 3 prev. visits */
+    short     lbslot[MAILSLOTS];  /* for private mail                     */
+    unsigned short lbId[MAILSLOTS];    /* for private mail                     */
 #ifdef TEST
     char      lbOverFlow[256];
 #else
-    char      lbOverFlow[83];
+    char      lbOverFlow[84];
 #endif
 } logBuf;
 
@@ -358,4 +364,6 @@ int  pulledMId;         /* id number of message to be pulled */
 
 int  FDSectCount;       /* fileDirectory() keeps a count here         */
 char lastExtern;        /* this should ALWAYS be the last declaration */
+
+#endif
 

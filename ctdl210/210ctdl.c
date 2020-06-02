@@ -56,13 +56,13 @@ char doAide(char moreYet, char first) {
 
     if (moreYet) first = '\0';
 
-    putString("ide special fn: ");
+    putString("Aide special fn: ");
 
     if (first) oChar(first);
 
     switch (toupper(  first ? first : iChar() )) {
         case 'D':
-            putString("elete empty rooms\n ");
+            putString("Delete empty rooms\n ");
             strcpy(oldName, roomBuf.rbname);
             indexRooms();
 
@@ -80,7 +80,7 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage== */ FALSE );
             break;
         case 'E':
-            putString("dit room\n  \n");
+            putString("Edit room\n  \n");
             strcpy(oldName, roomBuf.rbname);
             if (!renameRoom())   break;
             sprintf(
@@ -93,7 +93,7 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage == */ FALSE);
             break;
         case 'I':
-            putString("nsert message\n ");
+            putString("Insert message\n ");
             if (thisRoom == AIDEROOM || pulledMLoc == ERROR)   {
                 putString("nope!");
                 break;
@@ -110,7 +110,7 @@ char doAide(char moreYet, char first) {
             aideMessage( /* noteDeletedMessage == */ TRUE);
             break;
         case 'K':
-            putString("ill room\n ");
+            putString("Kill room\n ");
             if (thisRoom == LOBBY || 
                 thisRoom == MAILROOM || 
                 thisRoom == AIDEROOM ) {
@@ -200,7 +200,7 @@ void doEnter(char moreYet, char first) {
                break;
             case 'F':
                 if (roomBuf.rbflags & CPMDIR) {
-                    putString("ile upload ");
+                    putString("File upload ");
                     what = FILE;
                     done = TRUE;
                     break;
@@ -214,22 +214,22 @@ void doEnter(char moreYet, char first) {
                 abort    = TRUE;
                 break;
             case 'C':
-                putString("onfiguration ");
+                putString("Configuration ");
                 what    = CONFIGURATION;
                 done    = TRUE;
                 break;
             case 'M':
-                putString("essage ");
+                putString("Message ");
                 what    = MESSAGE;
                 done    = TRUE;
                 break;
             case 'P':
-                putString("assword ");
+                putString("Password ");
                 what    = PASSWORD;
                 done    = TRUE;
                 break;
             case 'R':
-                putString("oom ");
+                putString("Room ");
                 if (!nonAideRoomOk && !aide)   {
                     putString(" ?-- must be aide to create room\n ");
                     abort    = TRUE;
@@ -309,12 +309,12 @@ void doHelp(char expand, char first) {
     char fileName[NAMESIZE];
 
     if (!expand) {
-        putString("elp\n \n ");
+        putString("Help\n \n ");
         tutorial("dohelp.hlp");
         return;
     }
 
-    putString("elp ");
+    putString("Help ");
     getString("", fileName, NAMESIZE);
     normalizeString(fileName);
 
@@ -326,6 +326,7 @@ void doHelp(char expand, char first) {
 
         /* adding the extention makes things look simpler for        */
         /* the user... and restricts the files which can be read    */
+
         strcat(fileName, ".hlp");
         tutorial(fileName);
 
@@ -340,7 +341,7 @@ void doKnown(char expand, char first) {
 /* expand - TRUE to accept following parameters */
 /* first -  first parameter if TRUE             */
 
-    putString("nown rooms\n ");
+    putString("Known rooms\n ");
     listRooms(/* doDull== */ TRUE);
 
 }
@@ -354,7 +355,7 @@ void doLogin(char moreYet, char first) {
 
     char passWord[NAMESIZE];
 
-    putString("ogin ");
+    putString("Login ");
 
     if (!moreYet) {
 
@@ -384,25 +385,25 @@ void doLogout(char expand, char first) {
 
     if (expand) first = '\0';
 
-    putString("erminate ");
+    putString("Terminate ");
 
     if (first) oChar(first);
 
-    switch (toupper(    first ? first : iChar()    )) {
+    switch (toupper(first ? first : iChar())) {
         case '?':
-            putString("\n Logout options:\n \n ");
-            putString("Quit-also\n "        );
-            putString("Stay\n "        );
+            putString("\n Logout options:\n\n");
+            putString("Quit-also\n");
+            putString("Stay\n");
             break;
         case 'Q':
-            putString("uit-also\n ");
+            putString("Quit-also\n");
             if (!expand)   {
                 if (!getYesNo("confirm"))   break;
             }
             terminate( /* hangUp == */ TRUE);
             break;
         case 'S':
-            putString("tay\n ");
+            putString("Stay\n ");
             terminate( /* hangUp == */ FALSE);
             break;
     }
@@ -449,58 +450,58 @@ void doRead(char moreYet, char first) {
                 moreYet = FALSE;
                 break;
             case 'A':
-                putString("ll ");
+                putString("All ");
                 whichMess = oldAndNew;
                 break;
             case 'F':
-                putString("orward ");
+                putString("Forward ");
                 revOrder  = FALSE;
                 whichMess = oldAndNew;
                 break;
             case 'G':
-                putString("lobal new-messages ");
+                putString("Global new-messages ");
                 whichMess = globalNew;
                 break;
             case 'N':
-                putString("ew ");
+                putString("New ");
                 whichMess = newOnly;
                 break;
             case 'O':
-                putString("ld ");
+                putString("Old ");
                 revOrder  = TRUE;
                 whichMess = oldOnly;
                 break;
             case 'R':
-                putString("everse ");
+                putString("Reverse ");
                 revOrder  = TRUE;
                 whichMess = oldAndNew;
                 break;
             case 'S':
-                putString("tatus ");
+                putString("Status ");
                 status = TRUE;
                 done   = TRUE;
                 break;
             case 'W':
-                putString("C protocol ");
+                putString("WC protocol ");
                 WC = TRUE;
                 break;
             case 'B':
                 if (roomBuf.rbflags & CPMDIR) {
-                    putString("inary file(s) ");
+                    putString("Binary file(s) ");
                     done     = TRUE;
                     hostFile = TRUE;
                     break;
                 }
             case 'D':
                 if (roomBuf.rbflags & CPMDIR) {
-                    putString("irectory ");
+                    putString("Directory ");
                     doDir = TRUE;
                     done  = TRUE;
                     break;
                 }
             case 'T':
                 if (roomBuf.rbflags & CPMDIR) {
-                    putString("extfile(s) ");
+                    putString("Textfile(s) ");
                     done     = TRUE;
                     hostFile = TRUE;
                     break;
@@ -605,7 +606,7 @@ char doRegular(char x, char c) {
         case 0:
             if (newCarrier)   {
                 greeting();
-                newCarrier    = FALSE;
+                newCarrier = FALSE;
             }
             if (justLostCarrier) {
                 justLostCarrier = FALSE;
@@ -648,17 +649,17 @@ char doSysop(char c, char first) {
 
         switch (toupper(first ? first : iChar())) {
             case 'A':
-                putString("bort\n ");
+                putString("Abort\n ");
                 return FALSE;
             case 'C':
-                putString("hat mode disabled\n");
+                putString("Chat mode disabled\n");
                 break;
             case 'D':
                 debug = !debug;
-                putString("ebug switch=%d\n \n", debug);
+                putString("Debug switch=%d\n \n", debug);
                 break;
             case 'K':
-                putString("ill account\n ");
+                putString("Kill account\n ");
                 if (!getYesNo("Confirm")) break;
                 getString("who", who, NAMESIZE);
                 normalizeString(who);
@@ -711,7 +712,7 @@ char doSysop(char c, char first) {
                 putString("not implemented\n");
                 break;
             case 'S':
-                putString("et date\n \n");
+                putString("Set date\n \n");
                 break;
             case 'V':
                 putString(" VisibleMode==%d\n ",  visibleMode = !visibleMode);
@@ -737,9 +738,9 @@ char doSysop(char c, char first) {
 }
 
 /************************************************************************/
-/*    getCommand() prints menu prompt and gets command char        */
-/*    Returns: char via parameter and expand flag as value  --    */
-/*         i.e., TRUE if parameters follow else FALSE.        */
+/*    getCommand() prints menu prompt and gets command char             */
+/*    Returns: char via parameter and expand flag as value  --          */
+/*         i.e., TRUE if parameters follow else FALSE.                  */
 /************************************************************************/
 char getCommand(char *c) {
 

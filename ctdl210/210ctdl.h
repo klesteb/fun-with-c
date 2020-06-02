@@ -56,9 +56,9 @@
 #endif
 
 #define SECSPERROOM 2   /* sectors/room                      */
-#define ROOMSECTORS (MAXROOMS*SECSPERROOM)
 #define SECSPERLOG  3   /* three sectors per log record      */
-#define LOGSECTORS  (MAXLOGTAB*SECSPERLOG)
+#define ROOMSECTORS (MAXROOMS * SECSPERROOM)
+#define LOGSECTORS  (MAXLOGTAB * SECSPERLOG)
 
 /************************************************************************/
 /*        Stuff nowadays usually in bdscio.h:                           */
@@ -119,36 +119,24 @@
 #define PERMROOM 8      /* flags mask */
 
 struct roomTable {
-    char     rtgen;            /* generation # of room             */
-    char     rtflags;          /* public/private flag etc          */
-    char     rtname[NAMESIZE]; /* name of room                     */
-    unsigned rtlastMessage;    /* # of most recent message in room */
+    char rtgen;                 /* generation # of room             */
+    char rtflags;               /* public/private flag etc          */
+    char rtname[NAMESIZE];      /* name of room                     */
+    unsigned short rtlastMessage;   /* # of most recent message in room */
 };
 
 struct roomBuffer {
-    char     rbgen;            /* generation # of room            */
-    char     rbflags;          /* same bits as flags above        */
-    char     rbname[NAMESIZE]; /* name of room                    */
-    char     rbdisk;           /* disk this rooms files are in 0=>none */
-    char     rbuser;           /* user area for this rooms files  */
+    char rbgen;                 /* generation # of room            */
+    char rbflags;               /* same bits as flags above        */
+    char rbname[NAMESIZE];      /* name of room                    */
+    char rbdisk;                /* disk this rooms files are in 0=>none */
+    char rbuser;                /* user area for this rooms files  */
     union {
         struct {
-            unsigned rbmsgNo;      /* every message gets unique#  */
-            int      rbmsgLoc;     /* sector message starts in    */
+            unsigned short rbmsgNo;  /* every message gets unique#  */
+            unsigned short rbmsgLoc; /* sector message starts in    */
         } msg[MSGSPERRM];
-
-        /* old idea, will probably drop: */
-        struct {
-            unsigned rbfilNo;        /* files also get ID#s       */
-            char rbfilNam[NAMESIZE]; /* name of file              */
-        } fil[FILSPERRM];
-    } vp;                            /* variable-part             */
-#ifdef TEST
-    char rbOverRun[256];
-#else
-    char rbOverRun[2];        /* actually unneeded just now -- roomBuf*/
-#endif
-                      /* is exactly 256 at present      */
+    } vp;                       /* variable-part               */
 };
 
 /************************************************************************/
@@ -170,15 +158,15 @@ struct roomBuffer {
 /* logbuf must be 384 bytes or less... including lbOverFlow, 384 or MORE */
 
 struct logBuffer {
-    char      lbnulls;            /* #nulls, lCase, lFeeds                */
-    char      lbflags;            /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
-    char      lbwidth;            /* terminal width                       */
-    char      lbname[NAMESIZE];   /* caller's name                        */
-    char      lbpw[NAMESIZE];     /* caller's password                    */
-    char      lbgen[MAXROOMS];    /* 6 bits gen, two bits lastvisit       */
-    short     lbvisit[MAXVISIT];  /* newestLo for this and 3 prev. visits */
-    short     lbslot[MAILSLOTS];  /* for private mail                     */
-    unsigned short lbId[MAILSLOTS];    /* for private mail                     */
+    char  lbnulls;                     /* #nulls, lCase, lFeeds                */
+    char  lbflags;                     /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
+    char  lbwidth;                     /* terminal width                       */
+    char  lbname[NAMESIZE];            /* caller's name                        */
+    char  lbpw[NAMESIZE];              /* caller's password                    */
+    char  lbgen[MAXROOMS];             /* 6 bits gen, two bits lastvisit       */
+    unsigned short lbvisit[MAXVISIT];  /* newestLo for this and 3 prev. visits */
+    unsigned short lbslot[MAILSLOTS];  /* for private mail                     */
+    unsigned short lbId[MAILSLOTS];    /* for private mail               */
 #ifdef TEST
     char      lbOverFlow[256];
 #else
@@ -187,10 +175,10 @@ struct logBuffer {
 };
 
 struct logTable {
-    int  ltpwhash;      /* hash of password          */
-    int  ltnmhash;      /* hash of name              */
-    int  ltlogSlot;     /* location in userlog.buf   */
-    int  ltnewest;      /* last message on last call */
+    unsigned short ltpwhash;        /* hash of password          */
+    unsigned short ltnmhash;        /* hash of name              */
+    unsigned short ltlogSlot;       /* location in userlog.buf   */
+    unsigned short ltnewest;        /* last message on last call */
 };
 
 /************************************************************************/
@@ -207,17 +195,17 @@ struct logTable {
 /************************************************************************/
 
 struct msgBuffer {
-    char mbtext[MAXTEXT];    /* buffer text is edited in           */
-    unsigned char  mbheadChar;         /* start of message                   */
-    unsigned short mbheadSector;       /* start of message                   */
-    char mbauth[NAMESIZE];   /* name of author                     */
-    char mbdate[NAMESIZE];   /* creation date                      */
-    char mbId[NAMESIZE];     /* local number of message            */
-    char mboname[NAMESIZE];  /* short human name for origin system */
-    char mborig[NAMESIZE];   /* US 206 633 3282 style ID           */
-    char mbroom[NAMESIZE];   /* creation room                      */
-    char mbsrcId[NAMESIZE];  /* message ID on system of origin     */
-    char mbto[NAMESIZE];     /* private message to                 */
+    char mbtext[MAXTEXT];           /* buffer text is edited in           */
+    unsigned char  mbheadChar;      /* start of message                   */
+    unsigned short mbheadSector;    /* start of message                   */
+    char mbauth[NAMESIZE];          /* name of author                     */
+    char mbdate[NAMESIZE];          /* creation date                      */
+    char mbId[NAMESIZE];            /* local number of message            */
+    char mboname[NAMESIZE];         /* short human name for origin system */
+    char mborig[NAMESIZE];          /* US 206 633 3282 style ID           */
+    char mbroom[NAMESIZE];          /* creation room                      */
+    char mbsrcId[NAMESIZE];         /* message ID on system of origin     */
+    char mbto[NAMESIZE];            /* private message to                 */
 };
 
 /* values for showMess routine */

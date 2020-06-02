@@ -469,7 +469,7 @@ void slideLTab(int slot, int last) {
 /************************************************************************/
 void sortLog(void ) {
     
-#define TSIZE 10
+#define TSIZE 16
     char *temp[TSIZE];
     int finis, i, intCount, step;
 
@@ -520,7 +520,7 @@ void sortLog(void ) {
 }
 
 /************************************************************************/
-/*    storeLog() stores the current log record.            */
+/*    storeLog() stores the current log record.                         */
 /************************************************************************/
 void storeLog(void) {
 
@@ -539,7 +539,7 @@ void storeLog(void) {
 /*    terminate() is menu-level routine to exit system        */
 /************************************************************************/
 void terminate(char discon) {
-    
+
     /* 1.  parameter <discon> is TRUE or FALSE.          */
     /* 2.  if <discon> is TRUE, breaks modem connection  */
     /*     or switches whichIO from CONSOLE to MODEM,    */
@@ -549,6 +549,12 @@ void terminate(char discon) {
     /* 4.  returns no values                             */
     /*          modified    dvm 9-82                     */
 
+    if (discon) {
+        
+        exitToCpm = TRUE;
+        
+    }
+
     putString(" %s logged out\n ", logBuf.lbname);
 
     logBuf.lbgen[thisRoom] = roomBuf.rbgen << GENSHIFT;
@@ -556,7 +562,6 @@ void terminate(char discon) {
     storeLog();
     loggedIn = FALSE;
     setUp(TRUE);
-    endTerminal();
     
 }
 
@@ -568,10 +573,10 @@ void getLog(struct logBuffer *lBuf, int n) {
     int recsize = sizeof(struct logBuffer);
     int offset = n * recsize;
 
-    if (lBuf == &logBuf) thisLog = n;
+    thisLog = n;
 
     errno = 0;
-    if ((lseek(logfl, n, SEEK_SET)) < 0) {
+    if ((lseek(logfl, offset, SEEK_SET)) < 0) {
 
         putString(" ?getLog(): seek failed, reason: %d\n", errno);
 
@@ -591,28 +596,28 @@ void getLog(struct logBuffer *lBuf, int n) {
 /************************************************************************/
 /*    putLog() stores given log record into ctdllog.sys                 */
 /************************************************************************/
-void putLog(struct logBuffer *lBuf, int n) {
+void putLog(struct logBuffer *buf, int n) {
 
     int recsize = sizeof(struct logBuffer);
     int offset = n * recsize;
 
-    crypte(lBuf, recsize, n);    /* encode buffer    */
+    crypte(buf, recsize, n);    /* encode buffer    */
 
     errno = 0;
-    if ((lseek(logfl, n, SEEK_CUR)) < 0) {
+    if ((lseek(logfl, offset, SEEK_SET)) < 0) {
 
         putString(" ?putLog(): seek failed, reason: %d\n", errno);
 
     }
 
     errno = 0;
-    if (write(logfl, lBuf, recsize) < 0) {
+    if (write(logfl, buf, recsize) < 0) {
 
         putString(" ?putLog(): write failed, reason: %d\n", errno);
 
     }
 
-    crypte(lBuf, recsize, n);    /* decode buffer    */
+    crypte(buf, recsize, n);    /* decode buffer    */
 
 }
 
@@ -627,12 +632,16 @@ void zapLogFile(void) {
 
     /* clear RAM buffer out:            */
 
-    logBuf.lbvisit[0] = ERROR;
+    for (i = 0; i < MAXVISIT; i++) {
+
+        logBuf.lbvisit[0] = 0;
+
+    }
 
     for (i = 0; i < MAILSLOTS; i++) {
 
-        logBuf.lbslot[i] = ERROR;
-        logBuf.lbId[i]   = ERROR;
+        logBuf.lbslot[i] = 0;
+        logBuf.lbId[i]   = 0;
 
     }
 

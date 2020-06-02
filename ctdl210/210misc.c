@@ -120,7 +120,7 @@ int tutorial(char *filename) {
 
     FILE *fp = NULL;
     char line[MAXWORD];
-    int  toReturn;
+    int toReturn;
 
     toReturn = TRUE;
 
@@ -141,8 +141,8 @@ int tutorial(char *filename) {
 
         while (fgets(line, MAXWORD, fp)) {
 
-            putString("%s", line);
-
+            putString("%s\n", line);
+            
         }
 
         fclose(fp);

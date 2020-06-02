@@ -279,7 +279,7 @@ void flushMsgBuf(void) {
     crypte(sectBuf, SECTSIZE, 0);
 
     errno = 0;
-    if (write(msgfl, sectBuf, 1) != 1) {
+    if (write(msgfl, sectBuf, 1) < 0) {
         
         putString("?ctdlmsg.sys write fail, reason; %d", errno);
 
@@ -427,19 +427,19 @@ int getWord(char *dest, char *source, int offset, int lim) {
 
     /* skip leading blanks if any */
 
-    for (i = 0; source[offset+i] == ' ' && i < lim;  i++);
+    for (i = 0; source[offset+i] == ' ' && i < lim; i++);
 
     /* step over word */
 
-    for (; source[offset + i] != ' '  && i < lim && source[offset + i] != 0; i++);
+    for (; source[offset + i] != ' ' && i < lim && source[offset + i] != 0; i++);
 
     /* pick up any trailing blanks */
 
-    for (; source[offset + i] == ' ' && i < lim;  i++);
+    for (; source[offset + i] == ' ' && i < lim; i++);
 
     /* copy word over */
 
-    for (j = 0;  j < i;  j++) {
+    for (j = 0; j < i; j++) {
 
         dest[j] = source[offset + j];
         
@@ -1182,7 +1182,7 @@ void showMessages(char whichMess, char revOrder) {
 /************************************************************************/
 /*    startAt() sets location to begin reading message from             */
 /************************************************************************/
-void startAt(int sect, int byt) {
+void startAt(unsigned short sect, unsigned short byt) {
 
     GMCCache = '\0';    /* cache to unGetMsgChar() into */
 

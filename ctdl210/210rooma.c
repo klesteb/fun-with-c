@@ -35,13 +35,11 @@
 /*    initSysop()                                                       */
 /*    listRooms()    lists known rooms                                  */
 /*    openFile()     opens a .sys file                                  */
-/*    readSysTab()   restores system state from citadel.tab             */
 /*    roomExists()   returns slot# of named room else ERROR             */
 /*    setSpace()     set default disk and user#                         */
 /*    setUp()                                                           */
 /*    systat()       shows current system status                        */
 /*    wildCard()     expands ambiguous filenames                        */
-/*    writeSysTab()  saves state of system in citadel.tab               */
 /*                                                                      */
 /************************************************************************/
 
@@ -50,7 +48,8 @@
 /************************************************************************/
 void dumpRoom(void) {
 
-    int i, count, loc, newCount, no;
+    int i, count, newCount;
+    unsigned short no, loc;
 
     for (newCount = 0, count = 0, i = 0; i < MSGSPERRM; i++) {
 
@@ -138,8 +137,8 @@ void fillMailRoom(void) {
 
     for (i = 0; i < MSGSPERRM; i++) {
 
-        roomBuf.vp.msg[i].rbmsgLoc = ERROR;
-        roomBuf.vp.msg[i].rbmsgNo  = ERROR;
+        roomBuf.vp.msg[i].rbmsgLoc = 0;
+        roomBuf.vp.msg[i].rbmsgNo  = 0;
 
     }
 
@@ -173,16 +172,16 @@ char gotoRoom(char *nam) {
         newStuff= FALSE;
 
         for (i = 0; i < MAXROOMS && !foundit; i++) {
-            
+
             if ((roomTab[i].rtflags & INUSE) &&
-                (roomTab[i].rtgen == (logBuf.lbgen[i]>>GENSHIFT))) {
-                
+                (roomTab[i].rtgen == (logBuf.lbgen[i] >> GENSHIFT))) {
+
                 nwest = logBuf.lbvisit[logBuf.lbgen[i] & CALLMASK] + 1;
 
-                if (roomTab[i].rtlastMessage - nwest  < 0x8000) {
-                    
+                if (roomTab[i].rtlastMessage - nwest < 0x8000) {
+
                     if (i != thisRoom && (i != AIDEROOM || aide)) {
-                        
+
                         foundit = i;
                         newStuff= TRUE;
 
@@ -193,17 +192,17 @@ char gotoRoom(char *nam) {
             }
 
         }
-        
+
         getRoom(foundit, &roomBuf);
         putString("%s\n ", roomBuf.rbname);
-        
+
     } else {
 
         /* non-empty room name, so now we look for it: */
 
         if ((roomNo = roomExists(nam)) == ERROR ||
-            (roomNo==AIDEROOM  &&  !aide)) {
-            
+            (roomNo == AIDEROOM && !aide)) {
+
             putString(" ?no %s room\n", nam);
 
         } else {
@@ -211,15 +210,15 @@ char gotoRoom(char *nam) {
             /* update log entry for current room:   */
 
             if (loggedIn) {
-                
+
                 logBuf.lbgen[thisRoom] = roomBuf.rbgen << GENSHIFT;
-                
+
             }
 
             getRoom(roomNo, &roomBuf);
 
             /* if may have been unknown... if so, note it:    */
-            
+
             if ((logBuf.lbgen[thisRoom] >> GENSHIFT) != roomBuf.rbgen) {
 
                 logBuf.lbgen[thisRoom] = (
@@ -243,8 +242,6 @@ char gotoRoom(char *nam) {
 /************************************************************************/
 void initCitadel(void) {
 
-    char *msgFile;
-
     setSpace(homeDisk, homeUser);
 
     if (FALSE) getText(NULL, NULL, 0);  /* dummy to force load        */
@@ -257,13 +254,12 @@ void initCitadel(void) {
 
     /* open message files: */
 
-    msgFile    = "ctdlmsg.sys";
-
-    openFile(msgFile,        &msgfl);
+    openFile("ctdlmsg.sys",  &msgfl);
     openFile("ctdlroom.sys", &roomfl);
     openFile("ctdllog.sys",  &logfl);
 
-    getRoom(0, &roomBuf);    /* load Lobby>    */
+    loadRoomTab();
+    getRoom(LOBBY, &roomBuf);    /* load Lobby>    */
 
 }
 
@@ -301,11 +297,11 @@ void listRooms(char doDull) {
 
                 if (!hasUnseenStuff) {
 
-                    boringRooms  = TRUE;
+                    boringRooms = TRUE;
 
                 }
 
-                if ((!doBoringRooms &&    hasUnseenStuff)  ||
+                if ((!doBoringRooms && hasUnseenStuff) ||
                     ( doBoringRooms && !hasUnseenStuff)) {
 
                     strcpy(str, roomTab[i].rtname);
@@ -364,7 +360,7 @@ void openFile(char *filename, int *fd) {
 }
 
 /************************************************************************/
-/*    roomExists() returns slot# of named room else ERROR        */
+/*    roomExists() returns slot# of named room else ERROR               */
 /************************************************************************/
 int roomExists(char *room) {
 
@@ -372,8 +368,8 @@ int roomExists(char *room) {
 
     for (i = 0; i < MAXROOMS; i++) {
 
-        if (roomTab[i].rtflags & INUSE &&
-            strcasecmp(room, roomTab[i].rtname) == SAMESTRING) {
+        if ((roomTab[i].rtflags & INUSE) &&
+            (strcasecmp(room, roomTab[i].rtname)) == 0) {
 
             return(i);
 
@@ -490,7 +486,7 @@ void setUp(char justIn) {
 
                     }
 
-                } else if ((logBuf.lbgen[i] >> GENSHIFT) !=  roomTab[i].rtgen) {
+                } else if ((logBuf.lbgen[i] >> GENSHIFT) != roomTab[i].rtgen) {
 
                     /* newly created public room -- remember to visit it; */
 
@@ -689,6 +685,39 @@ void wildCard(int (*fn)(char *), char *filename) {
     /* (*fn)(fp); */
     /* } */
     /* setSpace(homeDisk, homeUser); */
+
+}
+
+/************************************************************************/
+/************************************************************************/
+void loadRoomTab(void) {
+
+    int i, x;
+    unsigned short last;
+    struct roomBuffer buff;
+
+    for (i = 0; i < MAXROOMS; i++) {
+
+        getRoom(i, &buff);
+
+        last = 0;
+
+        for (x = 0; x < MSGSPERRM; x++) {
+
+            if (buff.vp.msg[x].rbmsgNo > last) {
+
+                last = buff.vp.msg[i].rbmsgNo;
+
+            }
+
+        }
+
+        roomTab[i].rtlastMessage = last;
+        roomTab[i].rtgen = buff.rbgen;
+        roomTab[i].rtflags = buff.rbflags;
+        strcpy(roomTab[i].rtname, buff.rbname);
+
+    }
 
 }
 

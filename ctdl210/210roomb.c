@@ -796,13 +796,13 @@ void getRoom(int rm, struct roomBuffer *buf) {
     }
 
     errno = 0;
-    if ((val = read(roomfl, &roomBuf, recsize)) < 0) {
+    if ((val = read(roomfl, buf, recsize)) < 0) {
 
         putString(" ?getRoom(): read failed, val=%d, reason: %d\n", val, errno);
 
     }
 
-    crypte(&roomBuf, recsize, rm);
+    crypte(buf, recsize, rm);
 
 }
 
@@ -814,7 +814,7 @@ void putRoom(int rm, struct roomBuffer *buf) {
     int recsize = sizeof(struct roomBuffer);
     int offset = rm * recsize;
 
-    crypte(&roomBuf, recsize, rm);
+    crypte(buf, recsize, rm);
 
     errno = 0;
     if ((lseek(roomfl, offset, SEEK_SET)) < 0) {
@@ -824,13 +824,13 @@ void putRoom(int rm, struct roomBuffer *buf) {
     }
 
     errno = 0;
-    if ((write(roomfl, &roomBuf, recsize)) < 0) {
+    if ((write(roomfl, buf, recsize)) < 0) {
 
         putString(" ?putRoom(): write failed, reason: %d\n", errno);
 
     }
 
-    crypte(&roomBuf, recsize, rm);
+    crypte(buf, recsize, rm);
 
 }
 

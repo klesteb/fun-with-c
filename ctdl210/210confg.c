@@ -112,11 +112,16 @@ void init(void) {
 void wrapup(void) {
 
     msgInit();
-putString("after msgInit()\n");
+    putString("Press <return> to continue.\n");
+    getch();
+
     indexRooms();
-putString("after indexRooms()\n");
+    putString("Press <return> to continue.\n");
+    getch();
+
     logInit();
-putString("after logInit()\n");
+    putString("Press <return> to continue.\n");
+    getch();
 
 }
 

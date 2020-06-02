@@ -130,8 +130,6 @@ void modemInit(void) {
     visibleMode = FALSE;
     exitToCpm   = FALSE;
     
-    initTerminal();
-
 }
 
 /************************************************************************/
@@ -181,11 +179,11 @@ void initTerminal(void) {
 
     initscr();
     cbreak();
-    noecho();
+    /* noecho(); */
     keypad(stdscr, TRUE);
 
     erase();
-    curs_set(0);
+    /* curs_set(0); */
     refresh();
 
     outWin = newwin(LINES - 2, COLS, 0, 0);

@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -155,27 +156,6 @@ int getNumber(char *prompt, unsigned bottom, unsigned top) {
 
 }
 
-/************************************************************************/
-/*    getRoom()                                                         */
-/************************************************************************/
-void getRoom(int rm, struct roomBuffer *buf) {
-
-    unsigned val;
-
-    /* load room #rm into memory starting at buf */
-
-    thisRoom = rm;
-    lseek(roomfl, rm * SECSPERROOM, SEEK_SET);
-
-    if ((val = read(roomfl, &roomBuf, SECSPERROOM)) >= 1000) {
-
-        putString(" ?getRoom(): read failed, val=%d\n", val);
-
-    }
-
-    crypte((char *)&roomBuf, (SECSPERROOM * SECTSIZE), rm);
-
-}
 
 /************************************************************************/
 /*    getString() gets a string from the user.                          */
@@ -638,26 +618,6 @@ void noteRoom(void) {
 }
 
 /************************************************************************/
-/*    putRoom() stores room in buf into slot rm in room.buf             */
-/************************************************************************/
-void putRoom(int rm, struct roomBuffer *buf) {
-
-    unsigned val;
-
-    crypte((char *)&roomBuf, (SECSPERROOM * SECTSIZE), rm);
-    lseek(roomfl, rm * SECSPERROOM, SEEK_SET);
-
-    if ((val = write(roomfl, &roomBuf, SECSPERROOM)) != SECSPERROOM) {
-
-        putString("?putRoom()%d", val);
-
-    }
-
-    crypte((char *)&roomBuf, (SECSPERROOM * SECTSIZE), rm);
-
-}
-
-/************************************************************************/
 /*    renameRoom() is sysop special fn                                  */
 /*    Returns:    TRUE on success else FALSE                            */
 /************************************************************************/
@@ -812,6 +772,65 @@ void replaceString(char *buf, int lim) {
     /* insert new string: */
 
     for (pc = newString; *pc; *loc++ = *pc++);
+
+}
+
+/************************************************************************/
+/*    getRoom()                                                         */
+/************************************************************************/
+void getRoom(int rm, struct roomBuffer *buf) {
+
+    int val;
+    int recsize = sizeof(struct roomBuffer);
+    int offset = rm * recsize;
+
+    /* load room #rm into memory starting at buf */
+
+    thisRoom = rm;
+
+    errno = 0;
+    if ((lseek(roomfl, offset, SEEK_SET)) < 0) {
+
+        putString(" ?getRoom(): seek failed, reason: %d\n", errno);
+
+    }
+
+    errno = 0;
+    if ((val = read(roomfl, &roomBuf, recsize)) < 0) {
+
+        putString(" ?getRoom(): read failed, val=%d, reason: %d\n", val, errno);
+
+    }
+
+    crypte(&roomBuf, recsize, rm);
+
+}
+
+/************************************************************************/
+/*    putRoom() stores room in buf into slot rm in room.buf             */
+/************************************************************************/
+void putRoom(int rm, struct roomBuffer *buf) {
+
+    int recsize = sizeof(struct roomBuffer);
+    int offset = rm * recsize;
+
+    crypte(&roomBuf, recsize, rm);
+
+    errno = 0;
+    if ((lseek(roomfl, offset, SEEK_SET)) < 0) {
+
+        putString(" ?putRoom(): seek failed, reason: %d\n", errno);
+
+    }
+
+    errno = 0;
+    if ((write(roomfl, &roomBuf, recsize)) < 0) {
+
+        putString(" ?putRoom(): write failed, reason: %d\n", errno);
+
+    }
+
+    crypte(&roomBuf, recsize, rm);
 
 }
 

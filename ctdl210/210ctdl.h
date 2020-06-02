@@ -208,10 +208,8 @@ struct logTable {
 
 struct msgBuffer {
     char mbtext[MAXTEXT];    /* buffer text is edited in           */
-
-    int  mbheadChar;         /* start of message                   */
-    int  mbheadSector;       /* start of message                   */
-
+    unsigned char  mbheadChar;         /* start of message                   */
+    unsigned short mbheadSector;       /* start of message                   */
     char mbauth[NAMESIZE];   /* name of author                     */
     char mbdate[NAMESIZE];   /* creation date                      */
     char mbId[NAMESIZE];     /* local number of message            */

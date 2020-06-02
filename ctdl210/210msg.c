@@ -627,7 +627,7 @@ void mPeek(void) {
 /************************************************************************/
 void msgInit(void) {
 
-    int firstLo, firstHi, hereLo, hereHi;    /* 32 bits by halves    */
+    unsigned short firstLo, firstHi, hereLo, hereHi;    /* 32 bits by halves    */
 
     startAt(0, 0);
     getMessage();
@@ -636,7 +636,6 @@ void msgInit(void) {
 
     sscanf(msgBuf.mbId, "%d %d", &firstHi, &firstLo);
     putString("message# %d %d\n", firstHi, firstLo);
-getch();
     
     newestHi = firstHi;
     newestLo = firstLo;
@@ -649,7 +648,7 @@ getch();
     for (
          getMessage();
          sscanf(msgBuf.mbId, "%d %d", &hereHi, &hereLo),
-         !(hereHi == firstHi && hereLo == firstLo);
+         (hereHi == firstHi && hereLo == firstLo);
          getMessage()
 
     ) {
@@ -664,7 +663,7 @@ getch();
             oldestHi = hereHi;
             oldestLo = hereLo;
 
-            putString(" oldest=%u %u\n", oldestHi, oldestLo);
+            putString(" oldest=%d %d\n", oldestHi, oldestLo);
 
         }
 
@@ -673,7 +672,7 @@ getch();
             newestHi = hereHi;
             newestLo = hereLo;
 
-            putString(" newest=%u %u\n", newestHi, newestLo);
+            putString(" newest=%d %d\n", newestHi, newestLo);
 
             /* read rest of message in and remember where it ends,    */
             /* in case it turns out to be the last message        */
@@ -700,7 +699,7 @@ void noteLogMessage(struct logBuffer *lBuf, int logNo) {
     /* store into recipient's log record: */
     /* slide message pointers down to make room for this one: */
 
-    for (i=0;  i<MAILSLOTS-1;  i++) {
+    for (i = 0; i < MAILSLOTS - 1; i++) {
 
         (*lBuf).lbslot[i] = (*lBuf).lbslot[i + 1];
         (*lBuf).lbId[i]   = (*lBuf).lbId[i + 1];
@@ -717,7 +716,7 @@ void noteLogMessage(struct logBuffer *lBuf, int logNo) {
 }
 
 /************************************************************************/
-/*    noteMessage() slots message into current room            */
+/*    noteMessage() slots message into current room                     */
 /************************************************************************/
 void noteMessage(struct logBuffer *lBuf, int logNo) {
 
@@ -816,7 +815,7 @@ void printMessage(int loc, unsigned id) {
 /* id  - unique-for-some-time ID#     */
 
     char moreFollows;
-    int hereHi, hereLo;
+    unsigned short hereHi, hereLo;
 
     startAt(loc, 0);
 
@@ -842,20 +841,20 @@ void printMessage(int loc, unsigned id) {
 
     doCR();
 
-    if (msgBuf.mbdate[0])  putString(    "   %s ",  msgBuf.mbdate);
-    if (msgBuf.mbauth[0])  putString(    "from %s", msgBuf.mbauth);
-    if (msgBuf.mboname[0]) putString(    " @%s",    msgBuf.mboname);
+    if (msgBuf.mbdate[0])  putString("   %s ",  msgBuf.mbdate);
+    if (msgBuf.mbauth[0])  putString("from %s", msgBuf.mbauth);
+    if (msgBuf.mboname[0]) putString(" @%s",    msgBuf.mboname);
 
     if (msgBuf.mbroom[0] &&
         strcmp(msgBuf.mbroom, roomBuf.rbname) != SAMESTRING) {
-            
-        putString(                " in %s>",    msgBuf.mbroom);
-            
+
+        putString(" in %s>", msgBuf.mbroom);
+
     }
 
     if (msgBuf.mbto[0]) {
 
-        putString(    " to %s", msgBuf.mbto);
+        putString(" to %s", msgBuf.mbto);
 
     }
 
@@ -863,7 +862,7 @@ void printMessage(int loc, unsigned id) {
 
     do {
 
-        moreFollows     = dGetWord(msgBuf.mbtext, 150);
+        moreFollows = dGetWord(msgBuf.mbtext, 150);
         putWord(msgBuf.mbtext);
 
     } while (moreFollows && !mAbort());
@@ -931,10 +930,11 @@ char putMessage(char uploading) {
 
     /* write message ID */
 
-    dPrintf("%u %u", newestHi, newestLo + 1);
+    dPrintf("%d %d", newestHi, newestLo + 1);
     putMsgChar(0);
 
     /* write date:    */
+
     getDate(&year, &month, &day);
     dPrintf("D%d%s%02d", year, month, day);
 
@@ -987,7 +987,7 @@ char putMessage(char uploading) {
 
     }
 
-    return  allOk;
+    return allOk;
 
 }
 
@@ -1024,7 +1024,7 @@ int putMsgChar(char c) {
         lseek(msgfl, thisSector, SEEK_SET);
         crypte(sectBuf, SECTSIZE, 0);
 
-        if (write(msgfl, sectBuf, 1) != 1) {
+        if (write(msgfl, sectBuf, 1) < 0) {
 
             putString("?putMsgChar-rwrite fail");
             toReturn    = ERROR;
@@ -1034,7 +1034,7 @@ int putMsgChar(char c) {
         thisSector = ++thisSector % maxMSector;
         lseek(msgfl, thisSector, SEEK_SET);
 
-        if (read(msgfl, sectBuf, 1) >= 1000) {
+        if (read(msgfl, sectBuf, 1) < 0) {
 
             putString("?putMsgChar-rread fail");
             toReturn = ERROR;
@@ -1097,7 +1097,7 @@ void showMessages(char whichMess, char revOrder) {
 
     int i;
     int start, finish, increment, msgNo;
-    unsigned lowLim, highLim;
+    unsigned short lowLim, highLim;
 
     setUp(FALSE);
 
@@ -1200,7 +1200,6 @@ void startAt(int sect, int byt) {
     if ((lseek(msgfl, sect, SEEK_SET)) < 0) {
 
         putString("?startAt lseek fail, reason: %d\n", errno);
-        goto fini;
 
     }
 
@@ -1208,13 +1207,11 @@ void startAt(int sect, int byt) {
     if (read(msgfl, sectBuf, 1) < 0) {
 
         putString("?startAt read fail, reason: %d\n", errno);
-        goto fini;
 
     }
 
     crypte(sectBuf, SECTSIZE, 0);
 
-    fini:
     return;
 
 }

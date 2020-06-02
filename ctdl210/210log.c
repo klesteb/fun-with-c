@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <ncurses.h>
+#include <errno.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -72,27 +73,6 @@ void crypte(void *buf, unsigned len, unsigned seed) {
         s = (s + CRYPTADD) & 0xFF;
 
     }
-
-}
-
-/************************************************************************/
-/*    getLog() loads requested log record into RAM buffer               */
-/************************************************************************/
-void getLog(struct logBuffer *lBuf, int n) {
-
-    if (lBuf == &logBuf) thisLog = n;
-
-    n *= SECSPERLOG;
-
-    lseek(logfl, n, SEEK_SET);
-
-    if (read(logfl, lBuf, SECSPERLOG) >= 1000) {
-
-        putString("?getLog-rread fail");
-
-    }
-
-    crypte((char *)lBuf, (SECSPERLOG*SECTSIZE), n);    /* decode buffer    */
 
 }
 
@@ -425,27 +405,6 @@ void noteLog(void) {
 }
 
 /************************************************************************/
-/*    putLog() stores given log record into ctdllog.sys                 */
-/************************************************************************/
-void putLog(struct logBuffer *lBuf, int n) {
-
-    n *= SECSPERLOG;
-    
-    crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* encode buffer    */
-
-    lseek(logfl, n, SEEK_CUR);
-
-    if (write(logfl, lBuf, SECSPERLOG) != SECSPERLOG) {
-
-        putString("?putLog-rwrite fail");
-
-    }
-
-    crypte((char *)lBuf, (SECSPERLOG * SECTSIZE), n);    /* decode buffer    */
-
-}
-
-/************************************************************************/
 /*    PWSlot() returns userlog.buf slot password is in, else ERROR      */
 /*    NB: we also leave the record for the user in logBuf.              */
 /************************************************************************/
@@ -599,6 +558,62 @@ void terminate(char discon) {
     setUp(TRUE);
     endTerminal();
     
+}
+
+/************************************************************************/
+/*    getLog() loads requested log record into RAM buffer               */
+/************************************************************************/
+void getLog(struct logBuffer *lBuf, int n) {
+
+    int recsize = sizeof(struct logBuffer);
+    int offset = n * recsize;
+
+    if (lBuf == &logBuf) thisLog = n;
+
+    errno = 0;
+    if ((lseek(logfl, n, SEEK_SET)) < 0) {
+
+        putString(" ?getLog(): seek failed, reason: %d\n", errno);
+
+    }
+
+    errno = 0;
+    if (read(logfl, lBuf, recsize) < 0) {
+
+        putString(" ?getLog(): read failed, reason: %d\n", errno);
+
+    }
+
+    crypte(lBuf, recsize, n);    /* decode buffer    */
+
+}
+
+/************************************************************************/
+/*    putLog() stores given log record into ctdllog.sys                 */
+/************************************************************************/
+void putLog(struct logBuffer *lBuf, int n) {
+
+    int recsize = sizeof(struct logBuffer);
+    int offset = n * recsize;
+
+    crypte(lBuf, recsize, n);    /* encode buffer    */
+
+    errno = 0;
+    if ((lseek(logfl, n, SEEK_CUR)) < 0) {
+
+        putString(" ?putLog(): seek failed, reason: %d\n", errno);
+
+    }
+
+    errno = 0;
+    if (write(logfl, lBuf, recsize) < 0) {
+
+        putString(" ?putLog(): write failed, reason: %d\n", errno);
+
+    }
+
+    crypte(lBuf, recsize, n);    /* decode buffer    */
+
 }
 
 /************************************************************************/

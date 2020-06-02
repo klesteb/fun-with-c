@@ -765,10 +765,10 @@ char getCommand(char *c) {
 }
 
 /************************************************************************/
-/*    greeting() gives system-entry blurb etc             */
+/*    greeting() gives system-entry blurb etc                           */
 /************************************************************************/
 void greeting(void) {
-    
+
     int year, month, day;
 
     if (loggedIn) terminate(FALSE);
@@ -797,6 +797,7 @@ int main(void) {
 
     char c, x;
 
+    initTerminal();
     loadConfig("ctdlcnfg.sys");
     initCitadel();
     weAre = CITADEL;
@@ -807,7 +808,7 @@ int main(void) {
         x = getCommand(&c);
 
         if ((c == CNTRLp) ? doSysop(0, '\0') : doRegular(x, c)) {
-            
+
             if (!expert) {
 
                 putString(" ? (Type '?' for menu)\n \n");
@@ -823,6 +824,8 @@ int main(void) {
     }
 
     if (loggedIn) terminate( /* hangUp == */ TRUE);
+
+    endTerminal();
 
     return(EXIT_SUCCESS);
     

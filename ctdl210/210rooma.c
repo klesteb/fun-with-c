@@ -242,7 +242,7 @@ char gotoRoom(char *nam) {
 /*    initCitadel() does not reformat data files                        */
 /************************************************************************/
 void initCitadel(void) {
-    
+
     char *msgFile;
 
     setSpace(homeDisk, homeUser);
@@ -258,7 +258,6 @@ void initCitadel(void) {
     /* open message files: */
 
     msgFile    = "ctdlmsg.sys";
-    *msgFile   += msgDisk;
 
     openFile(msgFile,        &msgfl);
     openFile("ctdlroom.sys", &roomfl);

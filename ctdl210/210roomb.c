@@ -42,7 +42,6 @@
 /*    findRoom()       find a free room                                 */
 /*    getNumber()      prompt user for a number, limited range          */
 /*    getRoom()        load given room into RAM                         */
-/*    getString()      read a string in from user                       */
 /*    getText()        reads a message in from user                     */
 /*    getYesNo()       prompts for a yes/no response                    */
 /*    givePrompt()     gives usual "THISROOM>" prompt                   */
@@ -156,70 +155,6 @@ int getNumber(char *prompt, unsigned bottom, unsigned top) {
 
 }
 
-
-/************************************************************************/
-/*    getString() gets a string from the user.                          */
-/************************************************************************/
-void getString(char *prompt, char *buf, int lim) {
-
-    char c;
-    int  i;
-
-    if (strlen(prompt) > 0) {
-
-        doCR();
-        putString("Enter %s\n : ", prompt);
-
-    }
-
-    i = 0;
-
-    while (c = iChar(), c != NEWLINE && i < lim) {
-
-        /* handle delete chars: */
-
-        if (c == BACKSPACE) {
-
-            oChar(' ');
-            oChar(BACKSPACE);
-            if (i > 0) {
-
-                i--;
-
-            } else {
-
-                oChar(' ');
-                oChar(BELL);
-
-            }
-
-        } else {
-
-            buf[i++] = c;
-
-        }
-
-        if (i >= lim) {
-
-            oChar(BELL);
-            oChar(BACKSPACE); i--;
-
-        }
-
-        /* kludge to return immediately on single '?': */
-
-        if (*buf == '?') {
-
-            doCR();
-            break;
-
-        }
-
-    }
-
-    buf[i]  = '\0';
-
-}
 
 /************************************************************************/
 /*    getText() reads a message from the user                           */

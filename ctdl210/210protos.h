@@ -43,7 +43,6 @@ extern char visible(char c);
 extern void configure(void);
 extern int  tutorial(char *filename);
 extern void loadConfig(char *filename);
-extern void putString(char *format, ...);
 extern void printDate(int year, int month, int day);
 extern void getDate(int *year, int *month, int *day);
 
@@ -61,6 +60,8 @@ extern void ringSysop(void);
 extern void upLoad(void);
 extern void endTerminal(void);
 extern void initTerminal(void);
+extern void putString(char *format, ...);
+extern void getString(char *prompt, char *buf, int lim);
 
 /* 210msg.c */
 
@@ -127,7 +128,6 @@ extern void replaceString(char *buf, int lim);
 extern void getRoom(int rm, struct roomBuffer *buf);
 extern void putRoom(int rm, struct roomBuffer *buf);
 extern char getText(char *prompt, char *buf, int lim);
-extern void getString(char *prompt, char *buf, int lim);
 extern char *matchString(char *buf, char *pattern, char *bufEnd);
 extern int  getNumber(char *prompt, unsigned bottom, unsigned top);
 

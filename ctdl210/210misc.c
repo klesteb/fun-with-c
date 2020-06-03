@@ -42,7 +42,6 @@
 /*    printDate()    prints out date                                    */
 /*    tutorial()     prints a .hlp file                                 */
 /*    visible()      convert control chars to letters                   */
-/*    putString()    print string                                       */
 /*    loadConfig()   load config file                                   */
 /************************************************************************/
 
@@ -89,25 +88,6 @@ void getDate(int *year, int *month, int *day) {
     *year = tm->tm_year + 1900;
     *month = tm->tm_mon + 1;
     *day = tm->tm_mday;
-
-}
-
-/************************************************************************/
-/*    putString() print out a string                                    */
-/************************************************************************/
-void putString(char *format, ...) {
-#define MAXWORD 256
-
-    int n;
-    va_list ap;
-    char string[MAXWORD];
-
-    va_start(ap, format);
-    n = vsnprintf(string, MAXWORD, format, ap);
-    va_end(ap);
-
-    wprintw(outWin, string);
-    wrefresh(outWin);
 
 }
 

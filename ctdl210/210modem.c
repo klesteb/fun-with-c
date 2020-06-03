@@ -32,6 +32,8 @@
 #include "210protos.h"
 #include "210common.h"
 
+#define MAXWORD 256
+
 /************************************************************************/
 /*                Contents                                              */
 /*                                                                      */
@@ -43,6 +45,8 @@
 /*    oChar()         top-level user-output function                    */
 /*    putChar()                                                         */
 /*    ringSysop()     signal chat-mode request                          */
+/*    getString()     read a string in from user                        */
+/*    putString()     print string                                      */
 /*                                                                      */
 /*    # == routines you should certainly check when porting system      */
 /************************************************************************/
@@ -206,6 +210,44 @@ void endTerminal(void) {
     delwin(outWin);
     endwin();
     
+}
+
+
+/************************************************************************/
+/*    getString() gets a string from the user.                          */
+/************************************************************************/
+void getString(char *prompt, char *buf, int lim) {
+
+    char c;
+    int  i;
+
+    if (strlen(prompt) > 0) {
+
+        doCR();
+        putString("Enter %s\n : ", prompt);
+
+    }
+
+    getnstr(buf, lim);
+    
+}
+
+/************************************************************************/
+/*    putString() print out a string                                    */
+/************************************************************************/
+void putString(char *format, ...) {
+
+    int n;
+    va_list ap;
+    char string[MAXWORD];
+
+    va_start(ap, format);
+    n = vsnprintf(string, MAXWORD, format, ap);
+    va_end(ap);
+
+    wprintw(outWin, string);
+    wrefresh(outWin);
+
 }
 
 /************************************************************************/

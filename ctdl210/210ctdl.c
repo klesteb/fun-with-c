@@ -60,7 +60,7 @@ char doAide(char moreYet, char first) {
 
     if (first) oChar(first);
 
-    switch (toupper(  first ? first : iChar() )) {
+    switch (toupper(first ? first : iChar())) {
         case 'D':
             putString("Delete empty rooms\n ");
             strcpy(oldName, roomBuf.rbname);
@@ -180,7 +180,7 @@ void doEnter(char moreYet, char first) {
     WC    = FALSE;
     what  = MESSAGE;
 
-    putString("nter ");
+    putString("Enter ");
 
     if (!loggedIn && !unlogLoginOk && thisRoom != MAILROOM) {
         
@@ -230,16 +230,18 @@ void doEnter(char moreYet, char first) {
                 break;
             case 'R':
                 putString("Room ");
-                if (!nonAideRoomOk && !aide)   {
+                if (!nonAideRoomOk && !aide) {
                     putString(" ?-- must be aide to create room\n ");
                     abort    = TRUE;
                     break;
                 }
-                what    = ROOM           ;
+                what    = ROOM;
                 done    = TRUE;
                 break;
         }
+
         first = '\0';
+
     } while (!done && moreYet && !abort);
 
     doCR();
@@ -277,7 +279,7 @@ void doGoto(char expand, char first) {
 
     char roomName[NAMESIZE];
 
-    putString("oto ");
+    putString("Goto ");
 
     if (!expand) {
         gotoRoom("");
@@ -423,7 +425,7 @@ void doRead(char moreYet, char first) {
 
     if (moreYet) first = '\0';
 
-    putString("\bread ");
+    putString("\bRead ");
 
     if (!loggedIn  &&  !unlogReadOk)   {
 
@@ -686,7 +688,7 @@ char doSysop(char c, char first) {
                 if (visibleMode) putString("Visible mode on\n ");
                 return FALSE;
             case 'P':
-                putString("\baide privilege set/clear\n ");
+                putString("\bAide privilege set/clear\n ");
                 getString("who", who, NAMESIZE);
                 normalizeString(who);
                 logNo = findPerson(who, &lBuf);
@@ -718,7 +720,7 @@ char doSysop(char c, char first) {
                 putString(" VisibleMode==%d\n ",  visibleMode = !visibleMode);
                 break;
             case 'X':
-                putString("\bexit to CP/M\n \n");
+                putString("\bExit to CP/M\n \n");
                 exitToCpm = TRUE;
                 return FALSE;
             case '?':

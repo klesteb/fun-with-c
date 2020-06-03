@@ -124,7 +124,7 @@ int tutorial(char *filename) {
 
     toReturn = TRUE;
 
-    if ((fp = fopen(filename, "r+")) == NULL) {
+    if ((fp = fopen(filename, "r")) == NULL) {
 
         putString("\n No %s.\n", filename);
         toReturn = ERROR;

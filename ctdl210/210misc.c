@@ -139,10 +139,10 @@ int tutorial(char *filename) {
 
         putString(" \n");
 
-        while (fgets(line, MAXWORD, fp)) {
+        while ((fgets(line, MAXWORD, fp)) != NULL) {
 
-            putString("%s\n", line);
-            
+            putString("%s", line);
+
         }
 
         fclose(fp);

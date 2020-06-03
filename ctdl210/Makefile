@@ -6,8 +6,8 @@
 # Makefile to build ctdl210.
 #
 CC = gcc
-CFLAGS = -Wall -c 
-OLBS = 210ctdl.a -lncurses
+CFLAGS = -Wall -c -I../cclibs -I../gpl
+OLBS = 210ctdl.a ../libs/libcclibs.a -lncurses
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -rs
@@ -17,7 +17,7 @@ INCS = 210ctdl.h 210protos.h 210common.h 210common.c
 #
 OBJS = 210log.o 210misc.o 210modem.o 210msg.o 210rooma.o 210roomb.o
 #
-all: $(OBJS) 210ctdl 210confg test1 test2
+all: $(OBJS) 210ctdl 210confg test1 test2 test3
 #
 debug:
 #
@@ -29,6 +29,7 @@ clean:
 	rm -f 210ctdl
 	rm -f test1
 	rm -f test2
+	rm -f test3
 #
 #
 test1: test1.c $(INCS)
@@ -38,6 +39,10 @@ test1: test1.c $(INCS)
 test2: test2.c $(INCS)
 	$(CC) $(CFLAGS) test2.c
 	$(LINK) $(LFLAGS) test2 test2.o $(OLBS)
+#
+test3: test3.c $(INCS)
+	$(CC) $(CFLAGS) test3.c
+	$(LINK) $(LFLAGS) test3 test3.o $(OLBS)
 #
 210ctdl: 210ctdl.c $(INCS)
 	$(CC) $(CFLAGS) 210ctdl.c

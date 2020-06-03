@@ -258,7 +258,7 @@ void initCitadel(void) {
     openFile("ctdlroom.sys", &roomfl);
     openFile("ctdllog.sys",  &logfl);
 
-    loadRoomTab();
+    indexRooms();
     getRoom(LOBBY, &roomBuf);    /* load Lobby>    */
 
 }
@@ -415,7 +415,7 @@ void setUp(char justIn) {
 
             /* set up logBuf so everything is new...        */
 
-            for (i =0 ; i < MAXVISIT; i++) {
+            for (i = 0 ; i < MAXVISIT; i++) {
 
                 logBuf.lbvisit[i] = oldestLo;
 

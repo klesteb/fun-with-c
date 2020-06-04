@@ -20,9 +20,7 @@ extern void greeting(void);
 
 /* 210log.c */
 
-extern void crypte(void *buf, unsigned len, unsigned seed);
 extern void getLog(struct logBuffer *lBuf, int n);
-extern int hash(char *str);
 extern void login(char *password);
 extern void logInit(void);
 extern void newPW(void);
@@ -39,12 +37,14 @@ extern int  PWSlot(char *pw);
 /* 210misc.c */
 
 extern void doCR(void);
-extern char visible(char c);
 extern void configure(void);
+extern int  hash(char *str);
+extern char visible(char c);
 extern int  tutorial(char *filename);
 extern void loadConfig(char *filename);
 extern void printDate(int year, int month, int day);
 extern void getDate(int *year, int *month, int *day);
+extern void crypte(void *buf, unsigned len, unsigned seed);
 
 /* 210modem.c */
 

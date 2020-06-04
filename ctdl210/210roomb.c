@@ -72,14 +72,14 @@ int editText(char *buf, int lim) {
 
         switch (c = toupper(iChar())) {
             case 'A':
-                putString("bort\n ");
+                putString("Abort\n ");
                 if (getYesNo(" confirm")) return FALSE;
                 break;
             case 'C':
-                putString("ontinue\n ");
+                putString("Continue\n ");
                 return ERROR;
             case 'P':
-                putString("rint formatted\n ");
+                putString("Print formatted\n ");
                 doCR();
                 putString("   ");
                 getDate(&year, &month, &day);
@@ -89,11 +89,11 @@ int editText(char *buf, int lim) {
                 mFormat(buf);
                 break;
             case 'R':
-                putString("eplace string\n ");
+                putString("Replace string\n ");
                 replaceString(buf, lim);
                 break;
             case 'S':
-                putString("ave buffer\n ");
+                putString("Save buffer\n ");
                 return TRUE;
             default:
                 tutorial("edit.mnu");
@@ -204,10 +204,12 @@ char getText(char *prompt, char *buf, int lim) {
             if (c != BACKSPACE) {
 
                 buf[i++] = c;
+                oChar(c);
 
             } else {
 
                 /* handle delete chars: */
+
                 oChar(' ');
                 oChar(BACKSPACE);
 

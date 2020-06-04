@@ -161,14 +161,18 @@ void dPrintf(char *format, ...) {
 
     int n;
     va_list ap;
-    char *s, string[MAXWORD];
+    char string[MAXWORD];
 
     va_start(ap, format);
     n = vsnprintf(string, MAXWORD, format, ap);
     va_end(ap);
-    
-    s = string;
-    while (*s) putMsgChar(*s++);
+
+    errno = 0;
+    if ((write(msgfl, string, strlen(string))) < 0) {
+
+        putString("?dPrintf-write fail, reason: %d\n", errno);
+
+    }
 
 }
 
@@ -656,7 +660,7 @@ void msgInit(void) {
         putString("message# %d %d\n", hereHi, hereLo);
 
         /* find highest and lowest message IDs: */
-        /* 32-bit "<" by hand: */
+        /* 32-bit "<" by hand:                  */
 
         if ((hereHi < oldestHi) || (hereHi == oldestHi && hereLo < oldestLo)) {
 
@@ -696,7 +700,7 @@ void noteLogMessage(struct logBuffer *lBuf, int logNo) {
 
     int i;
 
-    /* store into recipient's log record: */
+    /* store into recipient's log record:                     */
     /* slide message pointers down to make room for this one: */
 
     for (i = 0; i < MAILSLOTS - 1; i++) {
@@ -915,9 +919,9 @@ void pullIt(int m) {
 }
 
 /************************************************************************/
-/*    putMessage() stores a message to disk                */
-/*    Always called before noteMessage() -- newestLo not ++ed yet.    */
-/*    Returns: TRUE on successful save, else FALSE            */
+/*    putMessage() stores a message to disk                             */
+/*    Always called before noteMessage() -- newestLo not ++ed yet.      */
+/*    Returns: TRUE on successful save, else FALSE                      */
 /************************************************************************/
 char putMessage(char uploading) {
 /* uploading - true to get text via WC modem input, not RAM */
@@ -936,8 +940,7 @@ char putMessage(char uploading) {
     /* write date:    */
 
     getDate(&year, &month, &day);
-    dPrintf("D%d%s%02d", year, month, day);
-
+    dPrintf("D%d%s%02d", year, monthTab[month], day);
     putMsgChar(0);
 
     /* write room name out:        */
@@ -964,19 +967,21 @@ char putMessage(char uploading) {
     /* write message text by hand because it would overrun dPrintf buffer: */
 
     putMsgChar('M');    /* M-for-message.    */
+    allOk = TRUE;
 
-    for (s = msgBuf.mbtext; *s; s++) {
-            
-        putMsgChar(*s);
-        allOk = TRUE;
-            
+    errno = 0;
+    if ((write(msgfl, msgBuf.mbtext, strlen(msgBuf.mbtext))) < 0) {
+
+        allOk = FALSE;
+        putString("?putMessage-write fail, reason: %d\n", errno);
+
     }
 
     if (allOk) {
 
         putMsgChar(0);        /* null to end text     */
         flushMsgBuf();
-        
+
     } else {
 
         flushMsgBuf();        /* so message count is ok    */
@@ -1021,22 +1026,38 @@ int putMsgChar(char c) {
 
     if (thisChar == 0) {    /* time to write sector out a get next: */
 
-        lseek(msgfl, thisSector, SEEK_SET);
         crypte(sectBuf, SECTSIZE, 0);
 
+        errno = 0;
+        if ((lseek(msgfl, thisSector, SEEK_SET)) < 0) {
+            
+            putString("?putMsgChar-seek fail, reason: %d\n", errno);
+            toReturn    = ERROR;
+            
+        }
+
+        errno = 0;
         if (write(msgfl, sectBuf, 1) < 0) {
 
-            putString("?putMsgChar-rwrite fail");
+            putString("?putMsgChar-write fail, reason: %d\n", errno);
             toReturn    = ERROR;
 
         }
 
         thisSector = ++thisSector % maxMSector;
-        lseek(msgfl, thisSector, SEEK_SET);
 
+        errno = 0;
+        if ((lseek(msgfl, thisSector, SEEK_SET)) < 0) {
+
+            putString("?putMsgChar-seek fail, reason: %d\n", errno);
+            toReturn    = ERROR;
+
+        }
+
+        errno = 0;
         if (read(msgfl, sectBuf, 1) < 0) {
 
-            putString("?putMsgChar-rread fail");
+            putString("?putMsgChar-rread fail, reason: %d\n", errno);
             toReturn = ERROR;
 
         }
@@ -1230,7 +1251,7 @@ void unGetMsgChar(unsigned char c) {
 /************************************************************************/
 void zapMsgFile(void) {
 
-    int i, sect, val;
+    int i, val;
 
     if (!getYesNo("\nDestroy all current messages")) return;
 

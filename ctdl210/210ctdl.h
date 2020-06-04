@@ -158,12 +158,12 @@ struct roomBuffer {
 /* logbuf must be 384 bytes or less... including lbOverFlow, 384 or MORE */
 
 struct logBuffer {
-    char  lbnulls;                     /* #nulls, lCase, lFeeds                */
-    char  lbflags;                     /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
-    char  lbwidth;                     /* terminal width                       */
-    char  lbname[NAMESIZE];            /* caller's name                        */
-    char  lbpw[NAMESIZE];              /* caller's password                    */
-    char  lbgen[MAXROOMS];             /* 6 bits gen, two bits lastvisit       */
+    char lbnulls;                      /* #nulls, lCase, lFeeds                */
+    char lbflags;                      /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
+    char lbwidth;                      /* terminal width                       */
+    char lbname[NAMESIZE];             /* caller's name                        */
+    char lbpw[NAMESIZE];               /* caller's password                    */
+    char lbgen[MAXROOMS];              /* 6 bits gen, two bits lastvisit       */
     unsigned short lbvisit[MAXVISIT];  /* newestLo for this and 3 prev. visits */
     unsigned short lbslot[MAILSLOTS];  /* for private mail                     */
     unsigned short lbId[MAILSLOTS];    /* for private mail               */

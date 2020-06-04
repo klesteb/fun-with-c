@@ -6,8 +6,8 @@
 # Makefile to build ctdl210.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../cclibs -I../gpl
-OLBS = 210ctdl.a ../libs/libcclibs.a -lncurses
+CFLAGS = -Wall -c 
+OLBS = 210ctdl.a 
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -rs

@@ -37,18 +37,21 @@ int main(int argc, char **argv) {
         putString("messages\n");
 
         putString("\nPress <return> to continue\n");
-        getch();
-        
+        getCh();
+
+        putString(" number  sector\n");
+
         for (x = 0; x < MSGSPERRM; x++) {
 
-            putString("    message number: %d\n", roomBuf.vp.msg[x].rbmsgNo);
-            putString("    message sector: %d\n", roomBuf.vp.msg[x].rbmsgLoc);
+            putString(" %d   %d \n", 
+                      roomBuf.vp.msg[x].rbmsgNo,
+                      roomBuf.vp.msg[x].rbmsgLoc);
 
         }
 
         putString("\nPress <return> to continue\n");
-        getch();
-        
+        getCh();
+
     }
 
     endTerminal();

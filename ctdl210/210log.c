@@ -31,9 +31,7 @@
 /************************************************************************/
 /*                  contents                                            */
 /*                                                                      */
-/*    crypte()      encrypts/decrypts data blocks                       */
 /*    getLog()      loads requested userlog record                      */
-/*    hash()        hashes a string to an integer                       */
 /*    login()       is menu-level routine to log caller in              */
 /*    logInit()     builds the RAM index to userlog.buf                 */
 /*    newPW()       is menu-level routine to change a PW                */
@@ -48,50 +46,6 @@
 /*    zapLogFile()  erases & re-initializes userlog.buf                 */
 /************************************************************************/
 
-/************************************************************************/
-/*    crypte() encrypts/decrypts data blocks                            */
-/*                                                                      */
-/*  This was at first using a full multiply/add pseudo-random sequence  */
-/*  generator, but 8080s don't like to multiply.  Slowed down I/O       */
-/*  noticably. Rewrote for speed.                                       */
-/************************************************************************/
-
-#define b    fpc1
-#define c    fi1
-#define s    fi2
-
-void crypte(void *buf, unsigned len, unsigned seed) {
-
-    seed = (seed + cryptSeed) & 0xFF;
-    b = buf;
-    c = len;
-    s = seed;
-
-    for (; c; c--) {
-
-        *b++ ^= s;
-        s = (s + CRYPTADD) & 0xFF;
-
-    }
-
-}
-
-/************************************************************************/
-/*    hash() hashes a string to an integer                */
-/************************************************************************/
-int hash(char *str) {
-
-    int  h, i, shift;
-
-    for (h = shift = 0; *str; shift = (shift + 1) & 7, str++) {
-
-        h ^= (i = toupper(*str)) << shift;
-
-    }
-
-    return h;
-
-}
 
 /************************************************************************/
 /*    login() is the menu-level routine to log someone in        */
@@ -199,7 +153,6 @@ void newPW(void) {
     
     char oldPw[NAMESIZE];
     char pw[NAMESIZE];
-    char *s;
     int goodPW;
 
     /* save password so we can find current user again: */
@@ -245,7 +198,6 @@ void newUser(void) {
     
     char    fullnm[NAMESIZE];
     char    pw[NAMESIZE];
-    char    *s;
     int     good, g, h, i, ourSlot;
     unsigned    low;
 
@@ -288,8 +240,8 @@ void newUser(void) {
 
             getString(" password", pw, NAMESIZE);
             normalizeString(pw);
-
             h = hash(pw);
+
             for (i = 0, good = strlen(pw) > 1;  i < MAXLOGTAB && good; i++) {
 
                 if (h == logTab[i].ltpwhash) good = FALSE;
@@ -336,7 +288,7 @@ void newUser(void) {
     /* initialize rest of record:    */
 
     for (i = 0; i < MAXROOMS; i++) {
-            
+
         if (roomTab[i].rtflags & PUBLIC) {
 
             g = (roomTab[i].rtgen);
@@ -352,7 +304,7 @@ void newUser(void) {
         }
 
     }
-        
+
     for (i = 0; i < MAILSLOTS; i++) {
 
         logBuf.lbslot[i] = 0;
@@ -368,8 +320,8 @@ void newUser(void) {
     logTab[0].ltnewest  = logBuf.lbvisit[0];
 
     /* special kludge for Mail> room, to signal no new mail:   */
-        
-    roomTab[MAILROOM].rtlastMessage = logBuf.lbId[MAILSLOTS-1];
+
+    roomTab[MAILROOM].rtlastMessage = logBuf.lbId[MAILSLOTS - 1];
 
     loggedIn = TRUE;
 
@@ -383,7 +335,7 @@ void newUser(void) {
 /*    noteLog() notes logTab entry in RAM buffer in master index        */
 /************************************************************************/
 void noteLog(void) {
-    
+
     int i, slot;
 
     /* figure out who it belongs between:    */
@@ -421,16 +373,16 @@ int PWSlot(char *pw) {
 
         /* check for password match here */
 
-        /* If password matches, check full password            */
-        /* with current newUser code, password hash collisions should    */
-        /* not be possible... but this is upward compatable & cheap    */
+        /* If password matches, check full password                   */
+        /* with current newUser code, password hash collisions should */
+        /* not be possible... but this is upward compatable & cheap   */
 
         if (logTab[i].ltpwhash == h) {
 
             ourSlot = logTab[i].ltlogSlot;
             getLog(&logBuf, ourSlot);
 
-            if (strcasecmp(pw, logBuf.lbpw) == SAMESTRING) {
+            if (strcasecmp(pw, logBuf.lbpw) == 0) {
 
                 /* found a complete match */
 
@@ -465,7 +417,7 @@ void slideLTab(int slot, int last) {
 }
 
 /************************************************************************/
-/* sortLog ShellSorts userlog by time of last call            */
+/* sortLog ShellSorts userlog by time of last call                      */
 /************************************************************************/
 void sortLog(void ) {
     
@@ -497,7 +449,7 @@ void sortLog(void ) {
         putString("stepsize=%d\n", step);
 
         for(i = step; i < MAXLOGTAB; i++) {
-            
+
             if (logTab[i - step].ltnewest < logTab[i].ltnewest) {
 
                 intCount++;
@@ -550,19 +502,19 @@ void terminate(char discon) {
     /*          modified    dvm 9-82                     */
 
     if (discon) {
-        
+
         exitToCpm = TRUE;
-        
+
     }
 
-    putString(" %s logged out\n ", logBuf.lbname);
+    putString(" %s logged out\n\n", logBuf.lbname);
 
     logBuf.lbgen[thisRoom] = roomBuf.rbgen << GENSHIFT;
 
     storeLog();
     loggedIn = FALSE;
     setUp(TRUE);
-    
+
 }
 
 /************************************************************************/

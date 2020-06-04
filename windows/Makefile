@@ -19,8 +19,8 @@ INCS = common.h container.h colors.h events.h component.h workbench.h \
        containers/menus/box.h containers/menus/list.h \
        containers/menus/menus.h containers/menus/menus_priv.h \
        components/label.h components/hline.h components/vline.h \
-       components/text.h components/textarea.h components/forms/forms.h \
-       components/menu/menu_items.h
+       components/text.h components/textarea.h components/input.h \
+       components/forms/forms.h components/menu/menu_items.h
 #
 OBJS = container.o colors.o component.o workbench.o window.o widget.o \
        containers/horizontal.o containers/vertical.o \
@@ -28,9 +28,10 @@ OBJS = container.o colors.o component.o workbench.o window.o widget.o \
        containers/menus/box.o containers/menus/list.o \
        containers/menus/menus.o components/label.o components/hline.o \
        components/vline.o components/text.o components/textarea.o \
-       components/forms/form_field.o components/forms/form_label.o \
-       components/forms/form_textarea.o components/forms/form_header.o \
-       components/forms/form_seperator.o components/menu/menu_item.o
+       components/input.o components/forms/form_field.o \
+       components/forms/form_label.o components/forms/form_textarea.o \
+       components/forms/form_header.o components/forms/form_seperator.o \
+       components/menu/menu_item.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14 test15 test16 test17 test18 \
@@ -274,6 +275,9 @@ components/textarea.o: components/textarea.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) components/textarea.o components/textarea.c
 	$(LIBR) $(LIBS) components/textarea.o
 #
+components/input.o: components/input.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) components/input.o components/input.c
+	$(LIBR) $(LIBS) components/input.o
 #
 components/forms/form_field.o: components/forms/form_field.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) components/forms/form_field.o components/forms/form_field.c

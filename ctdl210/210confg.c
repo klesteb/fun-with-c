@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <ncurses.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -113,15 +112,15 @@ void wrapup(void) {
 
     msgInit();
     putString("Press <return> to continue.\n");
-    getch();
+    getCh();
 
     indexRooms();
     putString("Press <return> to continue.\n");
-    getch();
+    getCh();
 
     logInit();
     putString("Press <return> to continue.\n");
-    getch();
+    getCh();
 
 }
 

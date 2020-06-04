@@ -37,29 +37,29 @@ int main(int argc, char **argv) {
         putString("password  : %s\n", logBuf.lbpw);
         putString("generation: %s\n", logBuf.lbgen);
         putString("visits\n");
-        
+
         for (x = 0; x < MAXVISIT; x++) {
-            
+
             putString("%d  ", logBuf.lbvisit[x]);
-            
+
         }
         putString("\n");
-        
+
         putString("Private Maild\n");
         for (x = 0; x< MAILSLOTS; x++) {
-            
+
             putString("%d  ", logBuf.lbslot[x]);
-            
+
         }
-        
+
         putString("\nPress <return> to continue\n");
-        getch();
-        
+        getCh();
+
     }
 
     endTerminal();
-    
+
     return(EXIT_SUCCESS);
-    
+
 }
 

@@ -26,7 +26,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <ncurses.h>
+#include <termios.h>
+#include <signal.h>
 
 #include "210ctdl.h"
 #include "210protos.h"
@@ -85,11 +86,25 @@ char BBSCharReady(void) {
 /************************************************************************/
 int getCh(void) {
 
-    doupdate();
-    return (int)getch();
+    struct termios t;
+    int c;
+
+    tcgetattr(0,&t);
+    t.c_lflag &= ~ECHO + ~ICANON;
+    tcsetattr(0, TCSANOW, &t);
+
+    fflush(stdout);
+    c = getchar();
+
+    t.c_lflag |= ICANON + ECHO;
+    tcsetattr(0, TCSANOW, &t);
+
+    if (c == 3) raise(SIGINT);
+    if (c == 28) raise(SIGTERM);
+
+    return c;
 
 }
-
 
 /************************************************************************/
 /*    iChar() is the top-level user-input function -- this is the       */
@@ -97,7 +112,7 @@ int getCh(void) {
 /************************************************************************/
 int iChar(void) {
 
-    return (int)getCh();
+    return getCh();
 
 }
 
@@ -111,7 +126,7 @@ char KBReady(void) {
 
     if ((ch = getCh()) != ERR) {
 
-        ungetch(ch);
+        ungetc(ch, stdin);
         stat = OK;
 
     }
@@ -145,8 +160,7 @@ void modemInit(void) {
 /************************************************************************/
 void oChar(char c) {
 
-    addch((chtype)c);
-    wnoutrefresh(stdscr);
+    printf("%s", &c);
 
 }
 
@@ -157,8 +171,7 @@ void putChar(char c) {
 
     if (thisRoom != 1) {
 
-        addch((chtype)c);
-        wnoutrefresh(stdscr);
+        oChar(c);
 
     }
 
@@ -181,23 +194,23 @@ void initTerminal(void) {
     
     /* initiize curses */
 
-    initscr();
-    cbreak();
+    /* initscr(); */
+    /* cbreak(); */
     /* noecho(); */
-    keypad(stdscr, TRUE);
+    /* keypad(stdscr, TRUE); */
 
-    erase();
+    /* erase(); */
     /* curs_set(0); */
-    refresh();
+    /* refresh(); */
 
-    outWin = newwin(LINES - 2, COLS, 0, 0);
-    if (outWin != NULL) {
+    /* outWin = newwin(LINES - 2, COLS, 0, 0); */
+    /* if (outWin != NULL) { */
 
-        scrollok(outWin, TRUE);
+    /*     scrollok(outWin, TRUE); */
 
-    }
+    /* } */
 
-    inpWin = newwin(1, COLS, LINES, 1);
+    /* inpWin = newwin(1, COLS, LINES, 1); */
 
 }
 
@@ -206,20 +219,16 @@ void initTerminal(void) {
 /************************************************************************/
 void endTerminal(void) {
 
-    delwin(inpWin);
-    delwin(outWin);
-    endwin();
+    /* delwin(inpWin); */
+    /* delwin(outWin); */
+    /* endwin(); */
     
 }
-
 
 /************************************************************************/
 /*    getString() gets a string from the user.                          */
 /************************************************************************/
 void getString(char *prompt, char *buf, int lim) {
-
-    char c;
-    int  i;
 
     if (strlen(prompt) > 0) {
 
@@ -228,7 +237,7 @@ void getString(char *prompt, char *buf, int lim) {
 
     }
 
-    getnstr(buf, lim);
+    fgets(buf, lim, stdin);
     
 }
 
@@ -245,8 +254,7 @@ void putString(char *format, ...) {
     n = vsnprintf(string, MAXWORD, format, ap);
     va_end(ap);
 
-    wprintw(outWin, string);
-    wrefresh(outWin);
+    printf(string);
 
 }
 

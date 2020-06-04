@@ -43,6 +43,8 @@
 /*    tutorial()     prints a .hlp file                                 */
 /*    visible()      convert control chars to letters                   */
 /*    loadConfig()   load config file                                   */
+/*    crypte()      encrypts/decrypts data blocks                       */
+/*    hash()        hashes a string to an integer                       */
 /************************************************************************/
 
 /************************************************************************/
@@ -161,7 +163,6 @@ void loadConfig(char *filename) {
     if ((fd = open(filename, O_RDONLY)) == ERROR) {
 
         putString("?Can't find %s\n", filename);
-        endwin();
         exit(EXIT_FAILURE);
 
     }
@@ -262,6 +263,51 @@ void loadConfig(char *filename) {
         }
 
     }
+
+}
+
+/************************************************************************/
+/*    crypte() encrypts/decrypts data blocks                            */
+/*                                                                      */
+/*  This was at first using a full multiply/add pseudo-random sequence  */
+/*  generator, but 8080s don't like to multiply.  Slowed down I/O       */
+/*  noticably. Rewrote for speed.                                       */
+/************************************************************************/
+
+#define b    fpc1
+#define c    fi1
+#define s    fi2
+
+void crypte(void *buf, unsigned len, unsigned seed) {
+
+    seed = (seed + cryptSeed) & 0xFF;
+    b = buf;
+    c = len;
+    s = seed;
+
+    for (; c; c--) {
+
+        *b++ ^= s;
+        s = (s + CRYPTADD) & 0xFF;
+
+    }
+
+}
+
+/************************************************************************/
+/*    hash() hashes a string to an integer                */
+/************************************************************************/
+int hash(char *str) {
+
+    int  h, i, shift;
+
+    for (h = shift = 0; *str; shift = (shift + 1) & 7, str++) {
+
+        h ^= (i = toupper(*str)) << shift;
+
+    }
+
+    return h;
 
 }
 

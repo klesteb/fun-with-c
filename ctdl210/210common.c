@@ -19,6 +19,7 @@
 
 char firstExtern = 0;        /* this should ALWAYS be the first declaration */
 
+int sysop = FALSE;           /* toggle sysop mode                    */
 char mData = 0;              /* Modem data port                      */
 char megaHz = 0;             /* Z80 clock rate (for wait loops)      */
 char nodeName[32];

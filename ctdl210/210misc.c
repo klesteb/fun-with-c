@@ -37,14 +37,17 @@
 /************************************************************************/
 /*                   contents                                           */
 /*                                                                      */
-/*    configure()    sets terminal parameters via dialogue              */
-/*    doCR()         newline on modem and console                       */
-/*    printDate()    prints out date                                    */
-/*    tutorial()     prints a .hlp file                                 */
-/*    visible()      convert control chars to letters                   */
-/*    loadConfig()   load config file                                   */
-/*    crypte()      encrypts/decrypts data blocks                       */
-/*    hash()        hashes a string to an integer                       */
+/*    configure()       sets terminal parameters via dialogue           */
+/*    doCR()            newline on modem and console                    */
+/*    printDate()       prints out date                                 */
+/*    tutorial()        prints a .hlp file                              */
+/*    visible()         convert control chars to letters                */
+/*    loadConfig()      load config file                                */
+/*    crypte()          encrypts/decrypts data blocks                   */
+/*    hash()            hashes a string to an integer                   */
+/*    matchString()     search for given string                         */
+/*    replaceString()   string-substitute for message entry             */
+/*    normalizeString() strip crap from a string                        */
 /************************************************************************/
 
 /************************************************************************/
@@ -113,12 +116,6 @@ int tutorial(char *filename) {
 
     } else {
 
-        if (!expert) {
-
-            putString("\n <J>ump <P>ause <S>top\n");
-
-        }
-
         putString(" \n");
 
         while ((fgets(line, MAXWORD, fp)) != NULL) {
@@ -154,115 +151,105 @@ char visible(char c) {
 /************************************************************************/
 void loadConfig(char *filename) {
 
-    int fd;
+    FILE *fp = NULL;
+    int  arg, args;
     char line[128];               
     char cmd[128], var[128], string[128];
-    int  arg, args;
 
 
-    if ((fd = open(filename, O_RDONLY)) == ERROR) {
+    if ((fp = fopen(filename, "r")) == NULL) {
 
         putString("?Can't find %s\n", filename);
         exit(EXIT_FAILURE);
 
     }
 
-    while ((read(fd, line, 128) > 0)) {
+    while ((fgets(line, 128, fp) != EOF)) {
 
         if ((args = sscanf(line, "%s %s %x ", cmd, var, &arg))) {
+            
+            if ((strcmp(cmd, "#define" ) == 0) && (args == 3)) {
 
-            if (strcmp(cmd, "#define" ) == SAMESTRING && args == 3) {
-
-                putString("#define '%s' as %x\n", var, arg);
-
-                if (strcmp(var, "MDATA") == SAMESTRING) {
+                if (strcmp(var, "MDATA") == 0) {
 
                     mData = arg;
 
-                } else if (strcmp(var, "MEGAHZ") == SAMESTRING) {
+                } else if (strcmp(var, "MEGAHZ") == 0) {
 
                     megaHz = arg;
 
-                } else if (strcmp(var, "CRYPTSEED") == SAMESTRING) {
+                } else if (strcmp(var, "CRYPTSEED") == 0) {
 
                     cryptSeed = arg;
 
-                } else if (strcmp(var, "RCPM") == SAMESTRING) {
+                } else if (strcmp(var, "RCPM") == 0) {
 
                     rcpm = arg;
 
-                } else if (strcmp(var, "CLOCK") == SAMESTRING) {
+                } else if (strcmp(var, "CLOCK") == 0) {
 
                     /* clock = arg; */
 
-                } else if (strcmp(var, "MESSAGEK") == SAMESTRING) {
+                } else if (strcmp(var, "MESSAGEK") == 0) {
 
                     maxMSector = arg * 8;
 
-                } else if (strcmp(var, "MSGDISK") == SAMESTRING) {
+                } else if (strcmp(var, "MSGDISK") == 0) {
 
                     msgDisk = arg;
 
-                } else if (strcmp(var, "HOMEDISK") == SAMESTRING) {
+                } else if (strcmp(var, "HOMEDISK") == 0) {
 
                     homeDisk = arg;
 
-                } else if (strcmp(var, "HOMEUSER") == SAMESTRING) {
+                } else if (strcmp(var, "HOMEUSER") == 0) {
 
                     homeUser = arg;
 
-                } else if (strcmp(var, "LOGINOK") == SAMESTRING) {
+                } else if (strcmp(var, "LOGINOK") == 0) {
 
                     unlogLoginOk = arg;
 
-                } else if (strcmp(var, "ENTEROK") == SAMESTRING) {
+                } else if (strcmp(var, "ENTEROK") == 0) {
 
                     unlogEnterOk = arg;
 
-                } else if (strcmp(var, "READOK") == SAMESTRING) {
+                } else if (strcmp(var, "READOK") == 0) {
 
                     unlogReadOk = arg;
 
-                } else if (strcmp(var, "ROOMOK") == SAMESTRING) {
+                } else if (strcmp(var, "ROOMOK") == 0) {
 
                     nonAideRoomOk = arg;
 
-                } else {
-
-                    putString("? -- no variable '%s' known! -- ignored.\n", var);
-
                 }
 
-            } else if (strcmp(cmd, "#nodeTitle") == SAMESTRING) {
+            } else if (strcmp(cmd, "#nodeTitle") == 0) {
 
-                /* reparse by ";" terminator: */
-                sscanf(line, "%s \"%s\"", cmd, string);
-                /* copy string into code buffer: */
+                sscanf(line, "%s \"%[^\"]", cmd, string);
                 strcpy(nodeTitle, string);
 
-            } else if (strcmp(cmd, "#nodeName") == SAMESTRING) {
+            } else if (strcmp(cmd, "#nodeName") == 0) {
 
-                /* reparse by ";" terminator: */
-                sscanf(line, "%s \"%s\"", cmd, string);
-                /* copy string into code buffer: */
+                sscanf(line, "%s \"%[^\"]", cmd, string);
                 strcpy(nodeName, string);
 
-            } else if (strcmp(cmd, "#nodeId") == SAMESTRING) {
+            } else if (strcmp(cmd, "#nodeId") == 0) {
 
-                /* reparse by ";" terminator: */
-                sscanf(line, "%s \"%s\"", cmd, string);
-                /* copy string into code buffer: */
+                sscanf(line, "%s \"%[^\"]", cmd, string);
                 strcpy(nodeId, string);
 
-            } else if (strcmp(cmd, "#alldone") == SAMESTRING) {
+            } else if (strcmp(cmd, "#alldone") == 0) {
 
                 break;
 
-            } else if (cmd[0] == '#') putString("? -- no '%s' command!\n", cmd);
+            }
 
         }
 
     }
+
+    fclose(fp);
 
 }
 
@@ -308,6 +295,131 @@ int hash(char *str) {
     }
 
     return h;
+
+}
+
+/************************************************************************/
+/*    matchString() searches for match to given string.  Runs backward  */
+/*    through buffer so we get most recent error first.                 */
+/*    Returns loc of match, else ERROR                                  */
+/************************************************************************/
+char *matchString(char *buf, char *pattern, char *bufEnd) {
+
+    char *loc, *pc1, *pc2;
+    char foundIt;
+
+    for (loc = bufEnd, foundIt = FALSE; !foundIt && --loc >= buf;) {
+
+        for (pc1 = pattern, pc2 = loc, foundIt=TRUE;  *pc1 && foundIt;) {
+
+            if (! (tolower(*pc1++) == tolower(*pc2++))) {
+
+                foundIt = FALSE;
+
+            }
+
+        }
+
+    }
+
+    return (foundIt) ? loc : NULL;
+
+}
+
+/************************************************************************/
+/*    normalizeString() deletes leading & trailing blanks etc.    */
+/************************************************************************/
+void normalizeString(char *s) {
+
+    char *pc;
+
+    pc = s;
+
+    /* find end of string   */
+
+    while (*pc) {
+
+        if (*pc < ' ') *pc = ' ';   /* zap tabs etc... */
+        pc++;
+
+    }
+
+    /* no trailing spaces: */
+
+    while (pc > s && isspace(*(pc - 1))) pc--;
+
+    *pc = '\0';
+
+    /* no leading spaces: */
+
+    while (*s == ' ') {
+
+        for (pc = s; *pc; pc++) *pc = *(pc + 1);
+
+    }
+
+    /* no double blanks */
+
+    for (; *s; s++) {
+
+        if (*s == ' ' && *(s + 1) == ' ') {
+
+            for (pc = s; *pc; pc++) *pc = *(pc + 1);
+
+        }
+
+    }
+
+}
+
+/************************************************************************/
+/*    replaceString() corrects typos in message entry                   */
+/************************************************************************/
+void replaceString(char *buf, int lim) {
+
+    char oldString[2 * SECTSIZE];
+    char newString[2 * SECTSIZE];
+    char *loc, *textEnd;
+    char *pc;
+    int  incr;
+
+    for (textEnd = buf; *textEnd; textEnd++);    /* find terminal null    */
+
+    getString("string", oldString, (2 * SECTSIZE));
+
+    if ((loc = matchString(buf, oldString, textEnd)) == NULL) {
+
+        putString("?not found.\n ");
+        return;
+
+    }
+
+    getString("replacement", newString, (2*SECTSIZE));
+
+    if ((strlen(newString) - strlen(oldString)) >= (&buf[lim] - textEnd)) {
+
+        putString("?Overflow!\n ");
+        return;
+
+    }
+
+    /* delete old string: */
+
+    for (pc = loc, incr = strlen(oldString); *pc = *(pc + incr); pc++);
+
+    textEnd -= incr;
+
+    /* make room for new string: */
+
+    for (pc = textEnd, incr = strlen(newString);  pc >= loc; pc--) {
+
+        *(pc + incr) = *pc;
+
+    }
+
+    /* insert new string: */
+
+    for (pc = newString; *pc; *loc++ = *pc++);
 
 }
 

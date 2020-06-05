@@ -161,18 +161,14 @@ void dPrintf(char *format, ...) {
 
     int n;
     va_list ap;
-    char string[MAXWORD];
+    char *s, string[MAXWORD];
 
     va_start(ap, format);
     n = vsnprintf(string, MAXWORD, format, ap);
     va_end(ap);
 
-    errno = 0;
-    if ((write(msgfl, string, strlen(string))) < 0) {
-
-        putString("?dPrintf-write fail, reason: %d\n", errno);
-
-    }
+    s = string;
+    while (*s) putMsgChar(*s++);
 
 }
 
@@ -678,9 +674,9 @@ void msgInit(void) {
 
             putString(" newest=%d %d\n", newestHi, newestLo);
 
-            /* read rest of message in and remember where it ends,    */
-            /* in case it turns out to be the last message        */
-            /* in which case, that's where to start writing next message*/
+            /* read rest of message in and remember where it ends,       */
+            /* in case it turns out to be the last message               */
+            /* in which case, that's where to start writing next message */
 
             while (dGetWord(msgBuf.mbtext, MAXTEXT));
 
@@ -794,20 +790,20 @@ void note2Message(int id, int loc) {
 
     int i;
 
-    /* store into current room: */
-    /* slide message pointers down to make room for this one:        */
+    /* store into current room:                               */
+    /* slide message pointers down to make room for this one: */
 
     for (i = 0; i < MSGSPERRM - 1; i++) {
 
-        roomBuf.vp.msg[i].rbmsgLoc = roomBuf.vp.msg[i+1].rbmsgLoc;
-        roomBuf.vp.msg[i].rbmsgNo  = roomBuf.vp.msg[i+1].rbmsgNo;
+        roomBuf.vp.msg[i].rbmsgLoc = roomBuf.vp.msg[i + 1].rbmsgLoc;
+        roomBuf.vp.msg[i].rbmsgNo  = roomBuf.vp.msg[i + 1].rbmsgNo;
 
     }
 
     /* slot this message in:        */
 
-    roomBuf.vp.msg[MSGSPERRM-1].rbmsgNo  = id;
-    roomBuf.vp.msg[MSGSPERRM-1].rbmsgLoc = loc;
+    roomBuf.vp.msg[MSGSPERRM - 1].rbmsgNo  = id;
+    roomBuf.vp.msg[MSGSPERRM - 1].rbmsgLoc = loc;
 
 }
 
@@ -850,7 +846,7 @@ void printMessage(int loc, unsigned id) {
     if (msgBuf.mboname[0]) putString(" @%s",    msgBuf.mboname);
 
     if (msgBuf.mbroom[0] &&
-        strcmp(msgBuf.mbroom, roomBuf.rbname) != SAMESTRING) {
+        strcmp(msgBuf.mbroom, roomBuf.rbname) != 0) {
 
         putString(" in %s>", msgBuf.mbroom);
 
@@ -967,13 +963,11 @@ char putMessage(char uploading) {
     /* write message text by hand because it would overrun dPrintf buffer: */
 
     putMsgChar('M');    /* M-for-message.    */
-    allOk = TRUE;
 
-    errno = 0;
-    if ((write(msgfl, msgBuf.mbtext, strlen(msgBuf.mbtext))) < 0) {
+    for (s = msgBuf.mbtext; *s; s++) {
 
-        allOk = FALSE;
-        putString("?putMessage-write fail, reason: %d\n", errno);
+        putMsgChar(*s);
+        allOk = TRUE;
 
     }
 
@@ -1030,17 +1024,17 @@ int putMsgChar(char c) {
 
         errno = 0;
         if ((lseek(msgfl, thisSector, SEEK_SET)) < 0) {
-            
+
             putString("?putMsgChar-seek fail, reason: %d\n", errno);
-            toReturn    = ERROR;
-            
+            toReturn = ERROR;
+
         }
 
         errno = 0;
         if (write(msgfl, sectBuf, 1) < 0) {
 
             putString("?putMsgChar-write fail, reason: %d\n", errno);
-            toReturn    = ERROR;
+            toReturn = ERROR;
 
         }
 
@@ -1162,12 +1156,6 @@ void showMessages(char whichMess, char revOrder) {
 
     }
 
-    if (!expert)  {
-
-        putString("\n <J>ump <N>ext <P>ause <S>top");
-
-    }
-
     for (i = start; i != finish; i += increment) {
 
         /* "<" comparison with 64K wraparound in mind: */
@@ -1225,7 +1213,7 @@ void startAt(unsigned short sect, unsigned short byt) {
     }
 
     errno = 0;
-    if (read(msgfl, sectBuf, 1) < 0) {
+    if (read(msgfl, sectBuf, SECTSIZE) < 0) {
 
         putString("?startAt read fail, reason: %d\n", errno);
 
@@ -1272,12 +1260,12 @@ void zapMsgFile(void) {
     errno = 0;
     if ((lseek(msgfl, 0, SEEK_SET)) < 0) {
 
-        putString("zapMsgFil: lseek failed, reason: %d\n\n", errno);
+        putString("zapMsgFil: lseek failed, reason: %d\n", errno);
 
     }
 
     errno = 0;
-    if ((val = write(msgfl, sectBuf, sizeof(sectBuf))) < 0) {
+    if ((val = write(msgfl, sectBuf, SECTSIZE)) < 0) {
 
         putString("zapMsgFil: write failed, %d records, reason: %d!\n", val, errno);
 

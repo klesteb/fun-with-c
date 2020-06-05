@@ -23,6 +23,7 @@
 
 extern char firstExtern;
 
+extern int  sysop;
 extern char mData;
 extern char megaHz;
 extern char nodeName[32];

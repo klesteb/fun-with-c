@@ -311,9 +311,11 @@ void doHelp(char expand, char first) {
     char fileName[NAMESIZE];
 
     if (!expand) {
+
         putString("Help\n \n ");
         tutorial("dohelp.hlp");
         return;
+
     }
 
     putString("Help ");
@@ -618,13 +620,17 @@ char doRegular(char x, char c) {
         case '?':
             tutorial("mainopt.mnu");
             break;
-
         case 'A': 
             if (!doAide(x, 'E')) {
                 toReturn = TRUE; 
             }
             break;
         default:
+            if (!expert) {
+                putString("\n ? (Type '?' for menu)\n \n");
+            } else {
+                putString("\n ?\n \n");
+            }
             toReturn = TRUE;
             break;
     }
@@ -637,105 +643,101 @@ char doRegular(char x, char c) {
 /*    doSysop() handles the sysop-only menu                             */
 /*        return FALSE to fall invisibly into default error msg         */
 /************************************************************************/
-char doSysop(char c, char first) {
+char doSysop(char x, char c) {
 
     char   who[NAMESIZE];
     struct logBuffer lBuf;
     int    logNo, ltabSlot;
+    char toReturn;
 
-    if (!onConsole) return TRUE;
+    toReturn = FALSE;
 
-    while (TRUE) {
+    putString("\n privileged fn: ");
 
-        putString("\n privileged fn: ");
-
-        switch (toupper(first ? first : iChar())) {
-            case 'A':
-                putString("Abort\n ");
-                return FALSE;
-            case 'C':
-                putString("Chat mode disabled\n");
+    switch (c) {
+        case 'A': 
+            putString("Abort\n "); 
+            sysop = FALSE;
+            break;
+        case 'C':  
+            putString("Chat mode disabled\n"); 
+            break;
+        case 'D':
+            debug = !debug;
+            putString("Debug switch=%d\n \n", debug);
+            break;
+        case 'K':
+            putString("Kill account\n ");
+            if (!getYesNo("Confirm")) break;
+            getString("who", who, NAMESIZE);
+            normalizeString(who);
+            logNo = findPerson(who, &lBuf);
+            if (logNo == ERROR)   {
+                putString("No such person\n ");
                 break;
-            case 'D':
-                debug = !debug;
-                putString("Debug switch=%d\n \n", debug);
+            }
+            putString("%s deleted\n ", who);
+            ltabSlot = PWSlot(lBuf.lbpw);
+            lBuf.lbname[0] = '\0';
+            lBuf.lbpw[0  ] = '\0';
+            putLog(&lBuf, logNo);
+            logTab[ltabSlot].ltpwhash = 0;
+            logTab[ltabSlot].ltnmhash = 0;
+            break;
+        case 'M':
+            putString("\bSystem now on MODEM\n ");
+            setUp(FALSE);
+            putString("Chat mode disabled\n");
+            if (debug)       putString("Debug mode on\n "  );
+            if (visibleMode) putString("Visible mode on\n ");
+            return FALSE;
+        case 'P':
+            putString("\bAide privilege set/clear\n ");
+            getString("who", who, NAMESIZE);
+            normalizeString(who);
+            logNo = findPerson(who, &lBuf);
+            if (logNo == ERROR) {
+                putString("No such person\n ");
                 break;
-            case 'K':
-                putString("Kill account\n ");
-                if (!getYesNo("Confirm")) break;
-                getString("who", who, NAMESIZE);
-                normalizeString(who);
-                logNo = findPerson(who, &lBuf);
-                if (logNo == ERROR)   {
-                    putString("No such person\n ");
-                    break;
-                }
-                putString("%s deleted\n ", who);
-                ltabSlot = PWSlot(lBuf.lbpw);
-                lBuf.lbname[0] = '\0';
-                lBuf.lbpw[0  ] = '\0';
-
-                putLog(&lBuf, logNo);
-
-                logTab[ltabSlot].ltpwhash = 0;
-                logTab[ltabSlot].ltnmhash = 0;
-                break;
-            case 'M':
-                putString("\bSystem now on MODEM\n ");
-                setUp(FALSE);
-                putString("Chat mode disabled\n");
-                if (debug)       putString("Debug mode on\n "  );
-                if (visibleMode) putString("Visible mode on\n ");
-                return FALSE;
-            case 'P':
-                putString("\bAide privilege set/clear\n ");
-                getString("who", who, NAMESIZE);
-                normalizeString(who);
-                logNo = findPerson(who, &lBuf);
-                if (logNo == ERROR) {
-                    putString("No such person\n ");
-                    break;
-                }
-
-                lBuf.lbflags ^= AIDE;
-                putString("%s %s aide privileges\n ", who,
-                       (lBuf.lbflags & AIDE)  ?  "gets"  :  "loses"
-                );
-                if (!getYesNo("Confirm")) break;
-
-                putLog(&lBuf, logNo);
-
-                /* see if it is us: */
-                if (loggedIn && strcasecmp(logBuf.lbname, who)==SAMESTRING) {
-                    aide = lBuf.lbflags & AIDE;
-                }
-                break;
-            case 'R':
-                putString("not implemented\n");
-                break;
-            case 'S':
-                putString("Set date\n \n");
-                break;
-            case 'V':
-                putString(" VisibleMode==%d\n ",  visibleMode = !visibleMode);
-                break;
-            case 'X':
-                putString("\bExit to CP/M\n \n");
-                exitToCpm = TRUE;
-                return FALSE;
-            case '?':
-                tutorial("ctdlopt.mnu");
-                break;
-            default:
-                if (!expert) {
-                    putString(" ?(Type '?' for menu)\n");
-                } else {
-                    putString(" ?\n");
-                }
-                break;
-        }
-
+            }
+            lBuf.lbflags ^= AIDE;
+            putString("%s %s aide privileges\n ", who,
+                     (lBuf.lbflags & AIDE) ? "gets" : "loses"
+            );
+            if (!getYesNo("Confirm")) break;
+            putLog(&lBuf, logNo);
+            /* see if it is us: */
+            if (loggedIn && strcasecmp(logBuf.lbname, who)==SAMESTRING) {
+                aide = lBuf.lbflags & AIDE;
+            }
+            break;
+        case 'R':
+            putString("not implemented\n");
+            break;
+        case 'S':
+            putString("Set date\n \n");
+            break;
+        case 'V':
+            putString(" VisibleMode==%d\n ",  visibleMode = !visibleMode);
+            break;
+        case 'T': 
+            doLogout(x, 'q' );            
+            toReturn = FALSE;
+            break;
+        case '?':
+            tutorial("ctdlopt.mnu");
+            break;
+        default:
+            if (!expert) {
+                putString("\n ?(Type '?' for menu)\n");
+            } else {
+                putString("\n ?\n");
+            }
+            toReturn = TRUE;
+            break;
     }
+
+    return toReturn;
 
 }
 
@@ -796,12 +798,47 @@ void greeting(void) {
 /************************************************************************/
 /*    main() contains the central menu code                             */
 /************************************************************************/
-int main(void) {
+int main(int argc, char **argv) {
 
     char c, x;
+    char opts[] = "csh?";
+    extern char *optarg;
+    extern int optind;
+    char *configs = "ctdlcnfg.sys";
+
+    opterr = 0;
+
+    while ((c = getopt(argc, argv, opts)) != -1) {
+
+        switch(c) {
+            case 'c':
+                configs = argv[optind];
+                break;
+            case 's':
+                sysop = TRUE;
+                break;
+            case 'h':
+                printf("\n");
+                printf("Citadel 2.10 - Linux port\n");
+                printf("\n");
+                printf("Usage: 210ctdl [-h] [-s] [-c <filename>]\n");
+                printf("\n");
+                printf("    -h - display help.\n");
+                printf("    -s - enable sysop options.\n");
+                printf("    -c <filename> - use this configuration file.\n");
+                printf("\n");
+                return EXIT_SUCCESS;
+                break;
+            case '?':
+                printf("Usage: 210ctdl [-h] [-s] [-c <filename>]\n");
+                return EXIT_SUCCESS;
+                break;
+        }
+
+    }
 
     initTerminal();
-    loadConfig("ctdlcnfg.sys");
+    loadConfig(configs);
     initCitadel();
     weAre = CITADEL;
     greeting();
@@ -810,19 +847,9 @@ int main(void) {
 
         x = getCommand(&c);
 
-        if ((c == CNTRLp) ? doSysop(0, '\0') : doRegular(x, c)) {
+        if (c == CNTRLp) sysop = TRUE;
 
-            if (!expert) {
-
-                putString(" ? (Type '?' for menu)\n \n");
-
-            } else {
-
-                putString(" ?\n \n");
-
-            }
-
-        }
+        (sysop) ? doSysop(x, c) : doRegular(x, c);
 
     }
 
@@ -831,6 +858,6 @@ int main(void) {
     endTerminal();
 
     return(EXIT_SUCCESS);
-    
+
 }
 

@@ -1,24 +1,14 @@
-  Privileged sysop functions:
 
-  <A>bort to main menu
-  <C>hat enable/suppress switch
-  <D>ebug switch
-  <K>ill account
-  <M>ODEM mode
-  <P>rivilege switch (aide)
-  <S>et date
-  <V>isible mode switch
- e<X>it to CP/M
+ Privileged sysop functions:
 
+ <A>bort to main menu
+ <C>hat enable/suppress switch
+ <D>ebug switch
+ <K>ill account
+ <M>ODEM mode
+ <P>rivilege switch (aide)
+ <S>et date
+ <V>isible mode switch
+ <T>erminte
+ <?> for menu (anywhere)
 
-
-
-
-
-
-
-
-
-
-
-	CI

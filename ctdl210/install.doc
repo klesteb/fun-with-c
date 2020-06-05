@@ -1,147 +1,144 @@
+
 /************************************************************************/
-/*			      install.doc				*/
+/*                  install.doc                                         */
 /************************************************************************/
 
 /************************************************************************/
-/*				History 				*/
-/*									*/
-/* 82Dec06 CrT	Created.						*/
+/*                History                                               */
+/*                                                                      */
+/* 82Dec06 CrT    Created.                                              */
 /************************************************************************/
 
 /************************************************************************/
-/*				Audience				*/
-/*									*/
-/* People with the disks in one hand and this listing in the other,	*/
-/* wondering, "What next?"						*/
+/*                Audience                                              */
+/*                                                                      */
+/* People with the disks in one hand and this listing in the other,     */
+/* wondering, "What next?"                                              */
 /************************************************************************/
 
 /************************************************************************/
-/*				Purpose 				*/
-/*									*/
-/*  Step-by-step guide to get Citadel to sit up and bark.		*/
+/*                Purpose                                               */
+/*                                                                      */
+/*  Step-by-step guide to get Citadel to sit up and bark.               */
 /************************************************************************/
 
     Rerun of a paragraph from aaBuyMe.doc:
 
-	Citadel is written in BDS C.  The distributed system can be
+    Citadel is written in BDS C. The distributed system can be
     installed and run without recompilation in most cases.  Citadel
     needs CP/M 2.xx, at least 300K of disk space, an auto-answer modem,
     and 64K RAM.  (i.e., a 0100 -> CF00 TPA, at least).  The source
     files run to about 150K, the .com files to about 100K.  In an
-    operating system, the message and userlog files together take about
+    operating system, the message and user log files together take about
     100K, and one would normally like about 200K for message text, to
     keep the wraparound time longer than a week.
 
-    If that doesn't describe your system, this isn't the file for you.
-Either recycle the disks, or drag out the source code and documentation
-and settle down to some serious hacking...
+If that doesn't describe your system, this isn't the file for you. Either 
+recycle the disks, or drag out the source code and documentation and settle 
+down to some serious hacking...
 
-    NOTE: Data files created under Version 1.0 or Version 2.0 will >NOT<
-work with Version 2.1.	The configuration file ctdlCnfg.sys also
-differs from that for Version 2.0.  Sites running V1.0 or V2.0 should
-start fresh with V2.1.
+NOTE: Data files created under Version 1.0 or Version 2.0 will >NOT<
+      work with Version 2.1. The configuration file ctdlCnfg.sys also
+      differs from that for Version 2.0.  Sites running V1.0 or V2.0 should
+      start fresh with V2.1.
 
-    Still with us?  OK.  For purposes of getting the basic system working,
-you need to sort out and get acquainted with the following files:
+Still with us? OK. For purposes of getting the basic system working, you 
+need to sort out and get acquainted with the following files:
 
-configur.com	A special installation program.
-ctdlCnfg.sys	(CiTaDeL CoNFiGuration SYStem file.)  You will edit your
-		local system customizations into this file and then
-		feed it to configur.com, which will do all the remaining
-		work for you.  (Do you believe that?)
-citadel.com	This is the actual Bulletin Board ("BB" hereafter) program.
+configur.com    A special installation program.
+ctdlcnfg.sys    (CiTaDeL CoNFiGuration SYStem file.)  You will edit your
+                local system customization's into this file and then
+                feed it to configur.com, which will do all the remaining
+                work for you.  (Do you believe that?)
+citadel.com     This is the actual Bulletin Board ("BB" hereafter) program.
 
-    In order to get lost properly, it is very important to have a map.
-Very briefly, the installation steps are:
+In order to get lost properly, it is very important to have a map. Very 
+briefly, the installation steps are:
 
-    (1)   Edit ctdlCnfg.sys .
+    (1) Edit ctdlCnfg.sys.
 
-    (2)   Feed ctdlCnfg.sys into configur.com.	 Configur.com will:
-       (A)  Create  ctdlLog.sys,   a file to contain all the userlog entries.
-       (B)  Create  ctdlMsg.sys,   a file to contain all the messages.
-       (C)  Create  ctdlRoom.sys,  a file to contain all the rooms.
+    (2) Feed ctdlcnfg.sys into configur.com.     Configur.com will:
+        (A)  Create  ctdllog.sys,   a file to contain all the user log entries.
+        (B)  Create  ctdlmsg.sys,   a file to contain all the messages.
+        (C)  Create  ctdlroom.sys,  a file to contain all the rooms.
+        (D)  Create  ctdltabl.sys,  a file which contains indices to the
+                   first three files plus stuff derived
+                   from the ctdlcnfg.sys configuration file.
 
-       (D)  Create  ctdlTabl.sys,  a file which contains indices to the
-				   first three files plus stuff derived
-				   from the ctdlCnfg.sys configuration file.
+    (3) Run Citadel.com, which read the above files
+        and then let you enter messages, create rooms and all manner of
+        good things.
 
-    (3)   Run Citadel.com, which read the above files
-	  and then let you enter messages, create rooms and all manner of
-	  good things.
-
-
-    Three steps.  How trivial can you get?  But please do study the
+Three steps. How trivial can you get? But please do study the
 above carefully enough to get a feel for what's going on and an
 understanding of what the major files do.
 
-  *    *    *	 *    *    *	*    *	  *    *    *	 *    *    *	*
+  *    *    *     *    *    *    *    *      *    *    *     *    *    *    *
 
-(1).
-    So: go edit ctdlCnfg.sys .	It's massively self-documented,
-just work your way through top to bottom putting in values appropriate
-to your system.  You may wish to use a small message-file size during
-testing to reduce the length of time configur.com takes to index the
-file.  (It reads through the complete file each time it is run.)
+(1) So: go edit ctdlcnfg.sys . It's massively self-documented,
+    just work your way through top to bottom putting in values appropriate
+    to your system.  You may wish to use a small message-file size during
+    testing to reduce the length of time configur.com takes to index the
+    file.  (It reads through the complete file each time it is run.)
+
     A few gotchas to watch for:
-    Really, truly, all the instructions take hex values.  If you put
-octal or decimal numbers in, it's not going to work.
-    Configur.com is not very bright.  It wants to see blanks (not
-tabs or carriage-returns) between and following all the fields it
-reads.	On the other hand, it really doesn't care what happens on
-lines which don't start with "#", or on the trailing half of those
-which do.  If you end each instruction line with a comment and put
-single blanks between the arguments, as I have, you should have no
-problems on this score.  (BASIC programmers: don't worry, the comments
-won't slow the system down.  Relax!)
+    
+    Really, truly, all the instructions take hex values. If you put
+    octal or decimal numbers in, it's not going to work. Configur.com 
+    is not very bright. It wants to see blanks (not tabs or carriage-returns)
+    between and following all the fields it reads. On the other hand, it 
+    really doesn't care what happens on lines which don't start with "#", 
+    or on the trailing half of those which do. If you end each instruction 
+    line with a comment and put single blanks between the arguments, as 
+    I have, you should have no problems on this score. (BASIC programmers: 
+    don't worry, the comments won't slow the system down.  Relax!)
 
+(2) Run configur.com. Configur.com expects to find ctdlcnfg.sys on the 
+    default disk in the default user space. Once it has read this file,
+    it will shift to HOMEDISK and HOMEUSER. Configur.com is used to 
+    rebuild a system as well as install it. When it fails to find ctdlmsg.sys,
+    ctdlroom.sys and ctdllog.sys, it will create them and remind you to 
+    initialize them. When it asks you if you want to initialize them 
+    (and then double-checks on each individual file), type a "Y" each 
+    time first time through. On subsequent runs, you can answer "N", 
+    which will leave the three data files untouched, only building new 
+    indices etc for a new ctdlTabl.sys file. This way you can reconfigure 
+    the system within reasonable limits without trashing all existing 
+    messages, rooms etc. Configur lists various things as it runs, mostly 
+    to convince you it hasn't crashed yet. Don't worry particularly unless 
+    it seems excited about something. In particular, when it lists the 
+    modem routines, it will list the opcodes of the routines but not 
+    the arguments. Cheap code?  Well, you get what you pay for...
 
-(2)
-    Run configur.com.  Configur.com expects to find ctdlcnfg.sys on
-the default disk in the default userspace.  Once it has read this file,
-it will shift to HOMEDISK and HOMEUSER.
-    Configur.com is used to rebuild a system as well as install it.
-When it fails to find ctdlMsg.sys, ctdlRoom.sys and ctdlLog.sys, it
-will create them and remind you to initialize them.  When it asks you
-if you want to initialize them (and then double-checks on each individual
-file), type a "Y" each time first time through.  On subsequent runs,
-you can answer "N", which will leave the three data files untouched,
-only building new indices etc for a new ctdlTabl.sys file.  This way
-you can reconfigure the system within reasonable limits without trashing
-all existing messages, rooms etc.
-    Configur lists various things as it runs, mostly to convince you
-it hasn't crashed yet.	Don't worry particularly unless it seems
-excited about something.  In particular, when it lists the modem routines,
-it will list the opcodes of the routines but not the arguments.  Cheap
-code?  Well, you get what you pay for...
+(3) Run sysop.com. It will expect to find ctdltabl.sys on the default
+    disk in the current user space when it is run. It will then expect to
+    find everything else on HOMEDISK in HOMEUSER, with the sole exception 
+    of ctdlmsg.sys, which it will look for on MSGDISK in HOMEUSER. You
+    should copy all the .hlp, .blb and .mnu files in the distribution into
+    HOMEDISK in HOMEUSER, since Citadel.com will expect to find them
+    there. (It won't crash without them, but you'll be missing all
+    the automatic hints etc.)
 
-(3)
-    Run sysop.com.  It will expect to find ctdlTabl.sys on the default
-disk in the current userspace when it is run.  It will then expect to
-find everything else on HOMEDISK in HOMEUSER, with the sole exception of
-ctdlMsg.sys, which it will look for on MSGDISK in HOMEUSER.  You
-should copy all the .hlp, .blb and .mnu files in the distribution into
-HOMEDISK in HOMEUSER, since Citadel.com will expect to find them
-there.	(It won't crash without them, but you'll be missing all
-the automatic hints etc.)
-    Citadel.com will delete ctdlTabl.sys after it has
-read it, and will recreate ctdlTabl.sys only when you exit.  This is
-because it contains indices to the other three data files, and it
-would not be good to load an out-of-date index file.  If
-Citadel.com crashes, leaving you without a ctdlTabl.sys, just run
-configur.com again to recreate it.
+    Citadel.com will delete ctdlTabl.sys after it has read it, and will 
+    recreate ctdlTabl.sys only when you exit. This is because it contains 
+    indices to the other three data files, and it would not be good to 
+    load an out-of-date index file. If Citadel.com crashes, leaving you 
+    without a ctdltabl.sys, just run configur.com again to recreate it.
+
     Play around with Citadel.com for awhile: learn to enter messages,
-create rooms, read messages, and so forth.  Create several different
-identities, and log them in and out in rotation to see how new
-messages and rooms with new messages are found.  (The system is much
-easier to understand with lots of rooms and messages around to
-experiment on!)
+    create rooms, read messages, and so forth. Create several different
+    identities, and log them in and out in rotation to see how new
+    messages and rooms with new messages are found.  (The system is much
+    easier to understand with lots of rooms and messages around to
+    experiment on!)
 
-    When things are clearly working correctly, double-check the
-modem routines and then try running over the modem.  You'll need to have
-someone dialing the system up to test that carrier-detect etc are
-working correctly.  This will probably be painful.  Note that you
-can use "chat mode" to type directly to the modem, bypassing everything
-but the modem routines.  You'll probably have to rewrite your little
-modem routines in ctdlCnfg.sys several times before everything works.
+    When things are clearly working correctly, double-check the modem 
+    routines and then try running over the modem. You'll need to have
+    someone dialing the system up to test that carrier-detect etc are
+    working correctly. This will probably be painful. Note that you can 
+    use "chat mode" to type directly to the modem, bypassing everything
+    but the modem routines.  You'll probably have to rewrite your little
+    modem routines in ctdlcnfg.sys several times before everything works.
 
-    If you survive this far... congratulations!   and... Welcome!
+    If you survive this far... congratulations! and... Welcome!
+

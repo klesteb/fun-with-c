@@ -17,7 +17,7 @@ INCS = 210ctdl.h 210protos.h 210common.h 210common.c
 #
 OBJS = 210log.o 210misc.o 210modem.o 210msg.o 210rooma.o 210roomb.o
 #
-all: $(OBJS) 210ctdl 210confg test1 test2 test3
+all: $(OBJS) 210ctdl 210confg test1 test2 test3 test4 test5
 #
 debug:
 #
@@ -30,6 +30,8 @@ clean:
 	rm -f test1
 	rm -f test2
 	rm -f test3
+	rm -f test4
+	rm -f test5
 #
 #
 test1: test1.c $(INCS)
@@ -43,6 +45,14 @@ test2: test2.c $(INCS)
 test3: test3.c $(INCS)
 	$(CC) $(CFLAGS) test3.c
 	$(LINK) $(LFLAGS) test3 test3.o $(OLBS)
+#
+test4: test4.c $(INCS)
+	$(CC) $(CFLAGS) test4.c
+	$(LINK) $(LFLAGS) test4 test4.o $(OLBS)
+#
+test5: test5.c $(INCS)
+	$(CC) $(CFLAGS) test5.c
+	$(LINK) $(LFLAGS) test5 test5.o $(OLBS)
 #
 210ctdl: 210ctdl.c $(INCS)
 	$(CC) $(CFLAGS) 210ctdl.c

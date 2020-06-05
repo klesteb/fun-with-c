@@ -47,11 +47,9 @@
 /*    givePrompt()     gives usual "THISROOM>" prompt                   */
 /*    indexRooms()     build RAM index to ctdlroom.sys                  */
 /*    makeRoom()       make new room via user dialogue                  */
-/*    matchString()    search for given string                          */
 /*    noteRoom()       enter room into RAM index                        */
 /*    putRoom()        store room to given disk slot                    */
 /*    renameRoom()     sysop special to rename rooms                    */
-/*    replaceString()  string-substitute for message entry              */
 /*    zapRoomFile()    erase & re-initialize ctdlroom.sys               */
 /************************************************************************/
 
@@ -455,80 +453,6 @@ void makeRoom(void) {
 }
 
 /************************************************************************/
-/*    matchString() searches for match to given string.  Runs backward  */
-/*    through buffer so we get most recent error first.                 */
-/*    Returns loc of match, else ERROR                                  */
-/************************************************************************/
-char *matchString(char *buf, char *pattern, char *bufEnd) {
-
-    char *loc, *pc1, *pc2;
-    char foundIt;
-
-    for (loc = bufEnd, foundIt = FALSE; !foundIt && --loc >= buf;) {
-
-        for (pc1 = pattern, pc2 = loc, foundIt=TRUE;  *pc1 && foundIt;) {
-
-            if (! (tolower(*pc1++) == tolower(*pc2++))) {
-
-                foundIt = FALSE;
-
-            }
-
-        }
-
-    }
-
-    return (foundIt) ? loc : NULL;
-
-}
-
-/************************************************************************/
-/*    normalizeString() deletes leading & trailing blanks etc.    */
-/************************************************************************/
-void normalizeString(char *s) {
-
-    char *pc;
-
-    pc = s;
-
-    /* find end of string   */
-
-    while (*pc) {
-
-        if (*pc < ' ') *pc = ' ';   /* zap tabs etc... */
-        pc++;
-
-    }
-
-    /* no trailing spaces: */
-
-    while (pc > s && isspace(*(pc - 1))) pc--;
-
-    *pc = '\0';
-
-    /* no leading spaces: */
-
-    while (*s == ' ') {
-
-        for (pc=s; *pc; pc++) *pc = *(pc + 1);
-
-    }
-
-    /* no double blanks */
-
-    for (; *s; s++) {
-
-        if (*s == ' ' && *(s + 1) == ' ') {
-
-            for (pc = s; *pc; pc++) *pc = *(pc + 1);
-
-        }
-
-    }
-
-}
-
-/************************************************************************/
 /*    noteRoom() -- enter room into RAM index array.                    */
 /************************************************************************/
 void noteRoom(void) {
@@ -658,57 +582,6 @@ int renameRoom(void) {
     putRoom(thisRoom, &roomBuf);
 
     return TRUE;
-
-}
-
-/************************************************************************/
-/*    replaceString() corrects typos in message entry                   */
-/************************************************************************/
-void replaceString(char *buf, int lim) {
-
-    char oldString[2 * SECTSIZE];
-    char newString[2 * SECTSIZE];
-    char *loc, *textEnd;
-    char *pc;
-    int  incr;
-
-    for (textEnd = buf; *textEnd; textEnd++);    /* find terminal null    */
-
-    getString("string", oldString, (2 * SECTSIZE));
-
-    if ((loc = matchString(buf, oldString, textEnd)) == NULL) {
-
-        putString("?not found.\n ");
-        return;
-
-    }
-
-    getString("replacement", newString, (2*SECTSIZE));
-
-    if ((strlen(newString) - strlen(oldString)) >= (&buf[lim] - textEnd)) {
-
-        putString("?Overflow!\n ");
-        return;
-
-    }
-
-    /* delete old string: */
-
-    for (pc = loc, incr = strlen(oldString); *pc = *(pc + incr); pc++);
-
-    textEnd -= incr;
-
-    /* make room for new string: */
-
-    for (pc = textEnd, incr = strlen(newString);  pc >= loc; pc--) {
-
-        *(pc + incr) = *pc;
-
-    }
-
-    /* insert new string: */
-
-    for (pc = newString; *pc; *loc++ = *pc++);
 
 }
 

@@ -68,11 +68,11 @@
 /************************************************************************/
 void aideMessage(char noteDeletedMessage) {
 
-    int ourRoom;
+    unsigned short ourRoom = thisRoom;
 
     /* message is already set up in msgBuf.mbtext */
 
-    putRoom(ourRoom = thisRoom, &roomBuf);
+    putRoom(ourRoom, &roomBuf);
     getRoom(AIDEROOM, &roomBuf);
 
     strcpy(msgBuf.mbauth, "Citadel");
@@ -255,9 +255,10 @@ int findPerson(char *name, struct logBuffer *lBuf) {
 
         if (logTab[i].ltnmhash == h) {
 
-            getLog(lBuf, logNo = logTab[i].ltlogSlot);
+            logNo = logTab[i].ltlogSlot;
+            getLog(lBuf, logNo);
 
-            if (strcasecmp(name, lBuf->lbname) == SAMESTRING) {
+            if (strcasecmp(name, lBuf->lbname) == 0) {
 
                 foundIt = TRUE;
 
@@ -275,17 +276,26 @@ int findPerson(char *name, struct logBuffer *lBuf) {
 /*    flushMsgBuf() wraps up writing a message to disk                  */
 /************************************************************************/
 void flushMsgBuf(void) {
-    
-    crypte(sectBuf, SECTSIZE, 0);
+
+    int offset = thisSector * SECTSIZE;
+
+    /* crypte(sectBuf, SECTSIZE, 0); */
 
     errno = 0;
-    if (write(msgfl, sectBuf, 1) < 0) {
+    if (lseek(msgfl, offset, SEEK_SET) < 0) {
         
-        putString("?ctdlmsg.sys write fail, reason; %d", errno);
+        putError(" ?ctdlmsg.sys seek fail, reason; %d", errno);
 
     }
 
-    crypte(sectBuf, SECTSIZE, 0);
+    errno = 0;
+    if (write(msgfl, sectBuf, SECTSIZE) < 0) {
+
+        putError(" ?ctdlmsg.sys write fail, reason; %d", errno);
+
+    }
+
+    /* crypte(sectBuf, SECTSIZE, 0); */
 
 }
 
@@ -324,18 +334,15 @@ void getMessage(void) {
         c = getMsgChar();
 
         switch (c) {
-            case 'A':    getMsgStr(msgBuf.mbauth,  NAMESIZE);    break;
-            case 'D':    getMsgStr(msgBuf.mbdate,  NAMESIZE);    break;
-            case 'M':    /* just exit -- we'll read off disk */    break;
-            case 'N':    getMsgStr(msgBuf.mboname, NAMESIZE);    break;
-            case 'O':    getMsgStr(msgBuf.mborig,  NAMESIZE);    break;
-            case 'R':    getMsgStr(msgBuf.mbroom,  NAMESIZE);    break;
-            case 'S':    getMsgStr(msgBuf.mbsrcId, NAMESIZE);    break;
-            case 'T':    getMsgStr(msgBuf.mbto,    NAMESIZE);    break;
-            default:
-                getMsgStr(msgBuf.mbtext, MAXTEXT);    /* discard unknown field  */
-                msgBuf.mbtext[0] = '\0';
-                break;
+            case 'A': getMsgStr(msgBuf.mbauth,  NAMESIZE);    break;
+            case 'D': getMsgStr(msgBuf.mbdate,  NAMESIZE);    break;
+            case 'M': getMsgStr(msgBuf.mbtext,  MAXTEXT);     break;
+            case 'N': getMsgStr(msgBuf.mboname, NAMESIZE);    break;
+            case 'O': getMsgStr(msgBuf.mborig,  NAMESIZE);    break;
+            case 'R': getMsgStr(msgBuf.mbroom,  NAMESIZE);    break;
+            case 'S': getMsgStr(msgBuf.mbsrcId, NAMESIZE);    break;
+            case 'T': getMsgStr(msgBuf.mbto,    NAMESIZE);    break;
+            default: break;
         }
 
     } while (c != 'M' && isalpha(c));
@@ -347,6 +354,7 @@ void getMessage(void) {
 /************************************************************************/
 unsigned char getMsgChar(void) {
 
+    int offset;
     unsigned char toReturn;
 
     if (GMCCache) {    /* someone did an unGetMsgChar() --return it    */
@@ -369,25 +377,28 @@ unsigned char getMsgChar(void) {
 
     if (thisChar == 0) {
 
+        memset(sectBuf, '\0', SECTSIZE);
+
         /* time to read next sector in: */
 
         thisSector = ++thisSector % maxMSector;
+        offset = thisSector * SECTSIZE;
 
         errno = 0;
-        if ((lseek(msgfl, thisSector, SEEK_SET)) < 0) {
+        if ((lseek(msgfl, offset, SEEK_SET)) == 0) {
 
-            putString("?nextMsgChar-seek fail, reason: %d\n", errno);
+            putError(" ?nextMsgChar-seek fail, reason: %d\n", errno);
 
         }
 
         errno = 0;
-        if (read(msgfl, sectBuf, 1) < 0) {
+        if (read(msgfl, sectBuf, SECTSIZE) == 0) {
 
-            putString("?nextMsgChar-read fail, reason: %d\n", errno);
+            putError(" ?nextMsgChar-read fail, reason: %d\n", errno);
 
         }
 
-        crypte(sectBuf, SECTSIZE, 0);
+        /* crypte(sectBuf, SECTSIZE, 0); */
 
     }
 
@@ -404,7 +415,6 @@ void getMsgStr(char *dest, int lim) {
 
     while ((c = getMsgChar())) {  /* read the complete string    */
 
-        if (c == NULL) break;
         if (lim) {              /* if we have room then        */
 
             lim--;
@@ -529,7 +539,7 @@ int makeMessage(char uploading) {
             normalizeString(msgBuf.mbto);
             logNo = findPerson(msgBuf.mbto, &lBuf);
 
-            if (logNo == ERROR && hash(msgBuf.mbto) != hash("Sysop")) {
+            if ((logNo == ERROR) && (hash(msgBuf.mbto) != hash("Sysop"))) {
 
                 putString("No '%s' known", msgBuf.mbto);
                 return FALSE;
@@ -599,13 +609,15 @@ void mFormat(char *string) {
 /*    mPeek() dumps a sector in message.buf.    sysop debugging tool    */
 /************************************************************************/
 void mPeek(void) {
-    
+
     char peekBuf[SECTSIZE];
-    int  col, row, s;
+    int  col, row, s, offset;
 
     s = getNumber(" sector to dump", 0, maxMSector - 1);
-    lseek(msgfl, s, SEEK_SET);
-    read(msgfl, peekBuf, 1);
+    offset = s * SECTSIZE;
+
+    lseek(msgfl, offset, SEEK_SET);
+    read(msgfl, peekBuf, SECTSIZE);
 
     for (row = 0; row < 2; row++) {
 
@@ -658,7 +670,8 @@ void msgInit(void) {
         /* find highest and lowest message IDs: */
         /* 32-bit "<" by hand:                  */
 
-        if ((hereHi < oldestHi) || (hereHi == oldestHi && hereLo < oldestLo)) {
+        if ((hereHi < oldestHi) || 
+            ((hereHi == oldestHi) && (hereLo < oldestLo))) {
 
             oldestHi = hereHi;
             oldestLo = hereLo;
@@ -667,7 +680,8 @@ void msgInit(void) {
 
         }
 
-        if ((hereHi > newestHi) || (hereHi == newestHi && hereLo > newestLo)) {
+        if ((hereHi > newestHi) || 
+            ((hereHi == newestHi) && (hereLo > newestLo))) {
 
             newestHi = hereHi;
             newestLo = hereLo;
@@ -692,7 +706,7 @@ void msgInit(void) {
 /************************************************************************/
 /*    noteLogMessage() slots message into log record                    */
 /************************************************************************/
-void noteLogMessage(struct logBuffer *lBuf, int logNo) {
+void noteLogMessage(struct logBuffer *lBuf, unsigned short logNo) {
 
     int i;
 
@@ -718,7 +732,7 @@ void noteLogMessage(struct logBuffer *lBuf, int logNo) {
 /************************************************************************/
 /*    noteMessage() slots message into current room                     */
 /************************************************************************/
-void noteMessage(struct logBuffer *lBuf, int logNo) {
+void noteMessage(struct logBuffer *lBuf, unsigned short logNo) {
 
     if (!++newestLo) ++newestHi;    /* 32-bit '++' by hand    */
 
@@ -786,7 +800,7 @@ void noteMessage(struct logBuffer *lBuf, int logNo) {
 /************************************************************************/
 /*    note2Message() makes slot in current room... called by noteMess   */
 /************************************************************************/
-void note2Message(int id, int loc) {
+void note2Message(unsigned short id, unsigned short loc) {
 
     int i;
 
@@ -810,7 +824,7 @@ void note2Message(int id, int loc) {
 /************************************************************************/
 /*    printMessage() prints indicated message on modem & console        */
 /************************************************************************/
-void printMessage(int loc, unsigned id) {
+void printMessage(unsigned short loc, unsigned short id) {
 /* loc - sector in message.buf        */
 /* id  - unique-for-some-time ID#     */
 
@@ -822,10 +836,9 @@ void printMessage(int loc, unsigned id) {
     do {
 
         getMessage(); 
-
-    } while ((
-        sscanf(msgBuf.mbId, "%d %d", &hereHi, &hereLo),
-        hereLo != id) && thisSector == loc);
+        sscanf(msgBuf.mbId, "%d %d", &hereHi, &hereLo);
+                
+    } while ((hereLo != id) && (thisSector == loc));
 
     if (hereLo != id) {
 
@@ -887,7 +900,7 @@ void pullIt(int m) {
     /* record vital statistics for possible insertion elsewhere: */
 
     pulledMLoc = roomBuf.vp.msg[m].rbmsgLoc;
-    pulledMId  = roomBuf.vp.msg[m].rbmsgNo ;
+    pulledMId  = roomBuf.vp.msg[m].rbmsgNo;
 
     if (thisRoom == AIDEROOM) return;
 
@@ -997,7 +1010,7 @@ char putMessage(char uploading) {
 /************************************************************************/
 int putMsgChar(char c) {
 
-    int  toReturn;
+    int toReturn, offset;
 
     toReturn = TRUE;
 
@@ -1020,43 +1033,45 @@ int putMsgChar(char c) {
 
     if (thisChar == 0) {    /* time to write sector out a get next: */
 
-        crypte(sectBuf, SECTSIZE, 0);
+        /* crypte(sectBuf, SECTSIZE, 0); */
+        offset = thisSector * SECTSIZE;
 
         errno = 0;
-        if ((lseek(msgfl, thisSector, SEEK_SET)) < 0) {
+        if ((lseek(msgfl, offset, SEEK_SET)) < 0) {
 
-            putString("?putMsgChar-seek fail, reason: %d\n", errno);
+            putError(" ?putMsgChar-seek fail, reason: %d\n", errno);
             toReturn = ERROR;
 
         }
 
         errno = 0;
-        if (write(msgfl, sectBuf, 1) < 0) {
+        if (write(msgfl, sectBuf, SECTSIZE) < 0) {
 
-            putString("?putMsgChar-write fail, reason: %d\n", errno);
+            putError(" ?putMsgChar-write fail, reason: %d\n", errno);
             toReturn = ERROR;
 
         }
 
         thisSector = ++thisSector % maxMSector;
+        offset = thisSector * SECTSIZE;
 
         errno = 0;
-        if ((lseek(msgfl, thisSector, SEEK_SET)) < 0) {
+        if ((lseek(msgfl, offset, SEEK_SET)) == 0) {
 
-            putString("?putMsgChar-seek fail, reason: %d\n", errno);
-            toReturn    = ERROR;
-
-        }
-
-        errno = 0;
-        if (read(msgfl, sectBuf, 1) < 0) {
-
-            putString("?putMsgChar-rread fail, reason: %d\n", errno);
+            putError(" ?putMsgChar-seek fail, reason: %d\n", errno);
             toReturn = ERROR;
 
         }
 
-        crypte(sectBuf, SECTSIZE, 0);
+        errno = 0;
+        if (read(msgfl, sectBuf, SECTSIZE) == 0) {
+
+            putError("?putMsgChar-rread fail, reason: %d\n", errno);
+            toReturn = ERROR;
+
+        }
+
+        /* crypte(sectBuf, SECTSIZE, 0); */
 
     }
 
@@ -1111,8 +1126,8 @@ void putWord(char *st) {
 void showMessages(char whichMess, char revOrder) {
 
     int i;
-    int start, finish, increment, msgNo;
-    unsigned short lowLim, highLim;
+    int start, finish, increment;
+    unsigned short lowLim, highLim, msgNo;
 
     setUp(FALSE);
 
@@ -1150,7 +1165,7 @@ void showMessages(char whichMess, char revOrder) {
     /* stuff may have scrolled off system unseen, so: */
     /* was "if (lowLim < oldestLo)...", rigged for wraparound: */
 
-    if (oldestLo - lowLim < 0x8000) {
+    if ((oldestLo - lowLim) < 0x8000) {
 
         lowLim = oldestLo;
 
@@ -1162,7 +1177,7 @@ void showMessages(char whichMess, char revOrder) {
 
         msgNo = roomBuf.vp.msg[i].rbmsgNo;
 
-        if (msgNo - lowLim  < 0x8000 && highLim - msgNo < 0x8000) {
+        if (((msgNo - lowLim) < 0x8000) && ((highLim - msgNo) < 0x8000)) {
 
             printMessage(roomBuf.vp.msg[i].rbmsgLoc, msgNo);
 
@@ -1193,33 +1208,36 @@ void showMessages(char whichMess, char revOrder) {
 /************************************************************************/
 void startAt(unsigned short sect, unsigned short byt) {
 
+    int offset;
+
     GMCCache = '\0';    /* cache to unGetMsgChar() into */
 
     if (sect >= maxMSector) {
 
-        putString("?startAt s=%d,b=%d\n", sect, byt);
+        putError(" ?startAt s=%d,b=%d\n", sect, byt);
         return;
 
     }
 
     thisChar   = byt;
     thisSector = sect;
+    offset     = sect * SECTSIZE;
 
     errno = 0;
-    if ((lseek(msgfl, sect, SEEK_SET)) < 0) {
+    if ((lseek(msgfl, offset, SEEK_SET)) == 0) {
 
-        putString("?startAt lseek fail, reason: %d\n", errno);
+        putError(" ?startAt lseek fail, reason: %d\n", errno);
 
     }
 
     errno = 0;
-    if (read(msgfl, sectBuf, SECTSIZE) < 0) {
+    if (read(msgfl, sectBuf, SECTSIZE) == 0) {
 
-        putString("?startAt read fail, reason: %d\n", errno);
+        putError(" ?startAt read fail, reason: %d\n", errno);
 
     }
 
-    crypte(sectBuf, SECTSIZE, 0);
+    /* crypte(sectBuf, SECTSIZE, 0); */
 
     return;
 
@@ -1255,23 +1273,23 @@ void zapMsgFile(void) {
 
     for (i = 7;  i < SECTSIZE; i++) sectBuf[i] = 0;
 
-    crypte(sectBuf, SECTSIZE, 0);    /* encrypt    */
+    /* crypte(sectBuf, SECTSIZE, 0); */    /* encrypt    */
 
     errno = 0;
     if ((lseek(msgfl, 0, SEEK_SET)) < 0) {
 
-        putString("zapMsgFil: lseek failed, reason: %d\n", errno);
+        putError(" ?zapMsgFil: lseek failed, reason: %d\n", errno);
 
     }
 
     errno = 0;
     if ((val = write(msgfl, sectBuf, SECTSIZE)) < 0) {
 
-        putString("zapMsgFil: write failed, %d records, reason: %d!\n", val, errno);
+        putError(" ?zapMsgFil: write failed, %d records, reason: %d!\n", val, errno);
 
     }
 
-    crypte(sectBuf, SECTSIZE, 0);    /* decrypt    */
+    /* crypte(sectBuf, SECTSIZE, 0); */   /* decrypt    */
 
 }
 

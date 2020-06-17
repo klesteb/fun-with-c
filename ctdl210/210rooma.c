@@ -67,7 +67,7 @@ void dumpRoom(void) {
             }
 
             /* don't boggle -- just checking against newestLo as of */
-            /* the last time we were  in this room:            */
+            /* the last time we were in this room:                  */
 
             if (no - (logBuf.lbvisit[logBuf.lbgen[thisRoom] & CALLMASK ] + 1) < 0x8000) {
 

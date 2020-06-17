@@ -19,8 +19,6 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#include <ncurses.h>
-
 extern char firstExtern;
 
 extern int  sysop;
@@ -40,8 +38,6 @@ extern char unlogEnterOk;
 extern char unlogReadOk;
 extern char unlogLoginOk;
 extern char nonAideRoomOk;
-extern WINDOW *outWin;
-extern WINDOW *inpWin;
 extern char weAre;
 extern struct roomTable roomTab[MAXROOMS];
 extern struct roomBuffer roomBuf;

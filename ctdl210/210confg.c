@@ -128,10 +128,45 @@ void wrapup(void) {
 /*    main() for confg.c                                                */
 /************************************************************************/
 
-int main(void) {
+int main(int argc, char **argv) {
+
+    char c;
+    char opts[] = "ch?";
+    extern char *optarg;
+    extern int optind;
+    char *configs = "ctdlcnfg.sys";
+
+    opterr = 0;
+
+    while ((c = getopt(argc, argv, opts)) != -1) {
+
+        switch(c) {
+            case 'c':
+                configs = argv[optind];
+                break;
+            case 'h':
+                printf("\n");
+                printf("Citadel 2.10 - Linux port\n");
+                printf("\n");
+                printf("Usage: 210confg [-h] [-c <filename>]\n");
+                printf("\n");
+                printf("    -h - display help.\n");
+                printf("    -c <filename> - use this configuration file.\n");
+                printf("\n");
+                return EXIT_SUCCESS;
+                break;
+            case '?':
+                printf("\n");
+                printf("Usage: 210confg [-h] [-c <filename>]\n");
+                printf("\n");
+                return EXIT_SUCCESS;
+                break;
+        }
+
+    }
 
     initTerminal();
-    loadConfig("ctdlcnfg.sys");
+    loadConfig(configs);
     init();
     wrapup();
     endTerminal();

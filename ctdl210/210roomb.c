@@ -601,14 +601,14 @@ void getRoom(int rm, struct roomBuffer *buf) {
     errno = 0;
     if ((lseek(roomfl, offset, SEEK_SET)) < 0) {
 
-        putString(" ?getRoom(): seek failed, reason: %d\n", errno);
+        putError(" ?getRoom(): seek failed, reason: %d\n", errno);
 
     }
 
     errno = 0;
     if ((val = read(roomfl, buf, recsize)) < 0) {
 
-        putString(" ?getRoom(): read failed, val=%d, reason: %d\n", val, errno);
+        putError(" ?getRoom(): read failed, val=%d, reason: %d\n", val, errno);
 
     }
 
@@ -629,14 +629,14 @@ void putRoom(int rm, struct roomBuffer *buf) {
     errno = 0;
     if ((lseek(roomfl, offset, SEEK_SET)) < 0) {
 
-        putString(" ?putRoom(): seek failed, reason: %d\n", errno);
+        putError(" ?putRoom(): seek failed, reason: %d\n", errno);
 
     }
 
     errno = 0;
     if ((write(roomfl, buf, recsize)) < 0) {
 
-        putString(" ?putRoom(): write failed, reason: %d\n", errno);
+        putError(" ?putRoom(): write failed, reason: %d\n", errno);
 
     }
 

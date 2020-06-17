@@ -259,6 +259,23 @@ void putString(char *format, ...) {
 }
 
 /************************************************************************/
+/*    putError() print out a string                                     */
+/************************************************************************/
+void putError(char *format, ...) {
+
+    int n;
+    va_list ap;
+    char string[MAXWORD];
+
+    va_start(ap, format);
+    n = vsnprintf(string, MAXWORD, format, ap);
+    va_end(ap);
+
+    fprintf(stderr, string);
+
+}
+
+/************************************************************************/
 /************************************************************************/
 void upLoad(void) {
 

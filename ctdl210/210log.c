@@ -530,14 +530,14 @@ void getLog(struct logBuffer *lBuf, int n) {
     errno = 0;
     if ((lseek(logfl, offset, SEEK_SET)) < 0) {
 
-        putString(" ?getLog(): seek failed, reason: %d\n", errno);
+        putError(" ?getLog(): seek failed, reason: %d\n", errno);
 
     }
 
     errno = 0;
     if (read(logfl, lBuf, recsize) < 0) {
 
-        putString(" ?getLog(): read failed, reason: %d\n", errno);
+        putError(" ?getLog(): read failed, reason: %d\n", errno);
 
     }
 
@@ -558,14 +558,14 @@ void putLog(struct logBuffer *buf, int n) {
     errno = 0;
     if ((lseek(logfl, offset, SEEK_SET)) < 0) {
 
-        putString(" ?putLog(): seek failed, reason: %d\n", errno);
+        putError(" ?putLog(): seek failed, reason: %d\n", errno);
 
     }
 
     errno = 0;
     if (write(logfl, buf, recsize) < 0) {
 
-        putString(" ?putLog(): write failed, reason: %d\n", errno);
+        putError(" ?putLog(): write failed, reason: %d\n", errno);
 
     }
 

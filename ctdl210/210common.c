@@ -40,9 +40,6 @@ char unlogReadOk = FALSE;    /* TRUE if unlogged folks can read mess */
 char unlogLoginOk = FALSE;   /* TRUE if spontan. new accounts ok.    */
 char nonAideRoomOk = FALSE;  /* TRUE general folks can make rooms    */
 
-WINDOW *outWin = NULL;       /* output window                        */
-WINDOW *inpWin = NULL;       /* input window                         */
-
 char *monthTab[13] = { "", 
      "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" 

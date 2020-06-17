@@ -429,7 +429,7 @@ void doRead(char moreYet, char first) {
 
     putString("\bRead ");
 
-    if (!loggedIn  &&  !unlogReadOk)   {
+    if (!loggedIn && !unlogReadOk) {
 
         putString("Must log in to read\n ");
         return;
@@ -778,7 +778,7 @@ void greeting(void) {
 
     if (loggedIn) terminate(FALSE);
 
-    setUp(TRUE);     
+    setUp(TRUE);
     usleep(10);
 
     putString("\n Welcome to Citadel");
@@ -830,7 +830,9 @@ int main(int argc, char **argv) {
                 return EXIT_SUCCESS;
                 break;
             case '?':
+                printf("\n");
                 printf("Usage: 210ctdl [-h] [-s] [-c <filename>]\n");
+                printf("\n");
                 return EXIT_SUCCESS;
                 break;
         }

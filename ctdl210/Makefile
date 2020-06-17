@@ -6,7 +6,7 @@
 # Makefile to build ctdl210.
 #
 CC = gcc
-CFLAGS = -Wall -c 
+CFLAGS = -Wall -c -g 
 OLBS = 210ctdl.a 
 LINK = gcc
 LFLAGS = -o 

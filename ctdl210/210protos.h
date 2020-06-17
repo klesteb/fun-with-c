@@ -60,39 +60,40 @@ extern void ringSysop(void);
 extern void upLoad(void);
 extern void endTerminal(void);
 extern void initTerminal(void);
+extern void putError(char *format, ...);
 extern void putString(char *format, ...);
 extern void getString(char *prompt, char *buf, int lim);
 
 /* 210msg.c */
 
-extern void aideMessage(char noteDeletedMessage);
-extern char dGetWord(char *dest, int lim);
-extern void dPrintf(char *format, ...);
-extern void fakeFullCase(char *text);
-extern int  findPerson(char *name, struct logBuffer *lBuf);
-extern void flushMsgBuf(void);
-extern void getMessage(void);
-extern unsigned char getMsgChar(void);
-extern void getMsgStr(char *dest, int lim);
-extern int  getWord(char *dest, char *source, int offset, int lim);
-extern char mAbort(void);
-extern int  makeMessage(char uploading);
-extern void mFormat(char *string);
 extern void mPeek(void);
-extern void mWCprintf(char *format, ...);
+extern char mAbort(void);
 extern void msgInit(void);
-extern void noteLogMessage(struct logBuffer *lBuf, int logNo);
-extern void note2Message(int id, int loc);
-extern void printMessage(int loc, unsigned id);
 extern void pullIt(int m);
-extern char putMessage(char uploading);
-extern int  putMsgChar(char c);
-extern void putWord(char *st);
-extern void showMessages(char whichMess, char revOrder);
-extern void startAt(unsigned short sect, unsigned short byt);
-extern void unGetMsgChar(unsigned char c);
+extern void getMessage(void);
 extern void zapMsgFile(void);
-extern void noteMessage(struct logBuffer *lBuf, int logNo);
+extern void flushMsgBuf(void);
+extern void putWord(char *st);
+extern int  putMsgChar(char c);
+extern void mFormat(char *string);
+extern void fakeFullCase(char *text);
+extern unsigned char getMsgChar(void);
+extern void dPrintf(char *format, ...);
+extern char putMessage(char uploading);
+extern int  makeMessage(char uploading);
+extern void mWCprintf(char *format, ...);
+extern void unGetMsgChar(unsigned char c);
+extern char dGetWord(char *dest, int lim);
+extern void getMsgStr(char *dest, int lim);
+extern void aideMessage(char noteDeletedMessage);
+extern void showMessages(char whichMess, char revOrder);
+extern int  findPerson(char *name, struct logBuffer *lBuf);
+extern void startAt(unsigned short sect, unsigned short byt);
+extern void note2Message(unsigned short id, unsigned short loc);
+extern void printMessage(unsigned short loc, unsigned short id);
+extern int  getWord(char *dest, char *source, int offset, int lim);
+extern void noteMessage(struct logBuffer *lBuf, unsigned short logNo);
+extern void noteLogMessage(struct logBuffer *lBuf, unsigned short logNo);
 
 /* 210rooma.c */
 

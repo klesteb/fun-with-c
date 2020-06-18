@@ -171,7 +171,7 @@ char getText(char *prompt, char *buf, int lim) {
     }
 
     doCR();
-    putString("   ");
+    putString("   \n");
     getDate(&year, &month, &day);
     printDate(year, month, day);
 

@@ -21,6 +21,8 @@ int main(int argc, char **argv) {
     openFile("ctdlroom.sys", &roomfl);
     openFile("ctdllog.sys",  &logfl);
 
+    indexRooms();
+    
     for (i = 0; i < MAXROOMS; i++) {
 
         getRoom(i, &roomBuf);

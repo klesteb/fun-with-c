@@ -15,7 +15,7 @@ STATIC = 210ctdl.a
 #
 INCS = 210ctdl.h 210protos.h 210common.h 210common.c
 #
-OBJS = 210log.o 210misc.o 210modem.o 210msg.o 210rooma.o 210roomb.o
+OBJS = 210log.o 210misc.o 210modem.o 210msga.o 210msgb.o 210rooma.o 210roomb.o
 #
 all: $(OBJS) 210ctdl 210confg test1 test2 test3 test4 test5
 #
@@ -24,7 +24,7 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
-	rm -f libctdl.a
+	rm -f 210ctdl.a
 	rm -f 210confg
 	rm -f 210ctdl
 	rm -f test1
@@ -74,9 +74,13 @@ test5: test5.c $(INCS)
 	$(CC) $(CFLAGS) 210modem.c
 	$(LIBR) $(STATIC) 210modem.o
 #
-210msg.o: 210msg.c $(INCS)
-	$(CC) $(CFLAGS) 210msg.c
-	$(LIBR) $(STATIC) 210msg.o
+210msga.o: 210msga.c $(INCS)
+	$(CC) $(CFLAGS) 210msga.c
+	$(LIBR) $(STATIC) 210msga.o
+#
+210msgb.o: 210msgb.c $(INCS)
+	$(CC) $(CFLAGS) 210msgb.c
+	$(LIBR) $(STATIC) 210msgb.o
 #
 210rooma.o: 210rooma.c $(INCS)
 	$(CC) $(CFLAGS) 210rooma.c

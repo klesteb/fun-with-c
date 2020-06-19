@@ -33,6 +33,7 @@ extern void storeLog(void);
 extern void terminate(char discon);
 extern void zapLogFile(void);
 extern int  PWSlot(char *pw);
+extern void initSysop(void);
 
 /* 210misc.c */
 

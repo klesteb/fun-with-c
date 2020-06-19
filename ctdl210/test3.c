@@ -22,7 +22,8 @@ int main(int argc, char **argv) {
     openFile("ctdllog.sys",  &logfl);
 
     indexRooms();
-    
+    msgInit();
+
     for (i = 0; i < MAXROOMS; i++) {
 
         getRoom(i, &roomBuf);

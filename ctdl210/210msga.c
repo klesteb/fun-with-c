@@ -71,13 +71,13 @@ void aideMessage(char noteDeletedMessage) {
     msgBuf.mbto[0] = '\0';
 
     if (putMessage( /* uploading== */ FALSE)) {
-        
+
         noteMessage(0, ERROR);
-        
+
     }
 
     if (noteDeletedMessage) {
-        
+
         note2Message(pulledMId, pulledMLoc);
 
     }
@@ -103,7 +103,7 @@ char dGetWord(char *dest, int lim) {
     for (c = getMsgChar(); c == ' ' && c && lim; c = getMsgChar()) {
 
         if (lim) { 
-            
+
             *dest++ = c;   
             lim--; 
 
@@ -127,12 +127,12 @@ char dGetWord(char *dest, int lim) {
     /* trailing blanks: */
 
     for (; c == ' ' && c && lim;  c = getMsgChar()) {
-        
+
         if (lim) { 
-            
+
             *dest++ = c;   
             lim--; 
-        
+
         }
 
     }
@@ -600,7 +600,8 @@ void printMessage(unsigned short loc, unsigned short id) {
 
         getMessage(); 
         sscanf(msgBuf.mbId, "%d %d", &hereHi, &hereLo);
-                
+fprintf(stderr, "hereHi: %d, hereLo: %d, id: %d\n", hereHi, hereLo, id);
+
     } while ((hereLo != id) && (thisSector == loc));
 
     if (hereLo != id) {

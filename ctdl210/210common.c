@@ -70,8 +70,8 @@ char loggedIn = FALSE;      /* global have-caller flag               */
 
 struct msgBuffer msgBuf;
 int msgfl;
-unsigned char sectBuf[SECTSIZE];
-unsigned char GMCCache = 0;
+unsigned char  sectBuf[SECTSIZE];
+unsigned char  GMCCache = 0;
 unsigned char  oldChar = 0;
 unsigned short oldSector = 0;
 unsigned char  thisChar = 0;

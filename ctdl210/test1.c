@@ -21,6 +21,8 @@ int main(int argc, char **argv) {
     openFile("ctdlroom.sys", &roomfl);
     openFile("ctdllog.sys",  &logfl);
 
+    indexRooms();
+
     for (i = 0; i < MAXROOMS; i++) {
 
         getRoom(i, &roomBuf);
@@ -43,7 +45,7 @@ int main(int argc, char **argv) {
 
         for (x = 0; x < MSGSPERRM; x++) {
 
-            putString(" %d   %d \n", 
+            putString(" %5d   %5d \n", 
                       roomBuf.vp.msg[x].rbmsgNo,
                       roomBuf.vp.msg[x].rbmsgLoc);
 

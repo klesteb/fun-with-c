@@ -110,15 +110,23 @@ void init(void) {
 /************************************************************************/
 void wrapup(void) {
 
+    putString("messages init\n");
     msgInit();
     putString("Press <return> to continue.\n");
     getCh();
 
+    putString("rooms init\n");
     indexRooms();
     putString("Press <return> to continue.\n");
     getCh();
 
+    putString("log init\n");
     logInit();
+    putString("Press <return> to continue.\n");
+    getCh();
+
+    putString("\nCreating sysop account\n");
+    initSysop();
     putString("Press <return> to continue.\n");
     getCh();
 

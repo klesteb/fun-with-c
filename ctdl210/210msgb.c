@@ -443,8 +443,6 @@ int loadMsgBuf(void) {
 /************************************************************************/
 void zapMsgFile(void) {
 
-    int i;
-
     if (!getYesNo("\nDestroy all current messages")) return;
 
     /* put null message in first sector... */
@@ -457,7 +455,7 @@ void zapMsgFile(void) {
     sectBuf[5] =  'M'; /*   \    Null messsage   */
     sectBuf[6] = '\0'; /*   /                    */
 
-    for (i = 7;  i < SECTSIZE; i++) sectBuf[i] = 0;
+    thisChar = 7;
 
     flushMsgBuf();
 

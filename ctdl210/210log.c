@@ -195,7 +195,7 @@ void newPW(void) {
 /*    newUser() prompts for name and password                           */
 /************************************************************************/
 void newUser(void) {
-    
+
     char    fullnm[NAMESIZE];
     char    pw[NAMESIZE];
     int     good, g, h, i, ourSlot;
@@ -274,7 +274,7 @@ void newUser(void) {
     strcpy(logBuf.lbpw, pw);
 
     low = newestLo - 50;
-    if (oldestLo - low < 0x8000)   low = oldestLo;
+    if (oldestLo - low < 0x8000) low = oldestLo;
 
     for (i = 1; i < MAXVISIT; i++) {
 
@@ -518,6 +518,73 @@ void terminate(char discon) {
 }
 
 /************************************************************************/
+/*    initSysop() create the sysop account                              */
+/************************************************************************/
+void initSysop(void) {
+
+    char fullnm[NAMESIZE];
+    char pw[NAMESIZE];
+    int  good, h, i;
+    unsigned low;
+
+    strcpy(fullnm, "Sysop");
+    strcpy(pw, "password");
+
+    configure();    /* make sure new users configure reasonably    */
+
+    do {
+
+        /* get password and check for uniqueness...    */
+
+        getString(" password", pw, NAMESIZE);
+        normalizeString(pw);
+        h = hash(pw);
+
+        putString("\n nm: %s", fullnm);
+        putString("\n pw: ");
+        putString("%s\n ", pw);
+
+    } while (!getYesNo("OK"));
+
+    getLog(&logBuf, 0);
+
+    /* copy info into record:    */
+
+    strcpy(logBuf.lbname, fullnm);
+    strcpy(logBuf.lbpw, pw);
+
+    low = newestLo - 50;
+    if ((oldestLo - low) < 0x8000) low = oldestLo;
+
+    for (i = 1; i < MAXVISIT; i++) {
+
+        logBuf.lbvisit[i] = low;
+
+    }
+
+    logBuf.lbvisit[0] = newestLo;
+    logBuf.lbvisit[(MAXVISIT - 1)] = oldestLo;
+
+    /* initialize rest of record:    */
+
+    for (i = 0; i < MAXROOMS; i++) {
+
+        logBuf.lbgen[i] = 0;
+
+    }
+
+    for (i = 0; i < MAILSLOTS; i++) {
+
+        logBuf.lbslot[i] = 0;
+        logBuf.lbId[i]   = 0;
+
+    }
+
+    storeLog();
+
+}
+
+/************************************************************************/
 /*    getLog() loads requested log record into RAM buffer               */
 /************************************************************************/
 void getLog(struct logBuffer *lBuf, int n) {
@@ -578,7 +645,7 @@ void putLog(struct logBuffer *buf, int n) {
 /************************************************************************/
 void zapLogFile(void) {
 
-    int  i;
+    int i;
 
     if (!getYesNo("\nWipe out log file")) return;
 
@@ -608,6 +675,7 @@ void zapLogFile(void) {
 
     for (i = 0; i < MAXLOGTAB; i++) {
 
+        putString("clearing log: %d\n", i); 
         putLog(&logBuf, i);
 
     }

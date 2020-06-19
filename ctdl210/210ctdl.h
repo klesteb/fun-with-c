@@ -34,31 +34,39 @@
 #define CITADEL  0      /* prinipal program               */
 #define xxxxx    1      /* unused                         */
 #define NET      2      /* network downloader    (future) */
-#define ARCHIVE  3      /* backup program    (future)     */
+#define ARCHIVE  3      /* backup program        (future) */
 
 /************************************************************************/
-/*            Stuff to size system with:                                */
+/*            Stuff to size the system with:                            */
 /************************************************************************/
 
-/* WARNING!!! if you expand MAXROOMS beyond 128, horrible, horrible    */
-/* things will happen to the userlog entries, which will no longer     */
-/* fit in the assigned 256-byte records and will overwrite things      */
-/* with normally undesirable results. 82Nov10CrT                       */
+#define NAMESIZE  20   /* length of room names                      */
+#define SECTSIZE  128  /* sector size for messages (don't change)   */
+#define FILSPERRM 10   /* roombuf must be 256 bytes or less.        */
+#define MAXVISIT  8    /* #visits we remember old newestLo for      */
+#define MAXTEXT   3500 /* maximum chars in edit buffer              */
+
+/* WARNING!!! if you expand MAXROOMS beyond 128, horrible, horrible */
+/* things will happen to the userlog entries, which will no longer  */
+/* fit in the assigned 256-byte records and will overwrite things   */
+/* with normally undesirable results. 82Nov10CrT                    */
 
 #ifdef TEST
 #define MAXROOMS  6
 #define MAXLOGTAB 4
+#define MSGSPERRM 58   /* should be >= MAILSLOTS        */
+#define MAILSLOTS 58   /* twiddle to fit logBuf in 384 bytes   */
 #else
-
-#define MAXROOMS  64    /* number of rooms allowed in system */
-#define MAXLOGTAB 180   /* number of log entries supported   */
-
+#define MAXROOMS  64   /* number of rooms allowed in system */
+#define MAXLOGTAB 180  /* number of log entries supported   */
+#define MSGSPERRM 58   /* roombuf must be 256 bytes or less.    */
+#define MAILSLOTS 58   /* twiddle to fit logBuf in 384 bytes   */
 #endif
 
-#define SECSPERROOM 2   /* sectors/room                      */
-#define SECSPERLOG  3   /* three sectors per log record      */
-#define ROOMSECTORS (MAXROOMS * SECSPERROOM)
-#define LOGSECTORS  (MAXLOGTAB * SECSPERLOG)
+/* #define SECSPERROOM 2 */  /* sectors/room                      */
+/* #define SECSPERLOG  3 */  /* three sectors per log record      */
+/* #define ROOMSECTORS (MAXROOMS * SECSPERROOM) */
+/* #define LOGSECTORS  (MAXLOGTAB * SECSPERLOG) */
 
 /************************************************************************/
 /*        Stuff nowadays usually in bdscio.h:                           */
@@ -98,20 +106,9 @@
 /*            Stuff for rooms:                                          */
 /************************************************************************/
 
-#define LOBBY    0   /* Lobby> is >always< room 0. */
-#define MAILROOM 1   /* Mail>  is >always< room 1. */
-#define AIDEROOM 2   /* Aide> is >always< room 2.  */
-
-#define NAMESIZE 20  /* length of room names       */
-
-#ifdef TEST
-#define MSGSPERRM 58 /* should be >= MAILSLOTS        */
-#else
-#define MSGSPERRM 58 /* roombuf must be 256 bytes or less.    */
-#endif
-
-#define FILSPERRM 10    /* roombuf must be 256 bytes or less. */
-#define SECTSIZE  128
+#define LOBBY    0      /* Lobby> is >always< room 0. */
+#define MAILROOM 1      /* Mail>  is >always< room 1. */
+#define AIDEROOM 2      /* Aide> is >always< room 2.  */
 
 #define INUSE    1      /* flags mask */
 #define PUBLIC   2      /* flags mask */
@@ -149,10 +146,8 @@ struct roomBuffer {
 #define EXPERT    4     /* bitmask for expert-user flag         */
 #define TABMASK   8     /* bitmask for tab flag                 */
 #define AIDE      16    /* bitmask for aide flag                */
-#define MAILSLOTS 58    /* twiddle to fit logBuf in 384 bytes   */
 #define GENSHIFT  3     /* lbgen >> GENSHIFT gives generation   */
 #define CALLMASK  7     /* lbgen &  CALLMASK gives last visit   */
-#define MAXVISIT  8     /* #visits we remember old newestLo for */
 #define MAXGEN    32    /* six bits of generation => 64 of them */
 
 /* logbuf must be 384 bytes or less... including lbOverFlow, 384 or MORE */
@@ -186,9 +181,7 @@ struct logTable {
 /************************************************************************/
 
 #define SPECIAL     27  /* <ESC>    console escape char         */
-
 #define MONTHOFFSET 32  /* for packing month and year in a byte */
-#define MAXTEXT 3500    /* maximum chars in edit buffer     */
 
 /************************************************************************/
 /*            message stuff                                             */

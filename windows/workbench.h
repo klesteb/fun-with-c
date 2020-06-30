@@ -68,9 +68,8 @@ struct _workbench_s {
 #define WORKBENCH_M_GET_FOCUS        8
 #define WORKBENCH_M_LOOP             9
 #define WORKBENCH_M_INJECT_EVENT     10
-
-#define WORKBENCH_K_INIT_TERMINAL 1
-#define WORKBENCH_K_READ_STDIN    2
+#define WORKBENCH_M_INIT_TERMINAL    11
+#define WORKBENCH_M_READ_STDIN       12
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */

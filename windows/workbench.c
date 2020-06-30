@@ -725,6 +725,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
     int stat = ERR;
     workbench_t *self = NULL;
     int (*read_stdin)(workbench_t *) = _workbench_read_stdin;
+    int (*event)(workbench_t *, event_t *) = _workbench_event;
     int (*init_terminal)(workbench_t *) = _workbench_init_terminal;
 
     if (object != NULL) {
@@ -740,12 +741,16 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
                     (items[x].item_code == 0)) break;
 
                 switch(items[x].item_code) {
-                    case WORKBENCH_K_INIT_TERMINAL: {
+                    case WORKBENCH_M_INIT_TERMINAL: {
                         init_terminal = items[x].buffer_address;
                         break;
                     }
-                    case WORKBENCH_K_READ_STDIN: {
+                    case WORKBENCH_M_READ_STDIN: {
                         read_stdin = items[x].buffer_address;
+                        break;
+                    }
+                    case WORKBENCH_M_EVENT: {
+                        event = items[x].buffer_address;
                         break;
                     }
                 }
@@ -769,10 +774,10 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         self->_compare = _workbench_compare;
         self->_override = _workbench_override;
 
+        self->_event = event;
         self->_draw = _workbench_draw;
         self->_loop = _workbench_loop;
         self->_read_stdin = read_stdin;
-        self->_event = _workbench_event;
         self->_refresh = _workbench_refresh;
         self->_init_terminal = init_terminal;
         self->_get_focus = _workbench_get_focus;
@@ -783,7 +788,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         /* initialize internal variables here */
 
-        when_error {
+        when_error_in {
 
             que_init(&self->events);
 
@@ -936,6 +941,16 @@ int _workbench_override(workbench_t *self, item_list_t *items) {
                 }
                 case WORKBENCH_M_INJECT_EVENT: {
                     self->_inject_event = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_READ_STDIN: {
+                    self->_read_stdin = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WORKBENCH_M_INIT_TERMINAL: {
+                    self->_init_terminal = items[x].buffer_address;
                     stat = OK;
                     break;
                 }

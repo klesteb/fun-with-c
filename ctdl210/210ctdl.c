@@ -207,36 +207,36 @@ void doEnter(char moreYet, char first) {
                 }
             default:
                 putString("? ");
-                abort    = TRUE;
-                if (expert)  break;
+                abort = TRUE;
+                if (expert) break;
             case '?':
                 tutorial("entopt.mnu");
-                abort    = TRUE;
+                abort = TRUE;
                 break;
             case 'C':
                 putString("Configuration ");
-                what    = CONFIGURATION;
-                done    = TRUE;
+                what  = CONFIGURATION;
+                done  = TRUE;
                 break;
             case 'M':
                 putString("Message ");
-                what    = MESSAGE;
-                done    = TRUE;
+                what  = MESSAGE;
+                done  = TRUE;
                 break;
             case 'P':
                 putString("Password ");
-                what    = PASSWORD;
-                done    = TRUE;
+                what  = PASSWORD;
+                done  = TRUE;
                 break;
             case 'R':
                 putString("Room ");
                 if (!nonAideRoomOk && !aide) {
                     putString(" ?-- must be aide to create room\n ");
-                    abort    = TRUE;
+                    abort = TRUE;
                     break;
                 }
-                what    = ROOM;
-                done    = TRUE;
+                what  = ROOM;
+                done  = TRUE;
                 break;
         }
 
@@ -402,7 +402,7 @@ void doLogout(char expand, char first) {
         case 'Q':
             putString("Quit-also\n");
             if (!expand)   {
-                if (!getYesNo("confirm"))   break;
+                if (!getYesNo("confirm")) break;
             }
             terminate( /* hangUp == */ TRUE);
             break;
@@ -816,6 +816,8 @@ int main(int argc, char **argv) {
                 break;
             case 's':
                 sysop = TRUE;
+                thisLog = 0;
+                loggedIn = TRUE;
                 break;
             case 'h':
                 printf("\n");

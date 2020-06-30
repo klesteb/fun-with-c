@@ -476,6 +476,8 @@ void sortLog(void ) {
 /************************************************************************/
 void storeLog(void) {
 
+fprintf(stderr, "storeLog() - thisLog = %d\n", thisLog);
+
     logTab[0].ltnewest = newestLo;
 
     logBuf.lbvisit[0] = newestLo;
@@ -524,8 +526,8 @@ void initSysop(void) {
 
     char fullnm[NAMESIZE];
     char pw[NAMESIZE];
-    int  good, h, i;
-    unsigned low;
+    int  h, i;
+    unsigned short low;
 
     strcpy(fullnm, "Sysop");
     strcpy(pw, "password");
@@ -591,8 +593,6 @@ void getLog(struct logBuffer *lBuf, int n) {
 
     int recsize = sizeof(struct logBuffer);
     int offset = n * recsize;
-
-    thisLog = n;
 
     errno = 0;
     if ((lseek(logfl, offset, SEEK_SET)) < 0) {

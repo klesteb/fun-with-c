@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
         }
         putString("\n");
 
-        putString("Private Maild\n");
+        putString("Private Mail\n");
         for (x = 0; x< MAILSLOTS; x++) {
 
             putString("%d  ", logBuf.lbslot[x]);

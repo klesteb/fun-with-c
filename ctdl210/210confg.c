@@ -125,7 +125,7 @@ void wrapup(void) {
     putString("Press <return> to continue.\n");
     getCh();
 
-    putString("\nCreating sysop account\n");
+    putString("\nCreating the sysop account\n");
     initSysop();
     putString("Press <return> to continue.\n");
     getCh();

@@ -56,6 +56,8 @@ int _workbench_dtor(object_t *);
 int _workbench_draw(workbench_t *);
 int _workbench_loop(workbench_t *);
 int _workbench_refresh(workbench_t *);
+int _workbench_read_stdin(workbench_t *);
+int _workbench_init_terminal(workbench_t *);
 int _workbench_event(workbench_t *, event_t *);
 int _workbench_get_focus(workbench_t *, window_t *);
 int _workbench_set_focus(workbench_t *, window_t *);
@@ -646,7 +648,7 @@ static int _init_self_pipe(workbench_t *self) {
 
 }
 
-static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data) {
+static int _event_read_pipe(NxAppContext context, NxInputId id, int source, void *data) {
 
     int sig;
     int size = 0;
@@ -706,79 +708,11 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
 }
 
-static int _read_stdin(NxAppContext context, NxInputId id, int source, void *data) {
+static int _event_read_stdin(NxAppContext context, NxInputId id, int source, void *data) {
 
-    int ch;
-    int stat = OK;
     workbench_t *self = (workbench_t *)data;
 
-    if ((ch = getch()) != ERR) {
-
-        event_t *event = calloc(1, sizeof(event_t));
-
-        if (ch == KEY_MOUSE) {
-
-            MEVENT *mevent = calloc(1, sizeof(MEVENT));
-
-            if ((getmouse(mevent) == OK)) {
-
-                event->type = EVENT_K_MOUSE;
-                event->data = (void *)mevent;
-
-                stat = _queue_event(self, event);
-
-            } else {
-
-                free(mevent);
-
-            }
-
-        } else if ((ch == KEY_RESIZE) || (ch == KEY_F(9))) {
-
-            self->_refresh(self);
-            update_panels();
-            doupdate();
-
-        } else if (ch == KEY_F(11)) {
-
-            if ((self->panels > 0)) {
-
-                PANEL *current = NULL;
-                window_t *window = NULL;
-
-                if ((current = panel_above(NULL)) != NULL) {
-
-                    window = panel_userptr(current);
-                    self->panel = current;
-
-                    top_panel(current);
-                    window_refresh(window);
-                    update_panels();
-                    doupdate();
-
-                }
-
-            }
-
-        } else if (ch == KEY_F(12)) {
-
-            raise(SIGTERM);
-
-        } else {
-
-            KEVENT *kevent = calloc(1, sizeof(KEVENT));
-            kevent->keycode = ch;
-
-            event->type = EVENT_K_KEYBOARD;
-            event->data = (void *)kevent;
-
-            stat = _queue_event(self, event);
-
-        }
-
-    }
-
-    return stat;
+    return self->_read_stdin(self);
 
 }
 
@@ -788,10 +722,10 @@ static int _read_stdin(NxAppContext context, NxInputId id, int source, void *dat
 
 int _workbench_ctor(object_t *object, item_list_t *items) {
 
-    int row = 0;
-    int col = 0;
     int stat = ERR;
     workbench_t *self = NULL;
+    int (*read_stdin)(workbench_t *) = _workbench_read_stdin;
+    int (*init_terminal)(workbench_t *) = _workbench_init_terminal;
 
     if (object != NULL) {
 
@@ -805,14 +739,16 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
                 if ((items[x].buffer_length == 0) &&
                     (items[x].item_code == 0)) break;
 
-                /* switch(items[x].item_code) { */
-                /*     case WORKBENCH_K_TYPE: { */
-                /*         memcpy(&type,  */
-                /*                items[x].buffer_address,  */
-                /*                items[x].buffer_length); */
-                /*         break; */
-                /*     } */
-                /* } */
+                switch(items[x].item_code) {
+                    case WORKBENCH_K_INIT_TERMINAL: {
+                        init_terminal = items[x].buffer_address;
+                        break;
+                    }
+                    case WORKBENCH_K_READ_STDIN: {
+                        read_stdin = items[x].buffer_address;
+                        break;
+                    }
+                }
 
             }
 
@@ -835,75 +771,35 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         self->_draw = _workbench_draw;
         self->_loop = _workbench_loop;
+        self->_read_stdin = read_stdin;
         self->_event = _workbench_event;
         self->_refresh = _workbench_refresh;
+        self->_init_terminal = init_terminal;
         self->_get_focus = _workbench_get_focus;
         self->_set_focus = _workbench_set_focus;
         self->_add_window = _workbench_add_window;
         self->_inject_event = _workbench_inject_event;
         self->_remove_window = _workbench_remove_window;
 
+        /* initialize internal variables here */
+
         when_error {
-            
-            /* initialize internal variables here */
 
             que_init(&self->events);
 
             self->panel = NULL;
             self->panels = 0;
 
-            setlocale(LC_ALL, "");
+            stat = self->_init_terminal(self);
+            check_return(stat, self);
 
-            /* initialize the terminal */
-
-            errno = 0;
-            stat = slk_init(3);
-            check_status(stat, OK, errno);
-
-            errno = 0;
-            if ((initscr() == NULL)) {
-
-                object_set_error1(self, errno);
-                goto fini;
-
-            }
-
-            /* check for color capability */
-
-            stat = has_colors();
-            check_status(stat, TRUE, E_NOCOLOR);
-
-            cbreak();
-            noecho();
-            init_colorpairs();
-            keypad(stdscr, TRUE);
-            nodelay(stdscr, TRUE);
-            mousemask(ALL_MOUSE_EVENTS, NULL);
-
-            erase();
-            refresh();
-            curs_set(0);
-
-            /* set default "soft keys" */
-
-            slk_set(9,  "Redraw", 0);
-            slk_set(10, "Menu", 0);
-            slk_set(11, "Cycle", 0);
-            slk_set(12, "Quit", 0);
-            slk_noutrefresh();
-            
             /* load error definations */
 
             errs = errors_create();
             check_creation(errs);
 
             stat = errors_load(errs, ncurses_codes, sizeof(ncurses_codes));
-            check_return(stat, OK);
-
-            /* create the message window */
-
-            getmaxyx(stdscr, row, col);
-            self->messages = newwin(1, col, row - 1, 0);
+            check_return(stat, errs);
 
             /* create a "self pipe" for signal handling */
             /* this must run after the initscr() call   */
@@ -924,7 +820,6 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
     }
 
-    fini:
     return stat;
 
 }
@@ -1069,8 +964,10 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         (self->_refresh == other->_refresh) &&
         (self->_get_focus == other->_get_focus) &&
         (self->_set_focus == other->_set_focus) &&
+        (self->_read_stdin == other->_read_stdin) &&
         (self->_add_window == other->_add_window) &&
         (self->_inject_event == other->_inject_event) &&
+        (self->_init_terminal == other->_init_terminal) &&
         (self->_remove_window == other->_remove_window)) {
 
         stat = OK;
@@ -1264,14 +1161,155 @@ int _workbench_get_focus(workbench_t *self, window_t *window) {
 
 }
 
+int _workbench_init_terminal(workbench_t *self) {
+
+    int stat = OK;
+    int row, col;
+
+    when_error_in {
+
+        setlocale(LC_ALL, "");
+
+        /* initialize the terminal */
+
+        errno = 0;
+        stat = slk_init(3);
+        check_status(stat, OK, errno);
+
+        errno = 0;
+        if ((initscr() == NULL)) {
+
+            cause_error(errno);
+
+        }
+
+        /* check for color capability */
+
+        stat = has_colors();
+        check_status(stat, TRUE, E_NOCOLOR);
+
+        cbreak();
+        noecho();
+        init_colorpairs();
+        keypad(stdscr, TRUE);
+        nodelay(stdscr, TRUE);
+        mousemask(ALL_MOUSE_EVENTS, NULL);
+
+        erase();
+        refresh();
+        curs_set(0);
+
+        /* set default "soft keys" */
+
+        slk_set(9,  "Redraw", 0);
+        slk_set(10, "Menu", 0);
+        slk_set(11, "Cycle", 0);
+        slk_set(12, "Quit", 0);
+        slk_noutrefresh();
+
+        /* create the message window */
+
+        getmaxyx(stdscr, row, col);
+        self->messages = newwin(1, col, row - 1, 0);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _workbench_read_stdin(workbench_t *self) {
+    
+    int ch;
+    int stat = OK;
+
+    if ((ch = getch()) != ERR) {
+
+        event_t *event = calloc(1, sizeof(event_t));
+
+        if (ch == KEY_MOUSE) {
+
+            MEVENT *mevent = calloc(1, sizeof(MEVENT));
+
+            if ((getmouse(mevent) == OK)) {
+
+                event->type = EVENT_K_MOUSE;
+                event->data = (void *)mevent;
+
+                stat = _queue_event(self, event);
+
+            } else {
+
+                free(mevent);
+
+            }
+
+        } else if ((ch == KEY_RESIZE) || (ch == KEY_F(9))) {
+
+            self->_refresh(self);
+            update_panels();
+            doupdate();
+
+        } else if (ch == KEY_F(11)) {
+
+            if ((self->panels > 0)) {
+
+                PANEL *current = NULL;
+                window_t *window = NULL;
+
+                if ((current = panel_above(NULL)) != NULL) {
+
+                    window = panel_userptr(current);
+                    self->panel = current;
+
+                    top_panel(current);
+                    window_refresh(window);
+                    update_panels();
+                    doupdate();
+
+                }
+
+            }
+
+        } else if (ch == KEY_F(12)) {
+
+            raise(SIGTERM);
+
+        } else {
+
+            KEVENT *kevent = calloc(1, sizeof(KEVENT));
+            kevent->keycode = ch;
+
+            event->type = EVENT_K_KEYBOARD;
+            event->data = (void *)kevent;
+
+            stat = _queue_event(self, event);
+
+        }
+
+    }
+
+    return stat;
+    
+}
+
 int _workbench_loop(workbench_t *self) {
 
     int stat = OK;
 
     self->_draw(self);
 
-    pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
-    stdin_id = NxAddInput(NULL, fileno(stdin), NxInputReadMask, _read_stdin, (void *)self);
+    pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _event_read_pipe, (void *)self);
+    stdin_id = NxAddInput(NULL, fileno(stdin), NxInputReadMask, _event_read_stdin, (void *)self);
 
     stat = NxMainLoop(NULL);
 

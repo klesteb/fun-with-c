@@ -61,7 +61,7 @@ int roomfl;                  /* room file handle                     */
 struct logTable logTab[MAXLOGTAB];
 struct logBuffer logBuf;
 int sizeLTentry = sizeof(logTab[0]);
-int thisLog = 0;            /* entry currently in logBuf             */
+int thisLog = 1;            /* entry currently in logBuf             */
 int thisSlot = 0;           /* logTab slot logBuf was found via      */
 int logfl;                  /* log file handle                       */
 char loggedIn = FALSE;      /* global have-caller flag               */

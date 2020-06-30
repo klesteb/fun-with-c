@@ -42,6 +42,9 @@ struct _workbench_s {
     int (*_add_window)(workbench_t *, window_t *);
     int (*_inject_event)(workbench_t *, event_t *);
     int (*_remove_window)(workbench_t *, window_t *);
+    int (*_init_terminal)(workbench_t *);
+    int (*_read_stdin)(workbench_t *);
+    int (*_read_pipe)(workbench_t *);
     int panels;
     WINDOW *messages;
     PANEL *panel;
@@ -65,6 +68,9 @@ struct _workbench_s {
 #define WORKBENCH_M_GET_FOCUS        8
 #define WORKBENCH_M_LOOP             9
 #define WORKBENCH_M_INJECT_EVENT     10
+
+#define WORKBENCH_K_INIT_TERMINAL 1
+#define WORKBENCH_K_READ_STDIN    2
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */

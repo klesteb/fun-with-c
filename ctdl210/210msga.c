@@ -373,14 +373,15 @@ int makeMessage(char uploading) {
 
             getString("recipient", msgBuf.mbto, NAMESIZE);
             normalizeString(msgBuf.mbto);
-            logNo = findPerson(msgBuf.mbto, &lBuf);
 
-            if ((logNo == ERROR) && (hash(msgBuf.mbto) != hash("Sysop"))) {
+        }
 
-                putString("No '%s' known", msgBuf.mbto);
-                return FALSE;
+        logNo = findPerson(msgBuf.mbto, &lBuf);
 
-            }
+        if ((logNo == ERROR) && (hash(msgBuf.mbto) != hash("Sysop"))) {
+
+            putString("No '%s' known", msgBuf.mbto);
+            return FALSE;
 
         }
 

@@ -52,14 +52,14 @@
 /* with normally undesirable results. 82Nov10CrT                    */
 
 #ifdef TEST
-#define MAXROOMS  6
-#define MAXLOGTAB 4
-#define MSGSPERRM 58   /* should be >= MAILSLOTS        */
+#define MAXROOMS  6    /* number of rooms allowed in system    */
+#define MAXLOGTAB 4    /* number of log entries supported      */
+#define MSGSPERRM 58   /* should be >= MAILSLOTS               */
 #define MAILSLOTS 58   /* twiddle to fit logBuf in 384 bytes   */
 #else
-#define MAXROOMS  64   /* number of rooms allowed in system */
-#define MAXLOGTAB 180  /* number of log entries supported   */
-#define MSGSPERRM 58   /* roombuf must be 256 bytes or less.    */
+#define MAXROOMS  64   /* number of rooms allowed in system    */
+#define MAXLOGTAB 180  /* number of log entries supported      */
+#define MSGSPERRM 58   /* roombuf must be 256 bytes or less.   */
 #define MAILSLOTS 58   /* twiddle to fit logBuf in 384 bytes   */
 #endif
 

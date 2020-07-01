@@ -34,6 +34,7 @@ int main(void) {
     theme_t junk1;
     coordinates_t junk2;
     coordinates_t coordinates;
+    padding_t junk3;
 
     theme.attribute  = A_NORMAL;
     theme.foreground = WHITE;
@@ -73,21 +74,26 @@ int main(void) {
 
         getch();
 
+        stat = widget_get_padding(widget, &junk3);
+        check_return(stat, widget);
+
+        printw("top: %d, left: %d, right: %d, bottom: %d\n", 
+               junk3.top, junk3.left, junk3.right, junk3.bottom);
+
+        refresh();
+
         stat = widget_draw(widget);
         check_return(stat, widget);
-fprintf(stderr, "after draw\n");
         
         getch();
 
         stat = widget_erase(widget);
         check_return(stat, widget);
-fprintf(stderr, "after erase\n");
 
         getch();
 
         stat = widget_destroy(widget);
         check_return(stat, widget);
-fprintf(stderr, "after destroy\n");
 
         exit_when;
 

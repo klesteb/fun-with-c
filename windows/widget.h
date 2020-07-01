@@ -16,6 +16,7 @@
 #include "theme.h"
 #include "events.h"
 #include "object.h"
+#include "padding.h"
 #include "item_list.h"
 #include "coordinates.h"
 
@@ -35,6 +36,7 @@ struct _widget_s {
     int (*_erase)(widget_t *);
     coordinates_t *coordinates;
     theme_t *theme;
+    padding_t *padding;
 };
 
 /*-------------------------------------------------------------*/
@@ -44,7 +46,8 @@ struct _widget_s {
 #define WIDGET(x) ((widget_t *)(x))
 
 #define WIDGET_K_COORDINATES 1
-#define WIDGET_K_THEME       2
+#define WIDGET_K_PADDING     2
+#define WIDGET_K_THEME       3
 
 #define WIDGET_M_DESTRUCTOR 1
 #define WIDGET_M_DRAW       2
@@ -62,6 +65,8 @@ extern int widget_draw(widget_t *);
 extern int widget_erase(widget_t *);
 extern int widget_get_theme(widget_t *, theme_t *);
 extern int widget_set_theme(widget_t *, theme_t *);
+extern int widget_get_padding(widget_t *, padding_t *);
+extern int widget_set_padding(widget_t *, padding_t *);
 extern int widget_get_coordinates(widget_t *, coordinates_t *);
 extern int widget_set_coordinates(widget_t *, coordinates_t *);
 

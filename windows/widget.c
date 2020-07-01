@@ -255,20 +255,14 @@ int widget_set_theme(widget_t *self, theme_t *theme) {
 int widget_get_theme(widget_t *self, theme_t *theme) {
 
     int stat = OK;
-    theme_t *temp = NULL;
 
     when_error_in {
 
         if ((self != NULL) && (theme != NULL)) {
 
-            errno = 0;
-            temp = self->theme;
-
-            if (memcpy(theme, temp, sizeof(theme_t)) == NULL) {
-
-                cause_error(errno);
-
-            }
+            (*theme).attribute  = self->theme->attribute;
+            (*theme).background = self->theme->background;
+            (*theme).foreground = self->theme->foreground;
 
         } else {
 
@@ -328,20 +322,83 @@ int widget_set_coordinates(widget_t *self, coordinates_t *coordinates) {
 int widget_get_coordinates(widget_t *self, coordinates_t *coordinates) {
 
     int stat = OK;
-    coordinates_t *temp = NULL;
 
     when_error_in {
 
         if ((self != NULL) && (coordinates != NULL)) {
 
-            errno = 0;
-            temp = self->coordinates;
+            (*coordinates).cols   = self->coordinates->cols;
+            (*coordinates).rows   = self->coordinates->rows;
+            (*coordinates).startx = self->coordinates->startx;
+            (*coordinates).starty = self->coordinates->starty;
 
-            if (memcpy(coordinates, temp, sizeof(coordinates_t)) == NULL) {
+        } else {
 
-                cause_error(errno);
+            cause_error(E_INVPARM);
 
-            }
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int widget_set_padding(widget_t *self, padding_t *padding) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (padding != NULL)) {
+
+            self->padding->top    = padding->top;
+            self->padding->left   = padding->left;
+            self->padding->right  = padding->right;
+            self->padding->bottom = padding->bottom;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int widget_get_padding(widget_t *self, padding_t *padding) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (padding != NULL)) {
+
+            (*padding).top = self->padding->top;
+            (*padding).left = self->padding->left;
+            (*padding).right = self->padding->right;
+            (*padding).bottom = self->padding->bottom;
 
         } else {
 
@@ -373,6 +430,7 @@ int _widget_ctor(object_t *object, item_list_t *items) {
     int stat = ERR;
     widget_t *self = NULL;
     theme_t *theme = NULL;
+    padding_t *padding = NULL;
     coordinates_t *coordinates = NULL;
 
     if (object != NULL) {
@@ -410,6 +468,23 @@ int _widget_ctor(object_t *object, item_list_t *items) {
             
         }
         
+        /* default padding */
+
+        errno = 0;
+        if ((padding = calloc(1, sizeof(padding_t))) != NULL) {
+
+            padding->top = 1;
+            padding->left = 1;
+            padding->right = 1;
+            padding->bottom = 1;
+            
+        } else {
+            
+            object_set_error1(object, errno);
+            goto fini;
+            
+        }
+        
         /* capture our items */
 
         if (items != NULL) {
@@ -429,6 +504,12 @@ int _widget_ctor(object_t *object, item_list_t *items) {
                     }
                     case WIDGET_K_COORDINATES: {
                         memcpy(coordinates, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case WIDGET_K_PADDING: {
+                        memcpy(padding, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
@@ -459,6 +540,7 @@ int _widget_ctor(object_t *object, item_list_t *items) {
         /* initialize internal variables here */
 
         self->theme = theme;
+        self->padding = padding;
         self->coordinates = coordinates;
 
         stat = OK;
@@ -478,6 +560,7 @@ int _widget_dtor(object_t *object) {
     /* free local resources here */
 
     free(widget->theme);
+    free(widget->padding);
     free(widget->coordinates);
 
     /* walk the chain, freeing as we go */
@@ -541,6 +624,10 @@ int _widget_compare(widget_t *self, widget_t *other) {
         (self->theme->attribute == self->theme->attribute) &&
         (self->theme->background == self->theme->background) &&
         (self->theme->foreground == self->theme->foreground) &&
+        (self->padding->top == other->padding->top) &&
+        (self->padding->left == other->padding->left) &&
+        (self->padding->right == other->padding->right) &&
+        (self->padding->bottom == other->padding->bottom) &&
         (self->coordinates->cols == other->coordinates->cols) &&
         (self->coordinates->rows == other->coordinates->rows) &&
         (self->coordinates->startx == other->coordinates->startx) &&

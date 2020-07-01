@@ -11,6 +11,7 @@
 /*---------------------------------------------------------------------------*/
 
 #include <ncurses.h>
+#include <errno.h>
 
 #include "when.h"
 #include "colors.h"
@@ -597,6 +598,73 @@ int component_get_area(component_t *self, WINDOW *area) {
         if ((self != NULL) && (area != NULL)) {
 
             area = self->area;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int component_set_data(component_t *self, void *data) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (data != NULL)) {
+
+            self->data = data;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int component_get_data(component_t *self, void *data, int size) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (data != NULL)) {
+
+            errno = 0;
+            if ((memcpy(data, self->data, size) == NULL)) {
+
+                cause_error(errno);
+
+            }
 
         } else {
 

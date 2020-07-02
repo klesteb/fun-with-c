@@ -19,8 +19,8 @@ INCS = common.h container.h colors.h events.h component.h workbench.h \
        containers/menus/box.h containers/menus/list.h \
        containers/menus/menus.h containers/menus/menus_priv.h \
        components/label.h components/hline.h components/vline.h \
-       components/text.h components/textarea.h components/input.h \
-       components/forms/forms.h components/menu/menu_items.h
+       components/text.h components/prompt.h components/textarea.h \
+       components/input.h components/forms/forms.h components/menu/menu_items.h
 #
 OBJS = container.o colors.o component.o workbench.o window.o widget.o \
        containers/horizontal.o containers/vertical.o \
@@ -28,7 +28,7 @@ OBJS = container.o colors.o component.o workbench.o window.o widget.o \
        containers/menus/box.o containers/menus/list.o \
        containers/menus/menus.o components/label.o components/hline.o \
        components/vline.o components/text.o components/textarea.o \
-       components/input.o components/forms/form_field.o \
+       components/input.o components/prompt.o components/forms/form_field.o \
        components/forms/form_label.o components/forms/form_textarea.o \
        components/forms/form_header.o components/forms/form_seperator.o \
        components/menu/menu_item.o
@@ -36,7 +36,7 @@ OBJS = container.o colors.o component.o workbench.o window.o widget.o \
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14 test15 test16 test17 test18 \
      test19 test20 test21 test22 test23 test24 test25 test26 test27 \
-     test28
+     test28 test29
 #
 libs: $(OBJS)
 #
@@ -85,6 +85,7 @@ clean:
 	rm -f test26
 	rm -f test27
 	rm -f test28
+	rm -f test29
 	rm -f $(LIBS)
 #
 test1: test1.o
@@ -199,6 +200,10 @@ test28: test28.o
 	$(CC) $(CFLAGS) test28.c
 	$(LINK) $(LFLAGS) test28 test28.o  $(OLBS)
 #
+test29: test29.o
+	$(CC) $(CFLAGS) test29.c
+	$(LINK) $(LFLAGS) test29 test29.o  $(OLBS)
+#
 container.o: container.c $(INCS)
 	$(CC) $(CFLAGS) container.c
 	$(LIBR) $(LIBS) container.o
@@ -266,6 +271,10 @@ components/hline.o: components/hline.c $(INCS)
 components/vline.o: components/vline.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) components/vline.o components/vline.c
 	$(LIBR) $(LIBS) components/vline.o
+#
+components/prompt.o: components/prompt.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) components/prompt.o components/prompt.c
+	$(LIBR) $(LIBS) components/prompt.o
 #
 components/text.o: components/text.c $(INCS)
 	$(CC) $(CFLAGS) $(LFLAGS) components/text.o components/text.c

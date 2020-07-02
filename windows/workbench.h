@@ -15,6 +15,7 @@
 
 #include <panel.h>
 
+#include "job.h"
 #include "events.h"
 #include "object.h"
 #include "window.h"
@@ -37,10 +38,11 @@ struct _workbench_s {
     int (*_loop)(workbench_t *);
     int (*_refresh)(workbench_t *);
     int (*_event)(workbench_t *, event_t *);
+    int (*_queue_job)(workbench_t *, job_t *);
     int (*_get_focus)(workbench_t *, window_t *);
     int (*_set_focus)(workbench_t *, window_t *);
+    int (*_queue_event)(workbench_t *, event_t *);
     int (*_add_window)(workbench_t *, window_t *);
-    int (*_inject_event)(workbench_t *, event_t *);
     int (*_remove_window)(workbench_t *, window_t *);
     int (*_init_terminal)(workbench_t *);
     int (*_read_stdin)(workbench_t *);
@@ -49,6 +51,7 @@ struct _workbench_s {
     WINDOW *messages;
     PANEL *panel;
     queue events;
+    queue jobs;
 };
 
 /*-------------------------------------------------------------*/
@@ -67,9 +70,8 @@ struct _workbench_s {
 #define WORKBENCH_M_SET_FOCUS        7
 #define WORKBENCH_M_GET_FOCUS        8
 #define WORKBENCH_M_LOOP             9
-#define WORKBENCH_M_INJECT_EVENT     10
-#define WORKBENCH_M_INIT_TERMINAL    11
-#define WORKBENCH_M_READ_STDIN       12
+#define WORKBENCH_M_INIT_TERMINAL    10
+#define WORKBENCH_M_READ_STDIN       11
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -79,6 +81,7 @@ extern workbench_t *workbench_create(item_list_t *);
 extern int workbench_loop(workbench_t *);
 extern int workbench_destroy(workbench_t *);
 extern int workbench_refresh(workbench_t *);
+extern int workbench_inject_job(workbench_t *, job_t *);
 extern int workbench_get_focus(workbench_t *, window_t *);
 extern int workbench_set_focus(workbench_t *, window_t *);
 extern int workbench_compare(workbench_t *, workbench_t *);

@@ -67,11 +67,11 @@
     free(trace_function);               \
 }
 
-#define copy_error(error) {                      \
-    error->errnum = trace_errnum;                \
-    error->lineno = trace_lineno;                \
-    error->filename = strdup(trace_filename);    \
-    error->function = strdup(trace_function);    \
+#define copy_error(error) {                        \
+    (*(error)).errnum = trace_errnum;              \
+    (*(error)).lineno = trace_lineno;              \
+    (*(error)).filename = strdup(trace_filename);  \
+    (*(error)).function = strdup(trace_function);  \
 }
 
 #define clear_copied(error) {                    \

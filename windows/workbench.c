@@ -19,6 +19,7 @@
 #include <signal.h>
 #include <locale.h>
 
+#include "job.h"
 #include "when.h"
 #include "common.h"
 #include "colors.h"
@@ -43,6 +44,7 @@ errors_t *errs;                /* error code definitions  */
 NxInputId pipe_id;             /* id for pipe events      */
 NxInputId stdin_id;            /* id for stdin events     */
 NxWorkProcId workproc_id;      /* id for event processor  */
+NxWorkProcId job_id;           /* id for event processor  */
 struct sigaction old_sigint;   /* ncurses sigint handler  */
 struct sigaction old_sigterm;  /* ncurses sigterm handler */
 
@@ -59,12 +61,13 @@ int _workbench_refresh(workbench_t *);
 int _workbench_read_stdin(workbench_t *);
 int _workbench_init_terminal(workbench_t *);
 int _workbench_event(workbench_t *, event_t *);
+int _workbench_queue_job(workbench_t *, job_t *);
 int _workbench_get_focus(workbench_t *, window_t *);
 int _workbench_set_focus(workbench_t *, window_t *);
 int _workbench_compare(workbench_t *, workbench_t *);
 int _workbench_add_window(workbench_t *, window_t *);
+int _workbench_queue_event(workbench_t *, event_t *);
 int _workbench_override(workbench_t *, item_list_t *);
-int _workbench_inject_event(workbench_t *, event_t *);
 int _workbench_remove_window(workbench_t *, window_t *);
 
 /*----------------------------------------------------------------*/
@@ -213,7 +216,39 @@ int workbench_inject_event(workbench_t *self, event_t *event) {
 
         if ((self != NULL) && (event != NULL)) {
 
-            stat = self->_inject_event(self, event);
+            stat = self->_queue_event(self, event);
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int workbench_inject_job(workbench_t *self, job_t *job) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (job != NULL)) {
+
+            stat = self->_queue_job(self, job);
             check_status(stat, OK, E_INVOPS);
 
         } else {
@@ -464,27 +499,28 @@ static void _sig_handler(int sig) {
 
 }
 
-static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
+static int _job_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
     int stat = OK;
-    event_t *event = NULL;
+    job_t *job = NULL;
     workbench_t *self = (workbench_t *)data;
 
-    if ((event = que_pop_head(&self->events))) {
+    if ((job = que_pop_head(&self->jobs))) {
 
-        stat = self->_event(self, event);
-        free(event->data);
-        free(event);
+        (*job->job)(job->data);
 
-        if (que_empty(&self->events)) {
+        free(job->data);
+        free(job);
 
-            stat = que_init(&self->events);
+        if (que_empty(&self->jobs)) {
+
+            stat = que_init(&self->jobs);
 
         }
 
         if (stat == OK) {
 
-            workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
+            job_id = NxAddWorkProc(NULL, &_job_handler, (void *)self);
 
         }
 
@@ -494,19 +530,25 @@ static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
 }
 
-static int _queue_event(workbench_t *self, event_t *event) {
+static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
     int stat = OK;
+    event_t *event = NULL;
+    workbench_t *self = (workbench_t *)data;
 
-    if (que_empty(&self->events)) {
+    if ((event = que_pop_head(&self->events))) {
 
-        stat = que_init(&self->events);
+        stat = self->_event(self, event);
 
-    }
+        free(event->data);
+        free(event);
 
-    if (stat == OK) {
+        if (que_empty(&self->events)) {
 
-        stat = que_push_tail(&self->events, event);
+            stat = que_init(&self->events);
+
+        }
+
         if (stat == OK) {
 
             workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
@@ -686,8 +728,8 @@ static int _event_read_pipe(NxAppContext context, NxInputId id, int source, void
 
                 }
 
-                /* re-raise the signal, ncurses should now do  */
-                /* it's own cleanup and cleanly exit.          */
+                /* re-raise the signal, ncurses should now does */
+                /* it's own cleanup and cleanly exit.           */
 
                 raise(sig);
 
@@ -783,7 +825,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         self->_get_focus = _workbench_get_focus;
         self->_set_focus = _workbench_set_focus;
         self->_add_window = _workbench_add_window;
-        self->_inject_event = _workbench_inject_event;
+        self->_queue_event = _workbench_queue_event;
         self->_remove_window = _workbench_remove_window;
 
         /* initialize internal variables here */
@@ -791,6 +833,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         when_error_in {
 
             que_init(&self->events);
+            que_init(&self->jobs);
 
             self->panel = NULL;
             self->panels = 0;
@@ -832,6 +875,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 int _workbench_dtor(object_t *object) {
 
     int stat = OK;
+    job_t *job = NULL;
     PANEL *panel = NULL;
     event_t *event = NULL;
     window_t *window = NULL;
@@ -852,6 +896,19 @@ int _workbench_dtor(object_t *object) {
 
     }
 
+    while ((job = que_pop_head(&self->jobs))) {
+
+        free(job->data);
+        free(job);
+
+    }
+
+    if (que_empty(&self->jobs)) {
+
+        que_init(&self->jobs);
+
+    }
+
     while ((panel = panel_above(NULL))) {
 
         window = (window_t *)panel_userptr(panel);
@@ -868,6 +925,7 @@ int _workbench_dtor(object_t *object) {
 
         NxRemoveInput(NULL, pipe_id);
         NxRemoveInput(NULL, stdin_id);
+        NxRemoveWorkProc(NULL, job_id);
         NxRemoveWorkProc(NULL, workproc_id);
 
     }
@@ -939,11 +997,6 @@ int _workbench_override(workbench_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
-                case WORKBENCH_M_INJECT_EVENT: {
-                    self->_inject_event = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
                 case WORKBENCH_M_READ_STDIN: {
                     self->_read_stdin = items[x].buffer_address;
                     stat = OK;
@@ -979,9 +1032,10 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         (self->_refresh == other->_refresh) &&
         (self->_get_focus == other->_get_focus) &&
         (self->_set_focus == other->_set_focus) &&
+        (self->_queue_job == other->_queue_job) &&
         (self->_read_stdin == other->_read_stdin) &&
         (self->_add_window == other->_add_window) &&
-        (self->_inject_event == other->_inject_event) &&
+        (self->_queue_event == other->_queue_event) &&
         (self->_init_terminal == other->_init_terminal) &&
         (self->_remove_window == other->_remove_window)) {
 
@@ -1072,11 +1126,51 @@ int _workbench_refresh(workbench_t *self) {
 
 }
 
-int _workbench_inject_event(workbench_t *self, event_t *event) {
+int _workbench_queue_event(workbench_t *self, event_t *event) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    stat = _queue_event(self, event);
+    if (que_empty(&self->events)) {
+
+        stat = que_init(&self->events);
+
+    }
+
+    if (stat == OK) {
+
+        stat = que_push_tail(&self->events, event);
+        if (stat == OK) {
+
+            workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int _workbench_queue_job(workbench_t *self, job_t *job) {
+
+    int stat = OK;
+
+    if (que_empty(&self->jobs)) {
+
+        stat = que_init(&self->jobs);
+
+    }
+
+    if (stat == OK) {
+
+        stat = que_push_tail(&self->jobs, job);
+        if (stat == OK) {
+
+            job_id = NxAddWorkProc(NULL, &_job_handler, (void *)self);
+
+        }
+
+    }
 
     return stat;
 
@@ -1260,7 +1354,7 @@ int _workbench_read_stdin(workbench_t *self) {
                 event->type = EVENT_K_MOUSE;
                 event->data = (void *)mevent;
 
-                stat = _queue_event(self, event);
+                stat = self->_queue_event(self, event);
 
             } else {
 
@@ -1307,7 +1401,7 @@ int _workbench_read_stdin(workbench_t *self) {
             event->type = EVENT_K_KEYBOARD;
             event->data = (void *)kevent;
 
-            stat = _queue_event(self, event);
+            stat = self->_queue_event(self, event);
 
         }
 

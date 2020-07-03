@@ -19,7 +19,7 @@
 #include <signal.h>
 #include <locale.h>
 
-#include "job.h"
+#include "jobs.h"
 #include "when.h"
 #include "common.h"
 #include "colors.h"
@@ -32,6 +32,9 @@
 #include "errors_ncurses.h"
 
 #define TIMEOUT 1.0
+#ifndef CTRL
+#define CTRL(c) ((c) & 037)
+#endif
 
 require_klass(OBJECT_KLASS);
 
@@ -507,7 +510,7 @@ static int _job_handler(NxAppContext context, NxWorkProcId id, void *data) {
 
     if ((job = que_pop_head(&self->jobs))) {
 
-        (*job->job)(job->data);
+        stat = (*job->job)(job->data);
 
         free(job->data);
         free(job);
@@ -729,7 +732,7 @@ static int _event_read_pipe(NxAppContext context, NxInputId id, int source, void
                 }
 
                 /* re-raise the signal, ncurses should now does */
-                /* it's own cleanup and cleanly exit.           */
+                /* it's own cleanup and cleanly exits.          */
 
                 raise(sig);
 

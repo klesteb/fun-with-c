@@ -239,6 +239,11 @@ void loadConfig(char *filename) {
                 sscanf(line, "%s \"%[^\"]", cmd, string);
                 strcpy(nodeId, string);
 
+            } else if (strcmp(cmd, "#msgPath") == 0) {
+
+                sscanf(line, "%s \"%[^\"]", cmd, string);
+                strcpy(msgPath, string);
+
             } else if (strcmp(cmd, "#alldone") == 0) {
 
                 break;

@@ -122,9 +122,13 @@
 #define ENTEROK 0        /* no anonymous message-entry   */
 
 /* ROOMOK is a configuration switch setting the room-creation privileges*/
-/* of established callers.  If ROOMOK is TRUE (nonzero) then regular    */
+/* of established callers. If ROOMOK is TRUE (nonzero) then regular     */
 /* folks can create new rooms, else only those with aide privileges     */
 /* can do so.                                                           */
 #define ROOMOK 1        /* no general room-creation privileges */
+
+/* MSGPATH is used to define where the messages are located for a given */
+/* room.                                                                */
+#MSGPATH "./room/"
 
 #alldone x x            /* end of file                */

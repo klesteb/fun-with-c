@@ -39,6 +39,7 @@ extern char unlogReadOk;
 extern char unlogLoginOk;
 extern char nonAideRoomOk;
 extern char weAre;
+extern char msgPath[256];
 extern struct roomTable roomTab[MAXROOMS];
 extern struct roomBuffer roomBuf;
 extern int  thisRoom;

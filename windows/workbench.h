@@ -15,7 +15,7 @@
 
 #include <panel.h>
 
-#include "job.h"
+#include "jobs.h"
 #include "events.h"
 #include "object.h"
 #include "window.h"

@@ -68,6 +68,7 @@ char loggedIn = FALSE;      /* global have-caller flag               */
 
 /* messages */
 
+char msgPath[256];
 struct msgBuffer msgBuf;
 int msgfl;
 unsigned char  sectBuf[SECTSIZE];

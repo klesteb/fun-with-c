@@ -13,7 +13,7 @@ LFLAGS = -o
 LIBS = ../libs/libwindows.a
 LIBR = ar -r
 #
-INCS = common.h container.h colors.h events.h component.h workbench.h \
+INCS = common.h container.h colors.h events.h jobs.h component.h workbench.h \
        window.h widget.h containers/horizontal.h containers/vertical.h \
        containers/scrollable.h containers/form.h containers/menus/bar.h \
        containers/menus/box.h containers/menus/list.h \

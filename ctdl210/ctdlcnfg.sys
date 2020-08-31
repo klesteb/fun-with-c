@@ -129,6 +129,12 @@
 
 /* MSGPATH is used to define where the messages are located for a given */
 /* room.                                                                */
-#MSGPATH "./room/"
+#MSGPATH "../room/"
+
+/* HELPPATH is used to define where the help files are located          */
+#HELPPATH "../help/"
+
+/* MENUPATH is used to define where the menu files are located          */
+#MENUPATH "../menu/"
 
 #alldone x x            /* end of file                */

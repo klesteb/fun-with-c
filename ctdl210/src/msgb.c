@@ -27,9 +27,9 @@
 #include <stdarg.h>
 #include <errno.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.h"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.h"
 
 /************************************************************************/
 /*                contents                                              */

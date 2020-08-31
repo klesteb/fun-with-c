@@ -30,9 +30,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.h"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.h"
 
 /************************************************************************/
 /*                   contents                                           */
@@ -239,10 +239,20 @@ void loadConfig(char *filename) {
                 sscanf(line, "%s \"%[^\"]", cmd, string);
                 strcpy(nodeId, string);
 
-            } else if (strcmp(cmd, "#msgPath") == 0) {
+            } else if (strcmp(cmd, "#MSGPATH") == 0) {
 
                 sscanf(line, "%s \"%[^\"]", cmd, string);
                 strcpy(msgPath, string);
+
+            } else if (strcmp(cmd, "#HELPPATH") == 0) {
+
+                sscanf(line, "%s \"%[^\"]", cmd, string);
+                strcpy(helpPath, string);
+
+            } else if (strcmp(cmd, "#MENUPATH") == 0) {
+
+                sscanf(line, "%s \"%[^\"]", cmd, string);
+                strcpy(menuPath, string);
 
             } else if (strcmp(cmd, "#alldone") == 0) {
 

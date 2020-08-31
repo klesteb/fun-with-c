@@ -10,9 +10,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.c"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.c"
 
 /************************************************************************/
 /*                history                                               */
@@ -804,7 +804,7 @@ int main(int argc, char **argv) {
     char opts[] = "csh?";
     extern char *optarg;
     extern int optind;
-    char *configs = "ctdlcnfg.sys";
+    char *configs = "../ctdlcnfg.sys";
 
     opterr = 0;
 
@@ -823,7 +823,7 @@ int main(int argc, char **argv) {
                 printf("\n");
                 printf("Citadel 2.10 - Linux port\n");
                 printf("\n");
-                printf("Usage: 210ctdl [-h] [-s] [-c <filename>]\n");
+                printf("Usage: citadel [-h] [-s] [-c <filename>]\n");
                 printf("\n");
                 printf("    -h - display help.\n");
                 printf("    -s - enable sysop options.\n");
@@ -833,7 +833,7 @@ int main(int argc, char **argv) {
                 break;
             case '?':
                 printf("\n");
-                printf("Usage: 210ctdl [-h] [-s] [-c <filename>]\n");
+                printf("Usage: citadel [-h] [-s] [-c <filename>]\n");
                 printf("\n");
                 return EXIT_SUCCESS;
                 break;

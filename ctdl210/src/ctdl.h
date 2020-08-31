@@ -8,8 +8,6 @@
 #ifndef _CTDL_H
 #define _CTDT_H
 
-#include <ncurses.h>
-
 /************************************************************************/
 /*                History                                               */
 /*                                                                      */
@@ -73,11 +71,16 @@
 /************************************************************************/
 
 /* values for functions to return: */
-#define TRUE   1
-#define FALSE  0
-#define ERROR  -1
-
-#define SAMESTRING 0    /* value for strcmp() & friend        */
+#ifndef TRUE
+#define TRUE   (1)
+#define FALSE  (0)
+#endif
+#ifndef ERR
+#define ERR    (-1)
+#define OK     (0)
+#endif
+#define ERROR  (-1)
+#define SAMESTRING (0)    /* value for strcmp() & friend        */
 
 /* ASCII characters: */
 #define NUL        0

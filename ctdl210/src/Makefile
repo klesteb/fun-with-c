@@ -7,26 +7,26 @@
 #
 CC = gcc
 CFLAGS = -Wall -c -g 
-OLBS = 210ctdl.a 
+OLBS = libctdl.a 
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -rs
-STATIC = 210ctdl.a
+STATIC = libctdl.a
 #
-INCS = 210ctdl.h 210protos.h 210common.h 210common.c
+INCS = ctdl.h protos.h common.h common.c
 #
-OBJS = 210log.o 210misc.o 210modem.o 210msga.o 210msgb.o 210rooma.o 210roomb.o
+OBJS = log.o misc.o modem.o msga.o msgb.o rooma.o roomb.o
 #
-all: $(OBJS) 210ctdl 210confg test1 test2 test3 test4 test5
+all: $(OBJS) citadel confg test1 test2 test3 test4 test5
 #
 debug:
 #
 clean:
 	rm -f *.o
 	rm -f *~
-	rm -f 210ctdl.a
-	rm -f 210confg
-	rm -f 210ctdl
+	rm -f libctdl.a
+	rm -f confg
+	rm -f citadel
 	rm -f test1
 	rm -f test2
 	rm -f test3
@@ -54,41 +54,41 @@ test5: test5.c $(INCS)
 	$(CC) $(CFLAGS) test5.c
 	$(LINK) $(LFLAGS) test5 test5.o $(OLBS)
 #
-210ctdl: 210ctdl.c $(INCS)
-	$(CC) $(CFLAGS) 210ctdl.c
-	$(LINK) $(LFLAGS) 210ctdl 210ctdl.o $(OLBS)
+citadel: ctdl.c $(INCS)
+	$(CC) $(CFLAGS) ctdl.c
+	$(LINK) $(LFLAGS) citadel ctdl.o $(OLBS)
 #
-210confg: 210confg.c $(INCS) 
-	$(CC) $(CFLAGS) 210confg.c
-	$(LINK) $(LFLAGS) 210confg 210confg.o $(OLBS)
+confg: confg.c $(INCS) 
+	$(CC) $(CFLAGS) confg.c
+	$(LINK) $(LFLAGS) confg confg.o $(OLBS)
 #
-210log.o: 210log.c $(INCS)
-	$(CC) $(CFLAGS) 210log.c
-	$(LIBR) $(STATIC) 210log.o
+log.o: log.c $(INCS)
+	$(CC) $(CFLAGS) log.c
+	$(LIBR) $(STATIC) log.o
 #
-210misc.o: 210misc.c $(INCS)
-	$(CC) $(CFLAGS) 210misc.c
-	$(LIBR) $(STATIC) 210misc.o
+misc.o: misc.c $(INCS)
+	$(CC) $(CFLAGS) misc.c
+	$(LIBR) $(STATIC) misc.o
 #
-210modem.o: 210modem.c $(INCS)
-	$(CC) $(CFLAGS) 210modem.c
-	$(LIBR) $(STATIC) 210modem.o
+modem.o: modem.c $(INCS)
+	$(CC) $(CFLAGS) modem.c
+	$(LIBR) $(STATIC) modem.o
 #
-210msga.o: 210msga.c $(INCS)
-	$(CC) $(CFLAGS) 210msga.c
-	$(LIBR) $(STATIC) 210msga.o
+msga.o: msga.c $(INCS)
+	$(CC) $(CFLAGS) msga.c
+	$(LIBR) $(STATIC) msga.o
 #
-210msgb.o: 210msgb.c $(INCS)
-	$(CC) $(CFLAGS) 210msgb.c
-	$(LIBR) $(STATIC) 210msgb.o
+msgb.o: msgb.c $(INCS)
+	$(CC) $(CFLAGS) msgb.c
+	$(LIBR) $(STATIC) msgb.o
 #
-210rooma.o: 210rooma.c $(INCS)
-	$(CC) $(CFLAGS) 210rooma.c
-	$(LIBR) $(STATIC) 210rooma.o
+rooma.o: rooma.c $(INCS)
+	$(CC) $(CFLAGS) rooma.c
+	$(LIBR) $(STATIC) rooma.o
 #
-210roomb.o: 210roomb.c $(INCS)
-	$(CC) $(CFLAGS) 210roomb.c
-	$(LIBR) $(STATIC) 210roomb.o
+roomb.o: roomb.c $(INCS)
+	$(CC) $(CFLAGS) roomb.c
+	$(LIBR) $(STATIC) roomb.o
 #
 # eof
 #

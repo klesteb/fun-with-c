@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.c"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.c"
 
 int main(int argc, char **argv) {
 
@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     char opts[] = "acsh?";
     extern char *optarg;
     extern int optind;
-    char *configs = "ctdlcnfg.sys";
+    char *configs = "../ctdlcnfg.sys";
 
     opterr = 0;
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
             case 'h':
                 printf("Citadel 2.10 - Linux port\n");
                 printf("\n");
-                printf("Usage: 210ctdl [-a] [-s] [-c <filename>]\n");
+                printf("Usage: ctdl [-a] [-s] [-c <filename>]\n");
                 printf("\n");
                 printf("    -a - enable aide options.\n");
                 printf("    -s - enable sysop options.\n");
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
                 return EXIT_SUCCESS;
                 break;
             case '?':
-                printf("Usage: 210ctdl [-a] [-s] [-c <filename>]\n");
+                printf("Usage: ctdl [-a] [-s] [-c <filename>]\n");
                 return EXIT_SUCCESS;
                 break;
         }
@@ -65,6 +65,9 @@ int main(int argc, char **argv) {
     printf("readok   : %d\n", unlogReadOk);
     printf("enterok  : %d\n", unlogEnterOk);
     printf("roomok   : %d\n", nonAideRoomOk);
+    printf("msgPath  : %s\n", msgPath);
+    printf("helpPath : %s\n", helpPath);
+    printf("menuPath : %s\n", menuPath);
 
     return EXIT_SUCCESS;
 

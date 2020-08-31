@@ -19,6 +19,8 @@
 
 char firstExtern = 0;        /* this should ALWAYS be the first declaration */
 
+/* start config items */
+
 int sysop = FALSE;           /* toggle sysop mode                    */
 char mData = 0;              /* Modem data port                      */
 char megaHz = 0;             /* Z80 clock rate (for wait loops)      */
@@ -34,11 +36,16 @@ char homeUser = 0;           /* where we keep our data files         */
 char msgDisk = 0;            /* where we keep our data files         */
 char ourDisk = 0;            /* where we are just now                */
 char ourUser = 0;            /* where we are just now                */
+char msgPath[256];           /* where the messages are stored        */
+char helpPath[256];          /* where the help files are stored      */
+char menuPath[256];          /* where the menu files are stored      */
 
 char unlogEnterOk = FALSE;   /* TRUE if OK to enter messages anon    */
 char unlogReadOk = FALSE;    /* TRUE if unlogged folks can read mess */
 char unlogLoginOk = FALSE;   /* TRUE if spontan. new accounts ok.    */
 char nonAideRoomOk = FALSE;  /* TRUE general folks can make rooms    */
+
+/* end config items */
 
 char *monthTab[13] = { "", 
      "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
@@ -68,7 +75,6 @@ char loggedIn = FALSE;      /* global have-caller flag               */
 
 /* messages */
 
-char msgPath[256];
 struct msgBuffer msgBuf;
 int msgfl;
 unsigned char  sectBuf[SECTSIZE];

@@ -2,7 +2,7 @@
 #ifndef _PROTOS_H
 #define _PROTOS_H
 
-/* 210ctdtl.c */
+/* ctdtl.c */
 
 extern char doAide(char moreYet, char first);
 extern void doChat(char moreYet, char first);
@@ -18,7 +18,7 @@ extern char doSysop(char c, char first);
 extern char getCommand(char *c);
 extern void greeting(void);
 
-/* 210log.c */
+/* log.c */
 
 extern void getLog(struct logBuffer *lBuf, int n);
 extern void login(char *password);
@@ -35,7 +35,7 @@ extern void zapLogFile(void);
 extern int  PWSlot(char *pw);
 extern void initSysop(void);
 
-/* 210misc.c */
+/* misc.c */
 
 extern void doCR(void);
 extern void configure(void);
@@ -47,7 +47,7 @@ extern void printDate(int year, int month, int day);
 extern void getDate(int *year, int *month, int *day);
 extern void crypte(void *buf, unsigned len, unsigned seed);
 
-/* 210modem.c */
+/* modem.c */
 
 extern char BBSCharReady(void);
 extern int  getCh(void);
@@ -65,7 +65,7 @@ extern void putError(char *format, ...);
 extern void putString(char *format, ...);
 extern void getString(char *prompt, char *buf, int lim);
 
-/* 210msg.c */
+/* msg.c */
 
 extern void mPeek(void);
 extern char mAbort(void);
@@ -97,7 +97,7 @@ extern int  getWord(char *dest, char *source, int offset, int lim);
 extern void noteMessage(struct logBuffer *lBuf, unsigned short logNo);
 extern void noteLogMessage(struct logBuffer *lBuf, unsigned short logNo);
 
-/* 210rooma.c */
+/* rooma.c */
 
 extern void init(void);
 extern void systat(void);
@@ -115,7 +115,7 @@ extern void setSpace(char disk, char user);
 extern void openFile(char *filename, int *fd);
 extern void wildCard(int (*fn)(char *), char *filename);
 
-/* 210roomb.c */
+/* roomb.c */
 
 extern int  findRoom(void);
 extern void makeRoom(void);

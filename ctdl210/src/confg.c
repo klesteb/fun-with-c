@@ -12,9 +12,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.c"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.c"
 
 /************************************************************************/
 /*                History                                               */
@@ -38,12 +38,12 @@ void init(void) {
 
     /* open message file */
 
-    if ((msgfl = open("ctdlmsg.sys", O_RDWR)) == ERROR) {
+    if ((msgfl = open("../ctdlmsg.sys", O_RDWR)) == ERROR) {
 
         putString(" ctdlmsg.sys not found, creating new file. \n");
         putString(" (Be sure to initialize it!)\n");
 
-        if ((msgfl = creat("ctdlmsg.sys", 0660)) == ERROR) {
+        if ((msgfl = creat("../ctdlmsg.sys", 0660)) == ERROR) {
 
             putString("?can't create ctdlmsg.sys!!\n");
             exit(EXIT_FAILURE);
@@ -51,18 +51,18 @@ void init(void) {
         }
 
         close(msgfl);    /* can't create in mode 2! */
-        msgfl = open("ctdlmsg.sys", O_RDWR);
+        msgfl = open("../ctdlmsg.sys", O_RDWR);
 
     }
 
     /* open room file */
 
-    if ((roomfl = open("ctdlroom.sys", O_RDWR)) == ERROR) {
+    if ((roomfl = open("../ctdlroom.sys", O_RDWR)) == ERROR) {
 
         putString(" ctdlroom.sys not found, creating new file. \n");
         putString(" (Be sure to initialize it!)\n");
 
-        if ((roomfl = creat("ctdlroom.sys", 0660)) == ERROR) {
+        if ((roomfl = creat("../ctdlroom.sys", 0660)) == ERROR) {
 
             putString("?can't create ctdlroom.sys!!\n");
             exit(EXIT_FAILURE);
@@ -70,18 +70,18 @@ void init(void) {
         }
 
         close(roomfl);     /* can't create in mode 2! */
-        roomfl = open("ctdlroom.sys", O_RDWR);
+        roomfl = open("../ctdlroom.sys", O_RDWR);
 
     }
 
     /* open userlog file */
 
-    if ((logfl = open("ctdllog.sys", O_RDWR)) == ERROR) {
+    if ((logfl = open("../ctdllog.sys", O_RDWR)) == ERROR) {
 
         putString(" ctdllog.sys not found, creating new file. \n");
         putString(" (Be sure to initialize it!)\n");
 
-        if ((logfl = creat("ctdllog.sys", 0660)) == ERROR) {
+        if ((logfl = creat("../ctdllog.sys", 0660)) == ERROR) {
 
             putString("?can't create ctdllog.sys!!\n");
             exit(EXIT_FAILURE);
@@ -89,7 +89,7 @@ void init(void) {
         }
 
         close(logfl);    /* can't create in mode 2! */
-        logfl = open("ctdllog.sys", O_RDWR);
+        logfl = open("../ctdllog.sys", O_RDWR);
 
     }
 
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     char opts[] = "ch?";
     extern char *optarg;
     extern int optind;
-    char *configs = "ctdlcnfg.sys";
+    char *configs = "../ctdlcnfg.sys";
 
     opterr = 0;
 

@@ -20,9 +20,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.h"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.h"
 
 /************************************************************************/
 /*                Contents                                              */
@@ -254,9 +254,9 @@ void initCitadel(void) {
 
     /* open message files: */
 
-    openFile("ctdlmsg.sys",  &msgfl);
-    openFile("ctdlroom.sys", &roomfl);
-    openFile("ctdllog.sys",  &logfl);
+    openFile("../ctdlmsg.sys",  &msgfl);
+    openFile("../ctdlroom.sys", &roomfl);
+    openFile("../ctdllog.sys",  &logfl);
 
     indexRooms();
     getRoom(LOBBY, &roomBuf);    /* load Lobby>    */

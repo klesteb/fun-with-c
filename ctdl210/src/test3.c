@@ -5,9 +5,9 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.c"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.c"
 
 int main(int argc, char **argv) {
 
@@ -15,11 +15,11 @@ int main(int argc, char **argv) {
     int x;
 
     initTerminal();
-    loadConfig("ctdlcnfg.sys");
+    loadConfig("../ctdlcnfg.sys");
 
-    openFile("ctdlmsg.sys",  &msgfl);
-    openFile("ctdlroom.sys", &roomfl);
-    openFile("ctdllog.sys",  &logfl);
+    openFile("../ctdlmsg.sys",  &msgfl);
+    openFile("../ctdlroom.sys", &roomfl);
+    openFile("../ctdllog.sys",  &logfl);
 
     indexRooms();
     msgInit();

@@ -27,11 +27,12 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <termios.h>
+#include <stdarg.h>
 #include <signal.h>
 
-#include "210ctdl.h"
-#include "210protos.h"
-#include "210common.h"
+#include "ctdl.h"
+#include "protos.h"
+#include "common.h"
 
 #define MAXWORD 256
 
@@ -121,7 +122,7 @@ int iChar(void) {
 /************************************************************************/
 char KBReady(void) {
 
-    chtype ch;
+    int ch;
     char stat = ERR;
 
     if ((ch = getCh()) != ERR) {

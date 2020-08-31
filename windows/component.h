@@ -83,6 +83,7 @@ struct _component_s {
 #define COMPONENT_T_MENU          12
 #define COMPONENT_T_MENU_ITEM     13
 #define COMPONENT_T_PROMPT        14
+#define COMPONENT_T_INKEY         15
 
 #define KEY_IILEGAL (KEY_MAX - 1)
 

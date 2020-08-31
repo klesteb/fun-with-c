@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2019 by Kevin L. Esteb                       */
+/*                Copyright (c) 2020 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -10,30 +10,26 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _STATUS_H_
-#define _STATUS_H_
+#ifndef _INKEY_H
+#define _INKEY_H
 
-/**
- * @file status.h
- * @author Kevin L. Esteb (kevin@kesteb.us)
- * @date 15-Nov-2019
- * 
- * @brief A set of macros to define the return status.
- * 
- * @par Description
- * A set of defines that define the return status of functions. 
- * This leads to a unified system for checking the error returns. 
- * The values are based on ncurses.
- * 
- * @def ERR indicate an error condition
- * @def OK  indicate a success condition
- * 
- **/
+#include "component.h"
 
-#undef  ERR
-#define ERR (-1)
-#undef  OK
-#define OK  (0)
+/*----------------------------------------------------------------*/
+/* data structures                                                */
+/*----------------------------------------------------------------*/
+
+typedef struct _inkey_func_s {
+    int keycode;
+    int (*callback)(void *);
+    void *data;
+} inkey_funcs_t;
+
+/*----------------------------------------------------------------*/
+/* interface                                                      */
+/*----------------------------------------------------------------*/
+
+extern component_t *inkey_create(inkey_funcs_t *);
 
 #endif
 

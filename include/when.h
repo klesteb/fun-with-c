@@ -37,7 +37,7 @@
  * 
  * But it does handle the chore of checking return codes and then
  * branching to an error handler when an error occurs. Errors are 
- * determined if an OK, ERR or NULL is returned.
+ * determined if an OK or ERR is returned.
  * 
  **/
 

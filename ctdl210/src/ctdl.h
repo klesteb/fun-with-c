@@ -119,24 +119,24 @@
 #define PERMROOM 8      /* flags mask */
 
 struct roomTable {
-    char rtgen;                 /* generation # of room             */
-    char rtflags;               /* public/private flag etc          */
-    char rtname[NAMESIZE];      /* name of room                     */
-    unsigned short rtlastMessage;   /* # of most recent message in room */
+    char rtgen;            /* generation # of room             */
+    char rtflags;          /* public/private flag etc          */
+    char rtname[NAMESIZE]; /* name of room                     */
+    long rtlastMessage;    /* # of most recent message in room */
 };
 
 struct roomBuffer {
-    char rbgen;                 /* generation # of room            */
-    char rbflags;               /* same bits as flags above        */
-    char rbname[NAMESIZE];      /* name of room                    */
-    char rbdisk;                /* disk this rooms files are in 0=>none */
-    char rbuser;                /* user area for this rooms files  */
+    char rbgen;            /* generation # of room            */
+    char rbflags;          /* same bits as flags above        */
+    char rbname[NAMESIZE]; /* name of room                    */
+    char rbdisk;           /* disk this rooms files are in 0=>none */
+    char rbuser;           /* user area for this rooms files  */
     union {
         struct {
-            unsigned short rbmsgNo;  /* every message gets unique#  */
-            unsigned short rbmsgLoc; /* sector message starts in    */
+            long rbmsgNo;  /* every message gets unique#  */
+            long rbmsgLoc; /* sector message starts in    */
         } msg[MSGSPERRM];
-    } vp;                       /* variable-part               */
+    } vp;                  /* variable-part               */
 };
 
 /************************************************************************/
@@ -156,15 +156,15 @@ struct roomBuffer {
 /* logbuf must be 384 bytes or less... including lbOverFlow, 384 or MORE */
 
 struct logBuffer {
-    char lbnulls;                      /* #nulls, lCase, lFeeds                */
-    char lbflags;                      /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
-    char lbwidth;                      /* terminal width                       */
-    char lbname[NAMESIZE];             /* caller's name                        */
-    char lbpw[NAMESIZE];               /* caller's password                    */
-    char lbgen[MAXROOMS];              /* 6 bits gen, two bits lastvisit       */
-    unsigned short lbvisit[MAXVISIT];  /* newestLo for this and 3 prev. visits */
-    unsigned short lbslot[MAILSLOTS];  /* for private mail                     */
-    unsigned short lbId[MAILSLOTS];    /* for private mail               */
+    char lbnulls;            /* #nulls, lCase, lFeeds                */
+    char lbflags;            /* UCMASK, LFMASK, EXPERT, TABMASK, AIDE*/
+    char lbwidth;            /* terminal width                       */
+    char lbname[NAMESIZE];   /* caller's name                        */
+    char lbpw[NAMESIZE];     /* caller's password                    */
+    char lbgen[MAXROOMS];    /* 6 bits gen, two bits lastvisit       */
+    long lbvisit[MAXVISIT];  /* newestLo for this and 3 prev. visits */
+    long lbslot[MAILSLOTS];  /* for private mail                     */
+    long lbId[MAILSLOTS];    /* for private mail               */
 #ifdef TEST
     char      lbOverFlow[256];
 #else
@@ -173,10 +173,10 @@ struct logBuffer {
 };
 
 struct logTable {
-    unsigned short ltpwhash;        /* hash of password          */
-    unsigned short ltnmhash;        /* hash of name              */
-    unsigned short ltlogSlot;       /* location in userlog.buf   */
-    unsigned short ltnewest;        /* last message on last call */
+    long ltpwhash;           /* hash of password          */
+    long ltnmhash;           /* hash of name              */
+    long ltlogSlot;          /* location in userlog.buf   */
+    long ltnewest;           /* last message on last call */
 };
 
 /************************************************************************/
@@ -193,7 +193,7 @@ struct logTable {
 struct msgBuffer {
     char mbtext[MAXTEXT];           /* buffer text is edited in           */
     unsigned char  mbheadChar;      /* start of message                   */
-    unsigned short mbheadSector;    /* start of message                   */
+    long mbheadSector;              /* start of message                   */
     char mbauth[NAMESIZE];          /* name of author                     */
     char mbdate[NAMESIZE];          /* creation date                      */
     char mbId[NAMESIZE];            /* local number of message            */

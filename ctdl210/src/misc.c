@@ -40,7 +40,8 @@
 /*    configure()       sets terminal parameters via dialogue           */
 /*    doCR()            newline on modem and console                    */
 /*    printDate()       prints out date                                 */
-/*    tutorial()        prints a .hlp file                              */
+/*    displayHelp()     prints a .hlp file                              */
+/*    displayMenu()     prints a .mnu file                              */
 /*    visible()         convert control chars to letters                */
 /*    loadConfig()      load config file                                */
 /*    crypte()          encrypts/decrypts data blocks                   */
@@ -101,17 +102,57 @@ void getDate(int *year, int *month, int *day) {
 /*    Returns:    TRUE on success else ERROR                            */
 /************************************************************************/
 #define MAXWORD 256
-int tutorial(char *filename) {
+int displayMenu(char *menu) {
 
     FILE *fp = NULL;
+    char path[1024];
     char line[MAXWORD];
     int toReturn;
 
     toReturn = TRUE;
+    snprintf(path, 1024, "%s%s.mnu", menuPath, menu);
 
-    if ((fp = fopen(filename, "r")) == NULL) {
+    if ((fp = fopen(path, "r")) == NULL) {
 
-        putString("\n No %s.\n", filename);
+        putString("\n No %s.\n", menu);
+        toReturn = ERROR;
+
+    } else {
+
+        putString(" \n");
+
+        while ((fgets(line, MAXWORD, fp)) != NULL) {
+
+            putString("%s", line);
+
+        }
+
+        fclose(fp);
+
+    }
+
+    return toReturn;
+
+}
+
+/************************************************************************/
+/*    displayHelp() prints file <filename> on the modem & console       */
+/*    Returns:    TRUE on success else ERROR                            */
+/************************************************************************/
+#define MAXWORD 256
+int displayHelp(char *topic) {
+
+    FILE *fp = NULL;
+    char path[1024];
+    char line[MAXWORD];
+    int toReturn;
+
+    toReturn = TRUE;
+    snprintf(path, 1024, "%s%s.hlp", helpPath, topic);
+
+    if ((fp = fopen(path, "r")) == NULL) {
+
+        putString("\n No %s.\n", topic);
         toReturn = ERROR;
 
     } else {

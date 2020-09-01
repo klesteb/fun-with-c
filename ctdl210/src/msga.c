@@ -60,7 +60,7 @@
 /************************************************************************/
 void aideMessage(char noteDeletedMessage) {
 
-    unsigned short ourRoom = thisRoom;
+    long ourRoom = thisRoom;
 
     /* message is already set up in msgBuf.mbtext */
 
@@ -470,7 +470,7 @@ void mPeek(void) {
 /************************************************************************/
 /*    noteLogMessage() slots message into log record                    */
 /************************************************************************/
-void noteLogMessage(struct logBuffer *lBuf, unsigned short logNo) {
+void noteLogMessage(struct logBuffer *lBuf, long logNo) {
 
     int i;
 
@@ -496,7 +496,7 @@ void noteLogMessage(struct logBuffer *lBuf, unsigned short logNo) {
 /************************************************************************/
 /*    noteMessage() slots message into current room                     */
 /************************************************************************/
-void noteMessage(struct logBuffer *lBuf, unsigned short logNo) {
+void noteMessage(struct logBuffer *lBuf, long logNo) {
 
     if (!++newestLo) ++newestHi;    /* 32-bit '++' by hand    */
 
@@ -564,7 +564,7 @@ void noteMessage(struct logBuffer *lBuf, unsigned short logNo) {
 /************************************************************************/
 /*    note2Message() makes slot in current room... called by noteMess   */
 /************************************************************************/
-void note2Message(unsigned short id, unsigned short loc) {
+void note2Message(long id, long loc) {
 
     int i;
 
@@ -588,20 +588,20 @@ void note2Message(unsigned short id, unsigned short loc) {
 /************************************************************************/
 /*    printMessage() prints indicated message on modem & console        */
 /************************************************************************/
-void printMessage(unsigned short loc, unsigned short id) {
+void printMessage(long loc, long id) {
 /* loc - sector in message.buf        */
 /* id  - unique-for-some-time ID#     */
 
     char moreFollows;
-    unsigned short hereHi, hereLo;
+    long hereHi, hereLo;
 
     startAt(loc, 0);
 
     do {
 
         getMessage(); 
-        sscanf(msgBuf.mbId, "%d %d", &hereHi, &hereLo);
-fprintf(stderr, "hereHi: %d, hereLo: %d, id: %d\n", hereHi, hereLo, id);
+        sscanf(msgBuf.mbId, "%ld %ld", &hereHi, &hereLo);
+fprintf(stderr, "hereHi: %ld, hereLo: %ld, ld: %ld\n", hereHi, hereLo, id);
 
     } while ((hereLo != id) && (thisSector == loc));
 
@@ -609,7 +609,7 @@ fprintf(stderr, "hereHi: %d, hereLo: %d, id: %d\n", hereHi, hereLo, id);
 
         putString("?can't find message");
 #ifdef XYZZY
-        putString(" loc=%d, id=%u, mbIds=%s, here=%d %d\n",
+        putString(" loc=%d, id=%u, mbIds=%s, here=%ld %ld\n",
                loc, id, msgBuf.mbId, &hereHi, &hereLo);
 #endif
 
@@ -740,7 +740,7 @@ void showMessages(char whichMess, char revOrder) {
 
     int i;
     int start, finish, increment;
-    unsigned short lowLim, highLim, msgNo;
+    long lowLim, highLim, msgNo;
 
     setUp(FALSE);
 

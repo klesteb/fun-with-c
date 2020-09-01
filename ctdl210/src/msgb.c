@@ -51,15 +51,15 @@
 /************************************************************************/
 void msgInit(void) {
 
-    unsigned short firstLo, firstHi, hereLo, hereHi;    /* 32 bits by halves    */
+    long firstLo, firstHi, hereLo, hereHi;    /* 32 bits by halves    */
 
     startAt(0, 0);
     getMessage();
 
     /* get the ID# */
 
-    sscanf(msgBuf.mbId, "%d %d", &firstHi, &firstLo);
-    putString("message# %d %d\n", firstHi, firstLo);
+    sscanf(msgBuf.mbId, "%ld %ld", &firstHi, &firstLo);
+    putString("message# %ld %ld\n", firstHi, firstLo);
     
     newestHi = firstHi;
     newestLo = firstLo;
@@ -71,13 +71,13 @@ void msgInit(void) {
 
     for (
          getMessage();
-         sscanf(msgBuf.mbId, "%d %d", &hereHi, &hereLo),
+         sscanf(msgBuf.mbId, "%ld %ld", &hereHi, &hereLo),
          (hereHi == firstHi && hereLo == firstLo);
          getMessage()
 
     ) {
 
-        putString("message# %d %d\n", hereHi, hereLo);
+        putString("message# %ld %ld\n", hereHi, hereLo);
 
         /* find highest and lowest message IDs: */
         /* 32-bit "<" by hand:                  */
@@ -347,7 +347,7 @@ int putMsgChar(char c) {
 /************************************************************************/
 /*    startAt() sets location to begin reading message from             */
 /************************************************************************/
-int startAt(unsigned short sect, unsigned short byt) {
+int startAt(long sect, long byt) {
 
     int toReturn = 0;
 
@@ -380,7 +380,7 @@ int flushMsgBuf(void) {
     /* pad the buffer with nulls */
 
 fprintf(stderr, "thisChar = %d\n", thisChar);
-fprintf(stderr, "thisSector = %d\n", thisSector);
+fprintf(stderr, "thisSector = %ld\n", thisSector);
 
     for (i = thisChar; i < SECTSIZE; i++) sectBuf[i] = '\0';
 

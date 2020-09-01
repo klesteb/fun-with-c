@@ -94,7 +94,7 @@ int editText(char *buf, int lim) {
                 putString("Save buffer\n ");
                 return TRUE;
             default:
-                tutorial("edit.mnu");
+                displayMenu("edit");
                 break;
         }
 
@@ -165,7 +165,7 @@ char getText(char *prompt, char *buf, int lim) {
 
     if (!expert) {
 
-        tutorial("entry.blb");
+        displayHelp("entry");
         putString("Enter %s (end with empty line)", prompt);
 
     }
@@ -404,7 +404,7 @@ void makeRoom(void) {
 
     }
 
-    if (!expert) tutorial("newroom.blb");
+    if (!expert) displayHelp("newroom");
 
     roomBuf.rbflags = INUSE;
 

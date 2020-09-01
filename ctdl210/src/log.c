@@ -196,15 +196,15 @@ void newPW(void) {
 /************************************************************************/
 void newUser(void) {
 
-    char    fullnm[NAMESIZE];
-    char    pw[NAMESIZE];
-    int     good, g, h, i, ourSlot;
-    unsigned    low;
+    char fullnm[NAMESIZE];
+    char pw[NAMESIZE];
+    int  good, g, h, i, ourSlot;
+    long low;
 
 
     configure();    /* make sure new users configure reasonably    */
 
-    if (!expert)   tutorial("password.blb");
+    if (!expert) displayHelp("password");
 
     do {
 
@@ -527,7 +527,7 @@ void initSysop(void) {
     char fullnm[NAMESIZE];
     char pw[NAMESIZE];
     int  h, i;
-    unsigned short low;
+    long low;
 
     strcpy(fullnm, "Sysop");
     strcpy(pw, "password");

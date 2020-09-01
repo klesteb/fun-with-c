@@ -133,7 +133,7 @@ char doAide(char moreYet, char first) {
             getRoom(LOBBY, &roomBuf);
             break;
         case '?':
-            tutorial("aide.mnu");
+            displayMenu("aide");
             break;
         default:
             if (!expert) putString(" ?(Type '?' for menu)\n "    );
@@ -210,7 +210,7 @@ void doEnter(char moreYet, char first) {
                 abort = TRUE;
                 if (expert) break;
             case '?':
-                tutorial("entopt.mnu");
+                displayMenu("entopt");
                 abort = TRUE;
                 break;
             case 'C':
@@ -308,31 +308,30 @@ void doHelp(char expand, char first) {
 /* expand - TRUE to accept following parameters */
 /* first -  first parameter if TRUE             */
 
-    char fileName[NAMESIZE];
+    char topic[NAMESIZE];
 
     if (!expand) {
 
         putString("Help\n \n ");
-        tutorial("dohelp.hlp");
+        displayHelp("dohelp");
         return;
 
     }
 
     putString("Help ");
-    getString("", fileName, NAMESIZE);
-    normalizeString(fileName);
+    getString("", topic, NAMESIZE);
+    normalizeString(topic);
 
-    if (fileName[0] == '?') {
+    if (topic[0] == '?') {
 
-        tutorial("helpopt.hlp");
+        displayHelp("helpopt");
 
     } else {
 
-        /* adding the extention makes things look simpler for        */
+        /* adding the extention makes things look simpler for       */
         /* the user... and restricts the files which can be read    */
 
-        strcat(fileName, ".hlp");
-        tutorial(fileName);
+        displayHelp(topic);
 
     }
 
@@ -511,7 +510,7 @@ void doRead(char moreYet, char first) {
                     break;
                 }
             case '?':
-                tutorial("readopt.mnu");
+                displayMenu("readopt");
                 abort = TRUE;
                 break;
             default:
@@ -618,7 +617,7 @@ char doRegular(char x, char c) {
             }
             break;    /* irrelevant value */
         case '?':
-            tutorial("mainopt.mnu");
+            displayMenu("mainopt");
             break;
         case 'A': 
             if (!doAide(x, 'E')) {
@@ -725,7 +724,7 @@ char doSysop(char x, char c) {
             toReturn = FALSE;
             break;
         case '?':
-            tutorial("ctdlopt.mnu");
+            displayMenu("ctdlopt");
             break;
         default:
             if (!expert) {

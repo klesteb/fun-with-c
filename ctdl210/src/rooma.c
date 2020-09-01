@@ -49,7 +49,7 @@
 void dumpRoom(void) {
 
     int i, count, newCount;
-    unsigned short no, loc;
+    long no, loc;
 
     for (newCount = 0, count = 0, i = 0; i < MSGSPERRM; i++) {
 
@@ -693,7 +693,7 @@ void wildCard(int (*fn)(char *), char *filename) {
 void loadRoomTab(void) {
 
     int i, x;
-    unsigned short last;
+    long last;
     struct roomBuffer buff;
 
     for (i = 0; i < MAXROOMS; i++) {

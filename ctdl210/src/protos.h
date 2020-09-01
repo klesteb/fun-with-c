@@ -41,7 +41,8 @@ extern void doCR(void);
 extern void configure(void);
 extern int  hash(char *str);
 extern char visible(char c);
-extern int  tutorial(char *filename);
+extern int  displayMenu(char *menu);
+extern int  displayHelp(char *topic);
 extern void loadConfig(char *filename);
 extern void printDate(int year, int month, int day);
 extern void getDate(int *year, int *month, int *day);
@@ -90,12 +91,12 @@ extern void getMsgStr(char *dest, int lim);
 extern void aideMessage(char noteDeletedMessage);
 extern void showMessages(char whichMess, char revOrder);
 extern int  findPerson(char *name, struct logBuffer *lBuf);
-extern int  startAt(unsigned short sect, unsigned short byt);
-extern void note2Message(unsigned short id, unsigned short loc);
-extern void printMessage(unsigned short loc, unsigned short id);
+extern int  startAt(long sect, long byt);
+extern void note2Message(long id, long loc);
+extern void printMessage(long loc, long id);
 extern int  getWord(char *dest, char *source, int offset, int lim);
-extern void noteMessage(struct logBuffer *lBuf, unsigned short logNo);
-extern void noteLogMessage(struct logBuffer *lBuf, unsigned short logNo);
+extern void noteMessage(struct logBuffer *lBuf, long logNo);
+extern void noteLogMessage(struct logBuffer *lBuf, long logNo);
 
 /* rooma.c */
 

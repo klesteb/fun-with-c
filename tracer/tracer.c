@@ -48,10 +48,14 @@ declare_klass(TRACER_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-tracer_t *tracer_create(item_list_t *items) {
+tracer_t *tracer_create(errors_t *errors) {
 
     int stat = ERR;
+    item_list_t items[2];
     tracer_t *self = NULL;
+
+    SET_ITEM(items[0], TRACER_K_ERRORS, errors, 0, NULL);
+    SET_ITEM(items[1], 0, 0, 0, 0);
 
     self = (tracer_t *)object_create(TRACER_KLASS, items, &stat);
 
@@ -242,6 +246,7 @@ int tracer_dump(tracer_t *self, int (*output)(char *)) {
 int _tracer_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
+    errors_t *errs = NULL;
     tracer_t *self = NULL;
 
     if (object != NULL) {
@@ -256,14 +261,12 @@ int _tracer_ctor(object_t *object, item_list_t *items) {
                 if ((items[x].buffer_length == 0) &&
                     (items[x].item_code == 0)) break;
 
-                /* switch(items[x].item_code) { */
-                /*     case TRACER_K_TYPE: { */
-                /*         memcpy(&type,  */
-                /*                items[x].buffer_address,  */
-                /*                items[x].buffer_length); */
-                /*         break; */
-                /*     } */
-                /* } */
+                switch(items[x].item_code) {
+                    case TRACER_K_ERRORS: {
+                        errs = items[x].buffer_address;
+                        break;
+                    }
+                }
 
             }
 
@@ -290,8 +293,7 @@ int _tracer_ctor(object_t *object, item_list_t *items) {
 
         when_error_in {
 
-            self->errs = errors_create();
-            check_creation(self->errs);
+            self->errs = errs;
 
             stat = que_init(&self->errors);
             check_status(stat, QUE_OK, E_NOQUEUE);
@@ -326,8 +328,6 @@ int _tracer_dtor(object_t *object) {
         free(error);
 
     }
-
-    errors_destroy(tracer->errs);
 
     /* walk the chain, freeing as we go */
 
@@ -374,7 +374,9 @@ int _tracer_compare(tracer_t *self, tracer_t *other) {
         (self->ctor == other->ctor) &&
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        (self->_override == other->_override) &&
+        (self->_add == other->_add) &&
+        (self->_dump == other->_dump)) {
 
         stat = OK;
 
@@ -407,7 +409,9 @@ int _tracer_dump(tracer_t *self, int (*output)(char *)) {
     char nemonic[32];
     char message[1024];
     error_trace_t *error = NULL;
-    char *format = "%s - %s; at line: %d, file: %s, function: %s";
+    char *format = "  %s - %s; line: %d, file: %s, function: %s";
+
+    output("error trace follows:");
 
     for (error = que_first(&self->errors);
          error != NULL;
@@ -422,6 +426,8 @@ int _tracer_dump(tracer_t *self, int (*output)(char *)) {
         output(text);
 
     }
+
+    output("error trace done.");
 
     return stat;
 

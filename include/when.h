@@ -17,8 +17,8 @@
 #include <stdlib.h>
 
 #include "object.h"
-#include "tracer.h"
 #include "error_trace.h"
+#include "../tracer/tracer.h"
 
 /**
  * @file when.h

@@ -43,13 +43,15 @@ struct _tracer_s {
 
 #define TRACER(x) ((tracer_t *)(x))
 
+#define TRACER_K_ERRORS 1
+
 #define TRACER_M_DESTRUCTOR 1
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern tracer_t *tracer_create(item_list_t *);
+extern tracer_t *tracer_create(errors_t *);
 extern int tracer_destroy(tracer_t *);
 extern int tracer_compare(tracer_t *, tracer_t *);
 extern int tracer_override(tracer_t *, item_list_t *);

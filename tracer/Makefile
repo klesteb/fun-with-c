@@ -6,8 +6,8 @@
 # Makefile to build trace.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl -I../errors
-OLBS = tracer.o ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a  
+CFLAGS = -Wall -c -I../errors -I../include -I../cclibs -I../objects -I../gpl 
+OLBS = tracer.o ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -rs

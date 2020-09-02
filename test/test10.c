@@ -31,7 +31,7 @@ int setup(void) {
         msgs = message_create(NULL, 0);
         check_creation(msgs);
 
-        dump = tracer_create(NULL);
+        dump = tracer_create(errs);
         check_creation(dump);
 
         exit_when;

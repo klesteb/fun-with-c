@@ -6,17 +6,17 @@
 # Makefile to build testing .
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../logger -I../errors -I../messages -I../gpl
-OLBS = ../libs/libmessages.a ../libs/liberrors.a ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
+CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../logger -I../errors -I../messages -I../trace -I../gpl
+OLBS = ../libs/libtrace.a ../libs/libmessages.a ../libs/liberrors.a ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -r
 #
-#INCS = spooler.h
+#INCS = 
 #
-#OBJS = spooler.o
+#OBJS = 
 #
-all: $(OBJS) test test2 test3 test4 test5 test6 test7 test8 test9
+all: $(OBJS) test test2 test3 test4 test5 test6 test7 test8 test9 test10
 #
 debug:
 #
@@ -32,6 +32,7 @@ clean:
 	rm -f test7
 	rm -f test8
 	rm -f test9
+	rm -f test10
 #
 test: test.o
 	$(CC) $(CFLAGS) test.c
@@ -68,6 +69,10 @@ test8: test8.o
 test9: test9.o
 	$(CC) $(CFLAGS) test9.c
 	$(LINK) $(LFLAGS) test9 test9.o  $(OLBS)
+#
+test10: test10.o
+	$(CC) $(CFLAGS) test10.c
+	$(LINK) $(LFLAGS) test10 test10.o  $(OLBS)
 #
 # eof
 #

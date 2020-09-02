@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "trace.h"
+#include "tracer.h"
 
 int main(int argc, char **argv) {
 
     error_trace_t trace;
-    trace_t *temp = NULL;
+    tracer_t *temp = NULL;
 
-    if ((temp = trace_create(NULL))) {
+    if ((temp = tracer_create(NULL))) {
 
         object_set_error1(OBJECT(temp), EAGAIN);
         object_get_error(OBJECT(temp), &trace);
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
         printf("file:     %s\n", trace.filename);
         printf("function: %s\n", trace.function);
 
-        trace_destroy(temp);
+        tracer_destroy(temp);
 
     }
 

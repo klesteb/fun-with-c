@@ -23,16 +23,16 @@
 /* klass defination                                            */
 /*-------------------------------------------------------------*/
 
-typedef struct _trace_s trace_t;
+typedef struct _tracer_s tracer_t;
 
-struct _trace_s {
+struct _tracer_s {
     object_t parent_klass;
     int (*ctor)(object_t *, item_list_t *);
     int (*dtor)(object_t *);
-    int (*_compare)(trace_t *, trace_t *);
-    int (*_override)(trace_t *, item_list_t *);
-    int (*_add)(trace_t *, error_trace_t *);
-    int (*_dump)(trace_t *, int (*output)(char *));
+    int (*_compare)(tracer_t *, tracer_t *);
+    int (*_override)(tracer_t *, item_list_t *);
+    int (*_add)(tracer_t *, error_trace_t *);
+    int (*_dump)(tracer_t *, int (*output)(char *));
     errors_t *errs;
     queue errors;
 };
@@ -41,20 +41,20 @@ struct _trace_s {
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-#define TRACE(x) ((trace_t *)(x))
+#define TRACER(x) ((tracer_t *)(x))
 
-#define TRACE_M_DESTRUCTOR 1
+#define TRACER_M_DESTRUCTOR 1
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern trace_t *trace_create(item_list_t *);
-extern int trace_destroy(trace_t *);
-extern int trace_compare(trace_t *, trace_t *);
-extern int trace_override(trace_t *, item_list_t *);
-extern int trace_add(trace_t *, error_trace_t *);
-extern int trace_dump(trace_t *, int (*output)(char *));
+extern tracer_t *tracer_create(item_list_t *);
+extern int tracer_destroy(tracer_t *);
+extern int tracer_compare(tracer_t *, tracer_t *);
+extern int tracer_override(tracer_t *, item_list_t *);
+extern int tracer_add(tracer_t *, error_trace_t *);
+extern int tracer_dump(tracer_t *, int (*output)(char *));
 
 #endif
 

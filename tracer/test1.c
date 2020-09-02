@@ -1,14 +1,14 @@
 
 #include <stdio.h>
-#include "trace.h"
+#include "tracer.h"
 
 int main(int argc, char **argv) {
 
-    trace_t *trace = NULL;
+    tracer_t *tracer = NULL;
 
-    if ((trace = trace_create(NULL))) {
+    if ((tracer = tracer_create(NULL))) {
 
-        trace_destroy(trace);
+        tracer_destroy(tracer);
 
     }
 

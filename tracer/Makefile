@@ -7,15 +7,15 @@
 #
 CC = gcc
 CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl -I../errors
-OLBS = trace.o ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a  
+OLBS = tracer.o ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a  
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -rs
-LIBS = ../libs/libtrace.a
+LIBS = ../libs/libtracer.a
 #
-INCS = trace.h
+INCS = tracer.h
 #
-OBJS = trace.o
+OBJS = tracer.o
 #
 all: $(OBJS) test1 test2
 #
@@ -37,9 +37,9 @@ test2: test2.o
 	$(CC) $(CFLAGS) test2.c
 	$(LINK) $(LFLAGS) test2 test2.o $(OLBS)
 #
-trace.o: trace.c $(INCS)
-	$(CC) $(CFLAGS) trace.c
-	$(LIBR) $(LIBS) trace.o
+tracer.o: tracer.c $(INCS)
+	$(CC) $(CFLAGS) tracer.c
+	$(LIBR) $(LIBS) tracer.o
 #
 # eof
 #

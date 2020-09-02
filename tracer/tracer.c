@@ -14,7 +14,7 @@
 #include <errno.h>
 
 #include "when.h"
-#include "trace.h"
+#include "tracer.h"
 #include "errors.h"
 #include "object.h"
 #include "error_codes.h"
@@ -25,41 +25,41 @@ require_klass(OBJECT_KLASS);
 /* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
-int _trace_ctor(object_t *, item_list_t *);
-int _trace_dtor(object_t *);
+int _tracer_ctor(object_t *, item_list_t *);
+int _tracer_dtor(object_t *);
 
-int _trace_compare(trace_t *, trace_t *);
-int _trace_override(trace_t *, item_list_t *);
-int _trace_add(trace_t *, error_trace_t *);
-int _trace_dump(trace_t *, int (*output)(char *));
+int _tracer_compare(tracer_t *, tracer_t *);
+int _tracer_override(tracer_t *, item_list_t *);
+int _tracer_add(tracer_t *, error_trace_t *);
+int _tracer_dump(tracer_t *, int (*output)(char *));
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/
 
-declare_klass(TRACE_KLASS) {
-    .size = KLASS_SIZE(trace_t),
-    .name = KLASS_NAME(trace_t),
-    .ctor = _trace_ctor,
-    .dtor = _trace_dtor,
+declare_klass(TRACER_KLASS) {
+    .size = KLASS_SIZE(tracer_t),
+    .name = KLASS_NAME(tracer_t),
+    .ctor = _tracer_ctor,
+    .dtor = _tracer_dtor,
 };
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-trace_t *trace_create(item_list_t *items) {
+tracer_t *tracer_create(item_list_t *items) {
 
     int stat = ERR;
-    trace_t *self = NULL;
+    tracer_t *self = NULL;
 
-    self = (trace_t *)object_create(TRACE_KLASS, items, &stat);
+    self = (tracer_t *)object_create(TRACER_KLASS, items, &stat);
 
     return self;
 
 }
 
-int trace_destroy(trace_t *self) {
+int tracer_destroy(tracer_t *self) {
 
     int stat = OK;
 
@@ -67,7 +67,7 @@ int trace_destroy(trace_t *self) {
 
         if (self != NULL) {
 
-            if (object_assert(self, trace_t)) {
+            if (object_assert(self, tracer_t)) {
 
                 stat = self->dtor(OBJECT(self));
                 check_status(stat, OK, E_INVOPS);
@@ -99,7 +99,7 @@ int trace_destroy(trace_t *self) {
 
 }
 
-int trace_override(trace_t *self, item_list_t *items) {
+int tracer_override(tracer_t *self, item_list_t *items) {
 
     int stat = OK;
 
@@ -131,7 +131,7 @@ int trace_override(trace_t *self, item_list_t *items) {
 
 }
 
-int trace_compare(trace_t *us, trace_t *them) {
+int tracer_compare(tracer_t *us, tracer_t *them) {
 
     int stat = OK;
 
@@ -139,7 +139,7 @@ int trace_compare(trace_t *us, trace_t *them) {
 
         if (us != NULL) {
 
-            if (object_assert(them, trace_t)) {
+            if (object_assert(them, tracer_t)) {
 
                 stat = us->_compare(us, them);
                 check_status(stat, OK, E_NOTSAME);
@@ -171,7 +171,7 @@ int trace_compare(trace_t *us, trace_t *them) {
 
 }
 
-int trace_add(trace_t *self, error_trace_t *error) {
+int tracer_add(tracer_t *self, error_trace_t *error) {
 
     int stat = OK;
 
@@ -203,7 +203,7 @@ int trace_add(trace_t *self, error_trace_t *error) {
 
 }
 
-int trace_dump(trace_t *self, int (*output)(char *)) {
+int tracer_dump(tracer_t *self, int (*output)(char *)) {
 
     int stat = OK;
 
@@ -239,10 +239,10 @@ int trace_dump(trace_t *self, int (*output)(char *)) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-int _trace_ctor(object_t *object, item_list_t *items) {
+int _tracer_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
-    trace_t *self = NULL;
+    tracer_t *self = NULL;
 
     if (object != NULL) {
 
@@ -257,7 +257,7 @@ int _trace_ctor(object_t *object, item_list_t *items) {
                     (items[x].item_code == 0)) break;
 
                 /* switch(items[x].item_code) { */
-                /*     case TRACE_K_TYPE: { */
+                /*     case TRACER_K_TYPE: { */
                 /*         memcpy(&type,  */
                 /*                items[x].buffer_address,  */
                 /*                items[x].buffer_length); */
@@ -275,16 +275,16 @@ int _trace_ctor(object_t *object, item_list_t *items) {
 
         /* initialize our derived klass here */
 
-        self = TRACE(object);
+        self = TRACER(object);
 
         /* assign our methods here */
 
-        self->ctor = _trace_ctor;
-        self->dtor = _trace_dtor;
-        self->_compare = _trace_compare;
-        self->_override = _trace_override;
-        self->_add = _trace_add;
-        self->_dump = _trace_dump;
+        self->ctor = _tracer_ctor;
+        self->dtor = _tracer_dtor;
+        self->_compare = _tracer_compare;
+        self->_override = _tracer_override;
+        self->_add = _tracer_add;
+        self->_dump = _tracer_dump;
 
         /* initialize internal variables here */
 
@@ -311,15 +311,15 @@ int _trace_ctor(object_t *object, item_list_t *items) {
 
 }
 
-int _trace_dtor(object_t *object) {
+int _tracer_dtor(object_t *object) {
 
     int stat = OK;
     error_trace_t *error = NULL;
-    trace_t *trace = TRACE(object);
+    tracer_t *tracer = TRACER(object);
 
     /* free local resources here */
 
-    while ((error = que_pop_head(&trace->errors))) {
+    while ((error = que_pop_head(&tracer->errors))) {
 
         free(error->filename);
         free(error->function);
@@ -327,7 +327,7 @@ int _trace_dtor(object_t *object) {
 
     }
 
-    errors_destroy(trace->errs);
+    errors_destroy(tracer->errs);
 
     /* walk the chain, freeing as we go */
 
@@ -338,7 +338,7 @@ int _trace_dtor(object_t *object) {
 
 }
 
-int _trace_override(trace_t *self, item_list_t *items) {
+int _tracer_override(tracer_t *self, item_list_t *items) {
 
     int stat = ERR;
 
@@ -351,7 +351,7 @@ int _trace_override(trace_t *self, item_list_t *items) {
                 (items[x].item_code == 0)) break;
 
             switch(items[x].item_code) {
-                case TRACE_M_DESTRUCTOR: {
+                case TRACER_M_DESTRUCTOR: {
                     self->dtor = items[x].buffer_address;
                     stat = 0;
                     break;
@@ -366,7 +366,7 @@ int _trace_override(trace_t *self, item_list_t *items) {
 
 }
 
-int _trace_compare(trace_t *self, trace_t *other) {
+int _tracer_compare(tracer_t *self, tracer_t *other) {
 
     int stat = ERR;
 
@@ -384,7 +384,7 @@ int _trace_compare(trace_t *self, trace_t *other) {
 
 }
 
-int _trace_add(trace_t *self, error_trace_t *error) {
+int _tracer_add(tracer_t *self, error_trace_t *error) {
 
     int stat = OK;
 
@@ -400,7 +400,7 @@ int _trace_add(trace_t *self, error_trace_t *error) {
 
 }
 
-int _trace_dump(trace_t *self, int (*output)(char *)) {
+int _tracer_dump(tracer_t *self, int (*output)(char *)) {
 
     int stat = OK;
     char text[1024];

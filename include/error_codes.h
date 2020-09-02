@@ -25,6 +25,7 @@
 #define E_NOTSAME 1006
 #define E_NOCREAT 1007
 #define E_NOCOLOR 1008
+#define E_NOQUEUE 1009
 
 #endif
 

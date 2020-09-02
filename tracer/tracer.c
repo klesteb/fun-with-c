@@ -407,7 +407,7 @@ int _tracer_dump(tracer_t *self, int (*output)(char *)) {
     char nemonic[32];
     char message[1024];
     error_trace_t *error = NULL;
-    char *format = "%s, message: %s; at line: %d, file: %s, function: %s";
+    char *format = "%s - %s; at line: %d, file: %s, function: %s";
 
     for (error = que_first(&self->errors);
          error != NULL;

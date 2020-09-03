@@ -16,8 +16,8 @@ message_t *msgs = NULL;
 int setup(void) {
 
     int stat = OK;
-    char *process = "test9";
-    char *category = "test9";
+    char *process = "test10";
+    char *category = "test10";
     char *facility = "system";
 
     when_error_in {

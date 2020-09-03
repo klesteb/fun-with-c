@@ -3,13 +3,13 @@
 # Date: 09-Sep-2019
 # By  : Kevin Esteb
 #
-# Makefile to build error_code.
+# Makefile to build errors.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../gpl -I../objects
+CFLAGS = -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../gpl -I../objects
 OLBS = ../libs/liberrors.a ../libs/libobjects.a ../libs/libcclibs.a ../libs/libgpl.a
 LINK = gcc
-LFLAGS = -o test
+LFLAGS = -o 
 LIBS = ../libs/liberrors.a
 LIBR = ar -r
 #
@@ -31,11 +31,11 @@ clean:
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
-	$(LINK) -o test1 test1.o $(OLBS)
+	$(LINK) $(LFLAGS) test1 test1.o $(OLBS)
 #
 test2: test2.o
 	$(CC) $(CFLAGS) test2.c
-	$(LINK) -o test2 test2.o $(OLBS)
+	$(LINK) $(LFLAGS) test2 test2.o $(OLBS)
 #
 errors.o: errors.c $(INCS)
 	$(CC) $(CFLAGS) errors.c

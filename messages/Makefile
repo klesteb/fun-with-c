@@ -6,7 +6,7 @@
 # Makefile to build messages.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../gpl -I../objects
+CFLAGS = -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../gpl -I../objects
 OLBS = message.o ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 LINK = gcc
 LFLAGS = -o 

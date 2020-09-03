@@ -255,7 +255,7 @@ int _template_override(template_t *self, item_list_t *items) {
             switch(items[x].item_code) {
                 case TEMPLATE_M_DESTRUCTOR: {
                     self->dtor = items[x].buffer_address;
-                    stat = 0;
+                    stat = OK;
                     break;
                 }
             }

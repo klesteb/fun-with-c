@@ -3,10 +3,10 @@
 # Date: 07-Jun-2019
 # By  : Kevin Esteb
 #
-# Makefile to build factory.
+# Makefile to build logger.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl
+CFLAGS = -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 OLBS = ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
 LINK = gcc
 LFLAGS = -o test

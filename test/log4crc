@@ -11,10 +11,11 @@
 
 	<!-- root category ========================================= -->
 	<!-- category name="root"  priority="trace" appender="stderr" /-->
-	<category name="test3" priority="trace" appender="testing1" />
-	<category name="test4" priority="trace" appender="testing2" />
-	<category name="test8" priority="trace" appender="testing3" />
-	<category name="test9" priority="trace" appender="testing4" />
+	<category name="test3"  priority="trace" appender="testing1" />
+	<category name="test4"  priority="trace" appender="testing2" />
+	<category name="test8"  priority="trace" appender="testing3" />
+	<category name="test9"  priority="trace" appender="testing4" />
+	<category name="test10" priority="trace" appender="testing4" />
 
 	<!-- default appenders ===================================== -->
 	<appender name="stdout" type="stream" layout="basic"/>

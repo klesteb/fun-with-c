@@ -37,10 +37,13 @@ struct _files_s {
     int (*_close)(files_t *);
     int (*_seek)(files_t *, off_t, int);
     int (*_tell)(files_t *, off_t *);
-    int (*_read)(files_t *, void *, size_t, int *);
-    int (*_write)(files_t *, void *, size_t, int *);
-    int (*_gets)(files_t *, char *, int);
-    int (*_puts)(files_t *, char *);
+    int (*_read)(files_t *, void *, size_t, ssize_t *);
+    int (*_write)(files_t *, void *, size_t, ssize_t *);
+    int (*_lock)(files_t *, off_t, off_t);
+    int (*_unlock)(files_t *);
+    int fd;
+    char path[256];
+    struct flock lock;
 };
 
 /*-------------------------------------------------------------*/
@@ -59,8 +62,8 @@ struct _files_s {
 #define FILES_M_TELL       5
 #define FILES_M_READ       6
 #define FILES_M_WRITE      7
-#define FILES_M_GETS       8
-#define FILES_M_PUTS       9
+#define FILES_M_LOCK       8
+#define FILES_M_UNLOCK     9
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -74,10 +77,10 @@ extern int files_open(files_t *, int, mode_t);
 extern int files_close(files_t *);
 extern int files_seek(files_t *, off_t, int);
 extern int files_tell(files_t *, off_t *);
-extern int files_read(files_t *, void *, size_t, int *);
-extern int files_write(files_t *, void *, size_t, int *);
-extern int files_gets(files_t *, char *, int);
-extern int files_puts(files_t *, char *);
+extern int files_read(files_t *, void *, size_t, ssize_t *);
+extern int files_write(files_t *, void *, size_t, ssize_t *);
+extern int files_lock(files_t *, off_t, off_t);
+extern int files_unlock(files_t *);
 
 #endif
 

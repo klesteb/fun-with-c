@@ -24,6 +24,7 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f $(LIBS)
 	rm -f test1
 	rm -f test2
 #

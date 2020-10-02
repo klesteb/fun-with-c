@@ -10,6 +10,9 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
+#include <errno.h>
+#include <fcntl.h>
+
 #include "when.h"
 #include "files.h"
 #include "object.h"
@@ -31,10 +34,10 @@ int _files_open(files_t *, int, mode_t);
 int _files_close(files_t *);
 int _files_seek(files_t *, off_t, int);
 int _files_tell(files_t *, off_t *);
-int _files_read(files_t *, void *, size_t, int *);
-int _files_write(files_t *, void *, size_t, int *);
-int _files_gets(files_t *, char *, int);
-int _files_puts(files_t *, char *);
+int _files_read(files_t *, void *, size_t, ssize_t *);
+int _files_write(files_t *, void *, size_t, ssize_t *);
+int _files_lock(files_t *, off_t, off_t);
+int _files_unlock(files_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -302,8 +305,8 @@ int files_tell(files_t *self, off_t *offset) {
 
 }
 
-int files_read(files_t *self, void *buffer, size_t size, int *count) {
-    
+int files_read(files_t *self, void *buffer, size_t size, ssize_t *count) {
+
     int stat = OK;
 
     when_error_in {
@@ -334,8 +337,8 @@ int files_read(files_t *self, void *buffer, size_t size, int *count) {
 
 }
 
-int files_write(files_t *self, void *buffer, size_t size, int *count) {
-    
+int files_write(files_t *self, void *buffer, size_t size, ssize_t *count) {
+
     int stat = OK;
 
     when_error_in {
@@ -366,15 +369,15 @@ int files_write(files_t *self, void *buffer, size_t size, int *count) {
 
 }
 
-int files_gets(files_t *self, char *buffer, int length) {
-    
+int files_lock(files_t *self, off_t offset, off_t length) {
+
     int stat = OK;
 
     when_error_in {
 
-        if ((self != NULL) && (buffer != NULL)) {
+        if ((self != NULL)) {
 
-            stat = self->_gets(self, buffer, length);
+            stat = self->_lock(self, offset, length);
             check_return(stat, self);
 
         } else {
@@ -398,15 +401,15 @@ int files_gets(files_t *self, char *buffer, int length) {
 
 }
 
-int files_puts(files_t *self, char *buffer) {
-    
+int files_unlock(files_t *self) {
+
     int stat = OK;
 
     when_error_in {
 
-        if ((self != NULL) && (buffer != NULL)) {
+        if ((self != NULL)) {
 
-            stat = self->_puts(self, buffer);
+            stat = self->_unlock(self);
             check_return(stat, self);
 
         } else {
@@ -492,11 +495,13 @@ int _files_ctor(object_t *object, item_list_t *items) {
         self->_write = _files_write;
         self->_seek = _files_seek;
         self->_tell = _files_tell;
-        self->_gets = _files_gets;
-        self->_puts = _files_puts;
-        
+        self->_lock = _files_lock;
+        self->_unlock = _files_unlock;
+
         /* initialize internal variables here */
-        
+
+        strcpy(self->path, path);
+
         stat = OK;
 
     }
@@ -569,16 +574,6 @@ int _files_override(files_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
-                case FILES_M_GETS: {
-                    self->_gets = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FILES_M_PUTS: {
-                    self->_puts = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
             }
 
         }
@@ -604,8 +599,8 @@ int _files_compare(files_t *self, files_t *other) {
         (self->_write == other->_write) &&
         (self->_seek == other->_seek) &&
         (self->_tell == other->_tell) &&
-        (self->_gets == other->_gets) &&
-        (self->_puts == other->_puts)) {
+        (self->_lock == other->_lock) &&
+        (self->_unlock == other->_unlock)) {
 
         stat = OK;
 
@@ -619,6 +614,26 @@ int _files_open(files_t *self, int flags, mode_t mode) {
 
     int stat = OK;
 
+    when_error_in {
+
+        errno = 0;
+        if ((self->fd = open(self->path, flags, mode)) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
     return stat;
 
 }
@@ -626,6 +641,26 @@ int _files_open(files_t *self, int flags, mode_t mode) {
 int _files_close(files_t *self) {
 
     int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        if (close(self->fd) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -635,6 +670,26 @@ int _files_seek(files_t *self, off_t offset, int whence) {
 
     int stat = OK;
 
+    when_error_in {
+
+        errno = 0;
+        if (lseek(self->fd, offset, whence) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
     return stat;
 
 }
@@ -643,37 +698,145 @@ int _files_tell(files_t *self, off_t *offset) {
 
     int stat = OK;
 
-    return stat;
+    when_error_in {
 
-}
+        errno = 0;
+        if ((*offset = lseek(self->fd, 0, SEEK_CUR)) == -1) {
 
-int _files_read(files_t *self, void *buffer, size_t size, int *count) {
+            cause_error(errno);
 
-    int stat = OK;
+        }
 
-    return stat;
+        exit_when;
 
-}
+    } use {
 
-int _files_write(files_t *self, void *buffer, size_t size, int *count) {
+        stat = ERR;
 
-    int stat = OK;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
 
-    return stat;
-
-}
-
-int _files_gets(files_t *self, char *buffer, int length) {
-
-    int stat = OK;
+    } end_when;
 
     return stat;
 
 }
 
-int _files_puts(files_t *self, char *buffer) {
+int _files_read(files_t *self, void *buffer, size_t size, ssize_t *count) {
 
     int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        if ((*count = read(self->fd, buffer, size)) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _files_write(files_t *self, void *buffer, size_t size, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        if ((*count = write(self->fd, buffer, size)) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _files_lock(files_t *self, off_t offset, off_t length) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        self->lock.l_type = F_WRLCK;
+        self->lock.l_start = offset;
+        self->lock.l_len = length;
+        self->lock.l_whence = SEEK_SET;
+        self->lock.l_pid = getpid();
+
+        errno = 0;
+        if (fcntl(self->fd, F_SETLKW, &self->lock) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _files_unlock(files_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        self->lock.l_type = F_UNLCK;
+
+        errno = 0;
+        if (fcntl(self->fd, F_SETLK, &self->lock) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 

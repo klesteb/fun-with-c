@@ -32,7 +32,7 @@ int main(void) {
     disk = getenv("d0");
     printf("disk = %s\n", disk);
 
-    getcwd(vms_path, sizeof(vms_path) - 1, 0);
+    getcwd(vms_path, sizeof(vms_path) - 1);
     printf("pwd = %s\n", vms_path);
 
     fname = fnm_create(FALSE, "test", ".c", ".1", "junk/", vms_path, NULL);

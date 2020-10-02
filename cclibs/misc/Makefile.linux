@@ -18,7 +18,7 @@ OBJS = dates.o fmtasc.o left.o ltrim.o mid.o \
        pos.o right.o rtrim.o seg.o soundex.o spaces.o \
        stricmp.o string.o strlwr.o strnicmp.o strrev.o \
        strupr.o trim.o xmalloc.o xstrtok.o match.o \
-       report.o str_replace.o \
+       report.o str_replace.o ltostr.o \
        convert_dibol_overpunch.o convert_zone_overpunch.o  \
        convert_left_overpunch.o convert_right_overpunch.o  \
        create_dibol_overpunch.o create_zone_overpunch.o  \
@@ -164,6 +164,10 @@ format_zone.o: format_zone.c
 wordwrap.o: wordwrap.c
 	$(CC) $(CFLAGS) wordwrap.c
 	$(LIBR) $(OLBS) wordwrap.o
+#
+ltostr.o: ltostr.c
+	$(CC) $(CFLAGS) ltostr.c
+	$(LIBR) $(OLBS) ltostr.o
 #
 # eof
 #

@@ -18,7 +18,7 @@ INCS = ../fnm_util.h fnm_priv.h
 OBJS = fnm_build.o fnm_core.o fnm_create.o fnm_destroy.o  \
        fnm_exists.o fnm_parse.o fnm_vms2unix.o fnm_unix2vms.o
 #
-all: $(OBJS)
+all: test $(OBJS)
 #
 debug:
 #

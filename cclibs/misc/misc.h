@@ -33,6 +33,7 @@ char *xstrtok(char *, char *);
 char *strlwr(char *);
 char *strupr(char *);
 char *strrev(char *);
+char *ltostr(long, char *, size_t, unsigned);
 
 int wordwrap(const char *, int, queue *);
 int stricmp(const char *, const char *);

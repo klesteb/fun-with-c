@@ -27,6 +27,15 @@ int _files_dtor(object_t *);
 int _files_compare(files_t *, files_t *);
 int _files_override(files_t *, item_list_t *);
 
+int _files_open(files_t *, int, mode_t);
+int _files_close(files_t *);
+int _files_seek(files_t *, off_t, int);
+int _files_tell(files_t *, off_t *);
+int _files_read(files_t *, void *, size_t, int *);
+int _files_write(files_t *, void *, size_t, int *);
+int _files_gets(files_t *, char *, int);
+int _files_puts(files_t *, char *);
+
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/
@@ -57,7 +66,7 @@ int files_destroy(files_t *self) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if (self != NULL) {
 
@@ -97,8 +106,8 @@ int files_override(files_t *self, item_list_t *items) {
 
     int stat = OK;
 
-    when_error {
-        
+    when_error_in {
+
         if (self != NULL) {
 
             stat = self->_override(self, items);
@@ -129,7 +138,7 @@ int files_compare(files_t *us, files_t *them) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if (us != NULL) {
 
@@ -165,6 +174,262 @@ int files_compare(files_t *us, files_t *them) {
 
 }
 
+int files_open(files_t *self, int flags, mode_t mode) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_open(self, flags, mode);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_close(files_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_close(self);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_seek(files_t *self, off_t offset, int whence) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_seek(self, offset, whence);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_tell(files_t *self, off_t *offset) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (offset != NULL)) {
+
+            stat = self->_tell(self, offset);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_read(files_t *self, void *buffer, size_t size, int *count) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
+
+            stat = self->_read(self, buffer, size, count);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_write(files_t *self, void *buffer, size_t size, int *count) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
+
+            stat = self->_write(self, buffer, size, count);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_gets(files_t *self, char *buffer, int length) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (buffer != NULL)) {
+
+            stat = self->_gets(self, buffer, length);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_puts(files_t *self, char *buffer) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (buffer != NULL)) {
+
+            stat = self->_puts(self, buffer);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -172,6 +437,7 @@ int files_compare(files_t *us, files_t *them) {
 int _files_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
+    char path[256];
     files_t *self = NULL;
 
     if (object != NULL) {
@@ -186,14 +452,20 @@ int _files_ctor(object_t *object, item_list_t *items) {
                 if ((items[x].buffer_length == 0) &&
                     (items[x].item_code == 0)) break;
 
-                /* switch(items[x].item_code) { */
-                /*     case FILES_K_TYPE: { */
-                /*         memcpy(&type,  */
-                /*                items[x].buffer_address,  */
-                /*                items[x].buffer_length); */
-                /*         break; */
-                /*     } */
-                /* } */
+                switch(items[x].item_code) {
+                    case FILES_K_PATH: {
+                        memcpy(path, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    /* case FILES_K_LOCKER: { */
+                    /*     memcpy(&type,  */
+                    /*            items[x].buffer_address,  */
+                    /*            items[x].buffer_length); */
+                    /*     break; */
+                    /* } */
+                }
 
             }
 
@@ -214,6 +486,15 @@ int _files_ctor(object_t *object, item_list_t *items) {
         self->_compare = _files_compare;
         self->_override = _files_override;
 
+        self->_open = _files_open;
+        self->_close = _files_close;
+        self->_read = _files_read;
+        self->_write = _files_write;
+        self->_seek = _files_seek;
+        self->_tell = _files_tell;
+        self->_gets = _files_gets;
+        self->_puts = _files_puts;
+        
         /* initialize internal variables here */
         
         stat = OK;
@@ -258,6 +539,46 @@ int _files_override(files_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case FILES_M_OPEN: {
+                    self->_open = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_CLOSE: {
+                    self->_close = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_READ: {
+                    self->_read = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_WRITE: {
+                    self->_write = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_SEEK: {
+                    self->_seek = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_TELL: {
+                    self->_tell = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_GETS: {
+                    self->_gets = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_PUTS: {
+                    self->_puts = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -276,11 +597,83 @@ int _files_compare(files_t *self, files_t *other) {
         (self->ctor == other->ctor) &&
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        (self->_override == other->_override) &&
+        (self->_open == other->_open) &&
+        (self->_close == other->_close) &&
+        (self->_read == other->_read) &&
+        (self->_write == other->_write) &&
+        (self->_seek == other->_seek) &&
+        (self->_tell == other->_tell) &&
+        (self->_gets == other->_gets) &&
+        (self->_puts == other->_puts)) {
 
         stat = OK;
 
     }
+
+    return stat;
+
+}
+
+int _files_open(files_t *self, int flags, mode_t mode) {
+
+    int stat = OK;
+
+    return stat;
+
+}
+
+int _files_close(files_t *self) {
+
+    int stat = OK;
+
+    return stat;
+
+}
+
+int _files_seek(files_t *self, off_t offset, int whence) {
+
+    int stat = OK;
+
+    return stat;
+
+}
+
+int _files_tell(files_t *self, off_t *offset) {
+
+    int stat = OK;
+
+    return stat;
+
+}
+
+int _files_read(files_t *self, void *buffer, size_t size, int *count) {
+
+    int stat = OK;
+
+    return stat;
+
+}
+
+int _files_write(files_t *self, void *buffer, size_t size, int *count) {
+
+    int stat = OK;
+
+    return stat;
+
+}
+
+int _files_gets(files_t *self, char *buffer, int length) {
+
+    int stat = OK;
+
+    return stat;
+
+}
+
+int _files_puts(files_t *self, char *buffer) {
+
+    int stat = OK;
 
     return stat;
 

@@ -53,7 +53,6 @@ struct _files_s {
 #define FILES(x) ((files_t *)(x))
 
 #define FILES_K_PATH   1
-#define FILES_K_LOCKER 2
 
 #define FILES_M_DESTRUCTOR 1
 #define FILES_M_OPEN       2

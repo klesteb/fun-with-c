@@ -5,12 +5,19 @@
 #
 # Makefile to build template.
 #
+MAJOR=0
+MINOR=1
+PATCH=0
+VERSION="$(MAJOR).$(MINOR).$(PATCH)"
+#
 CC = gcc
-CFLAGS = -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
-OLBS = template.o ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
+LIBR = ar -rs
+LIBS = libtemplate.a
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 LINK = gcc
 LFLAGS = -o 
-LIBR = ar -rs
+#
+OLBS = $(LIBS) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
 INCS = template.h
 #
@@ -23,6 +30,7 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f $(LIBS)
 	rm -f test1
 	rm -f test2
 #
@@ -37,6 +45,7 @@ test2: test2.o
 #
 template.o: template.c $(INCS)
 	$(CC) $(CFLAGS) template.c
+	$(LIBR) $(LIBS) template.o
 #
 # eof
 #

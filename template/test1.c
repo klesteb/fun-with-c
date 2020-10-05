@@ -8,6 +8,7 @@ int main(int argc, char **argv) {
 
     if ((temp = template_create(NULL))) {
 
+        printf("version = %s\n", template_version(temp));
         template_destroy(temp);
 
     }

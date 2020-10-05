@@ -574,6 +574,16 @@ int _files_override(files_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case FILES_M_LOCK: {
+                    self->_lock = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_UNLOCK: {
+                    self->_unlock = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }

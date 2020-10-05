@@ -46,6 +46,7 @@ extern template_t *template_create(item_list_t *);
 extern int template_destroy(template_t *);
 extern int template_compare(template_t *, template_t *);
 extern int template_override(template_t *, item_list_t *);
+extern char *template_version(template_t *);
 
 #endif
 

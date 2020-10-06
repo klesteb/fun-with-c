@@ -11,13 +11,17 @@ PATCH=0
 VERSION="$(MAJOR).$(MINOR).$(PATCH)"
 #
 CC = gcc
-LIBR = ar -rs
-LIBS = libtemplate.a
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 LINK = gcc
-LFLAGS = -o 
+LIBR = ar rs
+WORKING = $(shell pwd)
+STATIC = libtemplate.a
+SHARED = libtemplate.so
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
+LOPTS = -o 
+SOPTS = -shared -o 
+SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 #
-OLBS = $(LIBS) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
+OLBS = $(STATIC) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
 INCS = template.h
 #
@@ -30,25 +34,30 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
-	rm -f $(LIBS)
+	rm -f $(STATIC)
+	rm -f $(SHARED)
+	rm -f template.man
 	rm -f test1
 	rm -f test2
-	rm -f template.man
+#
+test1: test1.o
+	$(CC) $(CFLAGS) test1.c
+	$(LINK) $(LOPTS) test1 test1.o $(OLBS)
+#
+test2: test2.o
+	$(CC) $(CFLAGS) test2.c
+	$(LINK) $(LOPTS) test2 test2.o $(OLBS)
+#
+template.o: template.c $(INCS)
+	$(CC) $(CFLAGS) template.c
+	$(LIBR) $(STATIC) template.o
 #
 man:
 	pod2man -c " " -r "template(3)" -s 3 template.pod template.man
 #
-test1: test1.o
-	$(CC) $(CFLAGS) test1.c
-	$(LINK) $(LFLAGS) test1 test1.o $(OLBS)
-#
-test2: test2.o
-	$(CC) $(CFLAGS) test2.c
-	$(LINK) $(LFLAGS) test2 test2.o $(OLBS)
-#
-template.o: template.c $(INCS)
-	$(CC) $(CFLAGS) template.c
-	$(LIBR) $(LIBS) template.o
+shared:
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) template.o template.c
+	$(LINK) $(SOPTS) $(SHARED) template.o
 #
 # eof
 #

@@ -48,12 +48,12 @@ with programs.
 
 =head1 METHODS
 
-=head2 template_t *template_create(NULL)
+=head2 I<template_t *template_create(NULL)>
 
 This method initializes the class. It returns a pointer to the
 template_t object. Any errors may be returned with object_get_error().
 
-=head2 int template_destroy(template_t *self)
+=head2 I<int template_destroy(template_t *self)>
 
 This destroys the object. It returns OK on success and ERR on failure. 
 The extended error description can be returned with object_get_error().
@@ -66,7 +66,7 @@ A pointer to the template_t object.
 
 =back
 
-=head2 int template_override(template_t *self, item_list_t *items);
+=head2 I<int template_override(template_t *self, item_list_t *items)>
 
 This method allows you to override methods. It returns OK on success and
 ERR on failure. The extended error description can be returned with
@@ -84,7 +84,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 int template_compare(template_t *this, template_t *that)
+=head2 I<int template_compare(template_t *this, template_t *that)>
 
 This method allows you to compare one template_t object to another. It 
 returns OK on success and ERR on failure. The extended error description 
@@ -102,9 +102,11 @@ A pointer to a template_t object.
 
 =back
 
-=head2 char *template_version(template_t *self)
+=head2 I<char *template_version(template_t *self)>
 
 This method returns the version of the library.
+
+=over 4
 
 =item B<self>
 
@@ -116,17 +118,7 @@ A pointer to the template_t object.
 
 =over 4
 
-=item L<template.h|template.h>
-
-=item L<object|object>
-
-=item L<when.h|when.h>
-
-=item L<item_list.h|item_list.h>
-
-=item L<error_codes.h|error_codes.h>
-
-=item L<error_trace.h|error_trace.h>
+=item L<object(3)>
 
 =back
 

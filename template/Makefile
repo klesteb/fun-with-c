@@ -33,7 +33,10 @@ clean:
 	rm -f $(LIBS)
 	rm -f test1
 	rm -f test2
+	rm -f template.man
 #
+man:
+	pod2man -c " " -r "template(3)" -s 3 template.pod template.man
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c

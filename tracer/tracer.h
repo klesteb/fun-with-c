@@ -46,6 +46,8 @@ struct _tracer_s {
 #define TRACER_K_ERRORS 1
 
 #define TRACER_M_DESTRUCTOR 1
+#define TRACER_M_ADD        2
+#define TRACER_M_DUMP       3
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -57,6 +59,7 @@ extern int tracer_compare(tracer_t *, tracer_t *);
 extern int tracer_override(tracer_t *, item_list_t *);
 extern int tracer_add(tracer_t *, error_trace_t *);
 extern int tracer_dump(tracer_t *, int (*output)(char *));
+extern char *tracer_version(tracer_t *);
 
 #endif
 

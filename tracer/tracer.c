@@ -54,8 +54,16 @@ tracer_t *tracer_create(errors_t *errors) {
     item_list_t items[2];
     tracer_t *self = NULL;
 
-    SET_ITEM(items[0], TRACER_K_ERRORS, errors, 0, NULL);
-    SET_ITEM(items[1], 0, 0, 0, 0);
+    if (errors != NULL) {
+
+        SET_ITEM(items[0], TRACER_K_ERRORS, errors, 0, NULL);
+        SET_ITEM(items[1], 0, 0, 0, 0);
+
+    } else {
+
+        SET_ITEM(items[0], 0, 0, 0, 0);
+
+    }
 
     self = (tracer_t *)object_create(TRACER_KLASS, items, &stat);
 
@@ -108,7 +116,7 @@ int tracer_override(tracer_t *self, item_list_t *items) {
     int stat = OK;
 
     when_error_in {
-        
+
         if (self != NULL) {
 
             stat = self->_override(self, items);
@@ -239,6 +247,14 @@ int tracer_dump(tracer_t *self, int (*output)(char *)) {
 
 }
 
+char *tracer_version(tracer_t *self) {
+    
+    char *version = VERSION;
+
+    return version;
+    
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -353,7 +369,17 @@ int _tracer_override(tracer_t *self, item_list_t *items) {
             switch(items[x].item_code) {
                 case TRACER_M_DESTRUCTOR: {
                     self->dtor = items[x].buffer_address;
-                    stat = 0;
+                    stat = OK;
+                    break;
+                }
+                case TRACER_M_ADD: {
+                    self->_add = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case TRACER_M_DUMP: {
+                    self->_dump = items[x].buffer_address;
+                    stat = OK;
                     break;
                 }
             }

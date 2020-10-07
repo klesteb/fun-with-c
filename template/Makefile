@@ -36,7 +36,7 @@ clean:
 	rm -f *~
 	rm -f $(STATIC)
 	rm -f $(SHARED)
-	rm -f template.man
+	rm -f template.3
 	rm -f test1
 	rm -f test2
 #
@@ -53,7 +53,7 @@ template.o: template.c $(INCS)
 	$(LIBR) $(STATIC) template.o
 #
 man:
-	pod2man -c " " -r "template(3)" -s 3 template.pod template.man
+	pod2man -c " " -r "template(3)" -s 3 template.pod template.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) template.o template.c

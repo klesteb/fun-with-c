@@ -104,13 +104,32 @@ A pointer to a template_t object.
 
 =head2 I<char *template_version(template_t *self)>
 
-This method returns the version of the library.
+This method returns the version of the library. The version number
+follows the guidlines from L<semver.org|https://semver.org/>.
 
 =over 4
 
 =item B<self>
 
 A pointer to the template_t object.
+
+=back
+
+=head1 BUILDING
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
 
 =back
 

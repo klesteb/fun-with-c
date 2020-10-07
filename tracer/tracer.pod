@@ -109,7 +109,7 @@ can be returned with object_get_error().
 
 A pointer to a tracer_t object.
 
-=item B<other>
+=item B<that>
 
 A pointer to a tracer_t object.
 
@@ -173,6 +173,10 @@ The following assumes a GCC build environment.
 =item make
 
 Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruff from the directory.
 
 =item make man
 

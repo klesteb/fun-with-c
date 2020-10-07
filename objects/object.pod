@@ -232,6 +232,10 @@ The following assumes a GCC build environment.
 
 Builds the module and provides an object archive.
 
+=item make clean
+
+Removes cruff from the directory.
+
 =item make man
 
 Builds the man page.

@@ -43,9 +43,6 @@ This implements the interface.
 
 =back
 
-The makefile creates a libtemplate.a file that can be used for linkage
-with programs.
-
 =head1 METHODS
 
 =head2 I<template_t *template_create(NULL)>
@@ -96,7 +93,7 @@ can be returned with object_get_error().
 
 A pointer to a template_t object.
 
-=item B<other>
+=item B<that>
 
 A pointer to a template_t object.
 

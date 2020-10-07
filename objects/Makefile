@@ -5,13 +5,21 @@
 #
 # Makefile to build objects.
 #
+MAJOR=1
+MINOR=0
+PATCH=0
+VERSION="$(MAJOR).$(MINOR).$(PATCH)"
+#
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../gpl
-OLBS = ../libs/libobjects.a ../libs/libgpl.a ../cclibs/libcclibs.a
 LINK = gcc
-LFLAGS = -o 
-LIBS = ../libs/libobjects.a
-LIBR = ar -r
+LIBR = ar rs
+WORKING = $(shell pwd)
+STATIC = ../libs/libobject.a
+SHARED = libobject.so
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../include -I../cclibs -I../gpl
+LOPTS = -o 
+SOPTS = -shared -o 
+SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 #
 INCS = object.h
 #
@@ -25,10 +33,19 @@ clean:
 	rm -f *.o
 	rm -f *~
 	rm -f $(LIBS)
+	rm -f $(SHARED)
+	rm -f object.3
 #
 object.o: object.c $(INCS)
 	$(CC) $(CFLAGS) object.c
-	$(LIBR) $(LIBS) object.o
+	$(LIBR) $(STATIC) object.o
+#
+man:
+	pod2man -c " " -r "object(3)" -s 3 object.pod object.3
+#
+shared:
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) object.o object.c
+	$(LINK) $(SOPTS) $(SHARED) object.o
 #
 # eof
 #

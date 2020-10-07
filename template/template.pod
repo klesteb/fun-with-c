@@ -114,6 +114,8 @@ A pointer to the template_t object.
 
 =head1 BUILDING
 
+The following assumes a GCC build system.
+
 =over 4
 
 =item make

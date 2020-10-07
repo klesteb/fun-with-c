@@ -15,7 +15,7 @@ LINK = gcc
 LIBR = ar rs
 WORKING = $(shell pwd)
 STATIC = ../libs/libtracer.a
-SHARED = libtracer.so
+SHARED = libtracer.so.$(VERSION)
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 LOPTS = -o 
 SOPTS = -shared -o 

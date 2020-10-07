@@ -224,6 +224,8 @@ The C function that the error occured in.
 
 =head1 BUILDING
 
+The following assumes a GCC build environment.
+
 =over 4
 
 =item make

@@ -14,8 +14,8 @@ CC = gcc
 LINK = gcc
 LIBR = ar rs
 WORKING = $(shell pwd)
-STATIC = ../libs/libobject.a
-SHARED = libobject.so
+STATIC = ../libs/libobjects.a
+SHARED = libobjects.so.$(VERSION)
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../include -I../cclibs -I../gpl
 LOPTS = -o 
 SOPTS = -shared -o 

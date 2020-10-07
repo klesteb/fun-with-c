@@ -166,6 +166,8 @@ A callback that will output the error_trace_t type.
 
 =head1 BUILDING
 
+The following assumes a GCC build environment.
+
 =over 4
 
 =item make

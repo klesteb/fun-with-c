@@ -12,11 +12,13 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
 
 #include "when.h"
 #include "files.h"
 #include "object.h"
 #include "error_codes.h"
+#include "misc/misc.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -36,6 +38,8 @@ int _files_seek(files_t *, off_t, int);
 int _files_tell(files_t *, off_t *);
 int _files_read(files_t *, void *, size_t, ssize_t *);
 int _files_write(files_t *, void *, size_t, ssize_t *);
+int _files_gets(files_t *, char *, size_t, ssize_t *);
+int _files_puts(files_t *, char *, size_t, ssize_t *);
 int _files_lock(files_t *, off_t, off_t);
 int _files_unlock(files_t *);
 
@@ -54,10 +58,22 @@ declare_klass(FILES_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-files_t *files_create(item_list_t *items) {
+files_t *files_create(char *filename) {
 
     int stat = ERR;
     files_t *self = NULL;
+    item_list_t items[2];
+
+    if (filename != NULL) {
+
+        SET_ITEM(items[0], FILES_K_PATH, filename, strlen(filename), NULL);
+        SET_ITEM(items[1], 0, 0, 0, 0);
+
+    } else {
+
+        SET_ITEM(items[0], 0, 0, 0, 0);
+
+    }
 
     self = (files_t *)object_create(FILES_KLASS, items, &stat);
 
@@ -174,6 +190,14 @@ int files_compare(files_t *us, files_t *them) {
     } end_when;
 
     return stat;
+
+}
+
+char *files_version(files_t *self) {
+
+    char *version = VERSION;
+
+    return version;
 
 }
 
@@ -337,6 +361,38 @@ int files_read(files_t *self, void *buffer, size_t size, ssize_t *count) {
 
 }
 
+int files_gets(files_t *self, char *buffer, size_t size, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
+
+            stat = self->_gets(self, buffer, size, count);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int files_write(files_t *self, void *buffer, size_t size, ssize_t *count) {
 
     int stat = OK;
@@ -346,6 +402,38 @@ int files_write(files_t *self, void *buffer, size_t size, ssize_t *count) {
         if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
 
             stat = self->_write(self, buffer, size, count);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int files_puts(files_t *self, char *buffer, size_t size, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
+
+            stat = self->_puts(self, buffer, size, count);
             check_return(stat, self);
 
         } else {
@@ -440,10 +528,12 @@ int files_unlock(files_t *self) {
 int _files_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
-    char path[256];
+    char path[1024];
     files_t *self = NULL;
 
     if (object != NULL) {
+
+        memset(path, '\0', 1024);
 
         /* capture our items */
 
@@ -457,7 +547,7 @@ int _files_ctor(object_t *object, item_list_t *items) {
 
                 switch(items[x].item_code) {
                     case FILES_K_PATH: {
-                        memcpy(path, 
+                        strncpy(path, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
@@ -497,7 +587,9 @@ int _files_ctor(object_t *object, item_list_t *items) {
         self->_tell = _files_tell;
         self->_lock = _files_lock;
         self->_unlock = _files_unlock;
-
+        self->_gets = _files_gets;
+        self->_puts = _files_puts;
+            
         /* initialize internal variables here */
 
         strcpy(self->path, path);
@@ -607,6 +699,8 @@ int _files_compare(files_t *self, files_t *other) {
         (self->_close == other->_close) &&
         (self->_read == other->_read) &&
         (self->_write == other->_write) &&
+        (self->_gets == other->_gets) &&
+        (self->_puts == other->_puts) &&
         (self->_seek == other->_seek) &&
         (self->_tell == other->_tell) &&
         (self->_lock == other->_lock) &&
@@ -627,9 +721,21 @@ int _files_open(files_t *self, int flags, mode_t mode) {
     when_error_in {
 
         errno = 0;
-        if ((self->fd = open(self->path, flags, mode)) == -1) {
+        if (mode != 0) {
 
-            cause_error(errno);
+            if ((self->fd = open(self->path, flags, mode)) == -1) {
+
+                cause_error(errno);
+
+            }
+
+        } else {
+
+            if ((self->fd = open(self->path, flags)) == -1) {
+
+                cause_error(errno);
+
+            }
 
         }
 
@@ -832,6 +938,74 @@ int _files_unlock(files_t *self) {
 
         errno = 0;
         if (fcntl(self->fd, F_SETLK, &self->lock) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _files_puts(files_t *self, char *buffer, size_t length, ssize_t *count) {
+    
+    int stat = OK;
+    char *output = NULL;
+
+    when_error_in {
+
+        errno = 0;
+        if ((output = calloc(1, length + 2)) == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        sprintf(output, "%s\n", buffer);
+
+        errno = 0;
+        if ((*count = write(self->fd, output, strlen(output))) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    if (output != NULL) free(output);
+
+    return stat;
+
+}
+
+int _files_gets(files_t *self, char *buffer, size_t length, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        if ((*count = xgetline(self->fd, buffer, length, '\n')) == -1) {
 
             cause_error(errno);
 

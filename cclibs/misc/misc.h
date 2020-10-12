@@ -47,6 +47,7 @@ void insert(char *, char *, int, int);
 
 void syserr(char *, ...);
 void *xmalloc(int);
+int  xgetline(int, char *, int, int);
 
 #endif
 

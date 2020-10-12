@@ -166,11 +166,11 @@ int template_compare(template_t *us, template_t *them) {
 }
 
 char *template_version(template_t *self) {
-    
+
     char *version = VERSION;
 
     return version;
-    
+
 }
 
 /*----------------------------------------------------------------*/

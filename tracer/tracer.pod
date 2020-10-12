@@ -55,8 +55,7 @@ This implements the interface.
 
 =head2 I<tracer_t *tracer_create(errors_t *errors)>
 
-This method initializes the class. It returns a pointer to the
-tracer_t object. Any errors may be returned with object_get_error().
+This method initializes the class. 
 
 =over 4
 
@@ -68,8 +67,7 @@ A pointer to an errors_t object.
 
 =head2 I<int tracer_destroy(tracer_t *self)>
 
-This destroys the object. It returns OK on success and ERR on failure. 
-The extended error description can be returned with object_get_error().
+This destroys the object. 
 
 =over 4
 
@@ -81,9 +79,7 @@ A pointer to the tracer_t object.
 
 =head2 I<int tracer_override(tracer_t *self, item_list_t *items)>
 
-This method allows you to override methods. It returns OK on success and
-ERR on failure. The extended error description can be returned with
-object_get_error().
+This method allows you to override methods. 
 
 =over 4
 
@@ -99,9 +95,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =head2 I<int tracer_compare(tracer_t *this, tracer_t *that)>
 
-This method allows you to compare one tracer_t object to another. It 
-returns OK on success and ERR on failure. The extended error description 
-can be returned with object_get_error().
+This method allows you to compare one tracer_t object to another. 
 
 =over 4
 
@@ -118,7 +112,7 @@ A pointer to a tracer_t object.
 =head2 I<char *tracer_version(tracer_t *self)>
 
 This method returns the version of the library. The version number
-follows the guidlines from L<semver.org|https://semver.org/>.
+follows the guidelines from L<semver.org|https://semver.org/>.
 
 =over 4
 
@@ -130,9 +124,7 @@ A pointer to the tracer_t object.
 
 =head2 I<int tracer_add(tracer_t *self, error_trace_t *error)>
 
-This method allows you to add a error_trace_t type to the dump stack. It 
-returns OK on success and ERR on failure. The extended error description 
-can be returned with object_get_error().
+This method allows you to add a error_trace_t type to the list. 
 
 =over 4
 
@@ -148,9 +140,7 @@ A pointer to the error_trace_t type.
 
 =head2 I<int tracer_dump(tracer_t *self, int (*output)(char *))>
 
-This method allows you to output the stack dumpt of error_trace_t types. It 
-returns OK on success and ERR on failure. The extended error description 
-can be returned with object_get_error().
+This method allows you to output the list of error_trace_t types. 
 
 =over 4
 
@@ -164,9 +154,15 @@ A callback that will output the error_trace_t type.
 
 =back
 
+=head1 RETURNS
+
+The method tracer_create() returns a pointer to a tracer_t object. All 
+other methods return either OK on success or ERR on failure. The extended 
+error description can be returned with object_get_error().
+
 =head1 BUILDING
 
-The following assumes a GCC build environment.
+The following assumes a GNU/GCC build environment.
 
 =over 4
 
@@ -176,7 +172,7 @@ Builds the module and provides an object archive.
 
 =item make clean
 
-Removes cruff from the directory.
+Removes cruft from the directory.
 
 =item make man
 
@@ -208,7 +204,7 @@ Copyright (c) 2020 by Kevin L. Esteb
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted,
-provided that the above copyright notice appears in all copies. The
+provided that this copyright notice appears in all copies. The
 author makes no representations about the suitability of this software
 for any purpose. It is provided "as is" without express or implied
 warranty.

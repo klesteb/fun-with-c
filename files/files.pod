@@ -1,0 +1,385 @@
+
+=pod
+
+=head1 NAME
+
+files - A class for manipulating files
+
+=head1 SYNOPSIS
+
+ #include <stdio.h>
+ #include "files.h"
+
+ int main(int argc, char **argv) {
+
+     files_t *temp = NULL;
+     char *filename = "files.pod";
+     
+     if ((temp = files_create(filename))) {
+
+         files_open(temp, O_RDONLY, 0);
+         files_close(temp);
+
+         files_destroy(temp);
+
+     }
+
+     return 0;
+
+ }
+
+=head1 DESCRIPTION
+
+This is a class to perform file I/O. It uses standard Unix file I/O 
+to perform its functions.
+
+The files files.c and files.h define the class. 
+
+=over 4
+
+=item B<files.h>
+
+This defines the interface to the class. 
+
+=item B<files.c> 
+
+This implements the interface.
+
+=back
+
+=head1 METHODS
+
+=head2 I<files_t *files_create(char *filename)>
+
+This method initializes the class. 
+
+=over 4
+
+=item B<filename>
+
+The name of the file to manipulate.
+
+=back
+
+=head2 I<int files_destroy(files_t *self)>
+
+This destroys the object. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=back
+
+=head2 I<int files_override(files_t *self, item_list_t *items)>
+
+This method allows you to override methods. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<items>
+
+An array of item_list_t types. The array is 0 terminated.
+
+=back
+
+=head2 I<int files_compare(files_t *this, files_t *that)>
+
+This method allows you to compare one files_t object to another. 
+
+=over 4
+
+=item B<this>
+
+A pointer to a files_t object.
+
+=item B<that>
+
+A pointer to a files_t object.
+
+=back
+
+=head2 I<char *files_version(files_t *self)>
+
+This method returns the version of the library. The version number
+follows the guidelines from L<semver.org|https://semver.org/>.
+
+=over 4
+
+=item B<self>
+
+A pointer to the files_t object.
+
+=back
+
+=head2 I<int files_open(files_t *self, int flags, mode_t mode)>
+
+This method allows you to open the file. This is a wrapper around L<open(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer for a files_t object.
+
+=item B<flags>
+
+The flags to pass to open().
+
+=item B<mode>
+
+The mode to pass to open().
+
+=back
+
+=head2 I<int files_close(files_t *self)>
+
+This method allows you to close the file. This is a wrapper around L<close(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer for a files_t object.
+
+=back
+
+=head2 I<int files_read(files_t *self, void *buffer, size_t size, ssize_t *count)>
+
+This method allows you to read data from the file. This is a wrapper around 
+L<read(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<buffer>
+
+A pointer to the buffer to read the data into.
+
+=item B<size>
+
+The size of the buffer.
+
+=item B<count>
+
+A pointer to the number of bytes read. 0 bytes would indicate end of
+file.
+
+=back
+
+=head2 I<int files_write(files_t *self, void *buffer, size_t size, ssize_t *count)>
+
+This method allows you to write data to the file. This is a wrapper around 
+L<write(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<buffer>
+
+A pointer to the buffer to write to the file.
+
+=item B<size>
+
+The size of the buffer.
+
+=item B<count>
+
+A pointer to the number of bytes written. A 0 indicates that nothing
+was written.
+
+=back
+
+=head2 I<int files_lock(files_t *self, off_t offset, off_t length)>
+
+This method allows you to lock a range of bytes within the file. A
+offset of 0 and a range of 0, locks the whole file. This is a wrapper 
+around L<fcntl(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item offset
+
+The position within the file to start locking.
+
+=item length
+
+The range of bytes to lock.
+
+=back
+
+=head2 I<int files_unlock(files_t *self)>
+
+This method allows you to unlock a previous lock. This is a wrapper around 
+L<fcntl(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=back
+
+=head2 I<int files_seek(files_t *self, off_t offset, int whence)>
+
+This method allows you to seek to a particular potion within the file. 
+This is a wrapper around L<lseek(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<offset>
+
+The offset within the file.
+
+=item B<whence>
+
+This should be one of SEEK_SET, SEEK_CUR, SEEK_END.
+
+=back
+
+=head2 I<int files_tell(files_t *self, off_t *offset)>
+
+This method allows you to tell the current position within the file.  This 
+is a wrapper around L<lseek(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<offset>
+
+A pointer to the current position within the file.
+
+=back
+
+=head2 I<int files_puts(files_t *self, char *buffer, size_t size, ssize_t *count)>
+
+This method allows you to write a string to the file. The string will have a
+"\n" appended to the end. This is an emulation of L<puts(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<buffer>
+
+A pointer to the buffer to write to the file.
+
+=item B<size>
+
+The size of the buffer.
+
+=item B<count>
+
+A pointer to the number of bytes written. A 0 indicates that nothing
+was written.
+
+=back
+
+=head2 I<int files_gets(files_t *self, char *buffer, size_t size, ssize_t *count)>
+
+This method allows you to read a string from a file. The read will be up to 
+I<size> number of characters, EOF or when a '\n' has been reached. The string
+will have a '\0' appended to the end. This is a emulation of L<gets(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<buffer>
+
+A pointer to the buffer to write to the file.
+
+=item B<size>
+
+The size of the buffer.
+
+=item B<count>
+
+A pointer to the number of bytes read. 0 bytes would indicate end of
+file.
+
+=back
+
+=head1 RETURNS
+
+The method files_create() returns a pointer to a files_t object. All other 
+methods return either OK on success or ERR on failure. The extended 
+error description can be returned with object_get_error().
+
+=head1 BUILDING
+
+The following assumes a GNU/GCC build environment.
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruft from the directory.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<object(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2020 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

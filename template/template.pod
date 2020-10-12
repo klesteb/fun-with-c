@@ -47,13 +47,11 @@ This implements the interface.
 
 =head2 I<template_t *template_create(NULL)>
 
-This method initializes the class. It returns a pointer to the
-template_t object. Any errors may be returned with object_get_error().
+This method initializes the class. 
 
 =head2 I<int template_destroy(template_t *self)>
 
-This destroys the object. It returns OK on success and ERR on failure. 
-The extended error description can be returned with object_get_error().
+This destroys the object. 
 
 =over 4
 
@@ -65,9 +63,7 @@ A pointer to the template_t object.
 
 =head2 I<int template_override(template_t *self, item_list_t *items)>
 
-This method allows you to override methods. It returns OK on success and
-ERR on failure. The extended error description can be returned with
-object_get_error().
+This method allows you to override methods. 
 
 =over 4
 
@@ -83,9 +79,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =head2 I<int template_compare(template_t *this, template_t *that)>
 
-This method allows you to compare one template_t object to another. It 
-returns OK on success and ERR on failure. The extended error description 
-can be returned with object_get_error().
+This method allows you to compare one template_t object to another. 
 
 =over 4
 
@@ -102,7 +96,7 @@ A pointer to a template_t object.
 =head2 I<char *template_version(template_t *self)>
 
 This method returns the version of the library. The version number
-follows the guidlines from L<semver.org|https://semver.org/>.
+follows the guidelines from L<semver.org|https://semver.org/>.
 
 =over 4
 
@@ -112,9 +106,15 @@ A pointer to the template_t object.
 
 =back
 
+=head1 RETURNS
+
+The method template_create() returns a pointer to a template_t object. 
+All other methods return either OK on success or ERR on failure. The 
+extended error description can be returned with object_get_error().
+
 =head1 BUILDING
 
-The following assumes a GCC build system.
+The following assumes a GNU/GCC build environment.
 
 =over 4
 
@@ -124,7 +124,7 @@ Builds the module and provides an object archive.
 
 =item make clean
 
-Removes cruff from the directory.
+Removes cruft from the directory.
 
 =item make man
 
@@ -154,7 +154,7 @@ Copyright (c) 2020 by Kevin L. Esteb
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted,
-provided that the above copyright notice appears in all copies. The
+provided that this copyright notice appears in all copies. The
 author makes no representations about the suitability of this software
 for any purpose. It is provided "as is" without express or implied
 warranty.

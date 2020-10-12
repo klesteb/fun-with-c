@@ -23,7 +23,7 @@ OBJS = dates.o fmtasc.o left.o ltrim.o mid.o \
        convert_left_overpunch.o convert_right_overpunch.o  \
        create_dibol_overpunch.o create_zone_overpunch.o  \
        create_left_overpunch.o create_right_overpunch.o  \
-       format_zone.o wordwrap.o
+       format_zone.o wordwrap.o xgetline.o
 #
 all: $(OBJS)
 #
@@ -168,6 +168,10 @@ wordwrap.o: wordwrap.c
 ltostr.o: ltostr.c
 	$(CC) $(CFLAGS) ltostr.c
 	$(LIBR) $(OLBS) ltostr.o
+#
+xgetline.o: xgetline.c
+	$(CC) $(CFLAGS) xgetline.c
+	$(LIBR) $(OLBS) xgetline.o
 #
 # eof
 #

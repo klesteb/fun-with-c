@@ -13,6 +13,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "when.h"
 #include "files.h"
@@ -527,7 +530,7 @@ int files_unlock(files_t *self) {
 
 int _files_ctor(object_t *object, item_list_t *items) {
 
-    int stat = ERR;
+    int xstat = ERR;
     char path[1024];
     files_t *self = NULL;
 
@@ -589,16 +592,33 @@ int _files_ctor(object_t *object, item_list_t *items) {
         self->_unlock = _files_unlock;
         self->_gets = _files_gets;
         self->_puts = _files_puts;
-            
+
         /* initialize internal variables here */
 
-        strcpy(self->path, path);
+        when_error_in {
 
-        stat = OK;
+            struct stat buf;
+
+            errno = 0;
+            if (stat(path, &buf) == -1) {
+
+                cause_error(errno);
+
+            }
+
+            strcpy(self->path, path);
+            xstat = OK;
+            exit_when;
+
+        } use {
+
+            object_set_error1(self, trace_errnum);
+
+        } end_when;
 
     }
 
-    return stat;
+    return xstat;
 
 }
 

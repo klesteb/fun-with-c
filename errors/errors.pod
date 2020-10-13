@@ -1,0 +1,287 @@
+
+=pod
+
+=head1 NAME
+
+errors - A class to manage error definations
+
+=head1 SYNOPSIS
+
+ #include <stdio.h>
+ #include "errors.h"
+
+ int main(int argc, char **argv) {
+
+     errors_t *temp = NULL;
+
+     if ((temp = errors_create(NULL))) {
+
+         errors_destroy(temp);
+
+     }
+
+     return 0;
+
+ }
+
+=head1 DESCRIPTION
+
+This is a class that manages error definations. The files errors.c and 
+errors.h define the class. 
+
+=over 4
+
+=item B<errors.h>
+
+This defines the interface to the class. 
+
+=item B<errors.c> 
+
+This implements the interface.
+
+=back
+
+=head1 METHODS
+
+=head2 I<errors_t *errors_create(NULL)>
+
+This method initializes the class. 
+
+=head2 I<int errors_destroy(errors_t *self)>
+
+This destroys the object. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=back
+
+=head2 I<int errors_override(errors_t *self, item_list_t *items)>
+
+This method allows you to override methods. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=item B<items>
+
+An array of item_list_t data types. The array is 0 terminated.
+
+=back
+
+=head2 I<int errors_compare(errors_t *this, errors_t *that)>
+
+This method allows you to compare one errors_t object to another. 
+
+=over 4
+
+=item B<this>
+
+A pointer to a errors_t object.
+
+=item B<that>
+
+A pointer to a errors_t object.
+
+=back
+
+=head2 I<char *errors_version(errors_t *self)>
+
+This method returns the version of the library. The version number
+follows the guidelines from L<semver.org|https://semver.org/>.
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=back
+
+=head2 I<int errors_get_text(errors_t *self, int errnum, char *buffer, int size)>
+
+This method returns a text nemonic for an error defination.
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=item B<errnum>
+
+The error number.
+
+=item B<buffer>
+
+A pointer to a buffer to copy the nemonic into.
+
+=item B<size>
+
+The size of the buffer.
+
+=back
+
+=head2 I<int errors_get_message(errors_t *self, int errnum, char *buffer, int size)>
+
+This method returns the message text for an error defination.
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=item B<errnum>
+
+The error number.
+
+=item B<buffer>
+
+A pointer to a buffer to copy the message into.
+
+=item B<size>
+
+The size of the buffer.
+
+=back
+
+=head2 I<int errors_add(errors_t *self, int errnum, char *text, char *message)>
+
+This method all you to add an error defination.
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=item B<errnum>
+
+The error number.
+
+=item B<text>
+
+A error numbers nemonic.
+
+=item B<message>
+
+The error numbers message.
+
+=back
+
+=head2 I<int errors_remove(errors_t *self, int errnum)>
+
+This method allows you to remove an error defination.
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=item B<errnum>
+
+The error number to remove.
+
+=back
+
+=head2 I<int errors_set(errors_t *self, int errnum, char *text, char *message)>
+
+This method allows you to change an error defination.
+
+=over 4
+
+=item B<self>
+
+A pointer to the errors_t object.
+
+=item B<errnum>
+
+The error number to remove.
+
+=item B<text>
+
+A error numbers nemonic.
+
+=item B<message>
+
+The error numbers message.
+
+=back
+
+=head2 I<int errors_load(errors_t *self, error_code_t *codes, int size)>
+
+=over 4
+
+=item B<self>
+
+A array of error_code_t types.
+
+=item B<size>
+
+The number of elements.
+
+=back
+
+=head1 RETURNS
+
+The method errors_create() returns a pointer to a errors_t object. 
+All other methods return either OK on success or ERR on failure. The 
+extended error description can be returned with object_get_error().
+
+=head1 BUILDING
+
+The following assumes a GNU/GCC build environment.
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruft from the directory.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<object(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2020 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

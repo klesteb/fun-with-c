@@ -222,6 +222,10 @@ The error numbers message.
 
 =item B<self>
 
+A pointer to the errors_t object.
+
+=item B<codes>
+
 A array of error_code_t types.
 
 =item B<size>

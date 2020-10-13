@@ -184,6 +184,14 @@ int message_compare(message_t *us, message_t *them) {
 
 }
 
+char *message_version(message_t *self) {
+
+    char *version = VERSION;
+
+    return version;
+
+}
+
 int message_add(message_t *self, int nemonic, char *message) {
 
     int stat = OK;
@@ -401,34 +409,36 @@ int _message_ctor(object_t *object, item_list_t *items) {
 
         /* initialize internal variables here */
 
-        que_init(&self->messages);
+        when_error_in {
 
-        /* load default messages */
+            stat = que_init(&self->messages);
+            check_status(stat, QUE_OK, E_NOQUEUE);
 
-        stat = self->_load_messages(self, defaults, sizeof(defaults));
-        if (stat != OK) {
+            /* load default messages */
 
-            object_set_error1(self, E_NOLOAD);
-            goto fini;
+            stat = self->_load_messages(self, defaults, sizeof(defaults));
+            check_status(stat, OK, E_NOLOAD);
 
-        }
+            /* load any user defined messages */
 
-        /* load any user defined messages */
+            if (messages != NULL) {
 
-        if (messages != NULL) {
-
-            stat = self->_load_messages(self, messages, msg_size);
-            if (stat != OK) {
-
-                object_set_error1(self, E_NOLOAD);
+                stat = self->_load_messages(self, messages, msg_size);
+                check_status(stat, OK, E_NOLOAD);
 
             }
 
-        }
+            stat = OK;
+            exit_when;
 
+        } use {
+            
+            object_set_error1(self, trace_errnum);
+
+        } end_when;
+        
     }
 
-    fini:
     return stat;
 
 }

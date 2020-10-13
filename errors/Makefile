@@ -5,8 +5,8 @@
 #
 # Makefile to build errors.
 #
-MAJOR=0
-MINOR=1
+MAJOR=1
+MINOR=0
 PATCH=0
 VERSION="$(MAJOR).$(MINOR).$(PATCH)"
 #
@@ -36,7 +36,7 @@ clean:
 	rm -f *~
 	rm -f $(STATIC)
 	rm -f $(SHARED)
-	rm -f template.3
+	rm -f errors.3
 	rm -f test1
 	rm -f test2
 #

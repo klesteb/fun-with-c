@@ -45,6 +45,7 @@ int _files_gets(files_t *, char *, size_t, ssize_t *);
 int _files_puts(files_t *, char *, size_t, ssize_t *);
 int _files_lock(files_t *, off_t, off_t);
 int _files_unlock(files_t *);
+int _files_exist(files_t *, int *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -524,13 +525,46 @@ int files_unlock(files_t *self) {
 
 }
 
+int files_exists(files_t *self, int *exists) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_exists(self, exists);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
 int _files_ctor(object_t *object, item_list_t *items) {
 
-    int xstat = ERR;
+    int stat = ERR;
     char path[1024];
     files_t *self = NULL;
 
@@ -595,30 +629,13 @@ int _files_ctor(object_t *object, item_list_t *items) {
 
         /* initialize internal variables here */
 
-        when_error_in {
+        strcpy(self->path, path);
 
-            struct stat buf;
-
-            errno = 0;
-            if (stat(path, &buf) == -1) {
-
-                cause_error(errno);
-
-            }
-
-            strcpy(self->path, path);
-            xstat = OK;
-            exit_when;
-
-        } use {
-
-            object_set_error1(self, trace_errnum);
-
-        } end_when;
+        stat = OK;
 
     }
 
-    return xstat;
+    return stat;
 
 }
 
@@ -1043,6 +1060,37 @@ int _files_gets(files_t *self, char *buffer, size_t length, ssize_t *count) {
     } end_when;
 
     return stat;
+
+}
+
+int _files_exists(files_t *self, int *exists) {
+
+    int xstat = OK;
+    struct stat buf;
+
+    when_error_in {
+
+        errno = 0;
+        if (stat(self->path, &buf) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        *exists = TRUE;
+        exit_when;
+
+    } use {
+
+        xstat = ERR;
+        *exists = FALSE;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return xstat;
 
 }
 

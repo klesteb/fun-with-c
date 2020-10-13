@@ -13,6 +13,7 @@
 #ifndef _TRACE_H
 #define _TRACE_H
 
+#include "when.h"
 #include "object.h"
 #include "errors.h"
 #include "que_util.h"
@@ -60,6 +61,12 @@ extern int tracer_override(tracer_t *, item_list_t *);
 extern int tracer_add(tracer_t *, error_trace_t *);
 extern int tracer_dump(tracer_t *, int (*output)(char *));
 extern char *tracer_version(tracer_t *);
+
+#define capture_trace(dump) {                            \
+    error_trace_t *junk = malloc(sizeof(error_trace_t)); \
+    copy_error(junk);                                    \
+    tracer_add((dump), junk);                            \
+}
 
 #endif
 

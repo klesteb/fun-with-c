@@ -127,11 +127,5 @@
     }                                            \
 }
 
-#define capture_trace(dump) {                            \
-    error_trace_t *junk = malloc(sizeof(error_trace_t)); \
-    copy_error(junk);                                    \
-    tracer_add((dump), junk);                            \
-}
-
 #endif
 

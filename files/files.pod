@@ -172,7 +172,8 @@ The size of the buffer.
 =item B<count>
 
 A pointer to the number of bytes read. 0 bytes would indicate end of
-file.
+file. This may also indicate that your process dosen't have access to 
+the file.
 
 =back
 
@@ -304,8 +305,8 @@ was written.
 =head2 I<int files_gets(files_t *self, char *buffer, size_t size, ssize_t *count)>
 
 This method allows you to read a string from a file. The read will be up to 
-I<size> number of characters, EOF or when a '\n' has been reached. The string
-will have a '\0' appended to the end. This is a emulation of L<gets(3)>.
+I<size> number of characters, EOF or when a '\n' has been reached. The string 
+will have a '\0' appended to the end. This is an emulation of L<gets(3)>.
 
 =over 4
 
@@ -324,7 +325,25 @@ The size of the buffer.
 =item B<count>
 
 A pointer to the number of bytes read. 0 bytes would indicate end of
-file.
+file. This may also indicate that your process dosen't have access to 
+the file.
+
+=back
+
+=head2 I<int files_exists(files_t *self, int *exists)>
+
+This method allows you to check and see if a files exists. This is a
+wrapper around L<stat(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<exists>
+
+A pointer to wither the file exists. This is a TRUE/FALSE value.
 
 =back
 

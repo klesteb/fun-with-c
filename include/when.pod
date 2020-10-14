@@ -24,6 +24,7 @@ when - A macro package to implement structured error handling
              
          }
 
+         free(buffer);
          stat = OK;
          exit_when;
          
@@ -34,8 +35,6 @@ when - A macro package to implement structured error handling
 
      } end_when
      
-     if (buffer != NULL) free(buffer);
-
      return stat;
      
  }
@@ -50,11 +49,11 @@ idiom.
 The concept for this package comes from the world of DEC Basic. The
 version of Basic that is available on OpenVMS. In this environment
 there is structured error handling. This is done with a set of
-keywords and the ability to trap Basic error codes. Not very flexiable,
+keywords and the ability to trap Basic error codes. Not very flexible,
 but very useful.
 
-This marco package defines a set of "keywords" and with the artful
-usage of scope, I<goto> and I<labels>, inplements a sub set of that Basic
+This macro package defines a set of "keywords" and with the artful
+usage of scope, I<goto> and I<labels>, implements a sub set of that Basic
 functionality. There is only so much you can do with the C preprocessor.
 
 For example, this can not be nested.
@@ -63,7 +62,7 @@ For example, this can not be nested.
 
 The error_trace_t type is used to keep track of error information.
 Most of this information comes from the C preprocessor. Each member of 
-the type can be accessed with these marcos:
+the type can be accessed with these macros:
 
 =over 4
 
@@ -73,7 +72,7 @@ The associated error number.
 
 =item I<trace_lineno>
 
-The line number in the source file that the error occured.
+The line number in the source file that the error occurred.
 
 =item I<trace_filename>
 
@@ -81,20 +80,24 @@ The name of the source file.
 
 =item I<trace_function>
 
-The name of the function that the error occured in.
+The name of the function that the error occurred in.
 
 =back
 
 =head1 BLOCK MACROS
 
+This defines the error handling block. This can't be nested. There is
+no automatic propagation of the error up the call chain. That must be
+managed manually. See L<tracer(3)> as one way to do that.
+
 =head2 I<when_error_in / when_error>
 
-This begins the block of the error handler and initilizes the data
+This begins the block of the error handler and initializes the data
 structure that is used to capture the error information.
 
 =head2 I<use>
 
-This seperates the managed code from the error handling code.
+This separates the managed code from the error handling code.
 
 =head2 I<exit_when>
 
@@ -172,7 +175,7 @@ The external error handling data structure.
 
 =head2 I<capture_error(error)>
 
-This captures an external data structure into the interal one.
+This captures an external data structure into the internal one.
 
 =over 4
 
@@ -206,7 +209,7 @@ The error number to use.
 
 =head2 I<retrieve_error(self)>
 
-This marco returns the internal error structure from a class object.
+This macro returns the internal error structure from a class object.
 This is only useful it you are using L<object(3)> classes.
 
 =over 4
@@ -220,7 +223,7 @@ A pointer to a L<object(3)> object.
 =head2 I<check_return(status, self)>
 
 This macro checks the I<status> against OK. If they don't match, retrieve
-the error status from the L<opject(3)> class and branch to the error
+the error status from the L<object(3)> class and branch to the error
 handler.
 
 =over 4
@@ -253,6 +256,8 @@ A pointer to the L<object(3)> object.
 =over 4
 
 =item L<object(3)>
+
+=item L<tracer(3)>
 
 =back
 

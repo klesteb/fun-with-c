@@ -7,7 +7,7 @@
 #
 CC = gcc
 CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../logger -I../errors -I../messages -I../tracer -I../gpl
-OLBS = ../libs/libtracer.a ../libs/libmessages.a ../libs/liberrors.a ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
+OLBS = ../libs/libtracer.a ../libs/libmessage.a ../libs/liberrors.a ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
 LINK = gcc
 LFLAGS = -o 
 LIBR = ar -r

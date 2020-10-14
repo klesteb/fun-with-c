@@ -1,0 +1,275 @@
+
+=pod
+
+=head1 NAME
+
+when - A macro package to implement structured error handling
+
+=head1 SYNOPSIS
+
+ #include <errno.h>
+ #include "when.h"
+ 
+ int function(void) {
+ 
+     int stat = ERR;
+     char *buffer = NULL;
+     
+     when_error_in {
+     
+         errno = 0;
+         if ((buffer = malloc(100)) == NULL) {
+         
+             cause_error(errno);
+             
+         }
+
+         stat = OK;
+         exit_when;
+         
+     } use {
+
+         fprintf(stderr, "error: %d\n", trace_errnum);
+         clear_error();
+
+     } end_when
+     
+     if (buffer != NULL) free(buffer);
+
+     return stat;
+     
+ }
+ 
+=head1 DESCRIPTION
+
+This is exactly what your professors told you not to do. Extend C with a 
+macro package. This package implements structured error handling. And
+it does it in a different fashion then the more common I<try/catch>
+idiom.
+
+The concept for this package comes from the world of DEC Basic. The
+version of Basic that is available on OpenVMS. In this environment
+there is structured error handling. This is done with a set of
+keywords and the ability to trap Basic error codes. Not very flexiable,
+but very useful.
+
+This marco package defines a set of "keywords" and with the artful
+usage of scope, I<goto> and I<labels>, inplements a sub set of that Basic
+functionality. There is only so much you can do with the C preprocessor.
+
+For example, this can not be nested.
+
+=head1 DATA STRUCTURES
+
+The error_trace_t type is used to keep track of error information.
+Most of this information comes from the C preprocessor. Each member of 
+the type can be accessed with these marcos:
+
+=over 4
+
+=item I<trace_errnum>
+
+The associated error number.
+
+=item I<trace_lineno>
+
+The line number in the source file that the error occured.
+
+=item I<trace_filename>
+
+The name of the source file.
+
+=item I<trace_function>
+
+The name of the function that the error occured in.
+
+=back
+
+=head1 BLOCK MACROS
+
+=head2 I<when_error_in / when_error>
+
+This begins the block of the error handler and initilizes the data
+structure that is used to capture the error information.
+
+=head2 I<use>
+
+This seperates the managed code from the error handling code.
+
+=head2 I<exit_when>
+
+This bypasses the error handling section of the block.
+
+=head2 I<end_when>
+
+This marks the end of the block for the error handler.
+
+=head1 HELPER MACROS
+
+=head2 I<retry(label)>
+
+This macro will clear the internal data structure and branch to label.
+The label must be within the error handling block.
+
+=over 4
+
+=item B<label>
+
+The label to branch too.
+
+=back
+
+=head2 I<cause_error(error)>
+
+This macro fills in the internal data structure and branches to 
+the error handler.
+
+=over 4
+
+=item B<error>
+
+The error number.
+
+=back
+
+=head2 I<clear_error(error)>
+
+This macro clears the internal data structure and should be called as the 
+last step in the error handler.
+
+=over 4
+
+=item B<error>
+
+Not used.
+
+=back
+
+=head2 I<copy_error(error)>
+
+This macro copies the internal data structure to an external one. This 
+is useful if you want to propagate the error up the call chain.
+
+=over 4
+
+=item B<error>
+
+The external data structure.
+
+=back
+
+=head2 I<clear_copied(error)>
+
+This clears an external error handling data structure.
+
+=over 4
+
+=item B<error>
+
+The external error handling data structure.
+
+=back
+
+=head2 I<capture_error(error)>
+
+This captures an external data structure into the interal one.
+
+=over 4
+
+=item B<error>
+
+The data structure to use.
+
+=back
+
+=head2 I<check_status(status, expected, error)>
+
+This macro will check the I<status> returned from a function against an
+I<expected> result. If they don't match, branch to the error handler using
+I<error> number.
+
+=over 4
+
+=item B<status>
+
+The status returned from a function call.
+
+=item B<expected>
+
+The expected return status.
+
+=item B<error>
+
+The error number to use.
+
+=back
+
+=head2 I<retrieve_error(self)>
+
+This marco returns the internal error structure from a class object.
+This is only useful it you are using L<object(3)> classes.
+
+=over 4
+
+=item B<self>
+
+A pointer to a L<object(3)> object.
+
+=back
+
+=head2 I<check_return(status, self)>
+
+This macro checks the I<status> against OK. If they don't match, retrieve
+the error status from the L<opject(3)> class and branch to the error
+handler.
+
+=over 4
+
+=item B<status>
+
+The return status from a method.
+
+=item B<self>
+
+A pointer to the L<object(3)> object.
+
+=back
+
+=head2 I<check_creation(self)>
+
+This macro checks the status of the creation of a L<object(3)> class.
+If there was an error, it will branch to the error handler.
+
+=over 4
+
+=item B<self>
+
+A pointer to the L<object(3)> object.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<object(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2020 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

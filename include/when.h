@@ -91,6 +91,11 @@
     trace_function = strdup((error).function);   \
 }
 
+#define retry(label) {                           \
+    clear_error();                               \
+    goto label;                                  \
+}
+
 #define retrieve_error(self) {                   \
     object_get_error(OBJECT(self), &_er_trace);  \
 }

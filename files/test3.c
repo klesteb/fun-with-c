@@ -6,6 +6,7 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     ssize_t count;
+    int exists = 0;
     struct stat buf;
     char buffer[101];
     files_t *temp = NULL;
@@ -14,27 +15,37 @@ int main(int argc, char **argv) {
 
     if ((temp = files_create(filename))) {
 
-        if (files_open(temp, flags, 0) == OK) {
+        files_exists(temp, &exists);
+        if (exists) {
 
             files_stat(temp, &buf);
             printf("file size = %d\n", buf.st_size);
+            printf("file mode = %d\n", buf.st_mode);
 
-            do {
+            if (files_open(temp, flags, 0) == OK) {
 
-                stat = files_gets(temp, buffer, 100, &count);
-                if (stat == OK) {
+                do {
 
-                    printf("%d: %s", count, buffer);
+                    stat = files_gets(temp, buffer, 100, &count);
+                    if (stat == OK) {
 
-                }
+                        printf("%d: %s", count, buffer);
 
-            } while ((stat == OK) && (count > 0));
+                    }
 
-            files_close(temp);
+                } while ((stat == OK) && (count > 0));
+
+                files_close(temp);
+
+            } else {
+
+                printf("unable to open %s\n", filename);
+
+            }
 
         } else {
 
-            printf("unable to open %s\n", filename);
+            printf("unable to find %s\n", filename);
 
         }
 

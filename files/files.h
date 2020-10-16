@@ -44,6 +44,7 @@ struct _files_s {
     int (*_lock)(files_t *, off_t, off_t);
     int (*_unlock)(files_t *);
     int (*_exists)(files_t *, int *);
+    int (*_stat)(files_t *, struct stat *);
     int fd;
     char path[256];
     struct flock lock;
@@ -87,6 +88,7 @@ extern int files_puts(files_t *, char *, size_t , ssize_t *);
 extern int files_lock(files_t *, off_t, off_t);
 extern int files_unlock(files_t *);
 extern int files_exists(files_t *, int *);
+extern int files_stat(files_t *, struct stat *);
 
 #endif
 

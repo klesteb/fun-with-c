@@ -6,6 +6,7 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     ssize_t count;
+    struct stat buf;
     char buffer[101];
     files_t *temp = NULL;
     int flags = O_RDONLY;
@@ -14,6 +15,9 @@ int main(int argc, char **argv) {
     if ((temp = files_create(filename))) {
 
         if (files_open(temp, flags, 0) == OK) {
+
+            files_stat(temp, &buf);
+            printf("file size = %d\n", buf.st_size);
 
             do {
 

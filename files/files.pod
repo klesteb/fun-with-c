@@ -347,6 +347,23 @@ A pointer to wither the file exists. This is a TRUE/FALSE value.
 
 =back
 
+=head2 I<int files_stat(files_t *self, struct stat *buffer)>
+
+This method allows you to retrieve file information. This is a wrapper around 
+L<stat(3)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<buffer>
+
+A pointer to a I<struct stat> data structure.
+
+=back
+
 =head1 RETURNS
 
 The method files_create() returns a pointer to a files_t object. All other 

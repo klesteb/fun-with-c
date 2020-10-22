@@ -46,6 +46,8 @@ struct _files_s {
     int (*_exists)(files_t *, int *);
     int (*_stat)(files_t *, struct stat *);
     int fd;
+    int timeout;
+    int retries;
     char path[256];
     struct flock lock;
 };
@@ -56,7 +58,9 @@ struct _files_s {
 
 #define FILES(x) ((files_t *)(x))
 
-#define FILES_K_PATH   1
+#define FILES_K_PATH    1
+#define FILES_K_RETRIES 2
+#define FILES_K_TIMEOUT 3
 
 #define FILES_M_DESTRUCTOR 1
 #define FILES_M_OPEN       2
@@ -72,7 +76,7 @@ struct _files_s {
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern files_t *files_create(char *);
+extern files_t *files_create(char *, int, int);
 extern int files_destroy(files_t *);
 extern int files_compare(files_t *, files_t *);
 extern int files_override(files_t *, item_list_t *);

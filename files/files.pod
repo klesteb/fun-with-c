@@ -13,9 +13,11 @@ files - A class for manipulating files
  int main(int argc, char **argv) {
 
      files_t *temp = NULL;
+     int retries = 10;
+     int timeout = 30;
      char *filename = "files.pod";
      
-     if ((temp = files_create(filename))) {
+     if ((temp = files_create(filename, retries, timeout))) {
 
          files_open(temp, O_RDONLY, 0);
          files_close(temp);
@@ -49,7 +51,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<files_t *files_create(char *filename)>
+=head2 I<files_t *files_create(char *filename, int retries, int timeout)>
 
 This method initializes the class. 
 
@@ -58,6 +60,14 @@ This method initializes the class.
 =item B<filename>
 
 The name of the file to manipulate.
+
+=item B<retries>
+
+The number of retries to perform if the file is locked.
+
+=item B<timeout>
+
+The number of seconds to wait between retries.
 
 =back
 

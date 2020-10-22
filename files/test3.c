@@ -7,13 +7,15 @@ int main(int argc, char **argv) {
     int stat = OK;
     ssize_t count;
     int exists = 0;
+    int retries = 10;
+    int timeout = 30;
     struct stat buf;
     char buffer[101];
     files_t *temp = NULL;
     int flags = O_RDONLY;
     char *filename = "files.pod";
 
-    if ((temp = files_create(filename))) {
+    if ((temp = files_create(filename, retries, timeout))) {
 
         files_exists(temp, &exists);
         if (exists) {

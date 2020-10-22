@@ -21,6 +21,7 @@ typedef short int          WORD;
 typedef unsigned short int UWORD;
 typedef long               LONG;
 typedef unsigned long      ULONG;
+typedef unsigned char *    STRPTR;
 
 #endif
 

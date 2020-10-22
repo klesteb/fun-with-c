@@ -7,13 +7,15 @@ int main(int argc, char **argv) {
     int x = 0;
     int stat = OK;
     ssize_t count;
+    int retries = 10;
+    int timeout = 30;
     files_t *temp = NULL;
     char *filename = "junk.txt";
     char *text = "this is a text line";
     int mode = S_IRWXU | S_IRWXG | S_IROTH;
     int flags = O_CREAT | O_WRONLY | O_TRUNC;
 
-    if ((temp = files_create(filename))) {
+    if ((temp = files_create(filename, retries, timeout))) {
 
         if (files_open(temp, flags, mode) == OK) {
 

@@ -8,9 +8,11 @@ int main(int argc, char **argv) {
 
     error_trace_t trace;
     files_t *temp = NULL;
+    int retries = 10;
+    int timeout = 30;
     char *filename = "files.pod";
 
-    if ((temp = files_create(filename))) {
+    if ((temp = files_create(filename, retries, timeout))) {
 
         object_set_error1(OBJECT(temp), EAGAIN);
         object_get_error(OBJECT(temp), &trace);

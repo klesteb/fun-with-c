@@ -8,6 +8,8 @@ int main(int argc, char **argv) {
     int stat = OK;
     ssize_t count;
     char buffer[101];
+    int retries = 10;
+    int timeout = 30;
     char filename[256];
     files_t *temp = NULL;
     int flags = O_RDONLY;
@@ -23,7 +25,7 @@ int main(int argc, char **argv) {
 
     when_error_in {
 
-        temp = files_create(filename);
+        temp = files_create(filename, retries, timeout);
         check_creation(temp);
 
         stat = files_open(temp, flags, 0);

@@ -63,22 +63,16 @@ declare_klass(FILES_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-files_t *files_create(char *filename) {
+files_t *files_create(char *filename, int retries, int timeout) {
 
     int stat = ERR;
     files_t *self = NULL;
-    item_list_t items[2];
+    item_list_t items[4];
 
-    if (filename != NULL) {
-
-        SET_ITEM(items[0], FILES_K_PATH, filename, strlen(filename), NULL);
-        SET_ITEM(items[1], 0, 0, 0, 0);
-
-    } else {
-
-        SET_ITEM(items[0], 0, 0, 0, 0);
-
-    }
+    SET_ITEM(items[0], FILES_K_PATH, filename, strlen(filename), NULL);
+    SET_ITEM(items[1], FILES_K_RETRIES, &retries, sizeof(int), NULL);
+    SET_ITEM(items[2], FILES_K_TIMEOUT, &timeout, sizeof(int), NULL);
+    SET_ITEM(items[3], 0, 0, 0, 0);
 
     self = (files_t *)object_create(FILES_KLASS, items, &stat);
 
@@ -597,6 +591,8 @@ int files_stat(files_t *self, struct stat *buf) {
 int _files_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
+    int retries = 10;
+    int timeout = 30;
     char path[1024];
     files_t *self = NULL;
 
@@ -621,12 +617,18 @@ int _files_ctor(object_t *object, item_list_t *items) {
                                items[x].buffer_length);
                         break;
                     }
-                    /* case FILES_K_LOCKER: { */
-                    /*     memcpy(&type,  */
-                    /*            items[x].buffer_address,  */
-                    /*            items[x].buffer_length); */
-                    /*     break; */
-                    /* } */
+                    case FILES_K_TIMEOUT: {
+                        memcpy(&timeout, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case FILES_K_RETRIES: {
+                        memcpy(&retries, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
                 }
 
             }
@@ -663,6 +665,8 @@ int _files_ctor(object_t *object, item_list_t *items) {
 
         /* initialize internal variables here */
 
+        self->retries = retries;
+        self->timeout = timeout;
         strcpy(self->path, path);
 
         stat = OK;
@@ -968,6 +972,7 @@ int _files_write(files_t *self, void *buffer, size_t size, ssize_t *count) {
 int _files_lock(files_t *self, off_t offset, off_t length) {
 
     int stat = OK;
+    int count = 0;
 
     when_error_in {
 
@@ -977,10 +982,32 @@ int _files_lock(files_t *self, off_t offset, off_t length) {
         self->lock.l_whence = SEEK_SET;
         self->lock.l_pid = getpid();
 
-        errno = 0;
-        if (fcntl(self->fd, F_SETLKW, &self->lock) == -1) {
+        for (;;) {
 
-            cause_error(errno);
+            errno = 0;
+            if (fcntl(self->fd, F_SETLK, &self->lock) == -1) {
+
+                if ((errno == EAGAIN) || (errno == EACCES)) {
+
+                    count++;
+
+                    if (count > self->retries) {
+
+                        cause_error(errno);
+
+                    } else {
+
+                        sleep(self->timeout);
+
+                    }
+
+                } else {
+
+                    cause_error(errno);
+
+                }
+
+            }
 
         }
 

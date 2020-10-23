@@ -34,7 +34,7 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
-	rm -f $(LIBS)
+	rm -f $(STATIC)
 	rm -f $(SHARED)
 	rm -f files.3
 	rm -f test1

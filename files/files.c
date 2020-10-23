@@ -1007,6 +1007,10 @@ int _files_lock(files_t *self, off_t offset, off_t length) {
 
                 }
 
+            } else {
+
+                break;
+
             }
 
         }

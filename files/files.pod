@@ -130,7 +130,8 @@ A pointer to the files_t object.
 
 =head2 I<int files_open(files_t *self, int flags, mode_t mode)>
 
-This method allows you to open the file. This is a wrapper around L<open(3)>.
+This method allows you to open the file. This is a wrapper around
+L<open(2)>.
 
 =over 4
 
@@ -150,7 +151,8 @@ The mode to pass to open().
 
 =head2 I<int files_close(files_t *self)>
 
-This method allows you to close the file. This is a wrapper around L<close(3)>.
+This method allows you to close the file. This is a wrapper around
+L<close(2)>.
 
 =over 4
 
@@ -163,7 +165,7 @@ A pointer for a files_t object.
 =head2 I<int files_read(files_t *self, void *buffer, size_t size, ssize_t *count)>
 
 This method allows you to read data from the file. This is a wrapper around 
-L<read(3)>.
+L<read(2)>.
 
 =over 4
 
@@ -190,7 +192,7 @@ the file.
 =head2 I<int files_write(files_t *self, void *buffer, size_t size, ssize_t *count)>
 
 This method allows you to write data to the file. This is a wrapper around 
-L<write(3)>.
+L<write(2)>.
 
 =over 4
 
@@ -217,7 +219,7 @@ was written.
 
 This method allows you to lock a range of bytes within the file. A
 offset of 0 and a range of 0, locks the whole file. This is a wrapper 
-around L<fcntl(3)>.
+around L<fcntl(2)>.
 
 =over 4
 
@@ -238,7 +240,7 @@ The range of bytes to lock.
 =head2 I<int files_unlock(files_t *self)>
 
 This method allows you to unlock a previous lock. This is a wrapper around 
-L<fcntl(3)>.
+L<fcntl(2)>.
 
 =over 4
 
@@ -251,7 +253,7 @@ A pointer to a files_t object.
 =head2 I<int files_seek(files_t *self, off_t offset, int whence)>
 
 This method allows you to seek to a particular potion within the file. 
-This is a wrapper around L<lseek(3)>.
+This is a wrapper around L<lseek(2)>.
 
 =over 4
 
@@ -272,7 +274,7 @@ This should be one of SEEK_SET, SEEK_CUR, SEEK_END.
 =head2 I<int files_tell(files_t *self, off_t *offset)>
 
 This method allows you to tell the current position within the file.  This 
-is a wrapper around L<lseek(3)>.
+is a wrapper around L<lseek(2)>.
 
 =over 4
 
@@ -343,7 +345,7 @@ the file.
 =head2 I<int files_exists(files_t *self, int *exists)>
 
 This method allows you to check and see if a files exists. This is a
-wrapper around L<stat(3)>.
+wrapper around L<stat(2)>.
 
 =over 4
 
@@ -360,7 +362,7 @@ A pointer to wither the file exists. This is a TRUE/FALSE value.
 =head2 I<int files_stat(files_t *self, struct stat *buffer)>
 
 This method allows you to retrieve file information. This is a wrapper around 
-L<stat(3)>.
+L<stat(2)>.
 
 =over 4
 
@@ -371,6 +373,19 @@ A pointer to a files_t object.
 =item B<buffer>
 
 A pointer to a I<struct stat> data structure.
+
+=back
+
+=head2 I<int files_unlink(files_t *self)>
+
+This method allows you to unlink a file. This is a wrapper around 
+L<unlink(2)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
 
 =back
 

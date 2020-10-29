@@ -45,6 +45,7 @@ struct _files_s {
     int (*_unlock)(files_t *);
     int (*_exists)(files_t *, int *);
     int (*_stat)(files_t *, struct stat *);
+    int (*_unlink)(files_t *);
     int fd;
     int timeout;
     int retries;
@@ -71,6 +72,9 @@ struct _files_s {
 #define FILES_M_WRITE      7
 #define FILES_M_LOCK       8
 #define FILES_M_UNLOCK     9
+#define FILES_M_EXISTS     10
+#define FILES_M_STAT       11
+#define FILES_M_UNLINK     12
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -93,6 +97,7 @@ extern int files_lock(files_t *, off_t, off_t);
 extern int files_unlock(files_t *);
 extern int files_exists(files_t *, int *);
 extern int files_stat(files_t *, struct stat *);
+extern int files_unlink(files_t *);
 
 #endif
 

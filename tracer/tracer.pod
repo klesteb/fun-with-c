@@ -154,6 +154,11 @@ A callback that will output the error_trace_t type.
 
 =back
 
+=head2 I<capture_trace(trace)>
+
+This is a MACRO that makes capturing the trace information easiser when
+using the L<when(3)> macro package for structured error handling.
+
 =head1 RETURNS
 
 The method tracer_create() returns a pointer to a tracer_t object. All 
@@ -191,6 +196,8 @@ Builds the module and provides a shared library.
 =item L<object(3)>
 
 =item L<errors(3)>
+
+=item L<when(3)>
 
 =back
 

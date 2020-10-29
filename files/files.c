@@ -47,6 +47,7 @@ int _files_lock(files_t *, off_t, off_t);
 int _files_unlock(files_t *);
 int _files_exists(files_t *, int *);
 int _files_stat(files_t *, struct stat *);
+int _files_unlink(files_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -584,6 +585,38 @@ int files_stat(files_t *self, struct stat *buf) {
 
 }
 
+int files_unlink(files_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_unlink(self);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -662,6 +695,7 @@ int _files_ctor(object_t *object, item_list_t *items) {
         self->_puts = _files_puts;
         self->_stat = _files_stat;
         self->_exists = _files_exists;
+        self->_unlink = _files_unlink;
 
         /* initialize internal variables here */
 
@@ -748,6 +782,21 @@ int _files_override(files_t *self, item_list_t *items) {
                 }
                 case FILES_M_UNLOCK: {
                     self->_unlock = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_EXISTS: {
+                    self->_exists = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_STAT: {
+                    self->_stat = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FILES_M_UNLINK: {
+                    self->_unlink = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
@@ -1184,6 +1233,34 @@ int _files_stat(files_t *self, struct stat *buf) {
     } end_when;
 
     return xstat;
+
+}
+
+int _files_unlink(files_t *self) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        if (unlink(self->path) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
 
 }
 

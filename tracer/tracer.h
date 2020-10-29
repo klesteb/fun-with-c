@@ -62,10 +62,14 @@ extern int tracer_add(tracer_t *, error_trace_t *);
 extern int tracer_dump(tracer_t *, int (*output)(char *));
 extern char *tracer_version(tracer_t *);
 
-#define capture_trace(dump) {                            \
-    error_trace_t *junk = malloc(sizeof(error_trace_t)); \
-    copy_error(junk);                                    \
-    tracer_add((dump), junk);                            \
+#define capture_trace(dump) {                                \
+    if ((dump) != NULL) {                                    \
+        error_trace_t *junk = malloc(sizeof(error_trace_t)); \
+        if (junk != NULL) {                                  \
+            copy_error(junk);                                \
+            tracer_add((dump), junk);                        \
+        }                                                    \
+    }                                                        \
 }
 
 #endif

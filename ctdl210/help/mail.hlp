@@ -1,9 +1,0 @@
-  Messages in Mail> are visible only to sender and recipient.
-  If you enter a message in the Mail> room, Citadel will prompt you
-for the name of the recipient.	If Citadel does not know anyone by that name,
-then the message will be refused.
-If you have mail waiting, it can be
-be read using the usual commands.
- "Goto" will find new messages in Mail> just as it
-finds new messages in any other room.
- General complaints, comments and requests should be addressed to "Sysop".

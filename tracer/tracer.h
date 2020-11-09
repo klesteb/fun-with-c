@@ -64,6 +64,12 @@ struct _tracer_s {
     }                                                        \
 }
 
+#define process_error() {       \
+    capture_trace(self->trace); \
+    object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function); \
+    clear_error();              \
+}
+
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/

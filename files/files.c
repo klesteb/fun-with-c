@@ -1184,20 +1184,26 @@ int _files_exists(files_t *self, int *exists) {
 
     when_error_in {
 
+        *exists = TRUE;
+
         errno = 0;
         if (stat(self->path, &buf) == -1) {
 
-            cause_error(errno);
+            *exists = FALSE;
+
+           if ((errno != EACCES) && (errno != ENOENT)) {
+
+              cause_error(errno);
+
+           }
 
         }
 
-        *exists = TRUE;
         exit_when;
 
     } use {
 
         xstat = ERR;
-        *exists = FALSE;
 
         object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();

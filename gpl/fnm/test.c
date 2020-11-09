@@ -39,5 +39,7 @@ int main(void) {
     printf("path = %s\n", fnm_path(fname));
     fnm_destroy(fname);
 
+    printf("file: %s\n", fnm_build(FALSE, FnmPath, "001", ".jhr", ".",  NULL));
+                                                           
 }
 

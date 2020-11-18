@@ -49,5 +49,14 @@ void syserr(char *, ...);
 void *xmalloc(int);
 int  xgetline(int, char *, int, int);
 
+/*----------------------------------------------------------------------*/
+/* crc routines                                                         */
+/*----------------------------------------------------------------------*/
+
+unsigned short crc16(char *, int);
+unsigned short crc_ccitt(char *, int);
+unsigned long crc32(char *, int);
+
 #endif
+
 

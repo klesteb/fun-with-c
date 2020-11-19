@@ -20,7 +20,7 @@ OBJS = dates.obj,fmtasc.obj,left.obj,ltrim.obj,mid.obj,\
        convert_left_overpunch.obj,convert_right_overpunch.obj, \
        create_dibol_overpunch.obj,create_zone_overpunch.obj, \
        create_left_overpunch.obj,create_right_overpunch.obj, \
-       format_zone.obj wordwrap.obj xgetline.obj
+       format_zone.obj wordwrap.obj xgetline.obj crc.obj hash.obj
 !
 all: $(OBJS)
 !
@@ -171,6 +171,14 @@ wordwrap.obj: wordwrap.c
 xgetline.obj: xgetline.c
     $(CC)/noopt xgetline.c
     $(LIBR) $(OLBS) xgetline.obj
+!
+crc.obj: crc.c
+    $(CC)/noopt crc.c
+    $(LIBR) $(OLBS) crc.obj
+!
+hash.obj: hash.c
+    $(CC)/noopt hash.c
+    $(LIBR) $(OLBS) hash.obj
 !
 ! eof
 !

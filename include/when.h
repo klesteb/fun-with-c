@@ -18,7 +18,6 @@
 
 #include "object.h"
 #include "error_trace.h"
-#include "../tracer/tracer.h"
 
 /**
  * @file when.h
@@ -52,6 +51,11 @@
 #define trace_lineno   _er_trace.lineno
 #define trace_filename _er_trace.filename
 #define trace_function _er_trace.function
+
+#define retry(label) {                  \
+    clear_error();                      \
+    goto label;                         \
+}
 
 #define cause_error(error) {            \
     trace_errnum = (error);             \
@@ -89,11 +93,6 @@
     trace_filename = strdup((error).filename);   \
     free(trace_function);                        \
     trace_function = strdup((error).function);   \
-}
-
-#define retry(label) {                           \
-    clear_error();                               \
-    goto label;                                  \
 }
 
 #define retrieve_error(self) {                   \

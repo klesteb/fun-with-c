@@ -54,20 +54,37 @@ struct _tracer_s {
 /* macros                                                         */
 /*----------------------------------------------------------------*/
 
+#undef check_return
+
+#define check_return(status, self) {       \
+    if ((status) != (OK)) {                \
+        retrieve_error((self));            \
+        trace_lineno = __LINE__ - 1;       \
+        free(trace_filename);              \
+        trace_filename = strdup(__FILE__); \
+        free(trace_function);              \
+        trace_function = strdup(__func__); \
+        goto handler;                      \
+    }                                      \
+}
+
 #define capture_trace(dump) {                                \
     if ((dump) != NULL) {                                    \
         error_trace_t *junk = malloc(sizeof(error_trace_t)); \
         if (junk != NULL) {                                  \
-            copy_error(junk);                                \
+            junk->errnum = trace_errnum;                     \
+            junk->lineno = trace_lineno;                     \
+            junk->filename = strdup(trace_filename);         \
+            junk->function = strdup(trace_function);         \
             tracer_add((dump), junk);                        \
         }                                                    \
     }                                                        \
 }
 
-#define process_error(self) {       \
+#define process_error(self) {     \
     capture_trace((self)->trace); \
-    object_set_error2((self), trace_errnum, trace_lineno, trace_filename, trace_function); \
-    clear_error();              \
+    object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function); \
+    clear_error();                \
 }
 
 /*-------------------------------------------------------------*/

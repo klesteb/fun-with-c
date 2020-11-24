@@ -417,7 +417,7 @@ int _tracer_add(tracer_t *self, error_trace_t *error) {
     int stat = OK;
 
     errno = 0;
-    if ((stat = que_push_head(&self->errors, error)) != QUE_OK) {
+    if ((stat = que_push_tail(&self->errors, error)) != QUE_OK) {
 
         stat = ERR;
         object_set_error1(self, errno);

@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 
             for (x = 0; x < 10; x++) {
 
-                stat = files_puts(temp, text, strlen(text), &count);
+                stat = files_puts(temp, text, &count);
                 if (stat != OK) break;
 
             }

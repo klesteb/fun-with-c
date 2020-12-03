@@ -42,7 +42,7 @@ int _files_tell(files_t *, off_t *);
 int _files_read(files_t *, void *, size_t, ssize_t *);
 int _files_write(files_t *, void *, size_t, ssize_t *);
 int _files_gets(files_t *, char *, size_t, ssize_t *);
-int _files_puts(files_t *, char *, size_t, ssize_t *);
+int _files_puts(files_t *, char *, ssize_t *);
 int _files_lock(files_t *, off_t, off_t);
 int _files_unlock(files_t *);
 int _files_exists(files_t *, int *);
@@ -425,7 +425,7 @@ int files_write(files_t *self, void *buffer, size_t size, ssize_t *count) {
 
 }
 
-int files_puts(files_t *self, char *buffer, size_t size, ssize_t *count) {
+int files_puts(files_t *self, char *buffer, ssize_t *count) {
 
     int stat = OK;
 
@@ -433,7 +433,7 @@ int files_puts(files_t *self, char *buffer, size_t size, ssize_t *count) {
 
         if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
 
-            stat = self->_puts(self, buffer, size, count);
+            stat = self->_puts(self, buffer, count);
             check_return(stat, self);
 
         } else {
@@ -1142,10 +1142,11 @@ int _files_unlock(files_t *self) {
 
 }
 
-int _files_puts(files_t *self, char *buffer, size_t length, ssize_t *count) {
+int _files_puts(files_t *self, char *buffer, ssize_t *count) {
 
     int stat = OK;
     char *output = NULL;
+    int length = strlen(buffer) + 2;
 
     when_error_in {
 

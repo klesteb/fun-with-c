@@ -40,7 +40,7 @@ struct _files_s {
     int (*_read)(files_t *, void *, size_t, ssize_t *);
     int (*_write)(files_t *, void *, size_t, ssize_t *);
     int (*_gets)(files_t *, char *, size_t, ssize_t *);
-    int (*_puts)(files_t *, char *, size_t, ssize_t *);
+    int (*_puts)(files_t *, char *, ssize_t *);
     int (*_lock)(files_t *, off_t, off_t);
     int (*_unlock)(files_t *);
     int (*_exists)(files_t *, int *);
@@ -93,7 +93,7 @@ extern int files_tell(files_t *, off_t *);
 extern int files_read(files_t *, void *, size_t, ssize_t *);
 extern int files_write(files_t *, void *, size_t, ssize_t *);
 extern int files_gets(files_t *, char *, size_t , ssize_t *);
-extern int files_puts(files_t *, char *, size_t , ssize_t *);
+extern int files_puts(files_t *, char *, ssize_t *);
 extern int files_lock(files_t *, off_t, off_t);
 extern int files_unlock(files_t *);
 extern int files_exists(files_t *, int *);

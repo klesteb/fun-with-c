@@ -30,6 +30,7 @@ int pos(const char *, const char *, int);
 char *strlwr(char *);
 char *strupr(char *);
 char *strrev(char *);
+char *stripcr(char *);
 char *soundex(char *, char *);
 char *fmtasc(char *, char *);
 char *xstrtok(char *, char *);

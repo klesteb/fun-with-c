@@ -49,6 +49,7 @@ struct _files_s {
     int fd;
     int timeout;
     int retries;
+    char *eol;
     char path[256];
     struct flock lock;
 };
@@ -98,6 +99,7 @@ extern int files_unlock(files_t *);
 extern int files_exists(files_t *, int *);
 extern int files_stat(files_t *, struct stat *);
 extern int files_unlink(files_t *);
+extern int files_set_eol(files_t *, char *);
 
 #endif
 

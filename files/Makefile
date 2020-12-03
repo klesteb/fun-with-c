@@ -27,7 +27,7 @@ INCS = files.h
 #
 OBJS = files.o
 #
-all: $(OBJS) test1 test2 test3 test4 test5 test6
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
 #
 debug:
 #
@@ -43,6 +43,7 @@ clean:
 	rm -f test4
 	rm -f test5
 	rm -f test6
+	rm -f test7
 #
 #
 test1: test1.o
@@ -68,6 +69,10 @@ test5: test5.o
 test6: test6.o
 	$(CC) $(CFLAGS) test6.c
 	$(LINK) $(LOPTS) test6 test6.o $(OLBS)
+#
+test7: test7.o
+	$(CC) $(CFLAGS) test7.c
+	$(LINK) $(LOPTS) test7 test7.o $(OLBS)
 #
 files.o: files.c $(INCS)
 	$(CC) $(CFLAGS) files.c

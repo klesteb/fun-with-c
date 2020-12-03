@@ -617,6 +617,37 @@ int files_unlink(files_t *self) {
 
 }
 
+int files_set_eol(files_t *self, char *eol) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (eol != NULL)) {
+
+            self->eol = eol;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -626,6 +657,7 @@ int _files_ctor(object_t *object, item_list_t *items) {
     int stat = ERR;
     int retries = 10;
     int timeout = 30;
+    char *eol = "\n";
     char path[1024];
     files_t *self = NULL;
 
@@ -701,6 +733,7 @@ int _files_ctor(object_t *object, item_list_t *items) {
 
         self->retries = retries;
         self->timeout = timeout;
+        self->eol = eol;
         strcpy(self->path, path);
 
         stat = OK;
@@ -1110,7 +1143,7 @@ int _files_unlock(files_t *self) {
 }
 
 int _files_puts(files_t *self, char *buffer, size_t length, ssize_t *count) {
-    
+
     int stat = OK;
     char *output = NULL;
 
@@ -1123,7 +1156,7 @@ int _files_puts(files_t *self, char *buffer, size_t length, ssize_t *count) {
 
         }
 
-        sprintf(output, "%s\n", buffer);
+        sprintf(output, "%s%s", buffer, self->eol);
 
         errno = 0;
         if ((*count = write(self->fd, output, strlen(output))) == -1) {

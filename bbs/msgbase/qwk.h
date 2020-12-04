@@ -70,6 +70,7 @@ typedef struct _controls_s {
     char hello_file[32];    /* Name of hello file                        */
     char news_file[32];     /* Name of news file                         */
     char goodbye_file[32];  /* Name of goodbye file                      */
+    queue areas;            /* The areas                                 */
 } qwk_control_t;
 
 typedef struct _area_s {
@@ -89,6 +90,15 @@ struct _qwk_s {
     int (*dtor)(object_t *);
     int (*_compare)(qwk_t *, qwk_t *);
     int (*_override)(qwk_t *, item_list_t *);
+    int (*_free_text)(qwk_t *, char *);
+    int (*_set_notice)(qwk_t *, char *);
+    int (*_get_notice)(qwk_t *, char **); 
+    int (*_get_control)(qwk_t *, qwk_control_t *); 
+    int (*_put_control)(qwk_t *, qwk_control_t *);
+    int (*_get_ndx)(qwk_t *, qwk_ndx_t *, ssize_t *);
+    int (*_put_ndx)(qwk_t *, qwk_ndx_t *, ssize_t *);
+    int (*_get_message)(qwk_t *, ulong, qwk_header_t *, char **, int);
+    int (*_put_message)(qwk_t *, qwk_header_t *, char *, int, ulong *);
 
     files_t *messages;
     files_t *control;
@@ -105,20 +115,20 @@ struct _qwk_s {
 #define QWK_M_DESTRUCTOR 1
 
 
-#define QWK_BLOCK_SIZE    128
-#define QWK_RECORD(n)     ((((n) - QWK_BLOCK_SIZE) / QWK_BLOCK_SIZE) + 1)
+#define QWK_BLOCK_SIZE  128
+#define QWK_RECORD(n)   ((((n) - QWK_BLOCK_SIZE) / QWK_BLOCK_SIZE) + 1)
 
-#define QWK_PUB_UNREAD    ' '
-#define QWK_PUB_READ      '-'
-#define QWK_PRIVATE       '*'
-#define QWK_SYS_UNREAD    '~'
-#define QWK_SYS_READ      '`'
-#define QWK_PROT_UNREAD   '%'
-#define QWK_PROT_READ     '^'
-#define QWK_GRP_UNREAD    '!'
-#define QWK_GRP_READ      '#'
-#define QWK_PROT_ALL      '$'
-#define QWK_NET_TAG       '*'
+#define QWK_PUB_UNREAD  ' '
+#define QWK_PUB_READ    '-'
+#define QWK_PRIVATE     '*'
+#define QWK_SYS_UNREAD  '~'
+#define QWK_SYS_READ    '`'
+#define QWK_PROT_UNREAD '%'
+#define QWK_PROT_READ   '^'
+#define QWK_GRP_UNREAD  '!'
+#define QWK_GRP_READ    '#'
+#define QWK_PROT_ALL    '$'
+#define QWK_NET_TAG     '*'
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -129,6 +139,16 @@ extern int qwk_destroy(qwk_t *);
 extern int qwk_compare(qwk_t *, qwk_t *);
 extern int qwk_override(qwk_t *, item_list_t *);
 extern char *qwk_version(qwk_t *);
+
+extern int qwk_free_text(qwk_t *, char *);
+extern int qwk_set_notice(qwk_t *, char *); 
+extern int qwk_get_notice(qwk_t *, char **); 
+extern int qwk_get_control(qwk_t *, qwk_control_t *); 
+extern int qwk_put_control(qwk_t *, qwk_control_t *);
+extern int qwk_get_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
+extern int qwk_put_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
+extern int qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **, int);
+extern int qwk_put_message(qwk_t *, qwk_header_t *, char *, int, ulong *);
 
 #endif
 

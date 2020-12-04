@@ -25,8 +25,8 @@ require_klass(OBJECT_KLASS);
 /* macros                                                         */
 /*----------------------------------------------------------------*/
 
-#define QWK_ISALIVE(n)  ((n) == 0xe1 ? TRUE : FALSE)
 #define QWK_BUF_SIZE(n) (((QWK_BLOCK_SIZE * (n))))
+#define QWK_ISALIVE(n)  ((n) == 0xe1 ? TRUE : FALSE)
 #define QWK_OFFSET(n)   ((((n) - 1) * QWK_BLOCK_SIZE))
 #define QWK_REC_CNT(n)  ((((n) / QWK_BLOCK_SIZE) + (((n) % QWK_BLOCK_SIZE) != 0)))
 
@@ -84,14 +84,15 @@ int _qwk_dtor(object_t *);
 int _qwk_compare(qwk_t *, qwk_t *);
 int _qwk_override(qwk_t *, item_list_t *);
 
-int _qwk_notice(qwk_t *, char *); 
 int _qwk_free_text(qwk_t *, char *);
+int _qwk_set_notice(qwk_t *, char *); 
+int _qwk_get_notice(qwk_t *, char **); 
+int _qwk_get_control(qwk_t *, qwk_control_t *); 
+int _qwk_put_control(qwk_t *, qwk_control_t *);
 int _qwk_get_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
 int _qwk_put_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
-int _qwk_get_control(qwk_t *, qwk_control_t *, queue *); 
-int _qwk_put_control(qwk_t *, qwk_control_t *, queue *);
-int _qwk_get_message(qwk_t *, off_t, qwk_header_t *, char **, int);
-int _qwk_put_message(qwk_t *, qwk_header_t *, char *, int, int, ulong *);
+int _qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **, int);
+int _qwk_put_message(qwk_t *, qwk_header_t *, char *, int, ulong *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -233,6 +234,258 @@ char *qwk_version(qwk_t *self) {
 
 }
 
+int qwk_get_notice(qwk_t *self, char **text) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (text == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get_notice(self, text);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_set_notice(qwk_t *self, char *text) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self == NULL) || (text == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_set_notice(self, text);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_free_text(qwk_t *self, char *text) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (text == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_free_text(self, text);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_get_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (ndx == NULL) || (count == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get_ndx(self, ndx, count);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_put_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (ndx == NULL) || (count == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_put_ndx(self, ndx, count);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_get_control(qwk_t *self, qwk_control_t *control) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (control == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get_control(self, control);
+        check_status(stat, OK, E_INVOPS);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_put_control(qwk_t *self, qwk_control_t *control) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (control == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_put_control(self, control);
+        check_status(stat, OK, E_INVOPS);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text, int rep) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (header == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get_message(self, record, header, text, rep);
+        check_status(stat, OK, E_INVOPS);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int rep, ulong *record) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (header == NULL) || (text == NULL) || (record == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_put_message(self, header, text, rep, record);
+        check_status(stat, OK, E_INVOPS);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -277,10 +530,20 @@ int _qwk_ctor(object_t *object, item_list_t *items) {
 
         /* assign our methods here */
 
-        self->ctor = _qwk_ctor;
-        self->dtor = _qwk_dtor;
-        self->_compare = _qwk_compare;
+        self->ctor      = _qwk_ctor;
+        self->dtor      = _qwk_dtor;
+        self->_compare  = _qwk_compare;
         self->_override = _qwk_override;
+
+        self->_get_ndx     = _qwk_get_ndx;
+        self->_put_ndx     = _qwk_put_ndx;
+        self->_free_text   = _qwk_free_text;
+        self->_set_notice  = _qwk_set_notice;
+        self->_get_notice  = _qwk_get_notice; 
+        self->_get_control = _qwk_get_control;
+        self->_put_control = _qwk_put_control;
+        self->_get_message = _qwk_get_message;
+        self->_put_message = _qwk_put_message;
 
         /* initialize internal variables here */
         
@@ -354,7 +617,7 @@ int _qwk_compare(qwk_t *self, qwk_t *other) {
 
 }
 
-int _qwk_get_message(qwk_t *self, off_t offset, qwk_header_t *header, char **text, int rep) { 
+int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text, int rep) { 
 /*
  * Function: QwkGetMsg.c
  * Version : v2.0
@@ -379,13 +642,16 @@ int _qwk_get_message(qwk_t *self, off_t offset, qwk_header_t *header, char **tex
     int stat = OK;
     int x, text_size;
     struct tm timbuf;
+    off_t offset = 0;
     ssize_t count = 0;
     union swapper swap;
 
 
     when_error_in {
 
-        stat = files_seek(self->messages, QWK_OFFSET(offset), SEEK_SET);
+        offset = QWK_OFFSET(record);
+
+        stat = files_seek(self->messages, offset, SEEK_SET);
         check_return(stat, self->messages);
 
         stat = files_read(self->messages, &rec, QWK_BLOCK_SIZE, &count);
@@ -540,7 +806,7 @@ int _qwk_free_text(qwk_t *self, char *text) {
 
 }
    
-int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int size, int rep, ulong *record) {
+int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int rep, ulong *record) {
 /*
  * Function: QwkPutMsg.c
  * Version : v2.0
@@ -560,14 +826,15 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int size, in
  * Varaiables:
  */
 
+    hdr rec;
     int len, x, w;
     int stat = OK;
     struct tm *tm;
     ssize_t count;
     off_t offset = 0;
     char *junk = NULL;
-    hdr rec;
     union swapper swap;
+    int size = strlen(text);
 
 
     when_error_in {
@@ -689,7 +956,54 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int size, in
 
 }
 
-int _qwk_notice(qwk_t *self, char *notice) {
+int _qwk_get_notice(qwk_t *self, char **notice) {
+ 
+    int stat = OK;
+    ssize_t count = 0;
+
+
+    when_error_in {
+
+        /* The text blocks must be a multiple of QWK_BLOCK_SIZE.         */
+
+        errno = 0;
+        *notice = calloc(1, QWK_BLOCK_SIZE + 1);
+        if (*notice == NULL) {
+            
+            cause_error(errno);
+            
+        }
+        
+        /* notices are the first record in the file */
+
+        stat = files_seek(self->messages, 0, SEEK_SET);
+        check_return(stat, self->messages);
+
+        /* read the notice */
+
+        stat = files_read(self->messages, *notice, QWK_BLOCK_SIZE, &count);
+        check_return(stat, self->messages);
+
+        if (count != QWK_BLOCK_SIZE) {
+
+            cause_error(EIO);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _qwk_set_notice(qwk_t *self, char *notice) {
 /*
  * Function: QwkNotice.c
  * Version : v2.0
@@ -707,7 +1021,6 @@ int _qwk_notice(qwk_t *self, char *notice) {
  * Varaiables:
  */
  
-    int padding;
     int stat = OK;
     ssize_t count = 0;
     char buffer[QWK_BLOCK_SIZE + 1];
@@ -717,19 +1030,12 @@ int _qwk_notice(qwk_t *self, char *notice) {
 
         /* The text blocks must be a multiple of QWK_BLOCK_SIZE.         */
 
-        padding = QWK_BLOCK_SIZE - strlen(notice);
+        memset(buffer, '\0', QWK_BLOCK_SIZE + 1);
+        snprintf(buffer, QWK_BLOCK_SIZE, "%-128s", notice);
 
-        if (padding > 0) {
+        stat = files_seek(self->messages, 0, SEEK_SET);
+        check_return(stat, self->messages);
 
-            snprintf(buffer, QWK_BLOCK_SIZE, "%s%s", notice, spaces(padding));
-
-        } else {
-
-            snprintf(buffer, QWK_BLOCK_SIZE, "%s", notice);
-
-        }
-
-        buffer[QWK_BLOCK_SIZE + 1] = '\0';
         stat = files_write(self->messages, buffer, QWK_BLOCK_SIZE, &count);
         check_return(stat, self->messages);
 
@@ -752,7 +1058,7 @@ int _qwk_notice(qwk_t *self, char *notice) {
 
 }
 
-int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl, queue *areas) {
+int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 /*
  * Function: QwkGetControl.c
  * Version : 1.0
@@ -777,6 +1083,9 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl, queue *areas) {
     qwk_area_t *area = NULL;
 
     when_error_in {
+
+        stat = que_init(&ctrl->areas);
+        check_status(stat, QUE_OK, E_INVOPS);
 
         /* Line #1, the name of the BBS you got this mail packet from.   */
 
@@ -924,7 +1233,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl, queue *areas) {
             stripcr(buff);
             strncpy(area->name, buff, 32);
 
-            stat = que_push_head(areas, area);
+            stat = que_push_head(&ctrl->areas, area);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
         }
@@ -965,7 +1274,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl, queue *areas) {
 
 }
 
-int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl, queue *areas) { 
+int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl) { 
 /*
  * Function: QwkPutControl.c
  * Version : 1.0
@@ -1075,9 +1384,9 @@ int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl, queue *areas) {
         /* Line #12, the conference number.                              */
         /* Line #13, the conference name, limited to 10 chars or less.   */
    
-        for (area = que_first(areas);
+        for (area = que_first(&ctrl->areas);
              area != NULL;
-             area = que_next(areas)) {
+             area = que_next(&ctrl->areas)) {
 
             memset(buff, '\0', 80);
             snprintf(buff, 79, "%ld", area->area);

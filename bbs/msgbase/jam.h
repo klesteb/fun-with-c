@@ -18,14 +18,7 @@
 #include "object.h"
 #include "item_list.h"
 #include "error_code.h"
-
-#if !defined(linux)
-#if !(((defined(__FreeBSD__) && __FreeBSD_version >= 440000)) || defined(NeXTBSD))
-typedef unsigned short ushort;   /* must be 16 bits wide */
-#endif
-typedef unsigned long  ulong;    /* must be 32 bits wide */
-#endif
-typedef unsigned char  uchar;    /* must be  8 bits wide */
+#include "datatypes.h"
 
 /*-------------------------------------------------------------*/
 /* data structures                                             */
@@ -180,7 +173,7 @@ struct _jam_s {
 };
 
 /*-------------------------------------------------------------*/
-/* constants                                                   */
+/* klass constants                                             */
 /*-------------------------------------------------------------*/
 
 #define JAM(x) ((jam_t *)(x))
@@ -235,6 +228,10 @@ struct _jam_s {
 #define JAM_M_NEW_FIELD          41
 #define JAM_M_SEARCH_MESSAGES    42
 #define JAM_M_NORMALIZE_MESSAGE  43
+
+/*-------------------------------------------------------------*/
+/* constants                                                   */
+/*-------------------------------------------------------------*/
 
 /* file extensions */
 

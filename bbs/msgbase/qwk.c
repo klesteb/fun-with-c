@@ -31,7 +31,7 @@ require_klass(OBJECT_KLASS);
 #define QWK_REC_CNT(n)  ((((n) / QWK_BLOCK_SIZE) + (((n) % QWK_BLOCK_SIZE) != 0)))
 
 /*----------------------------------------------------------------*/
-/* data structures                                                */
+/* internal data structures                                       */
 /*----------------------------------------------------------------*/
 
 typedef struct {           /* QWK Message header                         */
@@ -84,15 +84,19 @@ int _qwk_dtor(object_t *);
 int _qwk_compare(qwk_t *, qwk_t *);
 int _qwk_override(qwk_t *, item_list_t *);
 
+int _qwk_open(qwk_t *);
+int _qwk_close(qwk_t *);
+int _qwk_close_ndx(qwk_t *);
+int _qwk_open_ndx(qwk_t *, char *);
 int _qwk_free_text(qwk_t *, char *);
-int _qwk_set_notice(qwk_t *, char *); 
+int _qwk_put_notice(qwk_t *, char *); 
 int _qwk_get_notice(qwk_t *, char **); 
 int _qwk_get_control(qwk_t *, qwk_control_t *); 
 int _qwk_put_control(qwk_t *, qwk_control_t *);
 int _qwk_get_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
 int _qwk_put_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
-int _qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **, int);
-int _qwk_put_message(qwk_t *, qwk_header_t *, char *, int, ulong *);
+int _qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **);
+int _qwk_put_message(qwk_t *, qwk_header_t *, char *, ulong *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -109,10 +113,18 @@ declare_klass(QWK_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-qwk_t *qwk_create(item_list_t *items) {
+qwk_t *qwk_create(char *path, int retries, int timeout, int rep, tracer_t *dump) {
 
     int stat = ERR;
     qwk_t *self = NULL;
+    item_list_t items[6];
+
+    SET_ITEM(items[0], QWK_K_PATH, path, strlen(path), NULL);
+    SET_ITEM(items[1], QWK_K_REP, &rep, sizeof(int), NULL);
+    SET_ITEM(items[2], QWK_K_RETRIES, &retries, sizeof(int), NULL);
+    SET_ITEM(items[3], QWK_K_TIMEOUT, &timeout, sizeof(int), NULL);
+    SET_ITEM(items[4], QWK_K_TRACE, dump, 0, NULL);
+    SET_ITEM(items[5], 0, 0, 0, 0);
 
     self = (qwk_t *)object_create(QWK_KLASS, items, &stat);
 
@@ -234,6 +246,34 @@ char *qwk_version(qwk_t *self) {
 
 }
 
+int qwk_free_text(qwk_t *self, char *text) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (text == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_free_text(self, text);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int qwk_get_notice(qwk_t *self, char **text) {
 
     int stat = OK;
@@ -262,7 +302,7 @@ int qwk_get_notice(qwk_t *self, char **text) {
 
 }
 
-int qwk_set_notice(qwk_t *self, char *text) {
+int qwk_put_notice(qwk_t *self, char *text) {
 
     int stat = OK;
 
@@ -274,7 +314,7 @@ int qwk_set_notice(qwk_t *self, char *text) {
 
         }
 
-        stat = self->_set_notice(self, text);
+        stat = self->_put_notice(self, text);
         check_return(stat, self);
 
         exit_when;
@@ -290,19 +330,75 @@ int qwk_set_notice(qwk_t *self, char *text) {
 
 }
 
-int qwk_free_text(qwk_t *self, char *text) {
+int qwk_open(qwk_t *self) {
 
     int stat = OK;
 
-    when_error_in {
+    when_error {
 
-        if ((self == NULL) || (text == NULL)) {
+        if (self == NULL) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_free_text(self, text);
+        stat = self->_open(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_close(qwk_t *self) {
+
+    int stat = OK;
+
+    when_error {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_close(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_open_ndx(qwk_t *self, char *name) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self == NULL) || (name == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_open_ndx(self, name);
         check_return(stat, self);
 
         exit_when;
@@ -374,6 +470,34 @@ int qwk_put_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count) {
 
 }
 
+int qwk_close_ndx(qwk_t *self) {
+
+    int stat = OK;
+
+    when_error {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_close_ndx(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int qwk_get_control(qwk_t *self, qwk_control_t *control) {
 
     int stat = OK;
@@ -430,7 +554,7 @@ int qwk_put_control(qwk_t *self, qwk_control_t *control) {
 
 }
 
-int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text, int rep) {
+int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text) {
 
     int stat = OK;
 
@@ -442,7 +566,7 @@ int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text
 
         }
 
-        stat = self->_get_message(self, record, header, text, rep);
+        stat = self->_get_message(self, record, header, text);
         check_status(stat, OK, E_INVOPS);
 
         exit_when;
@@ -458,7 +582,7 @@ int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text
 
 }
 
-int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int rep, ulong *record) {
+int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *record) {
 
     int stat = OK;
 
@@ -470,7 +594,7 @@ int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int rep, ulon
 
         }
 
-        stat = self->_put_message(self, header, text, rep, record);
+        stat = self->_put_message(self, header, text, record);
         check_status(stat, OK, E_INVOPS);
 
         exit_when;
@@ -492,10 +616,20 @@ int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int rep, ulon
 
 int _qwk_ctor(object_t *object, item_list_t *items) {
 
+    char *path;
     int stat = ERR;
+    int rep = FALSE;
+    int timeout = 1;
+    int retries = 30;
+    char control[1024];
+    char messages[1024];
     qwk_t *self = NULL;
+    tracer_t *dump = NULL;
 
     if (object != NULL) {
+
+        memset(control, '\0', 1024);
+        memset(messages, '\0', 1024);
 
         /* capture our items */
 
@@ -507,14 +641,36 @@ int _qwk_ctor(object_t *object, item_list_t *items) {
                 if ((items[x].buffer_length == 0) &&
                     (items[x].item_code == 0)) break;
 
-                /* switch(items[x].item_code) { */
-                /*     case QWK_K_TYPE: { */
-                /*         memcpy(&type,  */
-                /*                items[x].buffer_address,  */
-                /*                items[x].buffer_length); */
-                /*         break; */
-                /*     } */
-                /* } */
+                switch(items[x].item_code) {
+                    case QWK_K_PATH: {
+                        memcpy(&path, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case QWK_K_REP: {
+                        memcpy(&rep, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case QWK_K_TIMEOUT: {
+                        memcpy(&timeout, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case QWK_K_RETRIES: {
+                        memcpy(&retries, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case QWK_K_TRACE: {
+                        dump = items[x].buffer_address; 
+                        break;
+                    }
+                }
 
             }
 
@@ -538,16 +694,44 @@ int _qwk_ctor(object_t *object, item_list_t *items) {
         self->_get_ndx     = _qwk_get_ndx;
         self->_put_ndx     = _qwk_put_ndx;
         self->_free_text   = _qwk_free_text;
-        self->_set_notice  = _qwk_set_notice;
+        self->_put_notice  = _qwk_put_notice;
         self->_get_notice  = _qwk_get_notice; 
         self->_get_control = _qwk_get_control;
         self->_put_control = _qwk_put_control;
         self->_get_message = _qwk_get_message;
         self->_put_message = _qwk_put_message;
-
-        /* initialize internal variables here */
+        self->_open_ndx    = _qwk_open_ndx;
+        self->_close_ndx   = _qwk_close_ndx;
+        self->_open        = _qwk_open;
+        self->_close       = _qwk_close;
         
-        stat = OK;
+        /* initialize internal variables here */
+
+        when_error_in {
+
+            self->rep = rep;
+            self->ndx = NULL;
+            self->trace = dump;
+            self->retries = retries;
+            self->timeout = timeout;
+            self->path = strdup(path);
+
+            strcpy(control, fnm_build(1, FnmPath, "control", ".dat", path, NULL));
+            self->control = files_create(control, retries, timeout);
+            check_creation(self->control);
+
+            strcpy(messages, fnm_build(1, FnmPath, "messages", ".dat", path, NULL));
+            self->messages = files_create(messages, retries, timeout);
+            check_creation(self->messages);
+
+            exit_when;
+
+        } use {
+
+            stat = ERR;
+            process_error(self);
+
+        } end_when;
 
     }
 
@@ -558,9 +742,11 @@ int _qwk_ctor(object_t *object, item_list_t *items) {
 int _qwk_dtor(object_t *object) {
 
     int stat = OK;
+    qwk_t *self = QWK(object);
 
     /* free local resources here */
 
+    free(self->path);
 
     /* walk the chain, freeing as we go */
 
@@ -589,6 +775,71 @@ int _qwk_override(qwk_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case QWK_M_FREE_TEXT: {
+                    self->_free_text = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_PUT_NOTICE: {
+                    self->_put_notice = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_GET_NOTICE: {
+                    self->_get_notice = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_GET_CONTROL: {
+                    self->_get_control = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_PUT_CONTROL: {
+                    self->_put_control = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_GET_NDX: {
+                    self->_get_ndx = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_PUT_NDX: {
+                    self->_put_ndx = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_GET_MESSAGE: {
+                    self->_get_message = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_PUT_MESSAGE: {
+                    self->_put_message = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_OPEN_NDX: {
+                    self->_open_ndx = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_CLOSE_NDX: {
+                    self->_close_ndx = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_OPEN: {
+                    self->_open = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_CLOSE: {
+                    self->_close = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -607,7 +858,28 @@ int _qwk_compare(qwk_t *self, qwk_t *other) {
         (self->ctor == other->ctor) &&
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        (self->_override == other->_override) &&
+        (self->_open == other->_open) &&
+        (self->_close == other->_close) &&
+        (self->_close_ndx == other->_close_ndx) &&
+        (self->_open_ndx == other->_open_ndx) &&
+        (self->_free_text == other->_free_text) &&
+        (self->_put_notice == other->_put_notice) &&
+        (self->_get_notice == other->_get_notice) &&
+        (self->_get_control == other->_get_control) &&
+        (self->_put_control == other->_put_control) &&
+        (self->_get_ndx == other->_get_ndx) &&
+        (self->_put_ndx == other->_put_ndx) &&
+        (self->_get_message == other->_get_message) &&
+        (self->_put_message == other->_put_message) &&
+        (self->rep == other->rep) &&
+        (self->retries == other->retries) &&
+        (self->timeout == other->timeout) &&
+        (self->path == other->path) &&
+        (self->messages == other->messages) &&
+        (self->control == other->control) &&
+        (self->ndx == other->ndx) &&
+        (self->trace == other->trace)) {
 
         stat = OK;
 
@@ -617,7 +889,121 @@ int _qwk_compare(qwk_t *self, qwk_t *other) {
 
 }
 
-int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text, int rep) { 
+int _qwk_open(qwk_t *self) {
+
+    int stat = OK;
+    int exists = 0;
+    int flags = O_RDWR;
+    int mode = (S_IRWXU | S_IRWXG);
+    int create = (O_RDWR | O_CREAT);
+
+
+    when_error_in {
+
+        stat = files_exists(self->control, &exists);
+        check_return(stat, self->control);
+
+        if (exists) {
+
+            stat = files_open(self->control, flags, 0);
+            check_return(stat, self->control);
+
+        } else {
+
+            stat = files_open(self->control, create, mode);
+            check_return(stat, self->control);
+
+        }
+
+        stat = files_exists(self->messages, &exists);
+        check_return(stat, self->messages);
+
+        if (exists) {
+
+            stat = files_open(self->messages, flags, 0);
+            check_return(stat, self->messages);
+
+        } else {
+
+            stat = files_open(self->messages, create, mode);
+            check_return(stat, self->messages);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _qwk_close(qwk_t *self) {
+
+    int stat = OK;
+
+
+    when_error_in {
+
+        stat = files_close(self->control);
+        check_return(stat, self->control);
+
+        stat = files_close(self->messages);
+        check_return(stat, self->messages);
+
+        if (self->ndx != NULL) {
+
+            stat = files_close(self->ndx);
+            check_return(stat, self->ndx);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _qwk_free_text(qwk_t *self, char *text) {
+/*
+ * Function: QwkFreeText.c
+ * Version : 1.0
+ * Created : 19-Jul-1994
+ * Author  : Kevin Esteb
+ *
+ * Description:
+ *
+ *    This function will free the text buffer. Its not really needed.
+ *    Just included for completeness.
+ *
+ * Modifications:
+ *
+ * Varaiables:
+ */
+ 
+/*
+ * Main part of functon.
+ */
+
+    free(text);
+
+    return OK;
+
+}
+
+int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text) { 
 /*
  * Function: QwkGetMsg.c
  * Version : v2.0
@@ -730,7 +1116,7 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
         (*header).seq_number = rec.SeqNumber;
 #endif
 
-        if (rep) {
+        if (self->rep) {
 
             (*header).conference = header->number;
             (*header).number = 0;
@@ -779,34 +1165,7 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
 
 }
 
-int _qwk_free_text(qwk_t *self, char *text) {
-/*
- * Function: QwkFreeText.c
- * Version : 1.0
- * Created : 19-Jul-1994
- * Author  : Kevin Esteb
- *
- * Description:
- *
- *    This function will free the text buffer. Its not really needed.
- *    Just included for completeness.
- *
- * Modifications:
- *
- * Varaiables:
- */
- 
-/*
- * Main part of functon.
- */
-
-    free(text);
-
-    return OK;
-
-}
-   
-int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int rep, ulong *record) {
+int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *record) {
 /*
  * Function: QwkPutMsg.c
  * Version : v2.0
@@ -843,7 +1202,7 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, int rep, ulo
 
         rec.Status = header->status;
 
-        if (rep) {
+        if (self->rep) {
 
             sprintf(rec.Number, "%-7d", header->conference);
 
@@ -1003,7 +1362,7 @@ int _qwk_get_notice(qwk_t *self, char **notice) {
 
 }
 
-int _qwk_set_notice(qwk_t *self, char *notice) {
+int _qwk_put_notice(qwk_t *self, char *notice) {
 /*
  * Function: QwkNotice.c
  * Version : v2.0
@@ -1081,6 +1440,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
     char buff[BUFSIZ];
     ssize_t count = 0;
     qwk_area_t *area = NULL;
+
 
     when_error_in {
 
@@ -1296,6 +1656,7 @@ int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl) {
     ssize_t count = 0;
     qwk_area_t *area = NULL;
 
+
     when_error_in {
 
         stat = files_set_eol(self->control, "\r\n");
@@ -1436,6 +1797,79 @@ int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl) {
 
 }
 
+int _qwk_open_ndx(qwk_t *self, char *name) {
+
+    int stat = OK;
+    char index[1024];
+    int exists = 0;
+    int flags = O_RDWR;
+    int create = (O_RDWR | O_CREAT);
+    int mode = (S_IRWXU | S_IRWXG);
+
+
+    when_error_in {
+
+        memset(index, '\0', 1024);
+        strcpy(index, fnm_build(1, FnmPath, name, ".ndx", self->path, NULL));
+        self->ndx = files_create(index, self->retries, self->timeout);
+        check_creation(self->ndx);
+
+        stat = files_exists(self->ndx, &exists);
+        check_return(stat, self->ndx);
+
+        if (exists) {
+
+            stat = files_open(self->ndx, flags, 0);
+            check_return(stat, self->ndx);
+
+        } else {
+
+            stat = files_open(self->ndx, create, mode);
+            check_return(stat, self->ndx);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _qwk_close_ndx(qwk_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self->ndx != NULL) {
+
+            stat = files_close(self->ndx);
+            check_return(stat, self->ndx);
+
+            self->ndx = NULL;
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int _qwk_get_ndx(qwk_t *self, qwk_ndx_t *n, ssize_t *count) {
 /*
  * Function: QwkGetNdx.c
@@ -1454,6 +1888,7 @@ int _qwk_get_ndx(qwk_t *self, qwk_ndx_t *n, ssize_t *count) {
  
     ndx ndx;
     int stat = OK;
+
 
     when_error_in {
 
@@ -1500,10 +1935,7 @@ int _qwk_put_ndx(qwk_t *self, qwk_ndx_t *n, ssize_t *count) {
     ndx ndx;
     msbin junk;
     int stat = OK;
-    
-/*
- * Main part of functon.
- */
+
 
     when_error_in {
 

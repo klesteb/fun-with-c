@@ -20,16 +20,9 @@
 #include "tracer.h"
 #include "object.h"
 #include "que_util.h"
+#include "fnm_util.h"
 #include "item_list.h"
-
-#if !defined(linux)
-#if !(((defined(__FreeBSD__) && __FreeBSD_version >= 440000)) || defined(NeXTBSD))
-typedef unsigned short ushort;   /* must be 16 bits wide */
-#endif
-typedef unsigned long  ulong;    /* must be 32 bits wide */
-#endif
-typedef unsigned char  uchar;    /* must be  8 bits wide */
-typedef unsigned int   uint;
+#include "datatypes.h"
 
 /*-------------------------------------------------------------*/
 /* data structures                                             */
@@ -90,16 +83,24 @@ struct _qwk_s {
     int (*dtor)(object_t *);
     int (*_compare)(qwk_t *, qwk_t *);
     int (*_override)(qwk_t *, item_list_t *);
+    int (*_open)(qwk_t *);
+    int (*_close)(qwk_t *);
+    int (*_close_ndx)(qwk_t *);
+    int (*_open_ndx)(qwk_t *, char *);
     int (*_free_text)(qwk_t *, char *);
-    int (*_set_notice)(qwk_t *, char *);
+    int (*_put_notice)(qwk_t *, char *);
     int (*_get_notice)(qwk_t *, char **); 
     int (*_get_control)(qwk_t *, qwk_control_t *); 
     int (*_put_control)(qwk_t *, qwk_control_t *);
     int (*_get_ndx)(qwk_t *, qwk_ndx_t *, ssize_t *);
     int (*_put_ndx)(qwk_t *, qwk_ndx_t *, ssize_t *);
-    int (*_get_message)(qwk_t *, ulong, qwk_header_t *, char **, int);
-    int (*_put_message)(qwk_t *, qwk_header_t *, char *, int, ulong *);
+    int (*_get_message)(qwk_t *, ulong, qwk_header_t *, char **);
+    int (*_put_message)(qwk_t *, qwk_header_t *, char *, ulong *);
 
+    int rep;
+    int retries;
+    int timeout;
+    char *path;
     files_t *messages;
     files_t *control;
     files_t *ndx;
@@ -107,13 +108,35 @@ struct _qwk_s {
 };
 
 /*-------------------------------------------------------------*/
-/* constants                                                   */
+/* klass constants                                             */
 /*-------------------------------------------------------------*/
 
 #define QWK(x) ((qwk_t *)(x))
 
-#define QWK_M_DESTRUCTOR 1
+#define QWK_K_PATH    1
+#define QWK_K_REP     2
+#define QWK_K_TRACE   3
+#define QWK_K_RETRIES 4
+#define QWK_K_TIMEOUT 5
 
+#define QWK_M_DESTRUCTOR  1
+#define QWK_M_FREE_TEXT   2
+#define QWK_M_PUT_NOTICE  3
+#define QWK_M_GET_NOTICE  4
+#define QWK_M_GET_CONTROL 5
+#define QWK_M_PUT_CONTROL 6
+#define QWK_M_GET_NDX     7
+#define QWK_M_PUT_NDX     8
+#define QWK_M_GET_MESSAGE 9
+#define QWK_M_PUT_MESSAGE 10
+#define QWK_M_OPEN_NDX    11
+#define QWK_M_CLOSE_NDX   12
+#define QWK_M_OPEN        13
+#define QWK_M_CLOSE       14
+
+/*-------------------------------------------------------------*/
+/* constants                                                   */
+/*-------------------------------------------------------------*/
 
 #define QWK_BLOCK_SIZE  128
 #define QWK_RECORD(n)   ((((n) - QWK_BLOCK_SIZE) / QWK_BLOCK_SIZE) + 1)
@@ -134,21 +157,25 @@ struct _qwk_s {
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern qwk_t *qwk_create(item_list_t *);
+extern qwk_t *qwk_create(char *, int, int, int, tracer_t *);
 extern int qwk_destroy(qwk_t *);
 extern int qwk_compare(qwk_t *, qwk_t *);
 extern int qwk_override(qwk_t *, item_list_t *);
 extern char *qwk_version(qwk_t *);
 
+extern int qwk_open(qwk_t *);
+extern int qwk_close(qwk_t *);
+extern int qwk_close_ndx(qwk_t *);
+extern int qwk_open_ndx(qwk_t *, char *);
 extern int qwk_free_text(qwk_t *, char *);
-extern int qwk_set_notice(qwk_t *, char *); 
+extern int qwk_put_notice(qwk_t *, char *); 
 extern int qwk_get_notice(qwk_t *, char **); 
 extern int qwk_get_control(qwk_t *, qwk_control_t *); 
 extern int qwk_put_control(qwk_t *, qwk_control_t *);
 extern int qwk_get_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
 extern int qwk_put_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
-extern int qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **, int);
-extern int qwk_put_message(qwk_t *, qwk_header_t *, char *, int, ulong *);
+extern int qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **);
+extern int qwk_put_message(qwk_t *, qwk_header_t *, char *, ulong *);
 
 #endif
 

@@ -18,7 +18,7 @@ OBJS = dates.o fmtasc.o left.o ltrim.o mid.o \
        pos.o right.o rtrim.o seg.o soundex.o spaces.o \
        stricmp.o string.o strlwr.o strnicmp.o strrev.o \
        strupr.o trim.o xmalloc.o xstrtok.o match.o \
-       report.o str_replace.o ltostr.o \
+       report.o str_replace.o ltostr.o stripcr.o \
        convert_dibol_overpunch.o convert_zone_overpunch.o  \
        convert_left_overpunch.o convert_right_overpunch.o  \
        create_dibol_overpunch.o create_zone_overpunch.o  \
@@ -180,6 +180,10 @@ crc.o: crc.c
 hash.o: hash.c
 	$(CC) $(CFLAGS) hash.c
 	$(LIBR) $(OLBS) hash.o
+#
+stripcr.o: stripcr.c
+	$(CC) $(CFLAGS) stripcr.c
+	$(LIBR) $(OLBS) stripcr.o
 #
 # eof
 #

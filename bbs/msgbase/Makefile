@@ -15,7 +15,6 @@ LINK = gcc
 LIBR = ar rs
 WORKING = $(shell pwd)
 STATIC = libjam.a libqwk.a
-SHARED = libjam.so.$(VERSION)
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../../files -I../../errors -I../../tracer -I../../include -I../../cclibs -I../../objects -I../../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
@@ -27,7 +26,7 @@ INCS = jam.h qwk.h
 #
 OBJS = jam.o qwk.o
 #
-all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 test10
 #
 debug:
 #
@@ -49,6 +48,7 @@ clean:
 	rm -f test7
 	rm -f test8
 	rm -f test9
+	rm -f test10
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -85,6 +85,10 @@ test8: test8.o
 test9: test9.o
 	$(CC) $(CFLAGS) test9.c
 	$(LINK) $(LOPTS) test9 test9.o $(OLBS)
+#
+test10: test10.o
+	$(CC) $(CFLAGS) test10.c
+	$(LINK) $(LOPTS) test10 test10.o $(OLBS)
 #
 #
 jam.o: jam.c $(INCS)

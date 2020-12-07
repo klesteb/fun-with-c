@@ -71,8 +71,6 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    ssize_t msgs = 0;
-    ssize_t msgnum = 0;
 
     when_error_in {
 

@@ -45,8 +45,8 @@ typedef struct _header_s {
 } qwk_header_t;
 
 typedef struct _ndx_s {     /* <area>.ndx                                */
-    long index;             /* Converted MSBIN floating format           */
-    char conference;        /* Conference number - should be ignored     */
+    ulong index;            /* Converted MSBIN floating format           */
+    uchar conference;       /* Conference number - should be ignored     */
 } qwk_ndx_t;
 
 typedef struct _controls_s {
@@ -90,10 +90,12 @@ struct _qwk_s {
     int (*_free_text)(qwk_t *, char *);
     int (*_put_notice)(qwk_t *, char *);
     int (*_get_notice)(qwk_t *, char **); 
+    int (*_new_header)(qwk_t *, qwk_header_t **);
     int (*_get_control)(qwk_t *, qwk_control_t *); 
     int (*_put_control)(qwk_t *, qwk_control_t *);
     int (*_get_ndx)(qwk_t *, qwk_ndx_t *, ssize_t *);
     int (*_put_ndx)(qwk_t *, qwk_ndx_t *, ssize_t *);
+    int (*_new_ndx)(qwk_t *, ulong, uchar, qwk_ndx_t **);
     int (*_get_message)(qwk_t *, ulong, qwk_header_t *, char **);
     int (*_put_message)(qwk_t *, qwk_header_t *, char *, ulong *);
 
@@ -133,13 +135,14 @@ struct _qwk_s {
 #define QWK_M_CLOSE_NDX   12
 #define QWK_M_OPEN        13
 #define QWK_M_CLOSE       14
+#define QWK_M_NEW_HEADER  15
+#define QWK_M_NEW_NDX     16
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
 #define QWK_BLOCK_SIZE  128
-#define QWK_RECORD(n)   ((((n) - QWK_BLOCK_SIZE) / QWK_BLOCK_SIZE) + 1)
 
 #define QWK_PUB_UNREAD  ' '
 #define QWK_PUB_READ    '-'
@@ -152,6 +155,16 @@ struct _qwk_s {
 #define QWK_GRP_READ    '#'
 #define QWK_PROT_ALL    '$'
 #define QWK_NET_TAG     '*'
+
+/*----------------------------------------------------------------*/
+/* macros                                                         */
+/*----------------------------------------------------------------*/
+
+#define QWK_BUF_SIZE(n) (((QWK_BLOCK_SIZE * (n))))
+#define QWK_ISALIVE(n)  ((n) == 0xe1 ? TRUE : FALSE)
+#define QWK_OFFSET(n)   ((((n) - 1) * QWK_BLOCK_SIZE))
+#define QWK_REC_CNT(n)  ((((n) / QWK_BLOCK_SIZE) + (((n) % QWK_BLOCK_SIZE) != 0)))
+#define QWK_RECORD(n)   ((((n) - QWK_BLOCK_SIZE) / QWK_BLOCK_SIZE) + 1)
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -172,8 +185,10 @@ extern int qwk_put_notice(qwk_t *, char *);
 extern int qwk_get_notice(qwk_t *, char **); 
 extern int qwk_get_control(qwk_t *, qwk_control_t *); 
 extern int qwk_put_control(qwk_t *, qwk_control_t *);
+extern int qwk_new_header( qwk_t *, qwk_header_t **);
 extern int qwk_get_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
 extern int qwk_put_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
+extern int qwk_new_ndx(qwk_t *, ulong, uchar, qwk_ndx_t **);
 extern int qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **);
 extern int qwk_put_message(qwk_t *, qwk_header_t *, char *, ulong *);
 

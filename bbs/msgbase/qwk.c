@@ -22,15 +22,6 @@
 require_klass(OBJECT_KLASS);
 
 /*----------------------------------------------------------------*/
-/* macros                                                         */
-/*----------------------------------------------------------------*/
-
-#define QWK_BUF_SIZE(n) (((QWK_BLOCK_SIZE * (n))))
-#define QWK_ISALIVE(n)  ((n) == 0xe1 ? TRUE : FALSE)
-#define QWK_OFFSET(n)   ((((n) - 1) * QWK_BLOCK_SIZE))
-#define QWK_REC_CNT(n)  ((((n) / QWK_BLOCK_SIZE) + (((n) % QWK_BLOCK_SIZE) != 0)))
-
-/*----------------------------------------------------------------*/
 /* internal data structures                                       */
 /*----------------------------------------------------------------*/
 
@@ -91,10 +82,12 @@ int _qwk_open_ndx(qwk_t *, char *);
 int _qwk_free_text(qwk_t *, char *);
 int _qwk_put_notice(qwk_t *, char *); 
 int _qwk_get_notice(qwk_t *, char **); 
+int _qwk_new_header(qwk_t *, qwk_header_t **);
 int _qwk_get_control(qwk_t *, qwk_control_t *); 
 int _qwk_put_control(qwk_t *, qwk_control_t *);
 int _qwk_get_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
 int _qwk_put_ndx(qwk_t *, qwk_ndx_t *, ssize_t *);
+int _qwk_new_ndx(qwk_t *, ulong, uchar, qwk_ndx_t **);
 int _qwk_get_message(qwk_t *, ulong, qwk_header_t *, char **);
 int _qwk_put_message(qwk_t *, qwk_header_t *, char *, ulong *);
 
@@ -243,6 +236,62 @@ char *qwk_version(qwk_t *self) {
     char *version = VERSION;
 
     return version;
+
+}
+
+int qwk_new_header(qwk_t *self, qwk_header_t **header) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (header == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_new_header(self, header);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int qwk_new_ndx(qwk_t *self, ulong record, uchar conference, qwk_ndx_t **ndx) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (*ndx == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_new_ndx(self, record, conference, ndx);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
 
 }
 
@@ -704,7 +753,9 @@ int _qwk_ctor(object_t *object, item_list_t *items) {
         self->_close_ndx   = _qwk_close_ndx;
         self->_open        = _qwk_open;
         self->_close       = _qwk_close;
-        
+        self->_new_header  = _qwk_new_header;
+        self->_new_ndx     = _qwk_new_ndx;
+
         /* initialize internal variables here */
 
         when_error_in {
@@ -840,6 +891,16 @@ int _qwk_override(qwk_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case QWK_M_NEW_HEADER: {
+                    self->_new_header = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case QWK_M_NEW_NDX: {
+                    self->_new_ndx = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -872,6 +933,8 @@ int _qwk_compare(qwk_t *self, qwk_t *other) {
         (self->_put_ndx == other->_put_ndx) &&
         (self->_get_message == other->_get_message) &&
         (self->_put_message == other->_put_message) &&
+        (self->_new_header == other->_new_header) &&
+        (self->_new_ndx == other->_new_ndx) &&
         (self->rep == other->rep) &&
         (self->retries == other->retries) &&
         (self->timeout == other->timeout) &&
@@ -1292,13 +1355,14 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *recor
 
             stat = files_write(self->messages, junk, strlen(junk), &count);
             check_return(stat, self->messages);
-            free(junk);
 
             if (count != strlen(junk)) {
 
                 cause_error(EIO);
 
             }
+
+            free(junk);
 
         }
 
@@ -1945,6 +2009,63 @@ int _qwk_put_ndx(qwk_t *self, qwk_ndx_t *n, ssize_t *count) {
 
         stat = files_write(self->ndx, &ndx, sizeof(ndx), count);
         check_return(stat, self->ndx);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _qwk_new_header(qwk_t *self, qwk_header_t **header) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        *header = calloc(1, sizeof(qwk_header_t));
+        if (*header == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _qwk_new_ndx(qwk_t *self, ulong record, uchar conference, qwk_ndx_t **ndx) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        *ndx = calloc(1, sizeof(qwk_ndx_t));
+        if (*ndx == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        (**ndx).index = record;
+        (**ndx).conference = conference;
 
         exit_when;
 

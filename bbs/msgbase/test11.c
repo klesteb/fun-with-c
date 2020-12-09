@@ -111,7 +111,7 @@ int build_control(qwk_control_t *control) {
             area->area = x;
             sprintf(area->name, "area %d", x);
 
-            stat = que_push_head(&control->areas, area);
+            stat = que_push_tail(&control->areas, area);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
         }
@@ -212,19 +212,19 @@ int main(int argc, char **argv) {
 
                 if (field->lo_id == JAMSFLD_SENDERNAME) {
 
-                    strncpy(header->from, (char *)field->buffer, 25);
+                    strncpy(header->from, (char *)field->buffer, 24);
 
                 }
 
                 if (field->lo_id == JAMSFLD_RECVRNAME) {
 
-                    strncpy(header->to, (char *)field->buffer, 25);
+                    strncpy(header->to, (char *)field->buffer, 24);
 
                 }
 
                 if (field->lo_id == JAMSFLD_SUBJECT) {
 
-                    strncpy(header->subject, (char *)field->buffer, 25);
+                    strncpy(header->subject, (char *)field->buffer, 24);
 
                 }
 
@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
 
             }
 
-            strncpy(header->password, password, 13);
+            strncpy(header->password, password, 12);
 
             header->status = QWK_PUB_UNREAD;
             header->number = search->msgnum;
@@ -247,6 +247,7 @@ int main(int argc, char **argv) {
 
             stat = qwk_put_message(qwk, header, text, &record);
             check_return(stat, qwk);
+            printf("ndx record: %ld\n", record);
 
             stat = qwk_new_ndx(qwk, record, conference, &ndx);
             check_return(stat, qwk);

@@ -164,7 +164,8 @@ struct _qwk_s {
 #define QWK_ISALIVE(n)  ((n) == 0xe1 ? TRUE : FALSE)
 #define QWK_OFFSET(n)   ((((n) - 1) * QWK_BLOCK_SIZE))
 #define QWK_REC_CNT(n)  ((((n) / QWK_BLOCK_SIZE) + (((n) % QWK_BLOCK_SIZE) != 0)))
-#define QWK_RECORD(n)   ((((n) - QWK_BLOCK_SIZE) / QWK_BLOCK_SIZE) + 1)
+#define QWK_RECORD(n)   (((n) / QWK_BLOCK_SIZE) + 1)
+/*#define QWK_RECORD(n)   ((((n) - QWK_BLOCK_SIZE) / QWK_BLOCK_SIZE) + 1)*/
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */

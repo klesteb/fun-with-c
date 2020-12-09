@@ -63,8 +63,8 @@ union swapper {            /* easily swap the bytes from intel format    */
 /* local methods                                                  */
 /*----------------------------------------------------------------*/
 
-static void  LongToMbf(long, msbin *);
-static ulong MbfToLong(uint, uint, uint, uint);
+static void LongToMbf(long, msbin *);
+static void MbfToLong(msbin *, long *);
 
 /*----------------------------------------------------------------*/
 /* klass methods                                                  */
@@ -1094,7 +1094,7 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
     off_t offset = 0;
     ssize_t count = 0;
     union swapper swap;
-
+    char *buffer = NULL;
 
     when_error_in {
 
@@ -1114,10 +1114,12 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
 
         (*header).status = rec.Status;
    
+        memset(buff, '\0', 32);
         strncpy(buff, rec.Number, 7);
         (*header).number = atol(buff);
    
-        strncpy(buff, rec.Date, 9);
+        memset(buff, '\0', 32);
+        strncpy(buff, rec.Date, 8);
         buff[2] = '\0';
         buff[5] = '\0';
    
@@ -1139,7 +1141,8 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
         timbuf.tm_mon   = atoi(&buff[0]) - 1; /* month                  */
         timbuf.tm_wday  = atoi(&buff[3]) - 1; /* day                    */
    
-        strncpy(buff, rec.Time, 6);
+        memset(buff, '\0', 32);
+        strncpy(buff, rec.Time, 5);
         buff[2] = '\0';
    
         timbuf.tm_hour = atoi(&buff[0]);  /* hour                       */
@@ -1148,20 +1151,22 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
 
         (*header).date_time = mktime(&timbuf); /* convert to unix format*/
 
-        strncpy((*header).to,       rec.To,       26);
-        strncpy((*header).from,     rec.From,     26);
-        strncpy((*header).subject,  rec.Subject,  26);
-        strncpy((*header).password, rec.Password, 13);
+        strncpy((*header).to,       rec.To,       25);
+        strncpy((*header).from,     rec.From,     25);
+        strncpy((*header).subject,  rec.Subject,  25);
+        strncpy((*header).password, rec.Password, 12);
    
-        strncpy(buff, rec.Reply, 9);
+        memset(buff, '\0', 32);
+        strncpy(buff, rec.Reply, 8);
         (*header).reply = atol(buff);
 
-        strncpy(buff, rec.Records, 7);
+        memset(buff, '\0', 32);
+        strncpy(buff, rec.Records, 6);
         (*header).records = atol(buff) - 1L; /* exclude the header record */
 
         (*header).alive = QWK_ISALIVE(rec.Alive);
    
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 
         /* Swap the bytes from intel to motorola format.                */
 
@@ -1191,14 +1196,14 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
         text_size = QWK_BUF_SIZE(header->records);
    
         errno = 0;
-        *text = calloc(1, text_size);
-        if (*text == NULL) {
+        buffer = calloc(1, text_size);
+        if (buffer == NULL) {
 
             cause_error(errno);
 
         }
 
-        stat = files_read(self->messages, *text, text_size, &count);
+        stat = files_read(self->messages, buffer, text_size, &count);
         check_return(stat, self->messages);
 
         if (count != text_size) {
@@ -1209,11 +1214,12 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
 
         for (x = 0; x < text_size; x++) {
 
-            if (*text[x] == '\xe3') *text[x] = '\n';
+            if (buffer[x] == '\xe3') buffer[x] = '\n';
 
         }
 
-        *text[text_size] = '\0';
+        buffer[text_size] = '\0';
+        *text = buffer;
 
         exit_when;
 
@@ -1297,7 +1303,7 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *recor
 
         }
 
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 
         /* Swap the bytes from motorola to intel format.                     */
    
@@ -1317,6 +1323,11 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *recor
 
         rec.NetTag = header->net_tag;
 
+        stat = files_tell(self->messages, &offset);
+        check_return(stat, self->messages);
+
+        *record = QWK_RECORD(offset);
+
         stat = files_write(self->messages, &rec, QWK_BLOCK_SIZE, &count);
         check_return(stat, self->messages);
 
@@ -1325,11 +1336,6 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *recor
             cause_error(EIO);
 
         }
-
-        stat = files_tell(self->messages, &offset);
-        check_return(stat, self->messages);
-
-        *record = QWK_RECORD(offset);
 
         /* Change all the \n's to \xe3's.                                */
    
@@ -1513,6 +1519,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #1, the name of the BBS you got this mail packet from.   */
 
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1522,6 +1529,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #2, The City and State where the BBS is located.         */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1536,6 +1544,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #3, The BBS's phone number.                              */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1545,6 +1554,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #4, The Sysop's name.                                    */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1556,6 +1566,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #5, the serial number and BBS id.                        */
 
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1570,6 +1581,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #6, Time and Date of packet, changed to Unix format.     */
 
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1596,6 +1608,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #7, Uppercase name of user, this packet was prepared for. */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1605,24 +1618,28 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* Line #8, Name of the Menu file, mostly for QMail reader/door. */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
 
         /* Line #9, Who knows, usually 0.                                */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
 
         /* Line #10, Who knows, usually 0.                               */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
 
         /* Line #11, maxinum number of conferences.                      */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
@@ -1643,6 +1660,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
             }
 
+            memset(buff, '\0', BUFSIZ);
             stat = files_gets(self->control, buff, BUFSIZ, &count);
             check_return(stat, self->control);
             if (count == 0) cause_error(EIO);
@@ -1650,6 +1668,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
             stripcr(buff);
             area->area = atol(buff);
 
+            memset(buff, '\0', BUFSIZ);
             stat = files_gets(self->control, buff, BUFSIZ, &count);
             check_return(stat, self->control);
             if (count == 0) cause_error(EIO);
@@ -1664,6 +1683,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         /* The hello, news and goodbye files are optional.               */
    
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) exit_when;
@@ -1671,6 +1691,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
         stripcr(buff);
         strncpy((*ctrl).hello_file, buff, 32);
 
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) exit_when;
@@ -1678,6 +1699,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
         stripcr(buff);
         strncpy((*ctrl).news_file, buff, 32);
 
+        memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
         check_return(stat, self->control);
         if (count == 0) exit_when;
@@ -1952,7 +1974,12 @@ int _qwk_get_ndx(qwk_t *self, qwk_ndx_t *n, ssize_t *count) {
  
     ndx ndx;
     int stat = OK;
+    long index = 0;
 
+    union {
+        msbin msbin;
+        char buff[4];
+    } join;
 
     when_error_in {
 
@@ -1961,10 +1988,12 @@ int _qwk_get_ndx(qwk_t *self, qwk_ndx_t *n, ssize_t *count) {
 
         if (*count == sizeof(ndx)) {
 
-            (*n).index = MbfToLong(ndx.Index[0], ndx.Index[1], 
-                                   ndx.Index[2], ndx.Index[3]);
+            memcpy(&join.buff, ndx.Index, 4);
+            MbfToLong(&join.msbin, &index);
+
+            (*n).index = index;
             (*n).conference = ndx.Conference;
-            
+
         }
 
         exit_when;
@@ -2000,15 +2029,20 @@ int _qwk_put_ndx(qwk_t *self, qwk_ndx_t *n, ssize_t *count) {
     msbin junk;
     int stat = OK;
 
-
     when_error_in {
 
         LongToMbf(n->index, &junk);
+        memcpy(&ndx.Index, &junk, 4);
         ndx.Conference = n->conference;
-        memmove(&junk, ndx.Index, 4);
 
         stat = files_write(self->ndx, &ndx, sizeof(ndx), count);
         check_return(stat, self->ndx);
+
+        if (*count != sizeof(ndx)) {
+
+            cause_error(EIO);
+
+        }
 
         exit_when;
 
@@ -2084,7 +2118,7 @@ int _qwk_new_ndx(qwk_t *self, ulong record, uchar conference, qwk_ndx_t **ndx) {
 /* local methods                                                  */
 /*----------------------------------------------------------------*/
 
-static ulong MbfToLong(uint m1, uint m2, uint m3, uint exp) {
+static void MbfToLong(msbin *msbinnum, long *num) {
 /*
  * File: MbfToLong.c
  * Date: 01-Oct-1992
@@ -2095,9 +2129,14 @@ static ulong MbfToLong(uint m1, uint m2, uint m3, uint exp) {
  *
  */
 
-     return (((m1 + ((unsigned long) m2 << 8) + 
-             ((unsigned long) m3 << 16)) | 0x800000L) >> 
-              (24 - (exp - 0x80)));
+    unsigned char m1 = msbinnum->m1;
+    unsigned char m2 = msbinnum->m2;
+    unsigned char m3 = msbinnum->m3;
+    unsigned char exp = msbinnum->exp;
+
+    *num = (((m1 + ((unsigned long) m2 << 8) + 
+            ((unsigned long) m3 << 16)) | 0x800000L) >> 
+             (24 - (exp - 0x80)));
 
 }
 
@@ -2118,10 +2157,8 @@ static void LongToMbf(long num, msbin *msbinnum) {
  */
 
    union {
-
       unsigned char byte[4];
       long gobble;
-
    } n;
 
    msbinnum->exp = 0;
@@ -2141,14 +2178,14 @@ static void LongToMbf(long num, msbin *msbinnum) {
 
    n.gobble = num;
 
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-   msbinnum->m1 = n.byte[0];
-   msbinnum->m2 = n.byte[2];
-   msbinnum->m3 = n.byte[1];
-#else
+#if (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
    msbinnum->m1 = n.byte[0];
    msbinnum->m2 = n.byte[1];
    msbinnum->m3 = n.byte[2];
+#else
+   msbinnum->m1 = n.byte[0];
+   msbinnum->m2 = n.byte[2];
+   msbinnum->m3 = n.byte[1];
 #endif
 
 }

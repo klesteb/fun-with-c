@@ -27,7 +27,6 @@ int setup(void) {
     char *path = ".";
     char retries = 30;
 
-
     when_error_in {
 
         errs = errors_create();
@@ -67,7 +66,6 @@ int dump_message(qwk_header_t *header, char *text) {
     int stat = OK;
     char *line = NULL;
 
-
     when_error_in {
 
         stat = que_init(&lines);
@@ -86,7 +84,7 @@ int dump_message(qwk_header_t *header, char *text) {
         printf("alive     : %d\n", header->alive);
         printf("conference: %d\n", header->conference);
         printf("seq num   : %d\n", header->seq_number);
-        printf("net tag   : %d\n", header->net_tag);
+        printf("net tag   : %s\n", header->net_tag);
         printf("\n");
 
         wordwrap(text, 60, &lines);
@@ -119,6 +117,8 @@ int dump_control(qwk_control_t *control) {
     int stat = OK;
     qwk_area_t *area = NULL;
 
+    printf("\ncontrol.dat\n");
+    printf("--------------------------------\n");
     printf("bbs name    : %s\n", control->bbs_name);
     printf("city        : %s\n", control->city);
     printf("state       : %s\n", control->state);
@@ -136,12 +136,14 @@ int dump_control(qwk_control_t *control) {
 
     while ((area = que_pop_tail(&control->areas))) {
 
-        printf("number: %ld\n", area->area);
-        printf("name  : %s\n", area->name);
+        printf("  number: %ld\n", area->area);
+        printf("  name  : %s\n", area->name);
 
         free(area);
 
     }
+
+    printf("\n");
 
     return stat;
 
@@ -174,7 +176,9 @@ int main(int argc, char **argv) {
         stat = qwk_get_notice(qwk, &notice);
         check_return(stat, qwk);
 
-        printf("notice: %s\n\n", notice);
+        printf("\nmessage.dat\n");
+        printf("--------------------------------\n");
+        printf("notice: %s\n", notice);
         free(notice);
 
         stat = qwk_open_ndx(qwk, "001");
@@ -183,10 +187,7 @@ int main(int argc, char **argv) {
         stat = qwk_get_ndx(qwk, &ndx, &count);
         check_return(stat, qwk);
 
-        do {
-
-            printf("record    : %ld\n", ndx.index);;
-            printf("conference: %d\n", ndx.conference);
+        while (count > 0) {
 
             stat = qwk_get_message(qwk, ndx.index, &header, &text);
             check_return(stat, qwk);
@@ -197,7 +198,7 @@ int main(int argc, char **argv) {
             stat = qwk_get_ndx(qwk, &ndx, &count);
             check_return(stat, qwk);
 
-        } while (count > 0);
+        }
 
         stat = qwk_close(qwk);
         check_return(stat, qwk);

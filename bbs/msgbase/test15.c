@@ -17,6 +17,10 @@ void MbfToLong(msbin *msbinnum, long *num) {
  * Converts 4 byte Microsoft MKS format to long integer.
  * Orginal author unknown.
  *
+ * Modifications:
+ *
+ *    Modified the call interface to be consistent with LongToMbf().
+ *    09-Dec-2020 K.Esteb
  */
 
     unsigned char m1 = msbinnum->m1;

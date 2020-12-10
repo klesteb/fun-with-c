@@ -112,7 +112,7 @@ test14: test14.o
 	$(CC) $(CFLAGS) test14.c
 	$(LINK) $(LOPTS) test14 test14.o $(OLBS)
 #
-test15: test1.o
+test15: test15.o
 	$(CC) $(CFLAGS) test15.c
 	$(LINK) $(LOPTS) test15 test15.o $(OLBS)
 #

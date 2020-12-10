@@ -39,7 +39,7 @@ typedef struct {           /* QWK Message header                         */
    char  Alive;            /* always 0xE1                                */
    char  Conference[2];    /* area number,            (intel short int)  */
    char  SeqNumber[2];     /* logical message number  (intel short int)  */
-   char  NetTag;           /* space: no tag, "*": tag present ???        */
+   char  NetTag[1];        /* space: no tag, "*": tag present ???        */
 } hdr;
 
 typedef struct {           /* <area>.ndx                                 */
@@ -1151,9 +1151,16 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
 
         (*header).date_time = mktime(&timbuf); /* convert to unix format*/
 
+        memset((*header).to, '\0', 26);
         strncpy((*header).to,       rec.To,       25);
+
+        memset((*header).from, '\0', 26);
         strncpy((*header).from,     rec.From,     25);
+
+        memset((*header).subject, '\0', 26);
         strncpy((*header).subject,  rec.Subject,  25);
+
+        memset((*header).password, '\0', 13);
         strncpy((*header).password, rec.Password, 12);
    
         memset(buff, '\0', 32);
@@ -1191,7 +1198,7 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
 
         }
 
-        (*header).net_tag = rec.NetTag;
+        strncpy((*header).net_tag, rec.NetTag, 1);
 
         text_size = QWK_BUF_SIZE(header->records);
    
@@ -1321,7 +1328,7 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *recor
         rec.SeqNumber = header->seq_number;
 #endif
 
-        rec.NetTag = header->net_tag;
+        strncpy(rec.NetTag, header->net_tag, 1);
 
         stat = files_tell(self->messages, &offset);
         check_return(stat, self->messages);
@@ -1540,7 +1547,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
         strncpy((*ctrl).city, t, 32);
 
         t = strtok(NULL, "\n");
-        strncpy((*ctrl).state, t, 32);
+        strncpy((*ctrl).state, trim(t), 32);
 
         /* Line #3, The BBS's phone number.                              */
    
@@ -1645,7 +1652,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
         if (count == 0) cause_error(EIO);
    
         stripcr(buff);
-        (*ctrl).num_areas = atol(buff) + 1;
+        (*ctrl).num_areas = atol(buff);
 
         /* Allocate the memory and read in the Area numbers and names.   */
         /* These are locigal lines 12 and 13.                            */
@@ -1788,7 +1795,7 @@ int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl) {
    
         memset(buff, '\0', 80);
         tm = localtime(&ctrl->date_time);
-        sprintf(buff, "%02d-%02d-%04d,%02d:%02d:%02d\r\n",
+        sprintf(buff, "%02d-%02d-%04d,%02d:%02d:%02d",
                 tm->tm_mon + 1, tm->tm_mday, 1900 + tm->tm_year,
                 tm->tm_hour, tm->tm_min, tm->tm_sec);
         stat = files_puts(self->control, buff, &count);
@@ -1814,7 +1821,7 @@ int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl) {
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
    
-        /* Line #10, unknown line, usually zero.                         */
+        /* Line #10, total number of messages in packet.                 */
    
         stat = files_puts(self->control, "0", &count);
         check_return(stat, self->control);

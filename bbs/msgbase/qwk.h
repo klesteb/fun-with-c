@@ -38,10 +38,10 @@ typedef struct _header_s {
     char  password[13];     /* password in ascii                         */
     long  reply;            /* message # this refers to                  */
     long  records;          /* # of 128 byte recs in message, inc header */
-    char  alive;            /* always 0xE1                               */
+    char  alive;            /* 0xE1 - alive, 0xE2 - dead                 */
     short conference;       /* area number                               */
     short seq_number;       /* logical message number                    */
-    char  net_tag;          /* space: no tag, "*": tag present ???       */
+    char  net_tag[1];       /* space: no tag, "*": tag present ???       */
 } qwk_header_t;
 
 typedef struct _ndx_s {     /* <area>.ndx                                */

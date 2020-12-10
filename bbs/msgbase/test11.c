@@ -80,12 +80,11 @@ int build_control(qwk_control_t *control) {
     int stat = OK;
     qwk_area_t *area = NULL;
 
-
     when_error_in {
 
         stat = que_init(&control->areas);
         check_status(stat, QUE_OK, E_INVOPS);
-        
+
         strcpy((*control).bbs_name, "test bbs");
         strcpy((*control).city, "everett");
         strcpy((*control).state, "wa");
@@ -151,7 +150,7 @@ int main(int argc, char **argv) {
     jam_search_t *search = NULL;
     char *notice = "testing testing";
     char *net_tag = " ";
-    char *password = "           ";
+    char *password = "            ";
 
     when_error_in {
 
@@ -243,7 +242,7 @@ int main(int argc, char **argv) {
             header->alive = 0xe1;
             header->conference = conference;
             header->seq_number = sequence;
-            header->net_tag = net_tag;
+            strncpy(header->net_tag, net_tag, 1);
 
             stat = qwk_put_message(qwk, header, text, &record);
             check_return(stat, qwk);
@@ -257,6 +256,7 @@ int main(int argc, char **argv) {
 
             free(message);
             free(header);
+            free(text);
             free(ndx);
             
         }

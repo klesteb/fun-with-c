@@ -1,0 +1,345 @@
+                     .----------------------------.
+                     : The QWK Mail Packet Format :
+                     `----------------------------'
+
+BBS ID
+------
+
+    The BBS ID is a 1-8 characters string that identifies a BBS' mail
+    packet.  The filename of the mail packet is often the BBS ID.
+    However, this is not always the case, so do not rely on that to
+    determine the BBS ID.  Instead, it is included on the fifth line of
+    the CONTROL.DAT file (see below.)
+
+Compression
+-----------
+
+    Most mail packets are compressed when create by the mail door.  The
+    most common archiver is PKZIP, but others such as LHA is being used.
+    However, many current off-line reader programs do allow the user to
+    unarchive a mail packet before entering the reader program, so the
+    reader will not unarchive it again.  Upon exit, the reader will not
+    call the archiver to save it.  It is up to the user to archive the
+    replies.
+
+MESSAGES.DAT
+------------
+
+    The QWK file format is based on the PCBoard 12.0 message base
+    formats from Clark Development Corporation.
+
+    All of the messages in a mail packet are contained in a single file
+    named MESSAGES.DAT.  The file's logical record length is 128 bytes.
+    The first record of MESSAGES.DAT always contains a copyright notice
+    saying "Produced by Qmail...Copyright (c) 1987 by Sparkware.  All
+    Rights Reserved".  Messages start in record 2 and use this format:
+
+    Offset  Length  Description
+    ------  ------  ----------------------------------------------------
+      1       1     Message status flag
+                    ' ' = public, unread
+                    '-' = public, read
+                    '+' = private, unread
+                    '*' = private, read
+                    '~' = comment to Sysop, unread
+                    '`' = comment to Sysop, read
+                    '%' = password protected, unread (protect by sender)
+                    '^' = password protected, read (protect by sender)
+                    '!' = password protected, unread (protect by group
+                          password)
+                    '#' = password protected, read (protect by group
+                          password)
+                    '$' = password protected, addressed to all (protect
+                          by group password)
+      2       7     Message number (in ASCII)
+      9       8     Date (mm-dd-yy)
+     17       5     Time (24 hour hh:mm)
+     22      25     To (uppercase)
+     47      25     From (uppercase)
+     72      25     Subject of message
+     97      12     Password (usually space filled)
+    109       8     Reference message number (in ASCII)
+    117       6     Number of 128 byte blocks in message (counting the
+                    header, in ASCII)
+    123       1     Is message killed?  ASCII 225 is active, 226 is
+                    killed
+    124       2     Conference number (as long integer), 124 is the
+                    least significant, 125 is most
+    125       3     Not used (usually filled with space)
+
+    The text of message continues in the next record.  You can find out
+    how many blocks make up one message by looking at the value of
+    "Number of 128 byte blocks".  Message text is delimited by a ASCII
+    227 (pi character) symbol between lines.
+
+xxx.NDX
+-------
+
+    The xxx.NDX files contain record numbers that point into the
+    MESSAGES.DAT file for actual messages.  Each conference that
+    contains messages has its own "xxx.NDX" file.  The "xxx" is the
+    conference number for the index file.
+
+    Each NDX file uses a five bytes logical record length and is
+    formatted to:
+
+    Offset  Length  Description
+    ------  ------  ----------------------------------------------------
+      1       4     Record number pointing to corresponding message in
+                    MESSAGES.DAT.  This number is in the Microsoft MKS$
+                    BASIC format.
+      5       1     Conference number of the message.  This byte should
+                    not be used because it duplicates both the filename
+                    of the index file and the conference # in the
+                    header.  It is also one byte long, which cannot
+                    handle conferences over 255.
+
+    The formula for converting X, a long integer in MKS$ format, to
+    MKSToNum, a binary integer, is:
+
+    MKSToNum := ((X AND NOT $ff000000) OR $00800000)
+                SHR (24 - ((x SHR 24) AND $7f));
+
+    Or in Turbo Pascal:
+
+    type
+        bsingle = array [0..3] of byte;
+
+    { converts TP real to Microsoft 4 bytes single }
+
+    procedure real_to_msb (preal : real; var b : bsingle);
+    var
+        r : array [0 .. 5] of byte absolute preal;
+    begin
+        b [3] := r [0];
+        move (r [3], b [0], 3);
+    end; { procedure real_to_msb }
+
+    { converts Microsoft 4 bytes single to TP real }
+
+    function msb_to_real(b : bsingle) : real;
+    var
+        preal : real;
+        r : array [0..5] of byte absolute preal;
+    begin
+        r [0] := b [3];
+        r [1] := 0;
+        r [2] := 0;
+        move (b [0], r [3], 3);
+        msb_to_real := preal;
+    end; { procedure msb_to_real }
+
+    There is a special index file named PERSONAL.NDX.  This file
+    contains pointers to messages which are addressed to the user, i.e.
+    personal messages.  Some mail door and utility programs also allow
+    the selection of other messages to be flagged as personal messages
+    as well.
+
+CONTROL.DAT
+-----------
+
+    The CONTROL.DAT file is a simple ASCII file.
+
+    Aardvark BBS                    BBS long name
+    New York, NY                    BBS city and state
+    212-496-8324                    BBS number
+    David Greenberger, Sysop        BBS Sysop name
+    20052,AARDVARK                  Mail door registeration #, BBS ID
+    10-19-1990,00:36:13             Packet creation time
+    PATRICK LEE                     User name
+                                    Name of menu for Qmail, if exists
+    0                               ?
+    0                               ?
+    121                             Total number of conf. minus 1
+    0                               1st conference number
+    Main Board                      1st conference name
+    1                               2nd conference number
+    General                         2nd conference name
+    3                               etc. onward until it hits max. conf.
+    123                             Last conference number
+    Amiga_I                         Last conference name
+    HELLO                           Welcome screen file
+    NEWS                            BBS news file
+    SCRIPT0                         Log off screen
+
+    [ Some mail doors do not send the information below here. ]
+
+    0                               ?
+    25                              ?
+    PATRICK LEE                     User name in uppercase
+    Patrick                         User first name
+    ELMHURST, NEW YORK              User city, state
+     718 639-6696                   User data phone
+     718 639-6696                   User home phone
+    108                             Security level
+    00-00-00                        Expiration date
+    10-17-90                        Last log on date
+    23:22                           Last log on time
+    209                             Log on count
+    0                               ?
+    0                               Total KB downloaded
+    34                              Download count
+    0                               Total KB uploaded
+    110                             Upload count
+    120                             Minutes per day
+    52                              Minutes remaining today
+    3                               Minutes used this call
+    32767                           Max. download KB per day
+    32767                           Remaining KB today
+    0                               KB downloaded today
+    00:36                           Current time on BBS
+    10-19-90                        Current date on BBS
+    Aardvark BBS                    BBS name
+    5059                            ?
+
+Replies
+-------
+
+    Replies use a similar format, except the message number becomes the
+    conference number.  Also, the first record (up to 8 characters
+    starting on the first byte) in the reply file contains the BBS's ID.
+    This ID must much the one on the BBS in order for the mail door to
+    accept the replies.
+
+Pointer files
+-------------
+
+    *.PTR or *.PNT
+
+    Don't bother with the pointer files, as the off-line reader has no
+    real use for it.  The mail doors send it so that the user will have
+    a copy of it, in case something on the BBS screws up.
+
+Other files
+-----------
+
+    Bulletins are sometimes send in the mail packet as well, this is
+    usually configurable by the user.  The files for the bulletins are
+    named:
+
+        BLT-x.y
+
+    where 'x' is the conference number, and 'y' is the bulletin number.
+
+    New files are also configurable and can be sent by the mail door.
+    The file name for that is NEWFILES.DAT
+.
+Off-line mail door configuration
+--------------------------------
+
+    For Qmail 4.0a:
+
+        Send a private message addressed to "QMAIL" with a subject of
+        "CONFIG" (without quotes).  Then, enter any of the commands
+        listed below inside the text of your message.  Remember to use
+        one command per line.
+
+        ADD <confnum>           Add a conference into the Qmail Door
+                                4.00 scanning list. "YOURS" can also be
+                                added to the command if the user wishes
+                                to receive messages only addressed them.
+                                Example: ADD 1 YOURS
+        DROP <confnum>          Drop a conference from the Qmail Door
+                                4.00 scanning list.
+        RESET <confnum> <value> Resets a conference to a particular
+                                value. The user can use "HIGH-xxx" to
+                                set the conference to the highest
+                                message in the base.
+        CITY <value>            Changes the "city" field in the User's
+                                PCBoard entry.
+        PASSWORD <value>        Changes the user's login password.
+        BPHONE <value>          Business/data phone number
+        HPHONE <value>          Home/voice phone number
+        PCBEXPERT <on|off>      Turns the PCBoard EXPERT mode ON or OFF.
+        PCBPROT <value>         PCBoard file transfer protocol (A-Z).
+        PAGELEN <value>         Page length inside PCBoard.
+        PCBCOMMENT <value>      User maintained comment.
+        AUTOSTART <value>       Qmail Door autostart command.
+        PROTOCOL <value>        Qmail Door file transfer protocol (A-Z).
+        EXPERT <on|off>         Turns the Qmail Door EXPERT mode ON or
+                                OFF.
+        MAXSIZE <value>         Maximum size of the user's .QWK packet
+                                (in bytes)
+        MAXNUMBER <value>       Maximum number of messages per
+                                conference.
+
+    For MarkMail:
+
+        Send a private message addressed to "MARKMAIL" with the subject
+        line of:
+
+        "ADD" in the conference you want to add
+        "DROP" in the conference you want to drop
+        "YOURS" in the conference you want only your mail sent
+        "FILES ON" or "FILES OFF" in any conference to tell MarkMail
+            whether to scan for new files or not.
+        "BLTS ON" or "BLTS OFF" to turn on and off, respectively, of
+            receiving bulletins.
+        "OWN ON" or "OWN OFF" to turn on and off, respectively, of
+            receiving messages you sent
+        "DELUXE ON" or "DELUXE OFF" to turn on and off, respectively, of
+            receiving DeLuxe menu
+        "LIMIT size" to set the maximum size of MESSAGES.DAT file can
+            be, it cannot exceed what the Sysop has set up
+
+        After "ADD" or "YOURS", you can also put in the message number
+        you want to reset the conference to; or you can enter a relative
+        number, i.e. -50, to reset the message pointer to the highest in
+        the conference minus 50.
+
+Non-echoed messages
+-------------------
+
+    In order to send a non-echoed message (not send out to other BBSes),
+    a user can enter "NE:" in front of the subject line.  The MarkMail
+    door will strip this "NE:" and turn off the echo flag.
+
+Taglines
+--------
+
+    The most common format for a reader tag-line is:
+
+    ---
+     ~ My reader v1.00 ~ The rest of the tag-line.
+
+    The three dashes is called a tear-line.  The tag-line is appended to
+    the end of the message and is usually one line only.
+
+DOOR.ID
+-------
+
+    DOOR = <doorname>
+
+        This is the name of the door that created the QWK packet, i.e.
+        <doorname> = Tomcat.
+
+    VERSION = <doorversion>
+
+        This is the version number of the door that created the packet,
+        i.e. <doorversion> = 2.9.
+
+    SYSTEM = <systemtype>
+
+        This is the underlying BBS system type and version, i.e.
+        <systemtype> = Wildcat 2.55.
+
+    CONTROLNAME = <controlname>
+
+        This is the name to which the reader should send control
+        messages, eg. <controlname> = TOMCAT.
+
+    CONTROLTYPE = <controltype>
+
+        This can be one of ADD, DROP, or REQUEST (or others.)  ADD and
+        DROP are pretty obvious (they work as in MarkMail), and REQUEST
+        is for use with BBS systems that support file attachments.  Try
+        out SLMR with CONTROLTYPE = REQUEST and use the Q function.
+
+    RECEIPT
+
+        This flag indicates that the door/BBS is capable of return
+        receipts when a message is received.  If the first three letters
+        of the subject are RRR, then the door should strip the RRR and
+        set the 'return-receipt-requested' flag on the corresponding
+        message.
+

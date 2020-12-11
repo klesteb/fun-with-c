@@ -63,10 +63,21 @@ void cleanup(void) {
 int dump_message(qwk_header_t *header, char *text) {
 
     queue lines;
+    struct tm *tm;
     int stat = OK;
     char *line = NULL;
+    char output[19];
+    char zone[10];
 
     when_error_in {
+
+        memset(zone, '\0', 10);
+        memset(output, '\0', 19);
+        tm = localtime(&header->date_time);
+        strftime(zone, 9, "%z", tm);
+        sprintf(output, "%04d-%02d-%02d %02d:%02d:%02d%4s",
+                1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+                tm->tm_hour, tm->tm_min, tm->tm_sec, zone);
 
         stat = que_init(&lines);
         check_status(stat, QUE_OK, E_INVOPS);
@@ -74,7 +85,7 @@ int dump_message(qwk_header_t *header, char *text) {
         printf("--------------------------------\n");
         printf("status    : %d\n", header->status);
         printf("number    : %ld\n", header->number);
-        printf("date time : %d\n", (int)header->date_time);
+        printf("date time : %s\n", output);
         printf("to        : %s\n", header->to);
         printf("from      : %s\n", header->from);
         printf("subject   : %s\n", header->subject);
@@ -115,7 +126,15 @@ int dump_message(qwk_header_t *header, char *text) {
 int dump_control(qwk_control_t *control) {
 
     int stat = OK;
+    struct tm *tm;
+    char output[19];
     qwk_area_t *area = NULL;
+
+    memset(output, '\0', 19);
+    tm = localtime(&control->date_time);
+    sprintf(output, "%04d-%02d-%02d %02d:%02d:%02d",
+            1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+            tm->tm_hour, tm->tm_min, tm->tm_sec);
 
     printf("\ncontrol.dat\n");
     printf("--------------------------------\n");
@@ -131,7 +150,7 @@ int dump_control(qwk_control_t *control) {
     printf("news file   : %s\n", control->news_file);
     printf("goodbye file: %s\n", control->goodbye_file);
     printf("num areas   : %ld\n", control->num_areas);
-    printf("date time   : %d\n", (int)control->date_time);
+    printf("date time   : %s\n", output);
     printf("areas\n");
 
     while ((area = que_pop_tail(&control->areas))) {

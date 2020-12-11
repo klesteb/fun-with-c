@@ -2356,10 +2356,11 @@ int _jam_add_message(jam_t *self, jam_message_t *message, queue *fields, char *t
         message->reserved_word = 0;
         message->text_offset = offset;
         message->revision = CURRENTREBLEV;
-        message->date_written = time(NULL);
         message->text_length = strlen(text);
         memcpy(&message->signature, HEADERSIGNATURE, 4);
         message->msgnum = records + header.base_msg_num;
+
+        /* get the crcs for various fields */
 
         for (field = que_first(fields);
              field != NULL;
@@ -2389,6 +2390,8 @@ int _jam_add_message(jam_t *self, jam_message_t *message, queue *fields, char *t
             }
 
         }
+
+        /* write message out */
 
         stat = self->_append_message(self, message, fields, &offset);
         check_return(stat, self);

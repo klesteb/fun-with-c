@@ -255,6 +255,7 @@ int main(int argc, char **argv) {
             check_return(stat, qwk);
 
             free(message);
+            free(search);
             free(header);
             free(text);
             free(ndx);

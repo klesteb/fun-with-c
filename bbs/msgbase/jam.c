@@ -321,7 +321,7 @@ int jam_remove(jam_t *self) {
 
 }
 
-int jam_size(jam_t *self, off_t *size) {
+int jam_size(jam_t *self, ssize_t *size) {
 
     int stat = OK;
 
@@ -1394,7 +1394,7 @@ int _jam_remove(jam_t *self) {
 
 }
 
-int _jam_size(jam_t *self, off_t *size) {
+int _jam_size(jam_t *self, ssize_t *size) {
 
     int stat = OK;
     off_t offset = 0;

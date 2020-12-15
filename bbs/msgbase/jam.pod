@@ -3,22 +3,105 @@
 
 =head1 NAME
 
-jam - A ANSI C class that implements the a JAM message base
+jam - A ANSI C class that implements the JAM message base
 
 =head1 SYNOPSIS
 
  #include <stdio.h>
- #include "jam.h"
 
+ #include "jam.h"
+ #include "when.h"
+ #include "errors.h"
+ #include "tracer.h"
+ #include "que_util.h"
+ 
+ tracer_t *dump;
+ 
+ int compare(ulong selector, jam_message_t *message) {
+
+     return TRUE;
+
+ }
+
+ int dump_trace(char *buffer) {
+
+     fprintf(stderr, "%s\n", buffer);
+
+     return OK;
+
+ }
+
+ int display_message(jam_message_t *message, queue *fields, char *text) {
+ 
+     return OK;
+
+ }
+ 
  int main(int argc, char **argv) {
 
-     jam_t *temp = NULL;
+     int base = 1;
+     queue fields;
+     int stat = OK;
+     queue results;
+     int timeout = 1;
+     char *path = ".";
+     int retries = 30;
+     jam_t *jam = NULL;
+     char *text = NULL;
+     char *name = "001";
+     ulong user_crc = 0;
+     errors_t *errs = NULL;
+     jam_message_t message;
+     char *sysop = "sysop";
+     jam_search_t *search = NULL;
 
-     if ((temp = jam_create(NULL))) {
+     when_error_in {
+     
+         errs = errors_create();
+         check_creation(errs);
 
-         jam_destroy(temp);
+         dump = tracer_create(errs);
+         check_creation(dump);
 
-     }
+         jam = jam_create(path, name, retries, timeout, base, dump);
+         check_creation(jam);
+         
+         stat = jam_open(jam);
+         check_return(stat, jam);
+
+         stat = jam_crc32(jam, (uchar)sysop, strlen(sysop), &user_crc);
+         check_return(stat, jam);
+
+         stat = jam_search_messages(jam, user_crc, TRUE, compare, &results);
+         check_return(stat, jam);
+         
+         while ((search = que_pop_head(&results))) {
+         
+             stat = que_init(&fields);
+             check_status(stat, QUE_OK, E_INVOPS);
+             
+             stat = jam_get_message(jam, search->msgnum, &message, &fields, &text);
+             check_return(stat, jam);
+             
+             stat = display_message(&message, &fields, text);
+             check_status(stat, OK, E_INVOPS);
+
+             free(search);
+             
+         }
+
+         stat = jam_close(jam);
+         check_return(stat, jam);
+
+     } use {
+     
+        capture_trace(dump);
+        tracer_dump(dump, dump_trace);
+        clear_error();
+
+     } end_when;
+
+     jam_destroy(jam);
 
      return 0;
 
@@ -26,8 +109,57 @@ jam - A ANSI C class that implements the a JAM message base
 
 =head1 DESCRIPTION
 
-This is a basic class written in ANSI C. It shows a way to implement
-object oriented programming. Why do this? It is a nice thought exercise. 
+This class implements the JAM message base format as described in
+jam.doc, rev 001, dated 1993-07-01. Authored by Joaquim Homrighausen, 
+Andrew Milner, Mats Birch and Mats Wallin. This document describes a
+file format and how to interact with that format.
+
+This library writes complete structures to disk. So some of the data 
+sizes may not be the same as outlined in the documentation. This is 
+due to padding between structure members, and this is CPU, OS and 
+compiler dependent. This library was written for GCC on Linux and
+assumes a GNU build environment. It is written in ANSI C, so it 
+should compile on other platforms, but this dosen't make the file 
+format portable. 
+
+For example, I don't think that the on disk format is compatible 
+with L<jamlib|https://sourceforge.net/projects/jamlib/>. Which tries 
+very hard to make a portable on disk format.
+
+The JAM format was designed in the early 1990's for MS-DOS. Which is a
+single user, single process system. You could network several MS-DOS
+systems together and there were 3rd party multi-taskers available
+which would allow you to run multiple processes on one system.
+This lead to the problem of controlling access to the message base.
+The JAM solution was a single global file lock. While adequate for the
+MS-DOS world, it is not really suitable for a multi-user,
+multi-process system such as Linux. 
+
+This library tries to minimize the impact of the locking system. It
+tries to acquire a lock, if not available, it waits a period of time
+and tries again, up to a predefined limit. Locks are only held for the
+limited time it needs to read and write data. This should minimize the
+locking system problems.
+
+The JAM format is not a database with transactions and referential
+integrity. There is a very crude revision scheme in the message base 
+header. Since this is global to the message base, it is not possible
+to determine what has changed, just that something may have changed.
+
+This library tries to use this to maintain a consistent view
+of the data. It will take a lock and compare the value in the header
+to the saved value from the last update. If they are different it will
+try to normalize the data by comparing it to the on disk version and 
+making updates as needed.
+
+The JAM format was designed when disk space was limited and a limited
+number of processes where accessing the message base. It fulfilled the 
+needs of the 1990's era of bbsing and remains popular even today. 
+
+This library is a class. It is extensible and overridable. It is possible 
+to write a relational database back end and the call interface would be
+the same. It also make use of the L<errors(3)> and L<tracer(3)>  
+classes for error handling and reporting. 
 
 The files jam.c and jam.h define the class. 
 
@@ -45,9 +177,37 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<jam_t *jam_create(NULL)>
+=head2 I<jam_t *jam_create(char *path, char *name, int retries, int timeout, int base, tracer_t *dump)>
 
 This method initializes the class. 
+
+=over 4
+
+=item B<path>
+
+The path to where the jam message base exists.
+
+=item B<name>
+
+The on disk name of this message base.
+
+=item B<retries>
+
+The number of retries to perform if the message base is locked.
+
+=item B<timeout>
+
+The number of seconds to wait between a retry.
+
+=item B<base>
+
+The base message number. 
+
+=item B<dump>
+
+A pointer to the data structure that is used to manage a trace dump.
+
+=back
 
 =head2 I<int jam_destroy(jam_t *self)>
 
@@ -106,6 +266,358 @@ A pointer to the jam_t object.
 
 =back
 
+=head2 I<int jam_open(jam_t *self)>
+
+This method opens the message base. If the message base is new, it
+creates the necessary message base files. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=back
+
+=head2 I<int jam_close(jam_t *self)>
+
+This method closes access to the message base.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=back
+
+=head2 I<int jam_remove(jam_t *self)>
+
+This method removes all of the files associated with a message base.
+
+=over 4
+
+=item B<self>
+
+A pointer to the JAM object.
+
+=back
+
+=head2 I<int jam_size(jam_t *self, ssize_t *size)>
+
+This method returns the number of messages in a message base. This
+includes deleted messages.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=item B<size>
+
+A pointer used to return the size.
+
+=back
+
+=head2 I<int jam_crc32(jam_t *self, uchar *buffer, ulong length, ulong *result)>
+
+This method creates the crc32 value used within the library. It is
+compatible with the crc32 value used by L<jamlib|https://sourceforge.net/projects/jamlib/>.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=item B<buffer>
+
+A pointer to the buffer that will be used.
+
+=item B<length>
+
+The length of the buffer.
+
+=item B<result>
+
+A pointer to place the results in.
+
+=back
+
+=head2 I<int jam_del_lastread(jam_t *self, ulong user_crc)>
+
+This method deletes the lastread record for a given user.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=item B<user_crc>
+
+The crc32 of the users name.
+
+=back
+
+=head2 I<int jam_add_lastread(jam_t *self, ulong user_id, ulong user_crc)>
+
+This method creates a new lastread record for the given user.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=item B<user_id>
+
+The unique id number for the user.
+
+=item B<user_crc>
+
+The crc32 value of the users name. 
+
+=back
+
+=head2 I<int jam_get_lastread(jam_t *self, ulong user_crc, jam_lastread_t *lastread)>
+
+This method will return the lastread record for the given user.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=item B<user_crc>
+
+The crc32 value of the user name.
+
+=item B<lastread>
+
+A pointer to a data structure to accept the results. If a record is
+not found. The fields are defaulted to 0 and JAM_NO_CRC;
+
+=back
+
+=head2 I<int jam_put_lastread(jam_t *self, ulong user_crc, jam_lastread_t *lastread)>
+
+This method is used to update a lastread record for a given user. If a
+lastread record is not found. It will create a new one.
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<user_crc>
+
+The crc32 value of the user name.
+
+=item B<lastread>
+
+A pointer to the data structure to use for the update operation.
+
+=back
+
+=head2 I<int jam_del_lastread(jam_t *self, ulong user_crc)>
+
+This method deletes the lastread record for a given user.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=item B<user_crc>
+
+The crc32 value for the user name.
+
+=back
+
+=head2 I<int jam_get_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fields, char **text)>
+
+This method returns a message from the message base.
+
+=over 4
+
+=item B<self>
+
+A pointer to the jam_t object.
+
+=item B<msgnum>
+
+The message numb.
+
+=item B<message>
+
+A pointer to return the message body.
+
+=item B<fields>
+
+A pointer to return the sub fields for the message.
+
+=item B<text>
+
+A pointer to return the message text for the message.
+
+=back
+
+=head2 I<int jam_add_message(jam_t *self, jam_message_t *message, queue *fields, char *text)>
+
+This method adds a new message to the message base.
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<message>
+
+A pointer to the message body.
+
+=item B<fields>
+
+A pointer to the sub fields associated with this message.
+
+=item B<text>
+
+A pointer to the text of the message.
+
+=back
+
+=head2 I<int jam_del_message(jam_t *self, ulong msgnum)>
+
+This method deletes a message.
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item b<msgnum>
+
+The message number to delete.
+
+=back
+
+=head2 I<int jam_put_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fields)>
+
+This method will update a message.
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<msgnum>
+
+The number of the message.
+
+=item B<message>
+
+A pointer to the message body.
+
+=item B<fields>
+
+A pointer to the sub fields associated with this message.
+
+=back
+
+=head2 I<int jam_search_messages(jam_t *self, ulong select, int index, int (*compare)(ulong, jam_message_t *), queue *results)>
+
+This method searches the message base, selecting messages based on a
+search criteria. These are returned in the results list. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<select>
+
+The value to search on.
+
+=item B<index>
+
+A Boolean on wither to just use the index or to also include the message body
+in the search.
+
+=item B<comapre>
+
+A comparison function. This function is passed the select item along
+with the message body. It should return TRUE/FALSE on match.
+
+=item B<results>
+
+A list of jam_search_t types that match the search criteria. 
+
+=back
+
+=head2 I<int jam_new_field(jam_t *self, ushort item, char *buffer, jam_field_t **field)>
+
+This method creates a new field.
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<item>
+
+The type fol field.
+
+=item B<buffer>
+
+The value of the field.
+
+=item B<field>
+
+A pointer to the new field.
+
+=back
+
+=head2 I<int jam_free_field(jam_t *self, jam_field_t *field)>
+
+This method frees the memory used by the field.
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<field>
+
+A pointer to the field.
+
+=back
+
+=head2 I<int jam_new_message(jam_t *self, jam_message_t **message)>
+
+This method creates a new message header.
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<message>
+
+A pointer to the message.
+
+=back
+
 =head1 RETURNS
 
 The method jam_create() returns a pointer to a jam_t object. 
@@ -141,6 +653,8 @@ Builds the module and provides a shared library.
 =over 4
 
 =item L<object(3)>
+
+=item L<jamlib|https://sourceforge.net/projects/jamlib/>
 
 =back
 

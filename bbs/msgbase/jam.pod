@@ -147,7 +147,7 @@ header. Since this is global to the message base, it is not possible
 to determine what has changed, just that something may have changed.
 
 This library tries to use this to maintain a consistent view
-of the data. It will take a lock and compare the value in the header
+of the data. It will take a lock and compares the value in the header
 to the saved value from the last update. If they are different it will
 try to normalize the data by comparing it to the on disk version and 
 making updates as needed.
@@ -201,11 +201,11 @@ The number of seconds to wait between a retry.
 
 =item B<base>
 
-The base message number. 
+The base message number. This is added to the on disk message number.
 
 =item B<dump>
 
-A pointer to the data structure that is used to manage a trace dump.
+A pointer to a tracer_t object to manage a trace dump.
 
 =back
 
@@ -357,7 +357,7 @@ A pointer to the jam_t object.
 
 =item B<user_crc>
 
-The crc32 of the users name.
+The crc32 value of the users name.
 
 =back
 
@@ -574,7 +574,7 @@ A pointer to a jam_t object.
 
 =item B<item>
 
-The type fol field.
+The type of field.
 
 =item B<buffer>
 

@@ -138,8 +138,9 @@ multi-process system such as Linux.
 This library tries to minimize the impact of the locking system. It
 tries to acquire a lock, if not available, it waits a period of time
 and tries again, up to a predefined limit. Locks are only held for the
-limited time it needs to read and write data. This should minimize the
-locking system problems.
+limited time it needs to read and write data. All locks are aquired
+and released by the library. This should minimize the locking system 
+problems.
 
 The JAM format is not a database with transactions and referential
 integrity. There is a very crude revision scheme in the message base 
@@ -158,7 +159,7 @@ needs of the 1990's era of bbsing and remains popular even today.
 
 This library is a class. It is extensible and overridable. It is possible 
 to write a relational database back end and the call interface would be
-the same. It also make use of the L<errors(3)> and L<tracer(3)>  
+the same. It also makes use of the L<errors(3)> and L<tracer(3)>  
 classes for error handling and reporting. 
 
 The files jam.c and jam.h define the class. 

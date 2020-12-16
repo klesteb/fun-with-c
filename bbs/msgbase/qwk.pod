@@ -3,31 +3,270 @@
 
 =head1 NAME
 
-qwk - A ANSI C class
+qwk - A ANSI C class to manage QWK message packets
 
 =head1 SYNOPSIS
 
  #include <stdio.h>
+ #include <errno.h>
+
  #include "qwk.h"
+ #include "when.h"
+ #include "errors.h"
+ #include "tracer.h"
+ #include "misc/misc.h"
+
+ qwk_t *qwk;
+ tracer_t *dump;
+ errors_t *errs;
+
+ int dump_trace(char *buffer) {
+
+     fprintf(stderr, "%s\n", buffer);
+
+     return OK;
+
+ }
+
+ int setup(void) {
+
+     int stat = OK;
+     int timeout = 1;
+     char *path = ".";
+     char retries = 30;
+
+     when_error_in {
+ 
+         errs = errors_create();
+         check_creation(errs);
+
+         dump = tracer_create(errs);
+         check_creation(dump);
+
+         qwk = qwk_create(path, retries, timeout, FALSE, dump);
+         check_creation(qwk);
+
+         exit_when;
+
+     } use {
+
+         stat = ERR;
+         capture_trace(dump);
+         clear_error();
+
+     } end_when;
+
+     return stat;
+
+ }
+
+ void cleanup(void) {
+
+     qwk_destroy(qwk);
+     tracer_destroy(dump);
+     errors_destroy(errs);
+
+ }
+
+ int dump_message(qwk_header_t *header, char *text) {
+
+     queue lines;
+     struct tm *tm;
+     int stat = OK;
+     char *line = NULL;
+     char output[19];
+     char zone[10];
+
+     when_error_in {
+
+         memset(zone, '\0', 10);
+         memset(output, '\0', 19);
+         tm = localtime(&header->date_time);
+         strftime(zone, 9, "%z", tm);
+         sprintf(output, "%04d-%02d-%02d %02d:%02d:%02d%4s",
+                 1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+                 tm->tm_hour, tm->tm_min, tm->tm_sec, zone);
+
+         stat = que_init(&lines);
+         check_status(stat, QUE_OK, E_INVOPS);
+
+         printf("--------------------------------\n");
+         printf("status    : %d\n", header->status);
+         printf("number    : %ld\n", header->number);
+         printf("date time : %s\n", output);
+         printf("to        : %s\n", header->to);
+         printf("from      : %s\n", header->from);
+         printf("subject   : %s\n", header->subject);
+         printf("password  : %s\n", header->password);
+         printf("reply     : %ld\n", header->reply);
+         printf("records   : %ld\n", header->records);
+         printf("alive     : %d\n", header->alive);
+         printf("conference: %d\n", header->conference);
+         printf("seq num   : %d\n", header->seq_number);
+         printf("net tag   : %s\n", header->net_tag);
+         printf("\n");
+
+         wordwrap(text, 60, &lines);
+
+         while ((line = que_pop_head(&lines))) {
+
+             printf("%s\n", line);
+             free(line);
+
+         }
+
+         printf("\n");
+
+         exit_when;
+
+     } use {
+
+         stat = ERR;
+         capture_trace(dump);
+         clear_error();
+
+     } end_when;
+
+     return stat;
+
+ }
+
+ int dump_control(qwk_control_t *control) {
+
+     int stat = OK;
+     struct tm *tm;
+     char output[19];
+     qwk_area_t *area = NULL;
+
+     memset(output, '\0', 19);
+     tm = localtime(&control->date_time);
+     sprintf(output, "%04d-%02d-%02d %02d:%02d:%02d",
+             1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+             tm->tm_hour, tm->tm_min, tm->tm_sec);
+
+     printf("\ncontrol.dat\n");
+     printf("--------------------------------\n");
+     printf("bbs name    : %s\n", control->bbs_name);
+     printf("city        : %s\n", control->city);
+     printf("state       : %s\n", control->state);
+     printf("phone       : %s\n", control->phone);
+     printf("sysop       : %s\n", control->sysop);
+     printf("serial num  : %s\n", control->serial_num);
+     printf("bbs id      : %s\n", control->bbs_id);
+     printf("username    : %s\n", control->username);
+     printf("hello file  : %s\n", control->hello_file);
+     printf("news file   : %s\n", control->news_file);
+     printf("goodbye file: %s\n", control->goodbye_file);
+     printf("num areas   : %ld\n", control->num_areas);
+     printf("date time   : %s\n", output);
+     printf("areas\n");
+
+     while ((area = que_pop_tail(&control->areas))) {
+
+         printf("  number: %ld\n", area->area);
+         printf("  name  : %s\n", area->name);
+
+         free(area);
+ 
+     }
+
+     printf("\n");
+
+     return stat;
+
+ }
 
  int main(int argc, char **argv) {
 
-     qwk_t *temp = NULL;
+     int stat = OK;
+     qwk_ndx_t ndx;
+     ssize_t count = 0;
+     char *text = NULL;
+     char *notice = NULL;
+     qwk_header_t header;
+     qwk_control_t control;
 
-     if ((temp = qwk_create(NULL))) {
+     when_error_in {
 
-         qwk_destroy(temp);
+         stat = setup();
+         check_status(stat, OK, E_INVOPS);
 
-     }
+         stat = qwk_open(qwk);
+         check_return(stat, qwk);
 
-     return 0;
+         stat = qwk_get_control(qwk, &control);
+         check_return(stat, qwk);
+
+         stat = dump_control(&control);
+         check_status(stat, OK, E_INVOPS);
+        
+         stat = qwk_get_notice(qwk, &notice);
+         check_return(stat, qwk);
+
+         printf("\nmessage.dat\n");
+         printf("--------------------------------\n");
+         printf("notice: %s\n", notice);
+         free(notice);
+
+         stat = qwk_open_ndx(qwk, "001");
+         check_return(stat, qwk);
+
+         stat = qwk_get_ndx(qwk, &ndx, &count);
+         check_return(stat, qwk);
+
+         while (count > 0) {
+
+             stat = qwk_get_message(qwk, ndx.index, &header, &text);
+             check_return(stat, qwk);
+            
+             stat = dump_message(&header, text);
+             check_status(stat, OK, E_INVOPS);
+            
+             stat = qwk_get_ndx(qwk, &ndx, &count);
+             check_return(stat, qwk);
+
+         }
+
+         stat = qwk_close(qwk);
+         check_return(stat, qwk);
+
+         exit_when;
+
+     } use {
+
+         capture_trace(dump);
+         tracer_dump(dump, dump_trace);
+         clear_error();
+
+     } end_when;
+
+     cleanup();
+
+    return 0;
 
  }
 
 =head1 DESCRIPTION
 
-This is a basic class written in ANSI C. It shows a way to implement
-object oriented programming. Why do this? It is a nice thought exercise. 
+This class implements the QWK packet format as described in
+qwk.txt, v1.3, dated 1992-07-05. Authored by Patrick Y. Lee. This
+document describes a file format and how to interact with that format.
+
+It does not implement any of the QWK networking features as outlined
+here: L<Synchronet QWK Network Extensions|http://wiki.synchro.net/ref:qwknet>
+
+This library was designed to seamlessly handle the QWK control.dat,
+messages.dat and the <area>.ndx files. It can also create the
+corresponding REP files. It does not handle the packing and unpacking
+of those files. 
+
+The ndx files are properly handled by converting the MSBIN record
+number into a long when reading, and converting the long to the MSBIN
+format when writing. 
+
+This library is a class. It is extensible and overridable. It is possible 
+to extend this code with QWK networking functionality. It also makes use of 
+the L<errors(3)> and L<tracer(3)> classes for error handling and reporting. 
 
 The files qwk.c and qwk.h define the class. 
 
@@ -45,9 +284,34 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<qwk_t *qwk_create(NULL)>
+=head2 I<qwk_t *qwk_create(char *path, int retries, int timeout, int rep, tracer_t *dump)>
 
 This method initializes the class. 
+
+=over 4
+
+=item B<path>
+
+The path to a work directory for creating the packet.
+
+=item B<rep>
+
+A Boolean that indicates if this is a QWK or REP packet. A TRUE value
+indicates a QWK packet.
+
+=item B<retires>
+
+The number of retires for file locking.
+
+=item B<timeout>
+
+The wait time in seconds between retires.
+
+=item B<dump>
+
+A pointer to a tracer_t object to manage a trace dump.
+
+=back
 
 =head2 I<int qwk_destroy(qwk_t *self)>
 
@@ -106,6 +370,233 @@ A pointer to the qwk_t object.
 
 =back
 
+=head2 I<int qwk_open(qwk_t *self)>
+
+This method allows access to the files used in a QWK packet. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=back
+
+=head2 I<int qwk_close(qwk_t *self)>
+
+This method closes access to the packet files.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=back
+
+=head2 I<int qwk_open_ndx(qwk_t *self, char *name)>
+
+This method opens the named ndx file.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<name>
+
+The name of the ndx file. This assumes an extension of ".ndx".
+
+=back
+
+=head2 I<int qwk_get_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count)>
+
+This method gets the next ndx record. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<count>
+
+A pointer to the number of bytes read. A 0 value indicates end of file.
+
+=back
+
+=head2 I<int qwk_put_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count)>
+
+This method appends a ndx record. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<ndx>
+
+A pointer to the ndx record to be written.
+
+=item B<count>
+
+A pointer to the number of bytes written. If this is less the the size
+of the qwk_ndx_t type, an error has occurred.
+
+=back
+
+=head2 I<int qwk_close_ndx(qwk_t *self)>
+
+This method closes the currently open ndx file.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=back
+
+=head2 I<int qwk_get_control(qwk_t *self, qwk_control_t *control)>
+
+This method will read the control file.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<control>
+
+A pointer to the control record.
+
+=back
+
+=head2 I<int qwk_put_control(qwk_t *self, qwk_control_t *control)>
+
+This method writes out the control files.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<control>
+
+A pointer to the record to write out.
+
+=back
+
+=head2 I<int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text)>
+
+This method will read in a message record.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<record>
+
+The record number for the message.
+
+=item B<header>
+
+A pointer to a message header.
+
+=item B<text>
+
+A pointer to the message text. This will need to be freed after usage.
+
+=back
+
+=head2 I<int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *record)>
+
+This method appends a message to the message file.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<header>
+
+A pointer to message header.
+
+=item B<text>
+
+The text of the message.
+
+=item B<record>
+
+A pointer to write the record number of the message too.
+
+=back
+
+=head2 I<int qwk_new_header(qwk_t *self, qwk_header_t **header)>
+
+This method creates a new message header. The header will need to be
+freed after usage.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<header>
+
+A pointer to write the created header too.
+
+=back
+
+=head2 I<int qwk_new_ndx(qwk_t *self, ulong record, uchar conference, qwk_ndx_t **ndx)>
+
+This method creates a new ndx record. This will need to be freed after
+usage.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<record>
+
+The record number to use.
+
+=item B<conference>
+
+The conference number to use.
+
+=item B<ndx>
+
+A pointer to write the ndx too.
+
+=back
+
+=head2 I<int qwk_free_text(qwk_t *self, char *text)>
+
+This method will free the text buffer.
+
+=over 4
+
+=item B<self>
+
+A pointer to a qwk_t object.
+
+=item B<text>
+
+A pointer to the text that needs to be freed.
+
+=back
+
 =head1 RETURNS
 
 The method qwk_create() returns a pointer to a qwk_t object. 
@@ -142,7 +633,18 @@ Builds the module and provides a shared library.
 
 =item L<object(3)>
 
+
 =back
+
+=head1 NOTE
+
+Parts of this library were written in 1992. This was on the Amiga and was
+intended to be used by a BBS that I was writing back then. It was
+packaged up with extensive documentation and released to AmiNet as a
+shareware package, and was promptly lost into the mists of times. The
+original code was highly Amiga specific and written in Lattice C. This
+code has been normalized into ANSI C and uses GCC to compile. Hopefully 
+this version will be more successful.
 
 =head1 AUTHOR
 

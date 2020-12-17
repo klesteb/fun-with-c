@@ -214,6 +214,8 @@ int main(int argc, char **argv) {
             stat = dump_message(&header, text);
             check_status(stat, OK, E_INVOPS);
             
+            free(text);
+
             stat = qwk_get_ndx(qwk, &ndx, &count);
             check_return(stat, qwk);
 

@@ -27,7 +27,7 @@ INCS = jam.h qwk.h
 OBJS = jam.o qwk.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-             test10 test11 test12 test13 test14 test15
+             test10 test11 test12 test13 test14 test15 dump
 #
 debug:
 #
@@ -55,6 +55,7 @@ clean:
 	rm -f test13
 	rm -f test14
 	rm -f test15
+	rm -f dump
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -115,6 +116,10 @@ test14: test14.o
 test15: test15.o
 	$(CC) $(CFLAGS) test15.c
 	$(LINK) $(LOPTS) test15 test15.o $(OLBS)
+#
+dump: dump.o
+	$(CC) $(CFLAGS) dump.c
+	$(LINK) $(LOPTS) dump dump.o $(OLBS)
 #
 #
 jam.o: jam.c $(INCS)

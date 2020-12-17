@@ -665,7 +665,7 @@ int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *record
 
 int _qwk_ctor(object_t *object, item_list_t *items) {
 
-    char *path;
+    char path[256];
     int stat = ERR;
     int rep = FALSE;
     int timeout = 1;
@@ -677,6 +677,7 @@ int _qwk_ctor(object_t *object, item_list_t *items) {
 
     if (object != NULL) {
 
+        memset(path, '\0', 256);
         memset(control, '\0', 1024);
         memset(messages, '\0', 1024);
 
@@ -692,7 +693,7 @@ int _qwk_ctor(object_t *object, item_list_t *items) {
 
                 switch(items[x].item_code) {
                     case QWK_K_PATH: {
-                        memcpy(&path, 
+                        memcpy(path, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
@@ -1533,7 +1534,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
 
         stripcr(buff);
         strncpy((*ctrl).bbs_name, buff, 32);
-
+        
         /* Line #2, The City and State where the BBS is located.         */
    
         memset(buff, '\0', BUFSIZ);
@@ -1542,12 +1543,20 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
         if (count == 0) cause_error(EIO);
    
         stripcr(buff);
+        if (strchr(buff, ',')) {
 
-        t = strtok(buff, ", ");
-        strncpy((*ctrl).city, t, 32);
+            t = strtok(buff, ", ");
+            strncpy((*ctrl).city, t, 32);
 
-        t = strtok(NULL, "\n");
-        strncpy((*ctrl).state, trim(t), 32);
+            t = strtok(NULL, "\n");
+            strncpy((*ctrl).state, trim(t), 32);
+
+        } else {
+
+            strncpy((*ctrl).city, buff, 32);
+            memset((*ctrl).state, ' ', 32);
+
+        }
 
         /* Line #3, The BBS's phone number.                              */
    

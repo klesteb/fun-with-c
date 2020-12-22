@@ -14,7 +14,7 @@ CC = gcc
 LINK = gcc
 LIBR = ar rs
 WORKING = $(shell pwd)
-STATIC = libjam.a libqwk.a
+STATIC = libjam.a libqwk.a libroom.a
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../../files -I../../errors -I../../tracer -I../../include -I../../cclibs -I../../objects -I../../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
@@ -22,9 +22,9 @@ SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC
 #
 OLBS = $(STATIC) ../../libs/libtracer.a ../../libs/liberrors.a ../../libs/libfiles.a ../../libs/libobjects.a ../../libs/libcclibs.a ../../libs/libgpl.a 
 #
-INCS = jam.h qwk.h
+INCS = jam.h qwk.h room.h
 #
-OBJS = jam.o qwk.o
+OBJS = jam.o qwk.o room.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10 test11 test12 test13 test14 test15 dump
@@ -38,8 +38,11 @@ clean:
 	rm -f libjam.so.*
 	rm -f libqwk.a
 	rm -f libqwk.so.*
+	rm -f libroom.a
+	rm -f libroom.so.*
 	rm -f jam.3
 	rm -f qwk.3
+	rm -f room.3
 	rm -f test1
 	rm -f test2
 	rm -f test3
@@ -130,9 +133,14 @@ qwk.o: qwk.c $(INCS)
 	$(CC) $(CFLAGS) qwk.c
 	$(LIBR) libqwk.a qwk.o
 #
+room.o: room.c $(INCS)
+	$(CC) $(CFLAGS) room.c
+	$(LIBR) libroom.a room.o
+#
 man:
 	pod2man -c " " -r "jam(3)" -s 3 jam.pod jam.3
 	pod2man -c " " -r "qwk(3)" -s 3 qwk.pod qwk.3
+	pod2man -c " " -r "room(3)" -s 3 room.pod room.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) jam.o jam.c
@@ -140,6 +148,9 @@ shared:
 #
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) qwk.o qwk.c
 	$(LINK) $(SOPTS) libqwk.so.$(VERSION) qwk.o
+#
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) room.o room.c
+	$(LINK) $(SOPTS) libroom.so.$(VERSION) room.o
 #
 # eof
 #

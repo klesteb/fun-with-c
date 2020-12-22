@@ -1902,8 +1902,8 @@ int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl) {
 int _qwk_open_ndx(qwk_t *self, char *name) {
 
     int stat = OK;
-    char index[1024];
     int exists = 0;
+    char index[1024];
     int flags = O_RDWR;
     int create = (O_RDWR | O_CREAT);
     int mode = (S_IRWXU | S_IRWXG);

@@ -31,7 +31,7 @@ struct _template_s {
 };
 
 /*-------------------------------------------------------------*/
-/* constants                                                   */
+/* klass constants                                             */
 /*-------------------------------------------------------------*/
 
 #define TEMPLATE(x) ((template_t *)(x))
@@ -39,7 +39,7 @@ struct _template_s {
 #define TEMPLATE_M_DESTRUCTOR 1
 
 /*-------------------------------------------------------------*/
-/* interface                                                   */
+/* klass interface                                             */
 /*-------------------------------------------------------------*/
 
 extern template_t *template_create(item_list_t *);

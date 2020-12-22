@@ -306,7 +306,7 @@ struct _jam_s {
 #define JAMSFLD_UNKNOWN     0xFFFF
 
 /*-------------------------------------------------------------*/
-/* interface                                                   */
+/* klass interface                                             */
 /*-------------------------------------------------------------*/
 
 extern jam_t *jam_create(char *, char *, int, int, int, tracer_t *);

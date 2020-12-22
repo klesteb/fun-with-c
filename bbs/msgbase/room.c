@@ -35,13 +35,13 @@ int _room_override(room_t *, item_list_t *);
 int _room_open(room_t *);
 int _room_close(room_t *);
 int _room_add(room_t *, room_base_t *);
-int _room_next(room_t *, room_base_t *);
-int _room_prev(room_t *, room_base_t *);
-int _room_last(room_t *, room_base_t *);
-int _room_first(room_t *, room_base_t *);
 int _room_get(room_t *, short, room_base_t *);
 int _room_put(room_t *, short, room_base_t *);
 int _room_read(room_t *, room_base_t *, ssize_t *);
+int _room_next(room_t *, room_base_t *, ssize_t *);
+int _room_prev(room_t *, room_base_t *, ssize_t *);
+int _room_last(room_t *, room_base_t *, ssize_t *);
+int _room_first(room_t *, room_base_t *, ssize_t *);
 int _room_write(room_t *, room_base_t *, ssize_t *);
 int _room_build(room_t *, room_base_t *, room_base_t *);
 
@@ -109,9 +109,7 @@ int room_destroy(room_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -141,9 +139,7 @@ int room_override(room_t *self, item_list_t *items) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -181,9 +177,7 @@ int room_compare(room_t *us, room_t *them) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(us);
 
     } end_when;
 
@@ -196,6 +190,258 @@ char *room_version(room_t *self) {
     char *version = VERSION;
 
     return version;
+
+}
+
+int room_open(room_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_open(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_close(room_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_close(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_first(room_t *self, room_base_t *room, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_first(self, room, count);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_next(room_t *self, room_base_t *room, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_next(self, room, count);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_prev(room_t *self, room_base_t *room, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_prev(self, room, count);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_last(room_t *self, room_base_t *room, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_last(self, room, count);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_add(room_t *self, room_base_t *room) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_add(self, room);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_get(room_t *self, short conference, room_base_t *room) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get(self, conference, room);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_put(room_t *self, short conference, room_base_t *room) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_put(self, conference, room);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
 
 }
 
@@ -308,10 +554,11 @@ int _room_ctor(object_t *object, item_list_t *items) {
 
         when_error_in {
 
-            strcpy(roombase, fnm_build(1, FnmPath, "rooms", ".dat", database, NULL));
+            strncpy(roombase, fnm_build(1, FnmPath, "rooms", ".dat", database, NULL), 255);
             self->rooms = files_create(roombase, retries, timeout);
             check_creation(self->rooms);
 
+            self->jam = NULL;
             self->base = base;
             self->trace = dump;
             self->retries = retries;
@@ -428,12 +675,12 @@ int _room_open(room_t *self) {
 
         } else {
 
+            stat = files_open(self->rooms, create, mode);
+            check_return(stat, self->rooms);
+
             memset(&aide, '\0', sizeof(room_base_t));
             memset(&email, '\0', sizeof(room_base_t));
             memset(&lobby, '\0', sizeof(room_base_t));
-                   
-            stat = files_open(self->rooms, create, mode);
-            check_return(stat, self->rooms);
 
             email.conference = 0;
             email.base = self->base;
@@ -441,18 +688,18 @@ int _room_open(room_t *self) {
             email.retries = self->retries;
             email.timeout = self->timeout;
             email.flags = (PERMROOM | PUBLIC | INUSE);
-            strncpy(email.path, fnm_build(1, FnmPath, self->msgbase, NULL), 256);
+            strncpy(email.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &email);
             check_return(stat, self);
 
             lobby.conference = 1;
             lobby.base = self->base;
+            strcpy(lobby.name, "Lobby");
             lobby.retries = self->retries;
             lobby.timeout = self->timeout;
-            strcpy(lobby.name, "Lobby");
             lobby.flags = (PERMROOM | PUBLIC | INUSE);
-            strncpy(lobby.path, fnm_build(1, FnmPath, self->msgbase, NULL), 256);
+            strncpy(lobby.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &lobby);
             check_return(stat, self);
@@ -463,7 +710,7 @@ int _room_open(room_t *self) {
             aide.retries = self->retries;
             aide.timeout = self->timeout;
             aide.flags = (PERMROOM | INUSE);
-            strncpy(aide.path, fnm_build(1, FnmPath, self->msgbase, NULL), 256);
+            strncpy(aide.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &aide);
             check_return(stat, self);
@@ -517,10 +764,9 @@ int _room_close(room_t *self) {
 
 }
 
-int _room_first(room_t *self, room_base_t *room) {
+int _room_first(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
-    ssize_t count = 0;
     room_base_t ondisk;
 
     when_error_in {
@@ -528,17 +774,15 @@ int _room_first(room_t *self, room_base_t *room) {
         stat = files_seek(self->rooms, 0, SEEK_SET);
         check_return(stat, self->rooms);
 
-        stat = self->_read(self, &ondisk, &count);
+        stat = self->_read(self, &ondisk, count);
         check_return(stat, self);
 
-        if (count != sizeof(room_base_t)) {
+        if (*count == sizeof(room_base_t)) {
 
-            cause_error(EIO);
+            stat = self->_build(self, &ondisk, room);
+            check_return(stat, self);
 
         }
-
-        stat = self->_build(self, &ondisk, room);
-        check_return(stat, self);
 
         exit_when;
 
@@ -553,25 +797,22 @@ int _room_first(room_t *self, room_base_t *room) {
 
 }
 
-int _room_next(room_t *self, room_base_t *room) {
+int _room_next(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
-    ssize_t count = 0;
     room_base_t ondisk;
 
     when_error_in {
 
-        stat = self->_read(self, &ondisk, &count);
+        stat = self->_read(self, &ondisk, count);
         check_return(stat, self);
 
-        if (count != sizeof(room_base_t)) {
+        if (*count == sizeof(room_base_t )) {
 
-            cause_error(EIO);
+            stat = self->_build(self, &ondisk, room);
+            check_return(stat, self);
 
         }
-
-        stat = self->_build(self, &ondisk, room);
-        check_return(stat, self);
 
         exit_when;
 
@@ -586,10 +827,9 @@ int _room_next(room_t *self, room_base_t *room) {
 
 }
 
-int _room_prev(room_t *self, room_base_t *room) {
+int _room_prev(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
-    ssize_t count = 0;
     room_base_t ondisk;
     off_t offset = sizeof(room_base_t);
 
@@ -598,17 +838,15 @@ int _room_prev(room_t *self, room_base_t *room) {
         stat = files_seek(self->rooms, -offset, SEEK_CUR);
         check_return(stat, self->rooms);
 
-        stat = self->_read(self, &ondisk, &count);
+        stat = self->_read(self, &ondisk, count);
         check_return(stat, self);
 
-        if (count != sizeof(room_base_t)) {
+        if (*count == sizeof(room_base_t)) {
 
-            cause_error(EIO);
+            stat = self->_build(self, &ondisk, room);
+            check_return(stat, self);
 
         }
-
-        stat = self->_build(self, &ondisk, room);
-        check_return(stat, self);
 
         exit_when;
 
@@ -623,10 +861,9 @@ int _room_prev(room_t *self, room_base_t *room) {
 
 }
 
-int _room_last(room_t *self, room_base_t *room) {
+int _room_last(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
-    ssize_t count = 0;
     room_base_t ondisk;
     off_t offset = sizeof(room_base_t);
 
@@ -638,70 +875,15 @@ int _room_last(room_t *self, room_base_t *room) {
         stat = files_seek(self->rooms, -offset, SEEK_CUR);
         check_return(stat, self->rooms);
 
-        stat = self->_read(self, &ondisk, &count);
+        stat = self->_read(self, &ondisk, count);
         check_return(stat, self);
 
-        if (count != sizeof(room_base_t)) {
+        if (*count == sizeof(room_base_t)) {
 
-            cause_error(EIO);
-
-        }
-
-        stat = self->_build(self, &ondisk, room);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
-
-    char name[5];
-    int stat = OK;
-
-    when_error_in {
-
-        (*room).base = ondisk->base;
-        (*room).flags = ondisk->flags;
-        (*room).retries = ondisk->retries;
-        (*room).timeout = ondisk->timeout;
-        (*room).conference = ondisk->conference;
-
-        memset((*room).name, '\0', 32);
-        strncpy((*room).name, ondisk->name, 31);
-
-        memset((*room).path, '\0', 256);
-        strncpy((*room).path, ondisk->path, 255);
-
-        if (self->jam != NULL) {
-
-            stat = jam_close(self->jam);
-            check_return(stat, self->jam);
-
-            stat = jam_destroy(self->jam);
-            check_return(stat, self->jam);
-
-            self->jam = NULL;
+            stat = self->_build(self, &ondisk, room);
+            check_return(stat, self);
 
         }
-
-        memset(name, '\0', 5);
-        snprintf(name, 4, "%04d", room->conference);
-
-        self->jam = jam_create(self->msgbase, name, room->retries, room->timeout, room->base, self->trace);
-        check_creation(self->jam);
-
-        stat = jam_open(self->jam);
-        check_return(stat, self->jam);
 
         exit_when;
 
@@ -836,6 +1018,63 @@ int _room_put(room_t *self, short conference, room_base_t *room) {
             check_return(stat, self);
 
         }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
+
+    char name[7];
+    int stat = OK;
+
+    when_error_in {
+
+        (*room).base = ondisk->base;
+        (*room).flags = ondisk->flags;
+        (*room).retries = ondisk->retries;
+        (*room).timeout = ondisk->timeout;
+        (*room).conference = ondisk->conference;
+
+        memset((*room).name, '\0', 32);
+        strncpy((*room).name, ondisk->name, 31);
+
+        memset((*room).path, '\0', 256);
+        strncpy((*room).path, ondisk->path, 255);
+
+        if (self->jam != NULL) {
+
+            stat = jam_close(self->jam);
+            check_return(stat, self->jam);
+
+            stat = jam_destroy(self->jam);
+            check_return(stat, self->jam);
+
+            self->jam = NULL;
+
+        }
+
+fprintf(stderr, "_room_build() - conference: %d\n", room->conference);
+
+        memset(name, '\0', 7);
+        snprintf(name, 6, "%05d", (int)room->conference);
+
+fprintf(stderr, "_room_build() - name      : %s\n", name);
+
+        self->jam = jam_create(self->msgbase, name, room->retries, room->timeout, room->base, self->trace);
+        check_creation(self->jam);
+
+        stat = jam_open(self->jam);
+        check_return(stat, self->jam);
 
         exit_when;
 

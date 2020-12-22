@@ -14,7 +14,7 @@ CC = gcc
 LINK = gcc
 LIBR = ar rs
 WORKING = $(shell pwd)
-STATIC = libjam.a libqwk.a libroom.a
+STATIC = libroom.a libjam.a libqwk.a 
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../../files -I../../errors -I../../tracer -I../../include -I../../cclibs -I../../objects -I../../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
@@ -27,7 +27,8 @@ INCS = jam.h qwk.h room.h
 OBJS = jam.o qwk.o room.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-             test10 test11 test12 test13 test14 test15 dump
+             test10 test11 test12 test13 test14 test15 test16 test17 \
+             dump
 #
 debug:
 #
@@ -58,6 +59,8 @@ clean:
 	rm -f test13
 	rm -f test14
 	rm -f test15
+	rm -f test16
+	rm -f test17
 	rm -f dump
 #
 test1: test1.o
@@ -119,6 +122,14 @@ test14: test14.o
 test15: test15.o
 	$(CC) $(CFLAGS) test15.c
 	$(LINK) $(LOPTS) test15 test15.o $(OLBS)
+#
+test16: test16.o
+	$(CC) $(CFLAGS) test16.c
+	$(LINK) $(LOPTS) test16 test16.o $(OLBS)
+#
+test17: test17.o
+	$(CC) $(CFLAGS) test17.c
+	$(LINK) $(LOPTS) test17 test17.o $(OLBS)
 #
 dump: dump.o
 	$(CC) $(CFLAGS) dump.c

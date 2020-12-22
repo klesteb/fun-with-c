@@ -34,7 +34,7 @@ typedef struct _room_base_s {
     int retries;            /* number of retires for file locking        */
     int timeout;            /* timeout in seconds, between retries       */
     int base;               /* the base message number                   */
-} room_base_t;
+} room_base_t;              /* 304 bytes                                 */
 
 typedef struct _room_search_s {
     char name[32];          /* name of the room                          */
@@ -58,13 +58,13 @@ struct _room_s {
     int (*_close)(room_t *);
     int (*_del)(room_t *, short);
     int (*_add)(room_t *, room_base_t *);
-    int (*_next)(room_t *, room_base_t *);
-    int (*_prev)(room_t *, room_base_t *);
-    int (*_last)(room_t *, room_base_t *);
-    int (*_first)(room_t *, room_base_t *);
     int (*_get)(room_t *, short, room_base_t *);
     int (*_put)(room_t *, short, room_base_t *);
+    int (*_next)(room_t *, room_base_t *, ssize_t *);
+    int (*_prev)(room_t *, room_base_t *, ssize_t *);
+    int (*_last)(room_t *, room_base_t *, ssize_t *);
     int (*_read)(room_t *, room_base_t *, ssize_t *);
+    int (*_first)(room_t *, room_base_t *, ssize_t *);
     int (*_write)(room_t *, room_base_t *, ssize_t *);
     int (*_build)(room_t *, room_base_t *, room_base_t *);
 
@@ -110,6 +110,16 @@ extern int room_destroy(room_t *);
 extern int room_compare(room_t *, room_t *);
 extern int room_override(room_t *, item_list_t *);
 extern char *room_version(room_t *);
+
+extern int room_open(room_t *);
+extern int room_close(room_t *);
+extern int room_add(room_t *, room_base_t *);
+extern int room_get(room_t *, short, room_base_t *);
+extern int room_put(room_t *, short, room_base_t *);
+extern int room_next(room_t *, room_base_t *, ssize_t *);
+extern int room_prev(room_t *, room_base_t *, ssize_t *);
+extern int room_last(room_t *, room_base_t *, ssize_t *);
+extern int room_first(room_t *, room_base_t *, ssize_t *);
 
 #endif
 

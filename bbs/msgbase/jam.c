@@ -878,19 +878,19 @@ int _jam_ctor(object_t *object, item_list_t *items) {
 
         when_error_in {
 
-            strcpy(header, fnm_build(1, FnmPath, name, EXT_HDRFILE, path, NULL));
+            strncpy(header, fnm_build(1, FnmPath, name, EXT_HDRFILE, path, NULL), 255);
             self->header = files_create(header, retries, timeout);
             check_creation(self->header);
 
-            strcpy(text, fnm_build(1, FnmPath, name, EXT_TXTFILE, path, NULL));
+            strncpy(text, fnm_build(1, FnmPath, name, EXT_TXTFILE, path, NULL), 255);
             self->text = files_create(text, retries, timeout);
             check_creation(self->text);
 
-            strcpy(index, fnm_build(1, FnmPath, name, EXT_IDXFILE, path, NULL));
+            strncpy(index, fnm_build(1, FnmPath, name, EXT_IDXFILE, path, NULL), 255);
             self->index = files_create(index, retries, timeout);
             check_creation(self->index);
 
-            strcpy(lastread, fnm_build(1, FnmPath, name, EXT_LRDFILE, path, NULL));
+            strncpy(lastread, fnm_build(1, FnmPath, name, EXT_LRDFILE, path, NULL), 255);
             self->lastread = files_create(lastread, retries, timeout);
             check_creation(self->lastread);
 

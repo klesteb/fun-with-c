@@ -642,7 +642,26 @@ int _room_compare(room_t *self, room_t *other) {
         (self->ctor == other->ctor) &&
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        (self->_override == other->_override) &&
+        (self->_open  == other->_open) &&
+        (self->_close == other->_close) &&
+        (self->_add   == other->_add) &&
+        (self->_next  == other->_next) &&
+        (self->_prev  == other->_prev) &&
+        (self->_last  == other->_last) &&
+        (self->_first == other->_first) &&
+        (self->_get   == other->_get) &&
+        (self->_put   == other->_put) &&
+        (self->_read  == other->_read) &&
+        (self->_write == other->_write) &&
+        (self->_build == other->_build) &&
+        (self->base == other->base) &&
+        (self->retries == other->retries) &&
+        (self->timeout == other->timeout) &&
+        (self->msgbase == other->msgbase) &&
+        (self->jam == other->jam) &&
+        (self->rooms = other->rooms) &&
+        (self->trace == other->trace)) {
 
         stat = OK;
 
@@ -831,20 +850,35 @@ int _room_prev(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
     room_base_t ondisk;
+    ssize_t position = 0;
     off_t offset = sizeof(room_base_t);
 
     when_error_in {
 
-        stat = files_seek(self->rooms, -offset, SEEK_CUR);
+        stat = files_tell(self->rooms, &position);
         check_return(stat, self->rooms);
 
-        stat = self->_read(self, &ondisk, count);
-        check_return(stat, self);
+        if (position > 0) {
 
-        if (*count == sizeof(room_base_t)) {
+            stat = files_seek(self->rooms, -offset, SEEK_CUR);
+            check_return(stat, self->rooms);
 
-            stat = self->_build(self, &ondisk, room);
+            stat = self->_read(self, &ondisk, count);
             check_return(stat, self);
+
+            stat = files_seek(self->rooms, -offset, SEEK_CUR);
+            check_return(stat, self->rooms);
+
+            if (*count == sizeof(room_base_t)) {
+
+                stat = self->_build(self, &ondisk, room);
+                check_return(stat, self);
+
+            }
+
+        } else {
+
+            *count = 0;
 
         }
 
@@ -877,6 +911,9 @@ int _room_last(room_t *self, room_base_t *room, ssize_t *count) {
 
         stat = self->_read(self, &ondisk, count);
         check_return(stat, self);
+
+        stat = files_seek(self->rooms, -offset, SEEK_CUR);
+        check_return(stat, self->rooms);
 
         if (*count == sizeof(room_base_t)) {
 
@@ -1063,12 +1100,8 @@ int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
 
         }
 
-fprintf(stderr, "_room_build() - conference: %d\n", room->conference);
-
         memset(name, '\0', 7);
         snprintf(name, 6, "%05d", (int)room->conference);
-
-fprintf(stderr, "_room_build() - name      : %s\n", name);
 
         self->jam = jam_create(self->msgbase, name, room->retries, room->timeout, room->base, self->trace);
         check_creation(self->jam);

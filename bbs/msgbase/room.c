@@ -34,6 +34,7 @@ int _room_override(room_t *, item_list_t *);
 
 int _room_open(room_t *);
 int _room_close(room_t *);
+int _room_del(room_t *, short);
 int _room_add(room_t *, room_base_t *);
 int _room_get(room_t *, short, room_base_t *);
 int _room_put(room_t *, short, room_base_t *);
@@ -60,18 +61,19 @@ declare_klass(ROOM_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-room_t *room_create(char *dbpath, char *msgpath, int retries, int timeout, tracer_t *dump) {
+room_t *room_create(char *dbpath, char *msgpath, int retries, int timeout, int base, tracer_t *dump) {
 
     int stat = ERR;
     room_t *self = NULL;
-    item_list_t items[6];
+    item_list_t items[7];
 
     SET_ITEM(items[0], ROOM_K_MSGBASE, msgpath, strlen(msgpath), NULL);
     SET_ITEM(items[1], ROOM_K_DATABASE, dbpath, strlen(dbpath), NULL);
     SET_ITEM(items[2], ROOM_K_RETRIES, &retries, sizeof(int), NULL);
     SET_ITEM(items[3], ROOM_K_TIMEOUT, &timeout, sizeof(int), NULL);
-    SET_ITEM(items[4], ROOM_K_TRACE, dump, 0, NULL);
-    SET_ITEM(items[5], 0,0,0,0);
+    SET_ITEM(items[4], ROOM_K_BASE, &base, sizeof(int), NULL);
+    SET_ITEM(items[5], ROOM_K_TRACE, dump, 0, NULL);
+    SET_ITEM(items[6], 0,0,0,0);
 
     self = (room_t *)object_create(ROOM_KLASS, items, &stat);
 
@@ -389,6 +391,34 @@ int room_add(room_t *self, room_base_t *room) {
 
 }
 
+int room_del(room_t *self, short conference) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_del(self, conference);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int room_get(room_t *self, short conference, room_base_t *room) {
 
     int stat = OK;
@@ -544,6 +574,7 @@ int _room_ctor(object_t *object, item_list_t *items) {
         self->_prev  = _room_prev;
         self->_last  = _room_last;
         self->_first = _room_first;
+        self->_del   = _room_del;
         self->_get   = _room_get;
         self->_put   = _room_put;
         self->_read  = _room_read;
@@ -650,6 +681,7 @@ int _room_compare(room_t *self, room_t *other) {
         (self->_prev  == other->_prev) &&
         (self->_last  == other->_last) &&
         (self->_first == other->_first) &&
+        (self->_del   == other->_del) &&
         (self->_get   == other->_get) &&
         (self->_put   == other->_put) &&
         (self->_read  == other->_read) &&
@@ -951,6 +983,77 @@ int _room_add(room_t *self, room_base_t *room) {
         if (count != sizeof(room_base_t)) {
 
             cause_error(EIO);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_del(room_t *self, short conference) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    room_base_t ondisk;
+    off_t offset = sizeof(room_base_t);
+
+    when_error_in {
+
+        stat = files_seek(self->rooms, 0, SEEK_SET);
+        check_return(stat, self->rooms);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if (ondisk.conference == conference) {
+
+                if (! (ondisk.flags & PERMROOM)) {
+
+                    ondisk.base = 0;
+                    ondisk.flags = 0;
+                    ondisk.retries = 0;
+                    ondisk.timeout = 0;
+                    ondisk.conference = -1;
+                    memset(&ondisk.name, '\0', 32);
+                    memset(&ondisk.path, '\0', 256);
+
+                    stat = files_seek(self->rooms, -offset, SEEK_CUR);
+                    check_return(stat, self->rooms);
+
+                    stat = self->_write(self, &ondisk, &count);
+                    check_return(stat, self);
+
+                    if (self->jam != NULL) {
+
+                        stat = jam_remove(self->jam);
+                        check_return(stat, self->jam);
+
+                        stat = jam_destroy(self->jam);
+                        check_return(stat, self->jam);
+
+                        self->jam = NULL;
+
+                    }
+
+                }
+
+                break;
+
+            }
+
+            stat = self->_read(self, &ondisk, &count);
+            check_return(stat, self);
 
         }
 

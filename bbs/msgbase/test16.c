@@ -23,6 +23,7 @@ int dump_trace(char *buffer) {
 
 int setup(void) {
 
+    int base = 1;
     int stat = OK;
     int timeout = 1;
     int retries = 30;
@@ -37,7 +38,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, retries, timeout, dump);
+        room = room_create(dbpath, msgpath, retries, base, timeout, dump);
         check_creation(room);
 
         exit_when;

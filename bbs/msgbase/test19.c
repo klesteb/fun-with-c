@@ -8,6 +8,7 @@
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
+#include "fnm_util.h"
 #include "misc/misc.h"
 
 room_t *room;
@@ -67,10 +68,10 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    room_base_t temp;
-    ssize_t size = 0;
-    ssize_t count = 0;
-
+    room_base_t temp1;
+    room_base_t temp2;
+    char *msgpath = "../messages/";
+    
     when_error_in {
 
         stat = setup();
@@ -79,25 +80,27 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_last(room, &temp, &count);
+        temp1.base = 1;
+        temp1.timeout = 1;
+        temp1.retries = 30;
+        temp1.conference = 10;
+        strcpy(temp1.name, "Testing");
+        temp1.flags = (PERMROOM | PUBLIC | INUSE);
+        strncpy(temp1.path, fnm_build(1, FnmPath, msgpath, NULL), 255);
+
+        stat = room_add(room, &temp1);
         check_return(stat, room);
 
-        while (count > 0) {
+        stat = room_get(room, 10, &temp2);
+        check_return(stat, room);
 
-            stat = jam_size(room->jam, &size);
-            check_return(stat, room->jam);
-
-            printf("---------------------------------\n");
-            printf("name      : %s\n", temp.name);
-            printf("path      : %s\n", temp.path);
-            printf("conference: %d\n", temp.conference);
-            printf("flags     : %d\n", temp.flags);
-            printf("messages  : %d\n", (int)size);
-
-            stat = room_prev(room, &temp, &count);
-            check_return(stat, room);
-
-        }
+        printf("base      : %d\n", temp2.base);
+        printf("timeout   : %d\n", temp2.timeout);
+        printf("retries   : %d\n", temp2.retries);
+        printf("conference: %d\n", temp2.conference);
+        printf("flags     : %d\n", temp2.flags);
+        printf("name      : %s\n", temp2.name);
+        printf("path      : %s\n", temp2.path);
 
         stat = room_close(room);
         check_return(stat, room);

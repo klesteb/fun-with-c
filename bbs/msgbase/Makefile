@@ -28,7 +28,7 @@ OBJS = jam.o qwk.o room.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10 test11 test12 test13 test14 test15 test16 test17 \
-             test18 dump
+             test18 test19 test20 test21 dump
 #
 debug:
 #
@@ -62,6 +62,9 @@ clean:
 	rm -f test16
 	rm -f test17
 	rm -f test18
+	rm -f test19
+	rm -f test20
+	rm -f test21
 	rm -f dump
 #
 test1: test1.o
@@ -135,6 +138,18 @@ test17: test17.o
 test18: test18.o
 	$(CC) $(CFLAGS) test18.c
 	$(LINK) $(LOPTS) test18 test18.o $(OLBS)
+#
+test19: test19.o
+	$(CC) $(CFLAGS) test19.c
+	$(LINK) $(LOPTS) test19 test19.o $(OLBS)
+#
+test20: test20.o
+	$(CC) $(CFLAGS) test20.c
+	$(LINK) $(LOPTS) test20 test20.o $(OLBS)
+#
+test21: test21.o
+	$(CC) $(CFLAGS) test21.c
+	$(LINK) $(LOPTS) test21 test21.o $(OLBS)
 #
 dump: dump.o
 	$(CC) $(CFLAGS) dump.c

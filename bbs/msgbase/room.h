@@ -105,7 +105,7 @@ struct _room_s {
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern room_t *room_create(char *, char *, int, int, tracer_t *);
+extern room_t *room_create(char *, char *, int, int, int, tracer_t *);
 extern int room_destroy(room_t *);
 extern int room_compare(room_t *, room_t *);
 extern int room_override(room_t *, item_list_t *);
@@ -113,6 +113,7 @@ extern char *room_version(room_t *);
 
 extern int room_open(room_t *);
 extern int room_close(room_t *);
+extern int room_del(room_t *, short);
 extern int room_add(room_t *, room_base_t *);
 extern int room_get(room_t *, short, room_base_t *);
 extern int room_put(room_t *, short, room_base_t *);

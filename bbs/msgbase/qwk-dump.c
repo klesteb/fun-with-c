@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
             case 'h':
             case '?':
                 printf("\n");
-                printf("Usage: dump [-a <area>] [-d <directory>]\n");
+                printf("Usage: qwk-dump [-a <area>] [-d <directory>]\n");
                 printf("  -a - the area to use when dumping the messages.\n");
                 printf("  -d - the directory where the qwk packet is located.\n");
                 printf("\n");

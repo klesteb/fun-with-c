@@ -738,7 +738,7 @@ int _room_open(room_t *self) {
             strcpy(email.name, "Mail");
             email.retries = self->retries;
             email.timeout = self->timeout;
-            email.flags = (PERMROOM | PUBLIC | INUSE);
+            email.flags.PERMROOM = email.flags.PUBLIC = email.flags.INUSE = TRUE;
             strncpy(email.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &email);
@@ -749,7 +749,7 @@ int _room_open(room_t *self) {
             strcpy(lobby.name, "Lobby");
             lobby.retries = self->retries;
             lobby.timeout = self->timeout;
-            lobby.flags = (PERMROOM | PUBLIC | INUSE);
+            lobby.flags.PERMROOM = email.flags.PUBLIC = email.flags.INUSE = TRUE;
             strncpy(lobby.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &lobby);
@@ -760,7 +760,7 @@ int _room_open(room_t *self) {
             strcpy(aide.name, "Aide");
             aide.retries = self->retries;
             aide.timeout = self->timeout;
-            aide.flags = (PERMROOM | INUSE);
+            aide.flags.PERMROOM = email.flags.INUSE = TRUE;
             strncpy(aide.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &aide);
@@ -1018,13 +1018,14 @@ int _room_del(room_t *self, short conference) {
 
             if (ondisk.conference == conference) {
 
-                if (! (ondisk.flags & PERMROOM)) {
+                if (! (ondisk.flags.PERMROOM)) {
 
                     ondisk.base = 0;
-                    ondisk.flags = 0;
                     ondisk.retries = 0;
                     ondisk.timeout = 0;
                     ondisk.conference = -1;
+                    ondisk.flags.INUSE = 0;
+                    ondisk.flags.PUBLIC = 0;
                     memset(&ondisk.name, '\0', 32);
                     memset(&ondisk.path, '\0', 256);
 

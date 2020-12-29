@@ -23,14 +23,47 @@
 #include "error_code.h"
 
 /*-------------------------------------------------------------*/
+/* constants                                                   */
+/*-------------------------------------------------------------*/
+
+#define BOOLEAN_FLAG(x)         unsigned x : 1
+
+/*-------------------------------------------------------------*/
 /* data structures                                             */
 /*-------------------------------------------------------------*/
+
+typedef struct _rflags_s {  /* Room flags                                */
+  BOOLEAN_FLAG(INUSE);      /* Room in use?                              */
+  BOOLEAN_FLAG(PUBLIC);     /* Room public?                              */
+  BOOLEAN_FLAG(ISDIR);      /* Room directory?                           */
+  BOOLEAN_FLAG(PERMROOM);   /* Room permanent?                           */
+  BOOLEAN_FLAG(SKIP);       /* Room skipped? (temporary for user)        */
+  BOOLEAN_FLAG(UPLOAD);     /* Can room be uploaded to?                  */
+  BOOLEAN_FLAG(DOWNLOAD);   /* Can room be downloaded from?              */
+  BOOLEAN_FLAG(SHARED);     /* Is this a shared room?                    */
+  BOOLEAN_FLAG(ARCHIVE);    /* Is this room archived somewhere?          */
+  BOOLEAN_FLAG(ANON);       /* All messages anonymous?                   */
+  BOOLEAN_FLAG(NO_NET);     /* Accessible via the net for download?      */
+  BOOLEAN_FLAG(INVITE);
+  BOOLEAN_FLAG(AUTO_NET);
+  BOOLEAN_FLAG(ALL_NET);
+  BOOLEAN_FLAG(READ_ONLY);  /* room is read-only                         */
+  BOOLEAN_FLAG(rflag9);
+  BOOLEAN_FLAG(rflag10);
+  BOOLEAN_FLAG(rflag11);
+  BOOLEAN_FLAG(rflag12);
+  BOOLEAN_FLAG(rflag13);
+  BOOLEAN_FLAG(rflag14);
+  BOOLEAN_FLAG(rflag15);
+  BOOLEAN_FLAG(rflag16);
+  BOOLEAN_FLAG(rflag17);
+} rflags;                   /* 4 bytes                                   */
 
 typedef struct _room_base_s {
     char name[32];          /* name of the room                          */
     char path[256];         /* path to the message base                  */
     short conference;       /* the qwk conference number                 */
-    short flags;            /* capability flags                          */
+    rflags flags;           /* capability flags                          */
     int retries;            /* number of retires for file locking        */
     int timeout;            /* timeout in seconds, between retries       */
     int base;               /* the base message number                   */
@@ -91,15 +124,6 @@ struct _room_s {
 #define ROOM_K_BASE     6
 
 #define ROOM_M_DESTRUCTOR 1
-
-/*-------------------------------------------------------------*/
-/* constants                                                   */
-/*-------------------------------------------------------------*/
-
-#define INUSE       1   /* flags mask               */
-#define PUBLIC      2   /* flags mask               */
-#define FILEDIR     4   /* flags mask               */
-#define PERMROOM    8   /* flags mask               */
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

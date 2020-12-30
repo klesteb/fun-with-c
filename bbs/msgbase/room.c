@@ -35,6 +35,7 @@ int _room_override(room_t *, item_list_t *);
 int _room_open(room_t *);
 int _room_close(room_t *);
 int _room_del(room_t *, short);
+int _room_size(room_t *, ssize_t *);
 int _room_add(room_t *, room_base_t *);
 int _room_get(room_t *, short, room_base_t *);
 int _room_put(room_t *, short, room_base_t *);
@@ -236,6 +237,34 @@ int room_close(room_t *self) {
         }
 
         stat = self->_close(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_size(room_t *self, ssize_t *size) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (size == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_size(self, size);
         check_return(stat, self);
 
         exit_when;
@@ -580,6 +609,7 @@ int _room_ctor(object_t *object, item_list_t *items) {
         self->_read  = _room_read;
         self->_write = _room_write;
         self->_build = _room_build;
+        self->_size  = _room_size;
 
         /* initialize internal variables here */
 
@@ -733,34 +763,34 @@ int _room_open(room_t *self) {
             memset(&email, '\0', sizeof(room_base_t));
             memset(&lobby, '\0', sizeof(room_base_t));
 
-            email.conference = 0;
             email.base = self->base;
             strcpy(email.name, "Mail");
+            email.conference = MAILROOM;
             email.retries = self->retries;
             email.timeout = self->timeout;
-            email.flags.PERMROOM = email.flags.PUBLIC = email.flags.INUSE = TRUE;
+            email.flags = (PERMROOM | PUBLIC | INUSE);
             strncpy(email.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &email);
             check_return(stat, self);
 
-            lobby.conference = 1;
             lobby.base = self->base;
+            lobby.conference = LOBBY;
             strcpy(lobby.name, "Lobby");
             lobby.retries = self->retries;
             lobby.timeout = self->timeout;
-            lobby.flags.PERMROOM = email.flags.PUBLIC = email.flags.INUSE = TRUE;
+            lobby.flags = (PERMROOM | PUBLIC | INUSE);
             strncpy(lobby.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &lobby);
             check_return(stat, self);
 
-            aide.conference = 2;
             aide.base = self->base;
             strcpy(aide.name, "Aide");
+            aide.conference = AIDEROOM;
             aide.retries = self->retries;
             aide.timeout = self->timeout;
-            aide.flags.PERMROOM = email.flags.INUSE = TRUE;
+            aide.flags = (PERMROOM | INUSE);
             strncpy(aide.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
             stat = self->_add(self, &aide);
@@ -1018,14 +1048,13 @@ int _room_del(room_t *self, short conference) {
 
             if (ondisk.conference == conference) {
 
-                if (! (ondisk.flags.PERMROOM)) {
+                if (! (ondisk.flags & PERMROOM)) {
 
                     ondisk.base = 0;
+                    ondisk.flags = 0;
                     ondisk.retries = 0;
                     ondisk.timeout = 0;
                     ondisk.conference = -1;
-                    ondisk.flags.INUSE = 0;
-                    ondisk.flags.PUBLIC = 0;
                     memset(&ondisk.name, '\0', 32);
                     memset(&ondisk.path, '\0', 256);
 
@@ -1157,6 +1186,40 @@ int _room_put(room_t *self, short conference, room_base_t *room) {
 
             stat = self->_read(self, &ondisk, &count);
             check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_size(room_t *self, ssize_t *size) {
+
+    int stat = OK;
+    off_t offset = 0;
+
+    when_error_in {
+
+        *size = 0;
+
+        stat = files_seek(self->rooms, 0, SEEK_END);
+        check_return(stat, self->rooms);
+
+        stat = files_tell(self->rooms, &offset);
+        check_return(stat, self->rooms);
+
+        if (offset >= sizeof(room_base_t)) {
+
+            *size = offset / sizeof(room_base_t);
 
         }
 

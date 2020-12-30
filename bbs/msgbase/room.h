@@ -26,44 +26,25 @@
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-#define BOOLEAN_FLAG(x)         unsigned x : 1
+#define MAILROOM 0          /* mail is always room 0           */
+#define LOBBY    1          /* lobby is always room 1          */
+#define AIDEROOM 2          /* aide is always room 2           */       
+
+#define INUSE    (1L<<0)    /* room is in use                  */
+#define PUBLIC   (1L<<1)    /* room is public                  */
+#define ISDIR    (1L<<2)    /* room is a directory             */
+#define PERMROOM (1L<<3)    /* room is permament               */
+#define QWKNET   (1L<<4)    /* room is netted via qwk          */
 
 /*-------------------------------------------------------------*/
 /* data structures                                             */
 /*-------------------------------------------------------------*/
 
-typedef struct _rflags_s {  /* Room flags                                */
-  BOOLEAN_FLAG(INUSE);      /* Room in use?                              */
-  BOOLEAN_FLAG(PUBLIC);     /* Room public?                              */
-  BOOLEAN_FLAG(ISDIR);      /* Room directory?                           */
-  BOOLEAN_FLAG(PERMROOM);   /* Room permanent?                           */
-  BOOLEAN_FLAG(SKIP);       /* Room skipped? (temporary for user)        */
-  BOOLEAN_FLAG(UPLOAD);     /* Can room be uploaded to?                  */
-  BOOLEAN_FLAG(DOWNLOAD);   /* Can room be downloaded from?              */
-  BOOLEAN_FLAG(SHARED);     /* Is this a shared room?                    */
-  BOOLEAN_FLAG(ARCHIVE);    /* Is this room archived somewhere?          */
-  BOOLEAN_FLAG(ANON);       /* All messages anonymous?                   */
-  BOOLEAN_FLAG(NO_NET);     /* Accessible via the net for download?      */
-  BOOLEAN_FLAG(INVITE);
-  BOOLEAN_FLAG(AUTO_NET);
-  BOOLEAN_FLAG(ALL_NET);
-  BOOLEAN_FLAG(READ_ONLY);  /* room is read-only                         */
-  BOOLEAN_FLAG(rflag9);
-  BOOLEAN_FLAG(rflag10);
-  BOOLEAN_FLAG(rflag11);
-  BOOLEAN_FLAG(rflag12);
-  BOOLEAN_FLAG(rflag13);
-  BOOLEAN_FLAG(rflag14);
-  BOOLEAN_FLAG(rflag15);
-  BOOLEAN_FLAG(rflag16);
-  BOOLEAN_FLAG(rflag17);
-} rflags;                   /* 4 bytes                                   */
-
 typedef struct _room_base_s {
     char name[32];          /* name of the room                          */
     char path[256];         /* path to the message base                  */
     short conference;       /* the qwk conference number                 */
-    rflags flags;           /* capability flags                          */
+    short flags;            /* capability flags                          */
     int retries;            /* number of retires for file locking        */
     int timeout;            /* timeout in seconds, between retries       */
     int base;               /* the base message number                   */
@@ -90,6 +71,7 @@ struct _room_s {
     int (*_open)(room_t *);
     int (*_close)(room_t *);
     int (*_del)(room_t *, short);
+    int (*_size)(room_t *, ssize_t *);
     int (*_add)(room_t *, room_base_t *);
     int (*_get)(room_t *, short, room_base_t *);
     int (*_put)(room_t *, short, room_base_t *);
@@ -138,6 +120,7 @@ extern char *room_version(room_t *);
 extern int room_open(room_t *);
 extern int room_close(room_t *);
 extern int room_del(room_t *, short);
+extern int room_size(room_t *, ssize_t *);
 extern int room_add(room_t *, room_base_t *);
 extern int room_get(room_t *, short, room_base_t *);
 extern int room_put(room_t *, short, room_base_t *);

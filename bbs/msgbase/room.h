@@ -28,7 +28,7 @@
 
 #define MAILROOM 0          /* mail is always room 0           */
 #define LOBBY    1          /* lobby is always room 1          */
-#define AIDEROOM 2          /* aide is always room 2           */       
+#define AIDEROOM 2          /* aide is always room 2           */
 
 #define INUSE    (1L<<0)    /* room is in use                  */
 #define PUBLIC   (1L<<1)    /* room is public                  */

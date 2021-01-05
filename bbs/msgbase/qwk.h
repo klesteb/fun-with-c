@@ -25,6 +25,34 @@
 #include "datatypes.h"
 
 /*-------------------------------------------------------------*/
+/* constants                                                   */
+/*-------------------------------------------------------------*/
+
+#define QWK_BLOCK_SIZE  128
+
+#define QWK_PUB_UNREAD  ' '
+#define QWK_PUB_READ    '-'
+#define QWK_PRIVATE     '*'
+#define QWK_SYS_UNREAD  '~'
+#define QWK_SYS_READ    '`'
+#define QWK_PROT_UNREAD '%'
+#define QWK_PROT_READ   '^'
+#define QWK_GRP_UNREAD  '!'
+#define QWK_GRP_READ    '#'
+#define QWK_PROT_ALL    '$'
+#define QWK_NET_TAG     '*'
+
+/*----------------------------------------------------------------*/
+/* macros                                                         */
+/*----------------------------------------------------------------*/
+
+#define QWK_BUF_SIZE(n) (((QWK_BLOCK_SIZE * (n))))
+#define QWK_ISALIVE(n)  ((n) == 0xe1 ? TRUE : FALSE)
+#define QWK_OFFSET(n)   ((((n) - 1) * QWK_BLOCK_SIZE))
+#define QWK_REC_CNT(n)  ((((n) / QWK_BLOCK_SIZE) + (((n) % QWK_BLOCK_SIZE) != 0)))
+#define QWK_RECORD(n)   (((n) / QWK_BLOCK_SIZE) + 1)
+
+/*-------------------------------------------------------------*/
 /* data structures                                             */
 /*-------------------------------------------------------------*/
 
@@ -137,34 +165,6 @@ struct _qwk_s {
 #define QWK_M_CLOSE       14
 #define QWK_M_NEW_HEADER  15
 #define QWK_M_NEW_NDX     16
-
-/*-------------------------------------------------------------*/
-/* constants                                                   */
-/*-------------------------------------------------------------*/
-
-#define QWK_BLOCK_SIZE  128
-
-#define QWK_PUB_UNREAD  ' '
-#define QWK_PUB_READ    '-'
-#define QWK_PRIVATE     '*'
-#define QWK_SYS_UNREAD  '~'
-#define QWK_SYS_READ    '`'
-#define QWK_PROT_UNREAD '%'
-#define QWK_PROT_READ   '^'
-#define QWK_GRP_UNREAD  '!'
-#define QWK_GRP_READ    '#'
-#define QWK_PROT_ALL    '$'
-#define QWK_NET_TAG     '*'
-
-/*----------------------------------------------------------------*/
-/* macros                                                         */
-/*----------------------------------------------------------------*/
-
-#define QWK_BUF_SIZE(n) (((QWK_BLOCK_SIZE * (n))))
-#define QWK_ISALIVE(n)  ((n) == 0xe1 ? TRUE : FALSE)
-#define QWK_OFFSET(n)   ((((n) - 1) * QWK_BLOCK_SIZE))
-#define QWK_REC_CNT(n)  ((((n) / QWK_BLOCK_SIZE) + (((n) % QWK_BLOCK_SIZE) != 0)))
-#define QWK_RECORD(n)   (((n) / QWK_BLOCK_SIZE) + 1)
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

@@ -13,7 +13,6 @@
 #ifndef _ROOM_H
 #define _ROOM_H
 
-#include "jam.h"
 #include "files.h"
 #include "object.h"
 #include "tracer.h"
@@ -21,6 +20,7 @@
 #include "datatypes.h"
 #include "item_list.h"
 #include "error_code.h"
+#include "jam/jam.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

@@ -10,6 +10,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
+#include <errno.h>
+
 #include "node.h"
 #include "when.h"
 #include "files.h"
@@ -26,9 +28,22 @@ require_klass(OBJECT_KLASS);
 
 int _node_ctor(object_t *, item_list_t *);
 int _node_dtor(object_t *);
-
 int _node_compare(node_t *, node_t *);
 int _node_override(node_t *, item_list_t *);
+
+int _node_open(node_t *);
+int _node_close(node_t *);
+int _node_unlock(node_t *);
+int _node_lock(node_t *, off_t);
+int _node_get(node_t *, int, node_base_t *);
+int _node_put(node_t *, int, node_base_t *);
+int _node_next(node_t *, node_base_t *, ssize_t *);
+int _node_prev(node_t *, node_base_t *, ssize_t *);
+int _node_last(node_t *, node_base_t *, ssize_t *);
+int _node_read(node_t *, node_base_t *, ssize_t *);
+int _node_write(node_t *, node_base_t *, ssize_t *);
+int _node_first(node_t *, node_base_t *, ssize_t *);
+int _node_build(node_t *, node_base_t *, node_base_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -264,6 +279,20 @@ int _node_ctor(object_t *object, item_list_t *items) {
         self->_compare = _node_compare;
         self->_override = _node_override;
 
+        self->_get    = _node_get;
+        self->_put    = _node_put;
+        self->_open   = _node_open;
+        self->_lock   = _node_lock;
+        self->_next   = _node_next;
+        self->_prev   = _node_prev;
+        self->_last   = _node_last;
+        self->_read   = _node_read;
+        self->_write  = _node_write;
+        self->_first  = _node_first;
+        self->_build  = _node_build;
+        self->_close  = _node_close;
+        self->_unlock = _node_unlock;
+
         /* initialize internal variables here */
 
         when_error_in {
@@ -274,6 +303,7 @@ int _node_ctor(object_t *object, item_list_t *items) {
 
             self->trace = dump;
             self->nodes = nodes;
+            self->locked = FALSE;
 
             exit_when;
 
@@ -326,6 +356,66 @@ int _node_override(node_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case NODE_M_OPEN: {
+                    self->_open = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_CLOSE: {
+                    self->_close = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_UNLOCK: {
+                    self->_unlock = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_LOCK: {
+                    self->_lock = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_GET: {
+                    self->_get = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_PUT: {
+                    self->_put = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_NEXT: {
+                    self->_next = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_PREV: {
+                    self->_prev = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_LAST: {
+                    self->_last = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_WRITE: {
+                    self->_write = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_FIRST: {
+                    self->_first = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_BUILD: {
+                    self->_build = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -344,11 +434,505 @@ int _node_compare(node_t *self, node_t *other) {
         (self->ctor == other->ctor) &&
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        (self->_override == other->_override) &&
+        (self->_get    == other->_get) &&
+        (self->_put    == other->_put) &&
+        (self->_open   == other->_open) &&
+        (self->_lock   == other->_lock) &&
+        (self->_next   == other->_next) &&
+        (self->_prev   == other->_prev) &&
+        (self->_last   == other->_last) &&
+        (self->_read   == other->_read) &&
+        (self->_write  == other->_write) &&
+        (self->_first  == other->_first) &&
+        (self->_build  == other->_build) &&
+        (self->_close  == other->_close) &&
+        (self->_unlock == other->_unlock) &&
+        (self->nodes  == other->nodes) &&
+        (self->locked == other->locked) &&
+        (self->nodedb == other->nodedb) &&
+        (self->trace  == other->trace)) {
 
         stat = OK;
 
     }
+
+    return stat;
+
+}
+
+int _node_open(node_t *self) {
+
+    int stat = OK;
+    int exists = 0;
+    node_base_t node;
+    ssize_t count = 0;
+    int flags = O_RDWR;
+    int create = (O_RDWR | O_CREAT);
+    int mode = (S_IRWXU | S_IRWXG);
+
+    when_error_in {
+
+        stat = files_exists(self->nodedb, &exists);
+        check_return(stat, self->nodedb);
+
+        if (exists) {
+
+            stat = files_open(self->nodedb, flags, 0);
+            check_return(stat, self->nodedb);
+
+        } else {
+
+            stat = files_open(self->nodedb, create, mode);
+            check_return(stat, self->nodedb);
+
+            stat = self->_lock(self, 0);
+            check_return(stat, self);
+
+            memset(&node, '\0', sizeof(node_base_t));
+            node.status = NODE_OFFLINE;
+
+            int x;
+            for (x = 0; x < self->nodes; x++) {
+
+                stat = self->_write(self, &node, &count);
+                check_return(stat, self);
+
+                if (count != sizeof(node_base_t)) {
+
+                    cause_error(EIO);
+
+                }
+
+            }
+
+            stat = self->_unlock(self);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_close(node_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_close(self->nodedb);
+        check_return(stat, self->nodedb);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_first(node_t *self, node_base_t *node, ssize_t *count) {
+
+    int stat = OK;
+    node_base_t ondisk;
+
+    when_error_in {
+
+        stat = files_seek(self->nodedb, 0, SEEK_SET);
+        check_return(stat, self->nodedb);
+
+        stat = self->_lock(self, 0);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        if (*count == sizeof(node_base_t)) {
+
+            stat = self->_build(self, &ondisk, node);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_next(node_t *self, node_base_t *node, ssize_t *count) {
+
+    int stat = OK;
+    node_base_t ondisk;
+    ssize_t position = 0;
+
+    when_error_in {
+
+        stat = files_tell(self->nodedb, &position);
+        check_return(stat, self);
+
+        stat = self->_lock(self, position);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        if (*count == sizeof(node_base_t)) {
+
+            stat = self->_build(self, &ondisk, node);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_prev(node_t *self, node_base_t *node, ssize_t *count) {
+
+    int stat = OK;
+    node_base_t ondisk;
+    ssize_t position = 0;
+    off_t offset = sizeof(node_base_t);
+
+    when_error_in {
+
+        stat = files_tell(self->nodedb, &position);
+        check_return(stat, self->nodedb);
+
+        if (position > 0) {
+
+            stat = files_seek(self->nodedb, -offset, SEEK_CUR);
+            check_return(stat, self->nodedb);
+
+            stat = self->_lock(self, position - offset);
+            check_return(stat, self);
+
+            stat = self->_read(self, &ondisk, count);
+            check_return(stat, self);
+
+            stat = files_seek(self->nodedb, -offset, SEEK_CUR);
+            check_return(stat, self->nodedb);
+
+            stat = self->_unlock(self);
+            check_return(stat, self);
+
+            if (*count == sizeof(node_base_t)) {
+
+                stat = self->_build(self, &ondisk, node);
+                check_return(stat, self);
+
+            }
+
+        } else {
+
+            *count = 0;
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_last(node_t *self, node_base_t *node, ssize_t *count) {
+
+    int stat = OK;
+    node_base_t ondisk;
+    ssize_t position = 0;
+    off_t offset = sizeof(node_base_t);
+
+    when_error_in {
+
+        stat = files_seek(self->nodedb, 0, SEEK_END);
+        check_return(stat, self->nodedb);
+
+        stat = files_seek(self->nodedb, -offset, SEEK_CUR);
+        check_return(stat, self->nodedb);
+
+        stat = files_tell(self->nodedb, &position);
+        check_return(stat, self->nodedb);
+
+        stat = self->_lock(self, position);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, count);
+        check_return(stat, self);
+
+        stat = files_seek(self->nodedb, -offset, SEEK_CUR);
+        check_return(stat, self->nodedb);
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        if (*count == sizeof(node_base_t)) {
+
+            stat = self->_build(self, &ondisk, node);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_get(node_t *self, int nodex, node_base_t *node) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    node_base_t ondisk;
+    off_t offset = nodex * sizeof(node_base_t);
+
+    when_error_in {
+
+        stat = files_seek(self->nodedb, offset, SEEK_SET);
+        check_return(stat, self->nodedb);
+
+        self->_lock(self, offset);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+        
+        if (count == sizeof(node_base_t)) {
+
+            stat = self->_build(self, &ondisk, node);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_put(node_t *self, int nodex, node_base_t *node) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    node_base_t ondisk;
+    off_t offset = nodex * sizeof(node_base_t);
+
+    when_error_in {
+
+        stat = files_seek(self->nodedb, offset, SEEK_SET);
+        check_return(stat, self->nodedb);
+
+        stat = self->_lock(self, offset);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        if (count == sizeof(node_base_t)) {
+
+            stat = self->_build(self, &ondisk, node);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_lock(node_t *self, off_t offset) {
+
+    int stat = OK;
+    int length = sizeof(node_base_t);
+
+    when_error_in {
+
+        stat = files_lock(self->nodedb, offset, length);
+        check_return(stat, self->nodedb);
+
+        self->locked = TRUE;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_unlock(node_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_unlock(self->nodedb);
+        check_return(stat, self->nodedb);
+
+        self->locked = FALSE;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
+
+    int stat = OK;
+
+    (*node).status = ondisk->status;
+    (*node).errors = ondisk->errors;
+    (*node).action = ondisk->action;
+    (*node).pad1   = ondisk->pad1;  
+    (*node).useron = ondisk->useron;
+    (*node).connection = ondisk->connection; 
+    (*node).status = ondisk->status;
+    (*node).misc   = ondisk->misc;
+    (*node).aux    = ondisk->aux;
+    (*node).extaux = ondisk->extaux;
+
+    return stat;
+
+}
+
+int _node_read(node_t *self, node_base_t *node, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_read(self->nodedb, node, sizeof(node_base_t), count);
+        check_return(stat, self->nodedb);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_write(node_t *self, node_base_t *node, ssize_t *count) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_write(self->nodedb, node, sizeof(node_base_t), count);
+        check_return(stat, self->nodedb);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

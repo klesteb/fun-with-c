@@ -109,7 +109,22 @@ struct _node_s {
     int (*_compare)(node_t *, node_t *);
     int (*_override)(node_t *, item_list_t *);
 
+    int (*_open)(node_t *);
+    int (*_close)(node_t *);
+    int (*_unlock)(node_t *);
+    int (*_lock)(node_t *, off_t);
+    int (*_get)(node_t *, int, node_base_t *);
+    int (*_put)(node_t *, int, node_base_t *);
+    int (*_next)(node_t *, node_base_t *, ssize_t *);
+    int (*_prev)(node_t *, node_base_t *, ssize_t *);
+    int (*_last)(node_t *, node_base_t *, ssize_t *);
+    int (*_read)(node_t *, node_base_t *, ssize_t *);
+    int (*_write)(node_t *, node_base_t *, ssize_t *);
+    int (*_first)(node_t *, node_base_t *, ssize_t *);
+    int (*_build)(node_t *, node_base_t *, node_base_t *);
+
     int nodes;
+    int locked;
     files_t *nodedb;
     tracer_t *trace;
 };
@@ -127,6 +142,18 @@ struct _node_s {
 #define NODE_K_NODES   5
 
 #define NODE_M_DESTRUCTOR 1
+#define NODE_M_OPEN       2
+#define NODE_M_CLOSE      3
+#define NODE_M_UNLOCK     4
+#define NODE_M_LOCK       5
+#define NODE_M_GET        6
+#define NODE_M_PUT        7
+#define NODE_M_NEXT       8
+#define NODE_M_PREV       9
+#define NODE_M_LAST       10
+#define NODE_M_WRITE      11
+#define NODE_M_FIRST      12
+#define NODE_M_BUILD      13
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

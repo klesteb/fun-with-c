@@ -685,6 +685,76 @@ int _room_override(room_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case ROOM_M_OPEN: {
+                    self->_open = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_CLOSE: {
+                    self->_close = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_DEL: {
+                    self->_del = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_SIZE: {
+                    self->_size = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_ADD: {
+                    self->_add = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_GET: {
+                    self->_get = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_PUT: {
+                    self->_put = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_READ: {
+                    self->_read = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_NEXT: {
+                    self->_next = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_PREV: {
+                    self->_prev = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_LAST: {
+                    self->_last = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_FIRST: {
+                    self->_first = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_WRITE: {
+                    self->_write = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_BUILD: {
+                    self->_build = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }

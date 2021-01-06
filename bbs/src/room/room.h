@@ -106,6 +106,20 @@ struct _room_s {
 #define ROOM_K_BASE     6
 
 #define ROOM_M_DESTRUCTOR 1
+#define ROOM_M_OPEN       2
+#define ROOM_M_CLOSE      3
+#define ROOM_M_DEL        4
+#define ROOM_M_SIZE       5
+#define ROOM_M_ADD        6
+#define ROOM_M_GET        7
+#define ROOM_M_PUT        8
+#define ROOM_M_READ       9
+#define ROOM_M_NEXT       10
+#define ROOM_M_PREV       11
+#define ROOM_M_LAST       12
+#define ROOM_M_FIRST      13
+#define ROOM_M_WRITE      14
+#define ROOM_M_BUILD      15
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

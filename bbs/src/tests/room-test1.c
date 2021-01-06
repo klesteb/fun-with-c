@@ -2,13 +2,11 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
 #include "room.h"
 #include "when.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
-#include "fnm_util.h"
 #include "misc/misc.h"
 
 room_t *room;
@@ -29,8 +27,8 @@ int setup(void) {
     int stat = OK;
     int timeout = 1;
     int retries = 30;
-    char *dbpath = "../data/";
-    char *msgpath = "../messages/";
+    char *dbpath = "../../data/";
+    char *msgpath = "../../messages/";
 
     when_error_in {
 
@@ -40,7 +38,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, retries, timeout, base, dump);
+        room = room_create(dbpath, msgpath, retries, base, timeout, dump);
         check_creation(room);
 
         exit_when;
@@ -68,10 +66,7 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    room_base_t temp1;
-    room_base_t temp2;
-    char *msgpath = "../messages/";
-    
+
     when_error_in {
 
         stat = setup();
@@ -79,28 +74,6 @@ int main(int argc, char **argv) {
 
         stat = room_open(room);
         check_return(stat, room);
-
-        temp1.base = 1;
-        temp1.timeout = 1;
-        temp1.retries = 30;
-        temp1.conference = 10;
-        strcpy(temp1.name, "Testing");
-        temp1.flags = (PERMROOM | PUBLIC | INUSE);
-        strncpy(temp1.path, fnm_build(1, FnmPath, msgpath, NULL), 255);
-
-        stat = room_add(room, &temp1);
-        check_return(stat, room);
-
-        stat = room_get(room, 10, &temp2);
-        check_return(stat, room);
-
-        printf("base      : %d\n", temp2.base);
-        printf("timeout   : %d\n", temp2.timeout);
-        printf("retries   : %d\n", temp2.retries);
-        printf("conference: %d\n", temp2.conference);
-        printf("flags     : %d\n", temp2.flags);
-        printf("name      : %s\n", temp2.name);
-        printf("path      : %s\n", temp2.path);
 
         stat = room_close(room);
         check_return(stat, room);

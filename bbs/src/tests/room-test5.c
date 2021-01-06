@@ -8,6 +8,7 @@
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
+#include "fnm_util.h"
 #include "misc/misc.h"
 
 room_t *room;
@@ -28,8 +29,8 @@ int setup(void) {
     int stat = OK;
     int timeout = 1;
     int retries = 30;
-    char *dbpath = "../data/";
-    char *msgpath = "../messages/";
+    char *dbpath = "../../data/";
+    char *msgpath = "../../messages/";
 
     when_error_in {
 
@@ -68,9 +69,7 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     room_base_t temp;
-    ssize_t size = 0;
-    ssize_t count = 0;
-
+    
     when_error_in {
 
         stat = setup();
@@ -79,25 +78,32 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_first(room, &temp, &count);
+        stat = room_get(room, 10, &temp);
         check_return(stat, room);
 
-        while (count > 0) {
+        printf("base      : %d\n", temp.base);
+        printf("timeout   : %d\n", temp.timeout);
+        printf("retries   : %d\n", temp.retries);
+        printf("conference: %d\n", temp.conference);
+        printf("flags     : %d\n", temp.flags);
+        printf("name      : %s\n", temp.name);
+        printf("path      : %s\n", temp.path);
 
-            stat = jam_size(room->jam, &size);
-            check_return(stat, room->jam);
+        temp.timeout = 40;
 
-            printf("---------------------------------\n");
-            printf("name      : %s\n", temp.name);
-            printf("path      : %s\n", temp.path);
-            printf("conference: %d\n", temp.conference);
-            printf("flags     : %d\n", temp.flags);
-            printf("messages  : %d\n", (int)size);
+        stat = room_put(room, 10, &temp);
+        check_return(stat, room);
+        
+        stat = room_get(room, 10, &temp);
+        check_return(stat, room);
 
-            stat = room_next(room, &temp, &count);
-            check_return(stat, room);
-
-        }
+        printf("base      : %d\n", temp.base);
+        printf("timeout   : %d\n", temp.timeout);
+        printf("retries   : %d\n", temp.retries);
+        printf("conference: %d\n", temp.conference);
+        printf("flags     : %d\n", temp.flags);
+        printf("name      : %s\n", temp.name);
+        printf("path      : %s\n", temp.path);
 
         stat = room_close(room);
         check_return(stat, room);

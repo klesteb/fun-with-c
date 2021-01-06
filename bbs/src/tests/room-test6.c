@@ -29,8 +29,8 @@ int setup(void) {
     int stat = OK;
     int timeout = 1;
     int retries = 30;
-    char *dbpath = "../data/";
-    char *msgpath = "../messages/";
+    char *dbpath = "../../data/";
+    char *msgpath = "../../messages/";
 
     when_error_in {
 

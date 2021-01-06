@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "jam.h"
 #include "room.h"
 #include "when.h"
 #include "files.h"
@@ -27,8 +28,8 @@ int setup(void) {
     int stat = OK;
     int timeout = 1;
     int retries = 30;
-    char *dbpath = "../data/";
-    char *msgpath = "../messages/";
+    char *dbpath = "../../data/";
+    char *msgpath = "../../messages/";
 
     when_error_in {
 
@@ -38,7 +39,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, retries, base, timeout, dump);
+        room = room_create(dbpath, msgpath, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;
@@ -66,6 +67,9 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
+    room_base_t temp;
+    ssize_t size = 0;
+    ssize_t count = 0;
 
     when_error_in {
 
@@ -74,6 +78,26 @@ int main(int argc, char **argv) {
 
         stat = room_open(room);
         check_return(stat, room);
+
+        stat = room_first(room, &temp, &count);
+        check_return(stat, room);
+
+        while (count > 0) {
+
+            stat = jam_size(room->jam, &size);
+            check_return(stat, room->jam);
+
+            printf("---------------------------------\n");
+            printf("name      : %s\n", temp.name);
+            printf("path      : %s\n", temp.path);
+            printf("conference: %d\n", temp.conference);
+            printf("flags     : %d\n", temp.flags);
+            printf("messages  : %d\n", (int)size);
+
+            stat = room_next(room, &temp, &count);
+            check_return(stat, room);
+
+        }
 
         stat = room_close(room);
         check_return(stat, room);

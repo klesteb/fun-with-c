@@ -615,16 +615,16 @@ int _room_ctor(object_t *object, item_list_t *items) {
 
         when_error_in {
 
-            strncpy(roombase, fnm_build(1, FnmPath, "rooms", ".dat", database, NULL), 255);
-            self->rooms = files_create(roombase, retries, timeout);
-            check_creation(self->rooms);
-
             self->jam = NULL;
             self->base = base;
             self->trace = dump;
             self->retries = retries;
             self->timeout = timeout;
             self->msgbase = strdup(msgbase);
+
+            strncpy(roombase, fnm_build(1, FnmPath, "rooms", ".dat", database, NULL), 255);
+            self->rooms = files_create(roombase, retries, timeout);
+            check_creation(self->rooms);
 
             exit_when;
 

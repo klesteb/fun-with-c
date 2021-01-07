@@ -878,6 +878,10 @@ int _jam_ctor(object_t *object, item_list_t *items) {
 
         when_error_in {
 
+            self->locked = 0;
+            self->base = base;
+            self->trace = dump;
+
             strncpy(header, fnm_build(1, FnmPath, name, EXT_HDRFILE, path, NULL), 255);
             self->header = files_create(header, retries, timeout);
             check_creation(self->header);
@@ -893,10 +897,6 @@ int _jam_ctor(object_t *object, item_list_t *items) {
             strncpy(lastread, fnm_build(1, FnmPath, name, EXT_LRDFILE, path, NULL), 255);
             self->lastread = files_create(lastread, retries, timeout);
             check_creation(self->lastread);
-
-            self->locked = 0;
-            self->base = base;
-            self->trace = dump;
 
             exit_when;
 

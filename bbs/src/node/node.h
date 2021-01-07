@@ -123,6 +123,7 @@ struct _node_s {
     int (*_first)(node_t *, node_base_t *, ssize_t *);
     int (*_build)(node_t *, node_base_t *, node_base_t *);
 
+    int index;
     int nodes;
     int locked;
     files_t *nodedb;
@@ -164,6 +165,16 @@ extern int node_destroy(node_t *);
 extern int node_compare(node_t *, node_t *);
 extern int node_override(node_t *, item_list_t *);
 extern char *node_version(node_t *);
+
+extern int node_open(node_t *);
+extern int node_close(node_t *);
+extern int node_index(node_t *, int *);
+extern int node_get(node_t *, int, node_base_t *);
+extern int node_put(node_t *, int, node_base_t *);
+extern int node_next(node_t *, node_base_t *, ssize_t *);
+extern int node_prev(node_t *, node_base_t *, ssize_t *);
+extern int node_last(node_t *, node_base_t *, ssize_t *);
+extern int node_first(node_t *, node_base_t *, ssize_t *);
 
 #endif
 

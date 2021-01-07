@@ -24,7 +24,7 @@ OLBS = $(STATIC)
 TARGETS = jam-test1 jam-test2 jam-test3 jam-test4 jam-test5 jam-test6 \
           jam-test7 jam-test8 qwk-test1 qwk-test2 qwk-test3 qwk-test4 \
           qwk-test5 room-test1 room-test2 room-test3 room-test4 room-test5 \
-          room-test6 test1
+          room-test6 test1 node-test1 node-test2 node-test3
 #
 all: $(TARGETS)
 #
@@ -118,6 +118,18 @@ room-test5: room-test5.o
 room-test6: room-test6.o
 	$(CC) $(CFLAGS) room-test6.c
 	$(LINK) $(LOPTS) room-test6 room-test6.o $(OLBS)
+#
+node-test1: node-test1.o
+	$(CC) $(CFLAGS) node-test1.c
+	$(LINK) $(LOPTS) node-test1 node-test1.o $(OLBS)
+#
+node-test2: node-test2.o
+	$(CC) $(CFLAGS) node-test2.c
+	$(LINK) $(LOPTS) node-test2 node-test2.o $(OLBS)
+#
+node-test3: node-test3.o
+	$(CC) $(CFLAGS) node-test3.c
+	$(LINK) $(LOPTS) node-test3 node-test3.o $(OLBS)
 #
 # eof
 #

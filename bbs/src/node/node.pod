@@ -3,22 +3,120 @@
 
 =head1 NAME
 
-node - A ANSI C class
+node - A ANSI C class to manage the node database
 
 =head1 SYNOPSIS
 
  #include <stdio.h>
+ #include <errno.h>
+
  #include "node.h"
+ #include "when.h"
+ #include "files.h"
+ #include "errors.h"
+ #include "tracer.h"
+ #include "misc/misc.h"
+
+ node_t *nodes;
+ tracer_t *dump;
+ errors_t *errs;
+
+ int dump_trace(char *buffer) {
+
+     fprintf(stderr, "%s\n", buffer);
+
+     return OK;
+
+ }
+
+ int setup(void) {
+
+     int stat = OK;
+     int timeout = 1;
+     int retries = 30;
+     char *path = "../../data/";
+
+     when_error_in {
+
+         errs = errors_create();
+         check_creation(errs);
+
+         dump = tracer_create(errs);
+         check_creation(dump);
+
+         nodes = node_create(path, 32, retries, timeout, dump);
+         check_creation(nodes);
+
+         exit_when;
+
+     } use {
+
+         stat = ERR;
+         capture_trace(dump);
+         clear_error();
+
+     } end_when;
+
+     return stat;
+
+ }
+
+ void cleanup(void) {
+
+     node_destroy(nodes);
+     tracer_destroy(dump);
+     errors_destroy(errs);
+
+ }
 
  int main(int argc, char **argv) {
 
-     node_t *temp = NULL;
+     int stat = OK;
+     node_base_t temp;
+     ssize_t count = 0;
 
-     if ((temp = node_create(NULL))) {
+     when_error_in {
 
-         node_destroy(temp);
+         stat = setup();
+         check_status(stat, OK, E_INVOPS);
 
-     }
+         stat = node_open(nodes);
+         check_return(stat, nodes);
+
+         stat = node_first(nodes, &temp, &count);
+         check_return(stat, nodes);
+
+         while (count > 0) {
+
+             printf("---------------------------------\n");
+             printf("status     : %d\n", temp.status);
+             printf("errors     : %d\n", temp.errors);
+             printf("action     : %d\n", temp.action);
+             printf("user       : %d\n", temp.useron);
+             printf("connection : %d\n", temp.connection);
+             printf("misc       : %d\n", temp.misc);
+             printf("aux        : %d\n", temp.aux);
+             printf("extaux     : %ld\n", temp.extaux);
+
+             stat = node_next(nodes, &temp, &count);
+             check_return(stat, nodes);
+
+         }
+
+         stat = node_close(nodes);
+         check_return(stat, nodes);
+
+         exit_when;
+
+     } use {
+
+         capture_trace(dump);
+         tracer_dump(dump, dump_trace);
+         clear_error();
+
+     } end_when;
+
+     cleanup();
 
      return 0;
 
@@ -26,8 +124,15 @@ node - A ANSI C class
 
 =head1 DESCRIPTION
 
-This is a basic class written in ANSI C. It shows a way to implement
-object oriented programming. Why do this? It is a nice thought exercise. 
+This class implements the node database. This is used to keep track
+of what individual nodes are doing. This is a fixed size file. The
+number of nodes that are supported are defined when the database is
+initially created. You need to delete the database for any size
+changes to take effect.
+
+This library is a class. It is extensible and overridable. It also makes 
+use of the L<errors(3)> and L<tracer(3)> classes for error handling and 
+reporting. 
 
 The files node.c and node.h define the class. 
 
@@ -103,6 +208,167 @@ follows the guidelines from L<semver.org|https://semver.org/>.
 =item B<self>
 
 A pointer to the node_t object.
+
+=back
+
+=head2 I<int node_open(node_t *self)>
+
+This method allows access to the nodes. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=back
+
+=head2 I<int node_close(node_t *self)>
+
+This method closes access to the nodes.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=back
+
+=head2 I<int node_first(node_t *self, node_base_t *node, ssize_t *count)>
+
+This method will retrieve the first node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<node>
+
+A pointer to a node_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int node_next(node_t *self, node_base_t *node, ssize_t *count)>
+
+This method retrieves the next node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<node>
+
+A pointer to a node_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int node_prev(node_t *self, node_base_t *node, ssize_t *count)>
+
+This method retrieves the previous node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<node>
+
+A pointer to a node_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int node_last(node_t *self, node_base_t *node, ssize_t *count)>
+
+This method retrieves the last node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<node>
+
+A pointer to a node_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int node_get(node_t *self, int index, node_base_t *node)>
+
+This method gets the indicated node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<index>
+
+The node to get.
+
+=item B<node>
+
+A pointer to a node_base_t type to write the data too.
+
+=back
+
+=head2 I<int node_put(node_t *self, int index, node_base_t *node)>
+
+This method updates a node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<index>
+
+The node to update.
+
+=item B<node>
+
+A pointer to a node_base_t type.
+
+=back
+
+=head2 I<int node_index(node_t *self, int *index)>
+
+This method returns the current node index. This is usable when paging
+thru the node database.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<index>
+
+A pointer to write the index number too.
 
 =back
 

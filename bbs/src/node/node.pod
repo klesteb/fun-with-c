@@ -355,6 +355,47 @@ A pointer to a node_base_t type.
 
 =back
 
+=head2 I<int node_put_message(node_t *self, char *buffer, long *msgnum)>
+
+This method sends a message to another node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<buffer>
+
+A pointer to the message.
+
+=item B<msgnum>
+
+A pointer to write the message number too.
+
+=back
+
+=head2 I<int node_get_message(node_t *self, long msgnum, char **buffer)>
+
+This method retrieves a message from another node.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<msgnum>
+
+The message number to retrieve.
+
+=item B<buffer>
+
+A pointer to write the message too. This buffer will 
+need to be freed.
+
+=back
+
 =head2 I<int node_index(node_t *self, int *index)>
 
 This method returns the current node index. This is usable when paging

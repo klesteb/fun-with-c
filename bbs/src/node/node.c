@@ -10,6 +10,7 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
+#include <stdio.h>
 #include <errno.h>
 
 #include "node.h"
@@ -35,8 +36,11 @@ int _node_open(node_t *);
 int _node_close(node_t *);
 int _node_unlock(node_t *);
 int _node_lock(node_t *, off_t);
+int _node_get_sequence(node_t *, long *);
 int _node_get(node_t *, int, node_base_t *);
 int _node_put(node_t *, int, node_base_t *);
+int _node_get_message(node_t *, long, char **);
+int _node_put_message(node_t *, char *, long *);
 int _node_next(node_t *, node_base_t *, ssize_t *);
 int _node_prev(node_t *, node_base_t *, ssize_t *);
 int _node_last(node_t *, node_base_t *, ssize_t *);
@@ -375,7 +379,7 @@ int node_get(node_t *self, int index, node_base_t *node) {
     when_error_in {
 
         if ((self == NULL) || (node == NULL) ||
-            ((index >= 0) && (index <= self->nodes))) {
+            ((index < 0) && (index > self->nodes))) {
 
             cause_error(E_INVPARM);
 
@@ -404,7 +408,7 @@ int node_put(node_t *self, int index, node_base_t *node) {
     when_error_in {
 
         if ((self == NULL) || (node == NULL) ||
-            ((index >= 0) && (index <= self->nodes))) {
+            ((index < 0) && (index > self->nodes))) {
 
             cause_error(E_INVPARM);
 
@@ -453,6 +457,62 @@ int node_index(node_t *self, int *index) {
 
 }
 
+int node_get_message(node_t *self, long msgnum, char **buffer) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get_message(self, msgnum, buffer);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int node_put_message(node_t *self, char *buffer, long *msgnum) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (buffer == NULL) || (msgnum == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_put_message(self, buffer, msgnum);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -461,6 +521,7 @@ int _node_ctor(object_t *object, item_list_t *items) {
 
     int stat = OK;
     int nodes = 2;
+    char seq[256];
     char path[256];
     int timeout = 1;
     char nodedb[256];
@@ -546,6 +607,9 @@ int _node_ctor(object_t *object, item_list_t *items) {
         self->_build  = _node_build;
         self->_close  = _node_close;
         self->_unlock = _node_unlock;
+        self->_get_message  = _node_get_message;
+        self->_put_message  = _node_put_message;
+        self->_get_sequence = _node_get_sequence;
 
         /* initialize internal variables here */
 
@@ -555,10 +619,17 @@ int _node_ctor(object_t *object, item_list_t *items) {
             self->trace = dump;
             self->nodes = nodes;
             self->locked = FALSE;
+            self->retries = retries;
+            self->timeout = timeout;
+            self->path = strdup(path);
 
-            strncpy(nodedb, fnm_build(1, FnmPath, "node", ".dab", path, NULL), 255);
+            strncpy(nodedb, fnm_build(1, FnmPath, "nodes", ".dat", path, NULL), 255);
             self->nodedb = files_create(nodedb, retries, timeout);
             check_creation(self->nodedb);
+
+            strncpy(seq, fnm_build(1, FnmPath, "nodes", ".seq", path, NULL), 255);
+            self->sequence = files_create(seq, retries, timeout);
+            check_creation(self->sequence);
 
             exit_when;
 
@@ -583,6 +654,8 @@ int _node_dtor(object_t *object) {
     /* free local resources here */
 
     files_close(self->nodedb);
+    files_close(self->sequence);
+    free(self->path);
 
     /* walk the chain, freeing as we go */
 
@@ -722,9 +795,10 @@ int _node_open(node_t *self) {
     int exists = 0;
     node_base_t node;
     ssize_t count = 0;
+    long sequence = 1;
     int flags = O_RDWR;
-    int create = (O_RDWR | O_CREAT);
     int mode = (S_IRWXU | S_IRWXG);
+    int create = (O_RDWR | O_CREAT);
 
     when_error_in {
 
@@ -766,6 +840,30 @@ int _node_open(node_t *self) {
 
         }
 
+        stat = files_exists(self->sequence, &exists);
+        check_return(stat, self->sequence);
+
+        if (exists) {
+
+            stat = files_open(self->sequence, flags, 0);
+            check_return(stat, self->sequence);
+
+        } else {
+
+            stat = files_open(self->sequence, create, mode);
+            check_return(stat, self->sequence);
+
+            stat = files_write(self->sequence, &sequence, sizeof(long), &count);
+            check_return(stat, self->sequence);
+
+            if (count != sizeof(long)) {
+
+                cause_error(EIO);
+
+            }
+
+        }
+
         exit_when;
 
     } use {
@@ -789,6 +887,9 @@ int _node_close(node_t *self) {
 
         stat = files_close(self->nodedb);
         check_return(stat, self->nodedb);
+
+        stat = files_close(self->sequence);
+        check_return(stat, self->sequence);
 
         exit_when;
 
@@ -1054,7 +1155,6 @@ int _node_put(node_t *self, int index, node_base_t *node) {
 
     int stat = OK;
     ssize_t count = 0;
-    node_base_t ondisk;
     off_t offset = NODE_OFFSET(index);
 
     when_error_in {
@@ -1065,18 +1165,11 @@ int _node_put(node_t *self, int index, node_base_t *node) {
         stat = self->_lock(self, offset);
         check_return(stat, self);
 
-        stat = self->_read(self, &ondisk, &count);
+        stat = self->_write(self, node, &count);
         check_return(stat, self);
 
         stat = self->_unlock(self);
         check_return(stat, self);
-
-        if (count == sizeof(node_base_t)) {
-
-            stat = self->_build(self, &ondisk, node);
-            check_return(stat, self);
-
-        }
 
         exit_when;
 
@@ -1086,6 +1179,132 @@ int _node_put(node_t *self, int index, node_base_t *node) {
         process_error(self);
 
         if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_get_message(node_t *self, long msgnum, char **buffer) {
+
+    char name[32];
+    int stat = OK;
+    int exists = 0;
+    ssize_t size = 0;
+    ssize_t count = 0;
+    char filename[256];
+    int flags = O_RDWR;
+    files_t *message = NULL;
+
+    when_error_in {
+
+        memset(name, '\0', 32);
+        memset(filename, '\0', 256);
+        snprintf(name, 31, "%ld", msgnum);
+
+        strncpy(filename, fnm_build(1, FnmPath, name, ".msg", self->path, NULL), 255);
+        message = files_create(filename, self->retries, self->timeout);
+        check_creation(message);
+
+        stat = files_exists(message, &exists);
+        check_return(stat, message);
+
+        if (! exists) {
+
+            cause_error(EIO);
+
+        }
+
+        stat = files_size(message, &size);
+        check_return(stat, message);
+
+        errno = 0;
+        *buffer = calloc(1, size + 1);
+        if (*buffer == NULL) {
+
+            cause_error(ENOMEM);
+
+        }
+
+        stat = files_open(message, flags, 0);
+        check_return(stat, message);
+
+        stat = files_read(message, *buffer, size, &count);
+        check_return(stat, message);
+
+        stat = files_close(message);
+        check_return(stat, message);
+
+        stat = files_unlink(message);
+        check_return(stat, message);
+
+        stat = files_destroy(message);
+        check_return(stat, message);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_put_message(node_t *self, char *buffer, long *msgnum) {
+
+    char name[32];
+    int stat = OK;
+    long junk = 0;
+    ssize_t count = 0;
+    char filename[256];
+    files_t *message = NULL;
+    int mode = (S_IRWXU | S_IRWXG);
+    int create = (O_RDWR | O_CREAT);
+
+    when_error_in {
+
+        stat = self->_get_sequence(self, &junk);
+        check_return(stat, self);
+
+        memset(name, '\0', 32);
+        memset(filename, '\0', 256);
+        snprintf(name, 31, "%ld", junk);
+
+        strncpy(filename, fnm_build(1, FnmPath, name, ".msg", self->path, NULL), 255);
+        message = files_create(filename, self->retries, self->timeout);
+        check_creation(message);
+
+        stat = files_open(message, create, mode);
+        check_return(stat, message);
+
+        stat = files_write(message, buffer, strlen(buffer), &count);
+        check_return(stat, message);
+
+        stat = files_close(message);
+        check_return(stat, message);
+
+        stat = files_destroy(message);
+        check_return(stat, message);
+
+        if (count != strlen(buffer)) {
+
+            cause_error(EIO);
+
+        }
+
+        *msgnum = junk;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
 
     } end_when;
 
@@ -1142,6 +1361,65 @@ int _node_unlock(node_t *self) {
 
 }
 
+int _node_get_sequence(node_t *self, long *sequence) {
+
+    int stat = OK;
+    long buffer = 0;
+    ssize_t count = 0;
+    int locked = FALSE;
+
+    when_error_in {
+
+        stat = files_seek(self->sequence, 0, SEEK_SET);
+        check_return(stat, self->sequence);
+
+        stat = files_lock(self->sequence, 0, sizeof(long));
+        check_return(stat, self->sequence);
+
+        locked = TRUE;
+
+        stat = files_read(self->sequence, &buffer, sizeof(long), &count);
+        check_return(stat, self->sequence);
+
+        if (count != sizeof(long)) {
+
+            cause_error(EIO);
+
+        }
+
+        *sequence = buffer;
+        buffer++;
+
+        stat = files_seek(self->sequence, 0, SEEK_SET);
+        check_return(stat, self->sequence);
+
+        stat = files_write(self->sequence, &buffer, sizeof(long), &count);
+        check_return(stat, self->sequence);
+
+        if (count != sizeof(long)) {
+
+            cause_error(EIO);
+
+        }
+
+        stat = files_unlock(self->sequence);
+        check_return(stat, self->sequence);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (locked) files_unlock(self->sequence);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
 
     int stat = OK;
@@ -1156,6 +1434,7 @@ int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
     (*node).misc   = ondisk->misc;
     (*node).aux    = ondisk->aux;
     (*node).extaux = ondisk->extaux;
+    (*node).msgnum = ondisk->msgnum;
 
     return stat;
 

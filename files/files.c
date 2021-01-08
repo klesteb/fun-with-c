@@ -48,6 +48,7 @@ int _files_unlock(files_t *);
 int _files_exists(files_t *, int *);
 int _files_stat(files_t *, struct stat *);
 int _files_unlink(files_t *);
+int _files_size(files_t *, off_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -648,6 +649,38 @@ int files_set_eol(files_t *self, char *eol) {
 
 }
 
+int files_size(files_t *self, off_t *size) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self != NULL) {
+
+            stat = self->_size(self, size);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -728,6 +761,7 @@ int _files_ctor(object_t *object, item_list_t *items) {
         self->_stat = _files_stat;
         self->_exists = _files_exists;
         self->_unlink = _files_unlink;
+        self->_size   = _files_size;
 
         /* initialize internal variables here */
 
@@ -1301,6 +1335,37 @@ int _files_unlink(files_t *self) {
     } end_when;
 
     return stat;
+
+}
+
+int _files_size(files_t *self, off_t *size) {
+
+    int xstat = OK;
+    struct stat buf;
+
+    when_error_in {
+
+        errno = 0;
+        if (stat(self->path, &buf) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        *size = buf.st_size;
+
+        exit_when;
+
+    } use {
+
+        xstat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return xstat;
 
 }
 

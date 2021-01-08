@@ -13,6 +13,24 @@ node_t *nodes;
 tracer_t *dump;
 errors_t *errs;
 
+int display(int index, node_base_t *temp) {
+    
+    printf("---------------------------------\n");
+    printf("index      : %d\n", index);
+    printf("status     : %d\n", temp->status);
+    printf("errors     : %d\n", temp->errors);
+    printf("action     : %d\n", temp->action);
+    printf("user       : %d\n", temp->useron);
+    printf("msgnum     : %ld\n", temp->msgnum);
+    printf("connection : %d\n", temp->connection);
+    printf("misc       : %d\n", temp->misc);
+    printf("aux        : %d\n", temp->aux);
+    printf("extaux     : %ld\n", temp->extaux);
+
+    return OK;
+
+}
+
 int dump_trace(char *buffer) {
 
     fprintf(stderr, "%s\n", buffer);
@@ -63,10 +81,9 @@ void cleanup(void) {
 
 int main(int argc, char **argv) {
 
+    char *buffer;
     int stat = OK;
-    int index = 0;
-    node_base_t temp;
-    ssize_t count = 0;
+    node_base_t ondisk;
 
     when_error_in {
 
@@ -76,30 +93,32 @@ int main(int argc, char **argv) {
         stat = node_open(nodes);
         check_return(stat, nodes);
 
-        stat = node_last(nodes, &temp, &count);
+        stat = node_get(nodes, 1, &ondisk);
         check_return(stat, nodes);
 
-        while (count > 0) {
+        printf("\nbefore\n");
+        display(1, &ondisk);
 
-            stat = node_index(nodes, &index);
+        if (ondisk.misc & NODE_UMSG) {
+
+            printf("\nretrieving: %ld\n", ondisk.msgnum);
+
+            stat = node_get_message(nodes, ondisk.msgnum, &buffer);
             check_return(stat, nodes);
 
-            printf("---------------------------------\n");
-            printf("index      : %d\n", index);
-            printf("status     : %d\n", temp.status);
-            printf("errors     : %d\n", temp.errors);
-            printf("action     : %d\n", temp.action);
-            printf("user       : %d\n", temp.useron);
-            printf("msgnum     : %ld\n", temp.msgnum);
-            printf("connection : %d\n", temp.connection);
-            printf("misc       : %d\n", temp.misc);
-            printf("aux        : %d\n", temp.aux);
-            printf("extaux     : %ld\n", temp.extaux);
+            printf("message: \"%s\"\n", buffer);
+            free(buffer);
 
-            stat = node_prev(nodes, &temp, &count);
+            ondisk.misc &= ~NODE_UMSG;
+            ondisk.msgnum = 0;
+
+            stat = node_put(nodes, 1, &ondisk);
             check_return(stat, nodes);
 
         }
+
+        printf("\nafter\n");
+        display(1, &ondisk);
 
         stat = node_close(nodes);
         check_return(stat, nodes);

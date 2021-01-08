@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
             printf("errors     : %d\n", temp.errors);
             printf("action     : %d\n", temp.action);
             printf("user       : %d\n", temp.useron);
+            printf("msgnum     : %d\n", temp.msgnum);
             printf("connection : %d\n", temp.connection);
             printf("misc       : %d\n", temp.misc);
             printf("aux        : %d\n", temp.aux);

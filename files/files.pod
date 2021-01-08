@@ -389,6 +389,23 @@ A pointer to a files_t object.
 
 =back
 
+=head2 I<int files_size(files_t *self, off_t *size)>
+
+This method allows you to retrieve the file size. This is a wrapper around 
+L<stat(2)>.
+
+=over 4
+
+=item B<self>
+
+A pointer to a files_t object.
+
+=item B<size>
+
+A pointer to where to write the file size.
+
+=back
+
 =head1 RETURNS
 
 The method files_create() returns a pointer to a files_t object. All other 

@@ -46,6 +46,8 @@ struct _files_s {
     int (*_exists)(files_t *, int *);
     int (*_stat)(files_t *, struct stat *);
     int (*_unlink)(files_t *);
+    int (*_size)(files_t *, off_t *);
+
     int fd;
     int timeout;
     int retries;
@@ -100,6 +102,7 @@ extern int files_exists(files_t *, int *);
 extern int files_stat(files_t *, struct stat *);
 extern int files_unlink(files_t *);
 extern int files_set_eol(files_t *, char *);
+extern int files_size(files_t *, off_t *);
 
 #endif
 

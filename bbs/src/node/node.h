@@ -41,7 +41,7 @@
 #define NODE_ANON   (1L<<0)     /* Anonymous User                        */
 #define NODE_LOCK   (1L<<1)     /* Locked for sysops only                */
 #define NODE_INTR   (1L<<2)     /* Interrupted - hang up                 */
-#define NODE_MSGW   (1L<<3)     /* Message is waiting                    */
+#define NODE_UMSG   (1L<<3)     /* Message is waiting                    */
 #define NODE_POFF   (1L<<4)     /* Page disabled                         */
 #define NODE_AOFF   (1L<<5)     /* Activity Alert disabled               */
 #define NODE_UDAT   (1L<<6)     /* User data has been updated            */
@@ -49,8 +49,9 @@
 #define NODE_EVENT  (1L<<8)     /* Must run node event after log off     */
 #define NODE_DOWN   (1L<<9)     /* Down this node after logoff           */
 #define NODE_RPCHT  (1L<<10)    /* Reset private chat                    */
-#define NODE_NMSG   (1L<<11)    /* Node message waiting (new way)        */
+#define NODE_NMSG   (1L<<11)    /* Node message waiting                  */
 #define NODE_EXT    (1L<<12)    /* Extended info on node action          */
+#define NODE_WMSG   (1L<<13)    /* Wall message is waiting               */
 
 /* values for node.action */
 
@@ -94,6 +95,7 @@ typedef struct _node_base_s {   /* Node information kept in NODE.DAB */
     ushort misc;                /* Miscellaneous bits for node       */
     ushort aux;                 /* Auxillary word for node           */
     ulong  extaux;              /* Extended aux dword for node       */
+    long   msgnum;              /* Message number                    */
 } node_base_t;
 
 /*-------------------------------------------------------------*/
@@ -113,8 +115,11 @@ struct _node_s {
     int (*_close)(node_t *);
     int (*_unlock)(node_t *);
     int (*_lock)(node_t *, off_t);
+    int (*_get_sequence)(node_t *, long *);
     int (*_get)(node_t *, int, node_base_t *);
     int (*_put)(node_t *, int, node_base_t *);
+    int (*_put_message)(node_t *, char *, long *);
+    int (*_get_message)(node_t *, long, char **);
     int (*_next)(node_t *, node_base_t *, ssize_t *);
     int (*_prev)(node_t *, node_base_t *, ssize_t *);
     int (*_last)(node_t *, node_base_t *, ssize_t *);
@@ -126,7 +131,11 @@ struct _node_s {
     int index;
     int nodes;
     int locked;
+    int retries;
+    int timeout;
+    char *path;
     files_t *nodedb;
+    files_t *sequence;
     tracer_t *trace;
 };
 
@@ -171,6 +180,8 @@ extern int node_close(node_t *);
 extern int node_index(node_t *, int *);
 extern int node_get(node_t *, int, node_base_t *);
 extern int node_put(node_t *, int, node_base_t *);
+extern int node_get_message(node_t *, long, char **);
+extern int node_put_message(node_t *, char *, long *);
 extern int node_next(node_t *, node_base_t *, ssize_t *);
 extern int node_prev(node_t *, node_base_t *, ssize_t *);
 extern int node_last(node_t *, node_base_t *, ssize_t *);

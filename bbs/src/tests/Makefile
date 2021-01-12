@@ -10,8 +10,8 @@ CC = gcc
 LINK = gcc
 LIBS = ../../libs/
 OLIBS = ../../../libs/
-INCLUDE = -I.. -I../jam -I../qwk -I../room -I../node
-STATIC = $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
+INCLUDE = -I.. -I../jam -I../qwk -I../room -I../node -I../user
+STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
          $(OLIBS)libfiles.a $(OLIBS)libobjects.a $(OLIBS)libcclibs.a \
          $(OLIBS)libgpl.a
@@ -25,7 +25,7 @@ TARGETS = jam-test1 jam-test2 jam-test3 jam-test4 jam-test5 jam-test6 \
           jam-test7 jam-test8 qwk-test1 qwk-test2 qwk-test3 qwk-test4 \
           qwk-test5 room-test1 room-test2 room-test3 room-test4 room-test5 \
           room-test6 test1 node-test1 node-test2 node-test3 node-test4 \
-          node-test5
+          node-test5 user-test1 user-test2
 #
 all: $(TARGETS)
 #
@@ -139,6 +139,14 @@ node-test4: node-test4.o
 node-test5: node-test5.o
 	$(CC) $(CFLAGS) node-test5.c
 	$(LINK) $(LOPTS) node-test5 node-test5.o $(OLBS)
+#
+user-test1: user-test1.o
+	$(CC) $(CFLAGS) user-test1.c
+	$(LINK) $(LOPTS) user-test1 user-test1.o $(OLBS)
+#
+user-test2: user-test2.o
+	$(CC) $(CFLAGS) user-test2.c
+	$(LINK) $(LOPTS) user-test2 user-test2.o $(OLBS)
 #
 # eof
 #

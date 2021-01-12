@@ -1,0 +1,356 @@
+
+=pod
+
+=head1 NAME
+
+user - A ANSI C class to manage the user database
+
+=head1 SYNOPSIS
+
+
+=head1 DESCRIPTION
+
+This class implements the user database. This is used to keep track
+of what individual users are doing. This is a fixed size file. The
+number of users that are supported are defined when the database is
+initially created. You need to delete the database for any size
+changes to take effect.
+
+This library is a class. It is extensible and overridable. It also makes 
+use of the L<errors(3)> and L<tracer(3)> classes for error handling and 
+reporting. 
+
+The files user.c and user.h define the class. 
+
+=over 4
+
+=item B<user.h>
+
+This defines the interface to the class. 
+
+=item B<user.c> 
+
+This implements the interface.
+
+=back
+
+=head1 METHODS
+
+=head2 I<user_t *user_create(NULL)>
+
+This method initializes the class. 
+
+=head2 I<int user_destroy(user_t *self)>
+
+This destroys the object. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the user_t object.
+
+=back
+
+=head2 I<int user_override(user_t *self, item_list_t *items)>
+
+This method allows you to override methods. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the user_t object.
+
+=item B<items>
+
+An array of item_list_t data types. The array is 0 terminated.
+
+=back
+
+=head2 I<int user_compare(user_t *this, user_t *that)>
+
+This method allows you to compare one user_t object to another. 
+
+=over 4
+
+=item B<this>
+
+A pointer to a user_t object.
+
+=item B<that>
+
+A pointer to a user_t object.
+
+=back
+
+=head2 I<char *user_version(user_t *self)>
+
+This method returns the version of the library. The version number
+follows the guidelines from L<semver.org|https://semver.org/>.
+
+=over 4
+
+=item B<self>
+
+A pointer to the user_t object.
+
+=back
+
+=head2 I<int user_open(user_t *self)>
+
+This method allows access to the users. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=back
+
+=head2 I<int user_close(user_t *self)>
+
+This method closes access to the users.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=back
+
+=head2 I<int user_first(user_t *self, user_base_t *user, ssize_t *count)>
+
+This method will retrieve the first user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<user>
+
+A pointer to a user_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int user_next(user_t *self, user_base_t *user, ssize_t *count)>
+
+This method retrieves the next user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<user>
+
+A pointer to a user_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int user_prev(user_t *self, user_base_t *user, ssize_t *count)>
+
+This method retrieves the previous user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<user>
+
+A pointer to a user_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int user_last(user_t *self, user_base_t *user, ssize_t *count)>
+
+This method retrieves the last user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<user>
+
+A pointer to a user_base_t type to write the data too.
+
+=item B<count>
+
+A pointer to write the number of bytes read. A 0 indicates end of file.
+
+=back
+
+=head2 I<int user_get(user_t *self, int index, user_base_t *user)>
+
+This method gets the indicated user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<index>
+
+The user to get.
+
+=item B<user>
+
+A pointer to a user_base_t type to write the data too.
+
+=back
+
+=head2 I<int user_put(user_t *self, int index, user_base_t *user)>
+
+This method updates a user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<index>
+
+The user to update.
+
+=item B<user>
+
+A pointer to a user_base_t type.
+
+=back
+
+=head2 I<int user_put_message(user_t *self, char *buffer, long *msgnum)>
+
+This method sends a message to another user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<buffer>
+
+A pointer to the message.
+
+=item B<msgnum>
+
+A pointer to write the message number too.
+
+=back
+
+=head2 I<int user_get_message(user_t *self, long msgnum, char **buffer)>
+
+This method retrieves a message from another user.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<msgnum>
+
+The message number to retrieve.
+
+=item B<buffer>
+
+A pointer to write the message too. This buffer will 
+need to be freed.
+
+=back
+
+=head2 I<int user_index(user_t *self, int *index)>
+
+This method returns the current user index. This is usable when paging
+thru the user database.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<index>
+
+A pointer to write the index number too.
+
+=back
+
+=head1 RETURNS
+
+The method user_create() returns a pointer to a user_t object. 
+All other methods return either OK on success or ERR on failure. The 
+extended error description can be returned with object_get_error().
+
+=head1 BUILDING
+
+The following assumes a GNU/GCC build environment.
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruft from the directory.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<object(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

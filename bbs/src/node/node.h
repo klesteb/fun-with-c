@@ -89,13 +89,14 @@ typedef struct _node_base_s {   /* Node information kept in NODE.DAB */
     uchar status;               /* Current Status of Node            */
     uchar errors;               /* Number of Critical Errors         */
     uchar action;               /* Action User is doing on Node      */
-    uchar pad1;                 /* alignment padding                 */
+    uchar pad1;                 /* Alignment padding                 */
+    ushort pad2;                /* Alignment padding                 */
     ushort useron;              /* User on Node                      */
-    ushort connection;          /* Connection rate of Node           */
     ushort misc;                /* Miscellaneous bits for node       */
     ushort aux;                 /* Auxillary word for node           */
     ulong  extaux;              /* Extended aux dword for node       */
     long   msgnum;              /* Message number                    */
+    long   nodenum;             /* Node number                       */
 } node_base_t;
 
 /*-------------------------------------------------------------*/
@@ -115,6 +116,7 @@ struct _node_s {
     int (*_close)(node_t *);
     int (*_unlock)(node_t *);
     int (*_lock)(node_t *, off_t);
+    int (*_extend)(node_t *, int);
     int (*_get_sequence)(node_t *, long *);
     int (*_get)(node_t *, int, node_base_t *);
     int (*_put)(node_t *, int, node_base_t *);
@@ -164,6 +166,7 @@ struct _node_s {
 #define NODE_M_WRITE      11
 #define NODE_M_FIRST      12
 #define NODE_M_BUILD      13
+#define NODE_M_EXTEND     14
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -177,6 +180,7 @@ extern char *node_version(node_t *);
 
 extern int node_open(node_t *);
 extern int node_close(node_t *);
+extern int node_extend(node_t *, int);
 extern int node_index(node_t *, int *);
 extern int node_get(node_t *, int, node_base_t *);
 extern int node_put(node_t *, int, node_base_t *);

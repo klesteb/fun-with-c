@@ -2,16 +2,26 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "node.h"
+#include "user.h"
 #include "when.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
 #include "misc/misc.h"
 
-node_t *nodes;
+user_t *users;
 tracer_t *dump;
 errors_t *errs;
+
+int display(user_base_t *user) {
+
+    printf("---------------------------\n");
+    printf("eternal : %ld\n", user->eternal);
+    printf("username: %s\n", user->username);
+
+    return OK;
+
+}
 
 int dump_trace(char *buffer) {
 
@@ -36,8 +46,8 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        nodes = node_create(path, 32, retries, timeout, dump);
-        check_creation(nodes);
+        users = user_create(path, 256, retries, timeout, dump);
+        check_creation(users);
 
         exit_when;
 
@@ -55,7 +65,7 @@ int setup(void) {
 
 void cleanup(void) {
 
-    node_destroy(nodes);
+    user_destroy(users);
     tracer_destroy(dump);
     errors_destroy(errs);
 
@@ -64,44 +74,36 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    int index = 0;
-    node_base_t temp;
     ssize_t count = 0;
+    user_base_t ondisk;
 
     when_error_in {
 
         stat = setup();
         check_status(stat, OK, E_INVOPS);
 
-        stat = node_open(nodes);
-        check_return(stat, nodes);
+        stat = user_open(users);
+        check_return(stat, users);
 
-        stat = node_first(nodes, &temp, &count);
-        check_return(stat, nodes);
+        stat = user_first(users, &ondisk, &count);
+        check_return(stat, users);
 
         while (count > 0) {
 
-            stat = node_index(nodes, &index);
-            check_return(stat, nodes);
-
-            printf("---------------------------------\n");
-            printf("index  : %d\n", index);
-            printf("status : %d\n", temp.status);
-            printf("errors : %d\n", temp.errors);
-            printf("action : %d\n", temp.action);
-            printf("user   : %d\n", temp.useron);
-            printf("msgnum : %d\n", temp.msgnum);
-            printf("misc   : %d\n", temp.misc);
-            printf("aux    : %d\n", temp.aux);
-            printf("extaux : %ld\n", temp.extaux);
-
-            stat = node_next(nodes, &temp, &count);
-            check_return(stat, nodes);
-
+            if (!(ondisk.flags & US_DELETED) &&
+                !(ondisk.flags & US_INACTIVE)) {
+                
+                display(&ondisk);
+                
+            }
+            
+            stat = user_next(users, &ondisk, &count);
+            check_return(stat, users);
+            
         }
-
-        stat = node_close(nodes);
-        check_return(stat, nodes);
+        
+        stat = user_close(users);
+        check_return(stat, users);
 
         exit_when;
 

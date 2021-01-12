@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "node.h"
+#include "user.h"
 #include "when.h"
 #include "files.h"
 #include "object.h"
@@ -27,71 +27,71 @@ require_klass(OBJECT_KLASS);
 /* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
-int _node_ctor(object_t *, item_list_t *);
-int _node_dtor(object_t *);
-int _node_compare(node_t *, node_t *);
-int _node_override(node_t *, item_list_t *);
+int _user_ctor(object_t *, item_list_t *);
+int _user_dtor(object_t *);
+int _user_compare(user_t *, user_t *);
+int _user_override(user_t *, item_list_t *);
 
-int _node_open(node_t *);
-int _node_close(node_t *);
-int _node_unlock(node_t *);
-int _node_lock(node_t *, off_t);
-int _node_extend(node_t *, int);
-int _node_get_sequence(node_t *, long *);
-int _node_get(node_t *, int, node_base_t *);
-int _node_put(node_t *, int, node_base_t *);
-int _node_get_message(node_t *, long, char **);
-int _node_put_message(node_t *, char *, long *);
-int _node_next(node_t *, node_base_t *, ssize_t *);
-int _node_prev(node_t *, node_base_t *, ssize_t *);
-int _node_last(node_t *, node_base_t *, ssize_t *);
-int _node_read(node_t *, node_base_t *, ssize_t *);
-int _node_write(node_t *, node_base_t *, ssize_t *);
-int _node_first(node_t *, node_base_t *, ssize_t *);
-int _node_build(node_t *, node_base_t *, node_base_t *);
+int _user_open(user_t *);
+int _user_close(user_t *);
+int _user_unlock(user_t *);
+int _user_del(user_t *, long);
+int _user_extend(user_t *, int);
+int _user_lock(user_t *, off_t);
+int _user_add(user_t *, user_base_t *);
+int _user_get_sequence(user_t *, long *);
+int _user_get(user_t *, int, user_base_t *);
+int _user_put(user_t *, int, user_base_t *);
+int _user_next(user_t *, user_base_t *, ssize_t *);
+int _user_prev(user_t *, user_base_t *, ssize_t *);
+int _user_last(user_t *, user_base_t *, ssize_t *);
+int _user_read(user_t *, user_base_t *, ssize_t *);
+int _user_write(user_t *, user_base_t *, ssize_t *);
+int _user_first(user_t *, user_base_t *, ssize_t *);
+int _user_build(user_t *, user_base_t *, user_base_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/
 
-declare_klass(NODE_KLASS) {
-    .size = KLASS_SIZE(node_t),
-    .name = KLASS_NAME(node_t),
-    .ctor = _node_ctor,
-    .dtor = _node_dtor,
+declare_klass(USER_KLASS) {
+    .size = KLASS_SIZE(user_t),
+    .name = KLASS_NAME(user_t),
+    .ctor = _user_ctor,
+    .dtor = _user_dtor,
 };
 
 /*----------------------------------------------------------------*/
 /* klass macros                                                   */
 /*----------------------------------------------------------------*/
 
-#define NODE_OFFSET(n)   ((((n) - 1) * sizeof(node_base_t)))
-#define NODE_RECORD(n)   (((n) / sizeof(node_base_t)) + 1)
+#define USER_OFFSET(n)   ((((n) - 1) * sizeof(user_base_t)))
+#define USER_RECORD(n)   (((n) / sizeof(user_base_t)) + 1)
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-node_t *node_create(char *path, int nodes, int retries, int timeout, tracer_t *dump) {
+user_t *user_create(char *path, int users, int retries, int timeout, tracer_t *dump) {
 
     int stat = ERR;
-    node_t *self = NULL;
+    user_t *self = NULL;
     item_list_t items[6];
 
-    SET_ITEM(items[0], NODE_K_PATH, path, strlen(path), NULL);
-    SET_ITEM(items[1], NODE_K_NODES, &nodes, sizeof(int), NULL);
-    SET_ITEM(items[2], NODE_K_RETRIES, &retries, sizeof(int), NULL);
-    SET_ITEM(items[3], NODE_K_TIMEOUT, &timeout, sizeof(int), NULL);
-    SET_ITEM(items[4], NODE_K_TRACE, dump, 0, NULL);
+    SET_ITEM(items[0], USER_K_PATH, path, strlen(path), NULL);
+    SET_ITEM(items[1], USER_K_RETRIES, &retries, sizeof(int), NULL);
+    SET_ITEM(items[2], USER_K_TIMEOUT, &timeout, sizeof(int), NULL);
+    SET_ITEM(items[3], USER_K_USERS, &users, sizeof(int), NULL);
+    SET_ITEM(items[4], USER_K_TRACE, dump, 0, NULL);
     SET_ITEM(items[5], 0,0,0,0);
 
-    self = (node_t *)object_create(NODE_KLASS, items, &stat);
+    self = (user_t *)object_create(USER_KLASS, items, &stat);
 
     return self;
 
 }
 
-int node_destroy(node_t *self) {
+int user_destroy(user_t *self) {
 
     int stat = OK;
 
@@ -99,7 +99,7 @@ int node_destroy(node_t *self) {
 
         if (self != NULL) {
 
-            if (object_assert(self, node_t)) {
+            if (object_assert(self, user_t)) {
 
                 stat = self->dtor(OBJECT(self));
                 check_status(stat, OK, E_INVOPS);
@@ -129,7 +129,7 @@ int node_destroy(node_t *self) {
 
 }
 
-int node_override(node_t *self, item_list_t *items) {
+int user_override(user_t *self, item_list_t *items) {
 
     int stat = OK;
 
@@ -159,7 +159,7 @@ int node_override(node_t *self, item_list_t *items) {
 
 }
 
-int node_compare(node_t *us, node_t *them) {
+int user_compare(user_t *us, user_t *them) {
 
     int stat = OK;
 
@@ -167,7 +167,7 @@ int node_compare(node_t *us, node_t *them) {
 
         if (us != NULL) {
 
-            if (object_assert(them, node_t)) {
+            if (object_assert(them, user_t)) {
 
                 stat = us->_compare(us, them);
                 check_status(stat, OK, E_NOTSAME);
@@ -197,7 +197,7 @@ int node_compare(node_t *us, node_t *them) {
 
 }
 
-char *node_version(node_t *self) {
+char *user_version(user_t *self) {
 
     char *version = VERSION;
 
@@ -205,7 +205,7 @@ char *node_version(node_t *self) {
 
 }
 
-int node_open(node_t *self) {
+int user_open(user_t *self) {
 
     int stat = OK;
 
@@ -233,7 +233,7 @@ int node_open(node_t *self) {
 
 }
 
-int node_close(node_t *self) {
+int user_close(user_t *self) {
 
     int stat = OK;
 
@@ -261,19 +261,19 @@ int node_close(node_t *self) {
 
 }
 
-int node_first(node_t *self, node_base_t *node, ssize_t *count) {
+int user_first(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (node == NULL)) {
+        if ((self == NULL) || (user == NULL)) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_first(self, node, count);
+        stat = self->_first(self, user, count);
         check_return(stat, self);
 
         exit_when;
@@ -289,19 +289,19 @@ int node_first(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int node_next(node_t *self, node_base_t *node, ssize_t *count) {
+int user_next(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (node == NULL)) {
+        if ((self == NULL) || (user == NULL)) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_next(self, node, count);
+        stat = self->_next(self, user, count);
         check_return(stat, self);
 
         exit_when;
@@ -317,19 +317,19 @@ int node_next(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int node_prev(node_t *self, node_base_t *node, ssize_t *count) {
+int user_prev(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (node == NULL)) {
+        if ((self == NULL) || (user == NULL)) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_prev(self, node, count);
+        stat = self->_prev(self, user, count);
         check_return(stat, self);
 
         exit_when;
@@ -345,19 +345,19 @@ int node_prev(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int node_last(node_t *self, node_base_t *node, ssize_t *count) {
+int user_last(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (node == NULL)) {
+        if ((self == NULL) || (user == NULL)) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_last(self, node, count);
+        stat = self->_last(self, user, count);
         check_return(stat, self);
 
         exit_when;
@@ -373,20 +373,19 @@ int node_last(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int node_get(node_t *self, int index, node_base_t *node) {
+int user_add(user_t *self, user_base_t *user) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (node == NULL) ||
-            ((index < 0) && (index > self->nodes))) {
+        if ((self == NULL) || (user == NULL)) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_get(self, index, node);
+        stat = self->_add(self, user);
         check_return(stat, self);
 
         exit_when;
@@ -402,20 +401,19 @@ int node_get(node_t *self, int index, node_base_t *node) {
 
 }
 
-int node_put(node_t *self, int index, node_base_t *node) {
+int user_del(user_t *self, ushort userno) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (node == NULL) ||
-            ((index < 0) && (index > self->nodes))) {
+        if (self == NULL) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_put(self, index, node);
+        stat = self->_del(self, userno);
         check_return(stat, self);
 
         exit_when;
@@ -431,7 +429,65 @@ int node_put(node_t *self, int index, node_base_t *node) {
 
 }
 
-int node_index(node_t *self, int *index) {
+int user_get(user_t *self, int index, user_base_t *user) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (user == NULL) ||
+            ((index < 0) && (index > self->users))) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get(self, index, user);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int user_put(user_t *self, int index, user_base_t *user) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (user == NULL) ||
+            ((index < 0) && (index > self->users))) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_put(self, index, user);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int user_index(user_t *self, int *index) {
 
     int stat = OK;
 
@@ -458,110 +514,28 @@ int node_index(node_t *self, int *index) {
 
 }
 
-int node_get_message(node_t *self, long msgnum, char **buffer) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if (self == NULL) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_get_message(self, msgnum, buffer);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int node_put_message(node_t *self, char *buffer, long *msgnum) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (buffer == NULL) || (msgnum == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_put_message(self, buffer, msgnum);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int node_extend(node_t *self, int amount) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if (self == NULL) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_extend(self, amount);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-int _node_ctor(object_t *object, item_list_t *items) {
+int _user_ctor(object_t *object, item_list_t *items) {
 
     int stat = OK;
-    int nodes = 2;
+    int users = 2;
     char seq[256];
     char path[256];
+    char prof[256];
     int timeout = 1;
-    char nodedb[256];
+    char userdb[256];
     int retries = 30;
-    node_t *self = NULL;
+    user_t *self = NULL;
     tracer_t *dump = NULL;
 
     if (object != NULL) {
 
         memset(path, '\0', 256);
-        memset(nodedb, '\0', 256);
+        memset(prof, '\0', 256);
+        memset(userdb, '\0', 256);
 
         /* capture our items */
 
@@ -574,31 +548,31 @@ int _node_ctor(object_t *object, item_list_t *items) {
                     (items[x].item_code == 0)) break;
 
                 switch(items[x].item_code) {
-                    case NODE_K_PATH: {
+                    case USER_K_PATH: {
                         memcpy(&path, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
                     }
-                    case NODE_K_NODES: {
-                        memcpy(&nodes, 
-                               items[x].buffer_address, 
-                               items[x].buffer_length);
-                        break;
-                    }
-                    case NODE_K_RETRIES: {
+                    case USER_K_RETRIES: {
                         memcpy(&retries, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
                     }
-                    case NODE_K_TIMEOUT: {
+                    case USER_K_TIMEOUT: {
                         memcpy(&timeout, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
                     }
-                    case NODE_K_TRACE: {
+                    case USER_K_USERS: {
+                        memcpy(&users, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case USER_K_TRACE: {
                         dump = items[x].buffer_address; 
                         break;
                     }
@@ -614,32 +588,32 @@ int _node_ctor(object_t *object, item_list_t *items) {
 
         /* initialize our derived klass here */
 
-        self = NODE(object);
+        self = USER(object);
 
         /* assign our methods here */
 
-        self->ctor = _node_ctor;
-        self->dtor = _node_dtor;
-        self->_compare = _node_compare;
-        self->_override = _node_override;
+        self->ctor = _user_ctor;
+        self->dtor = _user_dtor;
+        self->_compare = _user_compare;
+        self->_override = _user_override;
 
-        self->_get    = _node_get;
-        self->_put    = _node_put;
-        self->_open   = _node_open;
-        self->_lock   = _node_lock;
-        self->_next   = _node_next;
-        self->_prev   = _node_prev;
-        self->_last   = _node_last;
-        self->_read   = _node_read;
-        self->_write  = _node_write;
-        self->_first  = _node_first;
-        self->_build  = _node_build;
-        self->_close  = _node_close;
-        self->_unlock = _node_unlock;
-        self->_extend = _node_extend;
-        self->_get_message  = _node_get_message;
-        self->_put_message  = _node_put_message;
-        self->_get_sequence = _node_get_sequence;
+        self->_add    = _user_add;
+        self->_get    = _user_get;
+        self->_del    = _user_del;
+        self->_put    = _user_put;
+        self->_open   = _user_open;
+        self->_lock   = _user_lock;
+        self->_next   = _user_next;
+        self->_prev   = _user_prev;
+        self->_last   = _user_last;
+        self->_read   = _user_read;
+        self->_write  = _user_write;
+        self->_first  = _user_first;
+        self->_build  = _user_build;
+        self->_close  = _user_close;
+        self->_unlock = _user_unlock;
+        self->_extend = _user_extend;
+        self->_get_sequence = _user_get_sequence;
 
         /* initialize internal variables here */
 
@@ -647,17 +621,21 @@ int _node_ctor(object_t *object, item_list_t *items) {
 
             self->index = 0;
             self->trace = dump;
-            self->nodes = nodes;
+            self->users = users;
             self->locked = FALSE;
             self->retries = retries;
             self->timeout = timeout;
             self->path = strdup(path);
 
-            strncpy(nodedb, fnm_build(1, FnmPath, "nodes", ".dat", path, NULL), 255);
-            self->nodedb = files_create(nodedb, retries, timeout);
-            check_creation(self->nodedb);
+            strncpy(userdb, fnm_build(1, FnmPath, "users", ".dat", path, NULL), 255);
+            self->userdb = files_create(userdb, retries, timeout);
+            check_creation(self->userdb);
 
-            strncpy(seq, fnm_build(1, FnmPath, "nodes", ".seq", path, NULL), 255);
+            strncpy(prof, fnm_build(1, FnmPath, "profiles", ".dat", path, NULL), 255);
+            self->profiles = files_create(prof, retries, timeout);
+            check_creation(self->profiles);
+
+            strncpy(seq, fnm_build(1, FnmPath, "users", ".seq", path, NULL), 255);
             self->sequence = files_create(seq, retries, timeout);
             check_creation(self->sequence);
 
@@ -676,14 +654,14 @@ int _node_ctor(object_t *object, item_list_t *items) {
 
 }
 
-int _node_dtor(object_t *object) {
+int _user_dtor(object_t *object) {
 
     int stat = OK;
-    node_t *self = NODE(object);
+    user_t *self = USER(object);
 
     /* free local resources here */
 
-    files_close(self->nodedb);
+    files_close(self->userdb);
     files_close(self->sequence);
     free(self->path);
 
@@ -696,7 +674,7 @@ int _node_dtor(object_t *object) {
 
 }
 
-int _node_override(node_t *self, item_list_t *items) {
+int _user_override(user_t *self, item_list_t *items) {
 
     int stat = ERR;
 
@@ -709,73 +687,83 @@ int _node_override(node_t *self, item_list_t *items) {
                 (items[x].item_code == 0)) break;
 
             switch(items[x].item_code) {
-                case NODE_M_DESTRUCTOR: {
+                case USER_M_DESTRUCTOR: {
                     self->dtor = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_OPEN: {
+                case USER_M_OPEN: {
                     self->_open = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_CLOSE: {
+                case USER_M_CLOSE: {
                     self->_close = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_UNLOCK: {
+                case USER_M_UNLOCK: {
                     self->_unlock = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_LOCK: {
+                case USER_M_LOCK: {
                     self->_lock = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_GET: {
+                case USER_M_GET: {
                     self->_get = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_PUT: {
+                case USER_M_PUT: {
                     self->_put = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_NEXT: {
+                case USER_M_NEXT: {
                     self->_next = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_PREV: {
+                case USER_M_PREV: {
                     self->_prev = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_LAST: {
+                case USER_M_LAST: {
                     self->_last = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_WRITE: {
+                case USER_M_WRITE: {
                     self->_write = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_FIRST: {
+                case USER_M_FIRST: {
                     self->_first = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_BUILD: {
+                case USER_M_BUILD: {
                     self->_build = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
-                case NODE_M_EXTEND: {
+                case USER_M_EXTEND: {
                     self->_extend = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case USER_M_ADD: {
+                    self->_add = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case USER_M_DEL: {
+                    self->_del = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
@@ -789,7 +777,7 @@ int _node_override(node_t *self, item_list_t *items) {
 
 }
 
-int _node_compare(node_t *self, node_t *other) {
+int _user_compare(user_t *self, user_t *other) {
 
     int stat = ERR;
 
@@ -798,6 +786,8 @@ int _node_compare(node_t *self, node_t *other) {
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
         (self->_override == other->_override) &&
+        (self->_add    == other->_add) &&
+        (self->_del    == other->_del) &&
         (self->_get    == other->_get) &&
         (self->_put    == other->_put) &&
         (self->_open   == other->_open) &&
@@ -812,9 +802,8 @@ int _node_compare(node_t *self, node_t *other) {
         (self->_close  == other->_close) &&
         (self->_unlock == other->_unlock) &&
         (self->_extend == other->_extend) &&
-        (self->nodes  == other->nodes) &&
         (self->locked == other->locked) &&
-        (self->nodedb == other->nodedb) &&
+        (self->userdb == other->userdb) &&
         (self->trace  == other->trace)) {
 
         stat = OK;
@@ -825,12 +814,13 @@ int _node_compare(node_t *self, node_t *other) {
 
 }
 
-int _node_open(node_t *self) {
+int _user_open(user_t *self) {
 
     int stat = OK;
     int exists = 0;
     ssize_t count = 0;
     long sequence = 1;
+    user_base_t ondisk;
     int flags = O_RDWR;
     int mode = (S_IRWXU | S_IRWXG);
     int create = (O_RDWR | O_CREAT);
@@ -861,21 +851,75 @@ int _node_open(node_t *self) {
 
         }
 
-        stat = files_exists(self->nodedb, &exists);
-        check_return(stat, self->nodedb);
+        stat = files_exists(self->userdb, &exists);
+        check_return(stat, self->userdb);
 
         if (exists) {
 
-            stat = files_open(self->nodedb, flags, 0);
-            check_return(stat, self->nodedb);
+            stat = files_open(self->userdb, flags, 0);
+            check_return(stat, self->userdb);
 
         } else {
 
-            stat = files_open(self->nodedb, create, mode);
-            check_return(stat, self->nodedb);
+            stat = files_open(self->userdb, create, mode);
+            check_return(stat, self->userdb);
 
-            stat = self->_extend(self, self->nodes);
+            stat = self->_extend(self, self->users);
             check_return(stat, self);
+
+            /* create sysop account */
+
+            ondisk.eternal = 1;
+            ondisk.axlevel = AX_SYSOP;
+            ondisk.flags = (US_SYSOP | US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
+            memset(&ondisk.username, '\0', 26);
+            strcpy(ondisk.username, "sysop");
+            memset(&ondisk.password, '\0', 26);
+            strcpy(ondisk.password, "sysop");
+
+            self->_put(self, 1, &ondisk);
+            check_return(stat, self);
+
+            /* create network account */
+
+            ondisk.eternal = 2;
+            ondisk.axlevel = AX_NET;
+            ondisk.flags = (US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
+            memset(&ondisk.username, '\0', 26);
+            strcpy(ondisk.username, "qwknet");
+            memset(&ondisk.password, '\0', 26);
+            strcpy(ondisk.password, "qwknet");
+
+            self->_put(self, 2, &ondisk);
+            check_return(stat, self);
+
+            /* guest account */
+
+            ondisk.eternal = 3;
+            ondisk.flags = US_PERM;
+            ondisk.axlevel = AX_NORM;
+            memset(&ondisk.username, '\0', 26);
+            strcpy(ondisk.username, "guest");
+            memset(&ondisk.password, '\0', 26);
+            strcpy(ondisk.password, "guest");
+
+            self->_put(self, 3, &ondisk);
+            check_return(stat, self);
+            
+        }
+
+        stat = files_exists(self->profiles, &exists);
+        check_return(stat, self->profiles);
+
+        if (exists) {
+
+            stat = files_open(self->profiles, flags, 0);
+            check_return(stat, self->profiles);
+
+        } else {
+
+            stat = files_open(self->profiles, create, mode);
+            check_return(stat, self->profiles);
 
         }
 
@@ -894,14 +938,14 @@ int _node_open(node_t *self) {
 
 }
 
-int _node_close(node_t *self) {
+int _user_close(user_t *self) {
 
     int stat = OK;
 
     when_error_in {
 
-        stat = files_close(self->nodedb);
-        check_return(stat, self->nodedb);
+        stat = files_close(self->userdb);
+        check_return(stat, self->userdb);
 
         stat = files_close(self->sequence);
         check_return(stat, self->sequence);
@@ -919,21 +963,21 @@ int _node_close(node_t *self) {
 
 }
 
-int _node_first(node_t *self, node_base_t *node, ssize_t *count) {
+int _user_first(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
-    node_base_t ondisk;
+    user_base_t ondisk;
     ssize_t position = 0;
 
     when_error_in {
 
-        stat = files_seek(self->nodedb, 0, SEEK_SET);
-        check_return(stat, self->nodedb);
+        stat = files_seek(self->userdb, 0, SEEK_SET);
+        check_return(stat, self->userdb);
 
-        stat = files_tell(self->nodedb, &position);
-        check_return(stat, self->nodedb);
+        stat = files_tell(self->userdb, &position);
+        check_return(stat, self->userdb);
 
-        self->index = NODE_RECORD(position);
+        self->index = USER_RECORD(position);
 
         stat = self->_lock(self, 0);
         check_return(stat, self);
@@ -944,9 +988,9 @@ int _node_first(node_t *self, node_base_t *node, ssize_t *count) {
         stat = self->_unlock(self);
         check_return(stat, self);
 
-        if (*count == sizeof(node_base_t)) {
+        if (*count == sizeof(user_base_t)) {
 
-            stat = self->_build(self, &ondisk, node);
+            stat = self->_build(self, &ondisk, user);
             check_return(stat, self);
 
         }
@@ -966,18 +1010,18 @@ int _node_first(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int _node_next(node_t *self, node_base_t *node, ssize_t *count) {
+int _user_next(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
-    node_base_t ondisk;
+    user_base_t ondisk;
     ssize_t position = 0;
 
     when_error_in {
 
-        stat = files_tell(self->nodedb, &position);
+        stat = files_tell(self->userdb, &position);
         check_return(stat, self);
 
-        self->index = NODE_RECORD(position);
+        self->index = USER_RECORD(position);
 
         stat = self->_lock(self, position);
         check_return(stat, self);
@@ -988,9 +1032,9 @@ int _node_next(node_t *self, node_base_t *node, ssize_t *count) {
         stat = self->_unlock(self);
         check_return(stat, self);
 
-        if (*count == sizeof(node_base_t)) {
+        if (*count == sizeof(user_base_t)) {
 
-            stat = self->_build(self, &ondisk, node);
+            stat = self->_build(self, &ondisk, user);
             check_return(stat, self);
 
         }
@@ -1010,27 +1054,27 @@ int _node_next(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int _node_prev(node_t *self, node_base_t *node, ssize_t *count) {
+int _user_prev(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
-    node_base_t ondisk;
+    user_base_t ondisk;
     ssize_t position = 0;
-    off_t offset = sizeof(node_base_t);
+    off_t offset = sizeof(user_base_t);
 
     when_error_in {
 
-        stat = files_tell(self->nodedb, &position);
-        check_return(stat, self->nodedb);
+        stat = files_tell(self->userdb, &position);
+        check_return(stat, self->userdb);
 
         if (position > 0) {
 
-            stat = files_seek(self->nodedb, -offset, SEEK_CUR);
-            check_return(stat, self->nodedb);
+            stat = files_seek(self->userdb, -offset, SEEK_CUR);
+            check_return(stat, self->userdb);
 
             stat = self->_lock(self, position - offset);
             check_return(stat, self);
 
-            self->index = NODE_RECORD(position - offset);
+            self->index = USER_RECORD(position - offset);
 
             stat = self->_read(self, &ondisk, count);
             check_return(stat, self);
@@ -1038,12 +1082,12 @@ int _node_prev(node_t *self, node_base_t *node, ssize_t *count) {
             stat = self->_unlock(self);
             check_return(stat, self);
 
-            stat = files_seek(self->nodedb, -offset, SEEK_CUR);
-            check_return(stat, self->nodedb);
+            stat = files_seek(self->userdb, -offset, SEEK_CUR);
+            check_return(stat, self->userdb);
 
-            if (*count == sizeof(node_base_t)) {
+            if (*count == sizeof(user_base_t)) {
 
-                stat = self->_build(self, &ondisk, node);
+                stat = self->_build(self, &ondisk, user);
                 check_return(stat, self);
 
             }
@@ -1069,25 +1113,25 @@ int _node_prev(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int _node_last(node_t *self, node_base_t *node, ssize_t *count) {
+int _user_last(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
-    node_base_t ondisk;
+    user_base_t ondisk;
     ssize_t position = 0;
-    off_t offset = sizeof(node_base_t);
+    off_t offset = sizeof(user_base_t);
 
     when_error_in {
 
-        stat = files_seek(self->nodedb, 0, SEEK_END);
-        check_return(stat, self->nodedb);
+        stat = files_seek(self->userdb, 0, SEEK_END);
+        check_return(stat, self->userdb);
 
-        stat = files_seek(self->nodedb, -offset, SEEK_CUR);
-        check_return(stat, self->nodedb);
+        stat = files_seek(self->userdb, -offset, SEEK_CUR);
+        check_return(stat, self->userdb);
 
-        stat = files_tell(self->nodedb, &position);
-        check_return(stat, self->nodedb);
+        stat = files_tell(self->userdb, &position);
+        check_return(stat, self->userdb);
 
-        self->index = NODE_RECORD(position);
+        self->index = USER_RECORD(position);
 
         stat = self->_lock(self, position);
         check_return(stat, self);
@@ -1098,12 +1142,12 @@ int _node_last(node_t *self, node_base_t *node, ssize_t *count) {
         stat = self->_unlock(self);
         check_return(stat, self);
 
-        stat = files_seek(self->nodedb, -offset, SEEK_CUR);
-        check_return(stat, self->nodedb);
+        stat = files_seek(self->userdb, -offset, SEEK_CUR);
+        check_return(stat, self->userdb);
 
-        if (*count == sizeof(node_base_t)) {
+        if (*count == sizeof(user_base_t)) {
 
-            stat = self->_build(self, &ondisk, node);
+            stat = self->_build(self, &ondisk, user);
             check_return(stat, self);
 
         }
@@ -1123,17 +1167,110 @@ int _node_last(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int _node_get(node_t *self, int index, node_base_t *node) {
+int _user_add(user_t *self, user_base_t *user) {
 
     int stat = OK;
     ssize_t count = 0;
-    node_base_t ondisk;
-    off_t offset = NODE_OFFSET(index);
+    user_base_t ondisk;
+    int created = FALSE;
 
     when_error_in {
 
-        stat = files_seek(self->nodedb, offset, SEEK_SET);
-        check_return(stat, self->nodedb);
+        stat = self->_first(self, &ondisk, &count);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if (ondisk.flags & US_INACTIVE) {
+
+                user->eternal = ondisk.eternal;
+
+                stat = self->_put(self, self->index, user);
+                check_return(stat, self);
+
+                created = TRUE;
+                break;
+
+            }
+
+            stat = self->_next(self, &ondisk, &count);
+            check_return(stat, self);
+
+        }
+
+        if (! created) {
+
+            cause_error(EOVERFLOW);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _user_del(user_t *self, long userno) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    user_base_t ondisk;
+
+    when_error_in {
+
+        stat = self->_del(self, userno);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if ((ondisk.eternal == userno) &&
+                (! (ondisk.flags & US_PERM))) {
+
+                ondisk.flags |= US_DELETED;
+
+                stat = self->_put(self, self->index, &ondisk);
+                check_return(stat, self);
+
+                break;
+
+            }
+
+            stat = self->_next(self, &ondisk, &count);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _user_get(user_t *self, int index, user_base_t *user) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    user_base_t ondisk;
+    off_t offset = USER_OFFSET(index);
+
+    when_error_in {
+
+        stat = files_seek(self->userdb, offset, SEEK_SET);
+        check_return(stat, self->userdb);
 
         self->_lock(self, offset);
         check_return(stat, self);
@@ -1144,9 +1281,9 @@ int _node_get(node_t *self, int index, node_base_t *node) {
         stat = self->_unlock(self);
         check_return(stat, self);
         
-        if (count == sizeof(node_base_t)) {
+        if (count == sizeof(user_base_t)) {
 
-            stat = self->_build(self, &ondisk, node);
+            stat = self->_build(self, &ondisk, user);
             check_return(stat, self);
 
         }
@@ -1166,25 +1303,31 @@ int _node_get(node_t *self, int index, node_base_t *node) {
 
 }
 
-int _node_put(node_t *self, int index, node_base_t *node) {
+int _user_put(user_t *self, int index, user_base_t *user) {
 
     int stat = OK;
     ssize_t count = 0;
-    off_t offset = NODE_OFFSET(index);
+    off_t offset = USER_OFFSET(index);
 
     when_error_in {
 
-        stat = files_seek(self->nodedb, offset, SEEK_SET);
-        check_return(stat, self->nodedb);
+        stat = files_seek(self->userdb, offset, SEEK_SET);
+        check_return(stat, self->userdb);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
 
-        stat = self->_write(self, node, &count);
+        stat = self->_write(self, user, &count);
         check_return(stat, self);
 
         stat = self->_unlock(self);
         check_return(stat, self);
+
+        if (count != sizeof(user_base_t)) {
+
+            cause_error(EIO);
+
+        }
 
         exit_when;
 
@@ -1201,141 +1344,15 @@ int _node_put(node_t *self, int index, node_base_t *node) {
 
 }
 
-int _node_get_message(node_t *self, long msgnum, char **buffer) {
+int _user_lock(user_t *self, off_t offset) {
 
-    char name[32];
     int stat = OK;
-    int exists = 0;
-    ssize_t size = 0;
-    ssize_t count = 0;
-    char filename[256];
-    int flags = O_RDWR;
-    files_t *message = NULL;
+    int length = sizeof(user_base_t);
 
     when_error_in {
 
-        memset(name, '\0', 32);
-        memset(filename, '\0', 256);
-        snprintf(name, 31, "%ld", msgnum);
-
-        strncpy(filename, fnm_build(1, FnmPath, name, ".msg", self->path, NULL), 255);
-        message = files_create(filename, self->retries, self->timeout);
-        check_creation(message);
-
-        stat = files_exists(message, &exists);
-        check_return(stat, message);
-
-        if (! exists) {
-
-            cause_error(EIO);
-
-        }
-
-        stat = files_size(message, &size);
-        check_return(stat, message);
-
-        errno = 0;
-        *buffer = calloc(1, size + 1);
-        if (*buffer == NULL) {
-
-            cause_error(ENOMEM);
-
-        }
-
-        stat = files_open(message, flags, 0);
-        check_return(stat, message);
-
-        stat = files_read(message, *buffer, size, &count);
-        check_return(stat, message);
-
-        stat = files_close(message);
-        check_return(stat, message);
-
-        stat = files_unlink(message);
-        check_return(stat, message);
-
-        stat = files_destroy(message);
-        check_return(stat, message);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _node_put_message(node_t *self, char *buffer, long *msgnum) {
-
-    char name[32];
-    int stat = OK;
-    long junk = 0;
-    ssize_t count = 0;
-    char filename[256];
-    files_t *message = NULL;
-    int mode = (S_IRWXU | S_IRWXG);
-    int create = (O_RDWR | O_CREAT);
-
-    when_error_in {
-
-        stat = self->_get_sequence(self, &junk);
-        check_return(stat, self);
-
-        memset(name, '\0', 32);
-        memset(filename, '\0', 256);
-        snprintf(name, 31, "%ld", junk);
-
-        strncpy(filename, fnm_build(1, FnmPath, name, ".msg", self->path, NULL), 255);
-        message = files_create(filename, self->retries, self->timeout);
-        check_creation(message);
-
-        stat = files_open(message, create, mode);
-        check_return(stat, message);
-
-        stat = files_write(message, buffer, strlen(buffer), &count);
-        check_return(stat, message);
-
-        stat = files_close(message);
-        check_return(stat, message);
-
-        stat = files_destroy(message);
-        check_return(stat, message);
-
-        if (count != strlen(buffer)) {
-
-            cause_error(EIO);
-
-        }
-
-        *msgnum = junk;
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _node_lock(node_t *self, off_t offset) {
-
-    int stat = OK;
-    int length = sizeof(node_base_t);
-
-    when_error_in {
-
-        stat = files_lock(self->nodedb, offset, length);
-        check_return(stat, self->nodedb);
+        stat = files_lock(self->userdb, offset, length);
+        check_return(stat, self->userdb);
 
         self->locked = TRUE;
 
@@ -1352,14 +1369,14 @@ int _node_lock(node_t *self, off_t offset) {
 
 }
 
-int _node_unlock(node_t *self) {
+int _user_unlock(user_t *self) {
 
     int stat = OK;
 
     when_error_in {
 
-        stat = files_unlock(self->nodedb);
-        check_return(stat, self->nodedb);
+        stat = files_unlock(self->userdb);
+        check_return(stat, self->userdb);
 
         self->locked = FALSE;
 
@@ -1376,7 +1393,7 @@ int _node_unlock(node_t *self) {
 
 }
 
-int _node_get_sequence(node_t *self, long *sequence) {
+int _user_get_sequence(user_t *self, long *sequence) {
 
     int stat = OK;
     long buffer = 0;
@@ -1435,43 +1452,41 @@ int _node_get_sequence(node_t *self, long *sequence) {
 
 }
 
-int _node_extend(node_t *self, int amount) {
+int _user_extend(user_t *self, int amount) {
 
     int stat = OK;
-    node_base_t node;
-    long sequence = 0;
+    user_base_t user;
     ssize_t count = 0;
     ssize_t position = 0;
 
     when_error_in {
 
-        memset(&node, '\0', sizeof(node_base_t));
+        memset(&user, '\0', sizeof(user_base_t));
 
-        stat = files_seek(self->nodedb, 0, SEEK_END);
-        check_return(stat, self->nodedb);
+        /* defaults */
+
+        user.qwk = (QWK_FILES | QWK_ATTACH | QWK_EMAIL | QWK_DELMAIL);
+        user.flags |= US_INACTIVE;
+
+        stat = files_seek(self->userdb, 0, SEEK_END);
+        check_return(stat, self->userdb);
 
         int x;
         for (x = 0; x < amount; x++) {
 
-            stat = self->_get_sequence(self, &sequence);
-            check_return(stat, self);
-
-            node.status = NODE_OFFLINE;
-            node.nodenum = sequence;
-
-            stat = files_tell(self->nodedb, &position);
-            check_return(stat, self->nodedb);
+            stat = files_tell(self->userdb, &position);
+            check_return(stat, self->userdb);
 
             stat = self->_lock(self, position);
             check_return(stat, self);
 
-            stat = self->_write(self, &node, &count);
+            stat = self->_write(self, &user, &count);
             check_return(stat, self);
 
             stat = self->_unlock(self);
             check_return(stat, self);
 
-            if (count != sizeof(node_base_t)) {
+            if (count != sizeof(user_base_t)) {
 
                 cause_error(EIO);
 
@@ -1492,34 +1507,36 @@ int _node_extend(node_t *self, int amount) {
 
 }
 
-int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
+int _user_build(user_t *self, user_base_t *ondisk, user_base_t *user) {
 
-    int stat = OK;
+    strcpy((*user).username, ondisk->username);
+    strcpy((*user).password, ondisk->password);
+    (*user).axlevel = ondisk->axlevel;
+    (*user).qwk = ondisk->qwk;
+    (*user).flags = ondisk->flags;
+    (*user).screenwidth = ondisk->screenwidth;
+    (*user).screenlength = ondisk->screenlength;
+    (*user).timescalled = ondisk->timescalled;
+    (*user).posted = ondisk->posted;
+    (*user).eternal = ondisk->eternal;
+    (*user).today = ondisk->today;
+    (*user).online = ondisk->online;
+    (*user).profile = ondisk->profile;
+    (*user).lastcall = ondisk->lastcall;
+    (*user).firstcall = ondisk->firstcall;
 
-    (*node).status = ondisk->status;
-    (*node).errors = ondisk->errors;
-    (*node).action = ondisk->action;
-    (*node).pad1   = ondisk->pad1;  
-    (*node).pad2   = ondisk->pad2; 
-    (*node).useron = ondisk->useron;
-    (*node).status = ondisk->status;
-    (*node).misc   = ondisk->misc;
-    (*node).aux    = ondisk->aux;
-    (*node).extaux = ondisk->extaux;
-    (*node).msgnum = ondisk->msgnum;
-
-    return stat;
+    return OK;
 
 }
 
-int _node_read(node_t *self, node_base_t *node, ssize_t *count) {
+int _user_read(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
 
     when_error_in {
 
-        stat = files_read(self->nodedb, node, sizeof(node_base_t), count);
-        check_return(stat, self->nodedb);
+        stat = files_read(self->userdb, user, sizeof(user_base_t), count);
+        check_return(stat, self->userdb);
 
         exit_when;
 
@@ -1534,14 +1551,14 @@ int _node_read(node_t *self, node_base_t *node, ssize_t *count) {
 
 }
 
-int _node_write(node_t *self, node_base_t *node, ssize_t *count) {
+int _user_write(user_t *self, user_base_t *user, ssize_t *count) {
 
     int stat = OK;
 
     when_error_in {
 
-        stat = files_write(self->nodedb, node, sizeof(node_base_t), count);
-        check_return(stat, self->nodedb);
+        stat = files_write(self->userdb, user, sizeof(user_base_t), count);
+        check_return(stat, self->userdb);
 
         exit_when;
 

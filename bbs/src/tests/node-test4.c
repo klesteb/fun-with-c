@@ -14,18 +14,17 @@ tracer_t *dump;
 errors_t *errs;
 
 int display(int index, node_base_t *temp) {
-    
+
     printf("---------------------------------\n");
-    printf("index      : %d\n", index);
-    printf("status     : %d\n", temp->status);
-    printf("errors     : %d\n", temp->errors);
-    printf("action     : %d\n", temp->action);
-    printf("user       : %d\n", temp->useron);
-    printf("msgnum     : %ld\n", temp->msgnum);
-    printf("connection : %d\n", temp->connection);
-    printf("misc       : %d\n", temp->misc);
-    printf("aux        : %d\n", temp->aux);
-    printf("extaux     : %ld\n", temp->extaux);
+    printf("index  : %d\n", index);
+    printf("status : %d\n", temp->status);
+    printf("errors : %d\n", temp->errors);
+    printf("action : %d\n", temp->action);
+    printf("user   : %d\n", temp->useron);
+    printf("msgnum : %ld\n", temp->msgnum);
+    printf("misc   : %d\n", temp->misc);
+    printf("aux    : %d\n", temp->aux);
+    printf("extaux : %ld\n", temp->extaux);
 
     return OK;
 

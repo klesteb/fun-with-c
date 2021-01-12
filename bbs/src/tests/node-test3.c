@@ -85,16 +85,15 @@ int main(int argc, char **argv) {
             check_return(stat, nodes);
 
             printf("---------------------------------\n");
-            printf("index      : %d\n", index);
-            printf("status     : %d\n", temp.status);
-            printf("errors     : %d\n", temp.errors);
-            printf("action     : %d\n", temp.action);
-            printf("user       : %d\n", temp.useron);
-            printf("msgnum     : %ld\n", temp.msgnum);
-            printf("connection : %d\n", temp.connection);
-            printf("misc       : %d\n", temp.misc);
-            printf("aux        : %d\n", temp.aux);
-            printf("extaux     : %ld\n", temp.extaux);
+            printf("index  : %d\n", index);
+            printf("status : %d\n", temp.status);
+            printf("errors : %d\n", temp.errors);
+            printf("action : %d\n", temp.action);
+            printf("user   : %d\n", temp.useron);
+            printf("msgnum : %ld\n", temp.msgnum);
+            printf("misc   : %d\n", temp.misc);
+            printf("aux    : %d\n", temp.aux);
+            printf("extaux : %ld\n", temp.extaux);
 
             stat = node_prev(nodes, &temp, &count);
             check_return(stat, nodes);

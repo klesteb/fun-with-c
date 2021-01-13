@@ -870,6 +870,7 @@ int _user_open(user_t *self) {
             /* create sysop account */
 
             ondisk.eternal = 1;
+            ondisk.revision = 1;
             ondisk.axlevel = AX_SYSOP;
             ondisk.flags = (US_SYSOP | US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
             memset(&ondisk.username, '\0', 26);
@@ -1225,7 +1226,7 @@ int _user_del(user_t *self, long userno) {
 
     when_error_in {
 
-        stat = self->_del(self, userno);
+        stat = self->_first(self, &ondisk, &count);
         check_return(stat, self);
 
         while (count > 0) {
@@ -1234,6 +1235,7 @@ int _user_del(user_t *self, long userno) {
                 (! (ondisk.flags & US_PERM))) {
 
                 ondisk.flags |= US_DELETED;
+                ondisk.revision++;
 
                 stat = self->_put(self, self->index, &ondisk);
                 check_return(stat, self);
@@ -1456,6 +1458,7 @@ int _user_extend(user_t *self, int amount) {
 
     int stat = OK;
     user_base_t user;
+    int revision = 1;
     ssize_t count = 0;
     ssize_t position = 0;
 
@@ -1465,8 +1468,9 @@ int _user_extend(user_t *self, int amount) {
 
         /* defaults */
 
-        user.qwk = (QWK_FILES | QWK_ATTACH | QWK_EMAIL | QWK_DELMAIL);
+        user.revision = revision;
         user.flags |= US_INACTIVE;
+        user.qwk = (QWK_FILES | QWK_ATTACH | QWK_EMAIL | QWK_DELMAIL);
 
         stat = files_seek(self->userdb, 0, SEEK_END);
         check_return(stat, self->userdb);

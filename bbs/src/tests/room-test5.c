@@ -15,6 +15,23 @@ room_t *room;
 tracer_t *dump;
 errors_t *errs;
 
+int display(room_base_t *temp) {
+
+    printf("--------------------------------\n");
+    printf("room      : %ld\n", temp->roomnum);
+    printf("base      : %d\n", temp->base);
+    printf("timeout   : %d\n", temp->timeout);
+    printf("retries   : %d\n", temp->retries);
+    printf("conference: %d\n", temp->conference);
+    printf("flags     : %d\n", temp->flags);
+    printf("name      : %s\n", temp->name);
+    printf("path      : %s\n", temp->path);
+    printf("revision  : %d\n", temp->revision);
+
+    return OK;
+
+}
+
 int dump_trace(char *buffer) {
 
     fprintf(stderr, "%s\n", buffer);
@@ -27,6 +44,7 @@ int setup(void) {
 
     int base = 1;
     int stat = OK;
+    int rooms = 32;
     int timeout = 1;
     int retries = 30;
     char *dbpath = "../../data/";
@@ -40,7 +58,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, retries, timeout, base, dump);
+        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;
@@ -68,7 +86,10 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
+    int index = 0;
     room_base_t temp;
+    ssize_t count = 0;
+    short conference = 10;
     
     when_error_in {
 
@@ -78,32 +99,36 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_get(room, 10, &temp);
+        stat = room_first(room, &temp, &count);
         check_return(stat, room);
 
-        printf("base      : %d\n", temp.base);
-        printf("timeout   : %d\n", temp.timeout);
-        printf("retries   : %d\n", temp.retries);
-        printf("conference: %d\n", temp.conference);
-        printf("flags     : %d\n", temp.flags);
-        printf("name      : %s\n", temp.name);
-        printf("path      : %s\n", temp.path);
+        while (count > 0) {
 
-        temp.timeout = 40;
+            if (temp.conference == conference) {
 
-        stat = room_put(room, 10, &temp);
-        check_return(stat, room);
+                display(&temp);
+
+                stat = room_index(room, &index);
+                check_return(stat, room);
+
+                temp.timeout = 40;
+
+                stat = room_put(room, index, &temp);
+                check_return(stat, room);
         
-        stat = room_get(room, 10, &temp);
-        check_return(stat, room);
+                stat = room_get(room, index, &temp);
+                check_return(stat, room);
 
-        printf("base      : %d\n", temp.base);
-        printf("timeout   : %d\n", temp.timeout);
-        printf("retries   : %d\n", temp.retries);
-        printf("conference: %d\n", temp.conference);
-        printf("flags     : %d\n", temp.flags);
-        printf("name      : %s\n", temp.name);
-        printf("path      : %s\n", temp.path);
+                display(&temp);
+
+                break;
+
+            }
+
+            stat = room_next(room, &temp, &count);
+            check_return(stat, room);
+            
+        }
 
         stat = room_close(room);
         check_return(stat, room);

@@ -1170,6 +1170,7 @@ int _node_put(node_t *self, int index, node_base_t *node) {
 
     int stat = OK;
     ssize_t count = 0;
+    node_base_t ondisk;
     off_t offset = NODE_OFFSET(index);
 
     when_error_in {
@@ -1179,6 +1180,18 @@ int _node_put(node_t *self, int index, node_base_t *node) {
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        if (ondisk.revision > node->revision) {
+            
+            node->revision = ondisk.revision + 1;
+
+        }
+        
+        stat = files_seek(self->nodedb, offset, SEEK_SET);
+        check_return(stat, self->nodedb);
 
         stat = self->_write(self, node, &count);
         check_return(stat, self);
@@ -1439,6 +1452,7 @@ int _node_extend(node_t *self, int amount) {
 
     int stat = OK;
     node_base_t node;
+    int revision = 1;
     long sequence = 0;
     ssize_t count = 0;
     ssize_t position = 0;
@@ -1458,6 +1472,7 @@ int _node_extend(node_t *self, int amount) {
 
             node.status = NODE_OFFLINE;
             node.nodenum = sequence;
+            node.revision = revision;
 
             stat = files_tell(self->nodedb, &position);
             check_return(stat, self->nodedb);

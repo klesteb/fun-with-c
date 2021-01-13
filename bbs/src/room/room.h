@@ -26,9 +26,9 @@
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-#define MAILROOM 0          /* mail is always room 0           */
-#define LOBBY    1          /* lobby is always room 1          */
-#define AIDEROOM 2          /* aide is always room 2           */
+#define MAILROOM 1          /* mail is always room 0           */
+#define LOBBY    2          /* lobby is always room 1          */
+#define AIDEROOM 3          /* aide is always room 2           */
 
 #define INUSE    (1L<<0)    /* room is in use                  */
 #define PUBLIC   (1L<<1)    /* room is public                  */
@@ -41,6 +41,7 @@
 /*-------------------------------------------------------------*/
 
 typedef struct _room_base_s {
+    long roomnum;           /* room number                               */
     char name[32];          /* name of the room                          */
     char path[256];         /* path to the message base                  */
     short conference;       /* the qwk conference number                 */
@@ -48,7 +49,8 @@ typedef struct _room_base_s {
     int retries;            /* number of retires for file locking        */
     int timeout;            /* timeout in seconds, between retries       */
     int base;               /* the base message number                   */
-} room_base_t;              /* 304 bytes                                 */
+    int revision;           /* the revision of this record               */
+} room_base_t;
 
 typedef struct _room_search_s {
     char name[32];          /* name of the room                          */
@@ -70,11 +72,15 @@ struct _room_s {
 
     int (*_open)(room_t *);
     int (*_close)(room_t *);
-    int (*_del)(room_t *, short);
+    int (*_unlock)(room_t *);
+    int (*_del)(room_t *, int);
+    int (*_extend)(room_t *, int);
+    int (*_lock)(room_t *, off_t);
     int (*_size)(room_t *, ssize_t *);
     int (*_add)(room_t *, room_base_t *);
-    int (*_get)(room_t *, short, room_base_t *);
-    int (*_put)(room_t *, short, room_base_t *);
+    int (*_get_sequence)(room_t *, long *);
+    int (*_get)(room_t *, int, room_base_t *);
+    int (*_put)(room_t *, int, room_base_t *);
     int (*_next)(room_t *, room_base_t *, ssize_t *);
     int (*_prev)(room_t *, room_base_t *, ssize_t *);
     int (*_last)(room_t *, room_base_t *, ssize_t *);
@@ -82,13 +88,18 @@ struct _room_s {
     int (*_first)(room_t *, room_base_t *, ssize_t *);
     int (*_write)(room_t *, room_base_t *, ssize_t *);
     int (*_build)(room_t *, room_base_t *, room_base_t *);
+    int (*_normalize)(room_t *, room_base_t *, room_base_t *);
 
     int base;
+    int index;
+    int rooms;
+    int locked;
     int retries;
     int timeout;
     char *msgbase;
     jam_t *jam;
-    files_t *rooms;
+    files_t *roomdb;
+    files_t *sequence;
     tracer_t *trace;
 };
 
@@ -104,6 +115,7 @@ struct _room_s {
 #define ROOM_K_TIMEOUT  4
 #define ROOM_K_TRACE    5
 #define ROOM_K_BASE     6
+#define ROOM_K_ROOMS    7
 
 #define ROOM_M_DESTRUCTOR 1
 #define ROOM_M_OPEN       2
@@ -120,12 +132,16 @@ struct _room_s {
 #define ROOM_M_FIRST      13
 #define ROOM_M_WRITE      14
 #define ROOM_M_BUILD      15
+#define ROOM_M_LOCK       16
+#define ROOM_M_UNLOCK     17
+#define ROOM_M_EXTEND     18
+#define ROOM_M_NORMALIZE  19
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern room_t *room_create(char *, char *, int, int, int, tracer_t *);
+extern room_t *room_create(char *, char *, int, int, int, int, tracer_t *);
 extern int room_destroy(room_t *);
 extern int room_compare(room_t *, room_t *);
 extern int room_override(room_t *, item_list_t *);
@@ -133,11 +149,13 @@ extern char *room_version(room_t *);
 
 extern int room_open(room_t *);
 extern int room_close(room_t *);
-extern int room_del(room_t *, short);
+extern int room_del(room_t *, int);
+extern int room_extend(room_t *, int);
+extern int room_index(room_t *, int *);
 extern int room_size(room_t *, ssize_t *);
 extern int room_add(room_t *, room_base_t *);
-extern int room_get(room_t *, short, room_base_t *);
-extern int room_put(room_t *, short, room_base_t *);
+extern int room_get(room_t *, int, room_base_t *);
+extern int room_put(room_t *, int, room_base_t *);
 extern int room_next(room_t *, room_base_t *, ssize_t *);
 extern int room_prev(room_t *, room_base_t *, ssize_t *);
 extern int room_last(room_t *, room_base_t *, ssize_t *);

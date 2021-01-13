@@ -27,6 +27,7 @@ int setup(void) {
 
     int base = 1;
     int stat = OK;
+    int rooms = 32;
     int timeout = 1;
     int retries = 30;
     char *dbpath = "../../data/";
@@ -40,7 +41,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, retries, timeout, base, dump);
+        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;
@@ -70,6 +71,8 @@ int main(int argc, char **argv) {
     int stat = OK;
     room_base_t temp1;
     room_base_t temp2;
+    ssize_t count = 0;
+    short conference = 10;
     char *msgpath = "../messages/";
     
     when_error_in {
@@ -83,25 +86,40 @@ int main(int argc, char **argv) {
         temp1.base = 1;
         temp1.timeout = 1;
         temp1.retries = 30;
-        temp1.conference = 10;
         strcpy(temp1.name, "Testing");
+        temp1.conference = conference;
         temp1.flags = (PERMROOM | PUBLIC | INUSE);
         strncpy(temp1.path, fnm_build(1, FnmPath, msgpath, NULL), 255);
 
         stat = room_add(room, &temp1);
         check_return(stat, room);
 
-        stat = room_get(room, 10, &temp2);
+        stat = room_first(room, &temp2, &count);
         check_return(stat, room);
 
-        printf("base      : %d\n", temp2.base);
-        printf("timeout   : %d\n", temp2.timeout);
-        printf("retries   : %d\n", temp2.retries);
-        printf("conference: %d\n", temp2.conference);
-        printf("flags     : %d\n", temp2.flags);
-        printf("name      : %s\n", temp2.name);
-        printf("path      : %s\n", temp2.path);
+        while (count > 0) {
 
+            if (temp2.conference == conference) {
+
+                printf("room      : %ld\n", temp2.roomnum);
+                printf("base      : %d\n", temp2.base);
+                printf("timeout   : %d\n", temp2.timeout);
+                printf("retries   : %d\n", temp2.retries);
+                printf("conference: %d\n", temp2.conference);
+                printf("flags     : %d\n", temp2.flags);
+                printf("name      : %s\n", temp2.name);
+                printf("path      : %s\n", temp2.path);
+                printf("revision  : %d\n", temp2.revision);
+                
+                break;
+                
+            }
+            
+            stat = room_next(room, &temp2, &count);
+            check_return(stat, room);
+            
+        }
+            
         stat = room_close(room);
         check_return(stat, room);
 

@@ -34,11 +34,14 @@ int _room_override(room_t *, item_list_t *);
 
 int _room_open(room_t *);
 int _room_close(room_t *);
-int _room_del(room_t *, short);
-int _room_size(room_t *, ssize_t *);
+int _room_del(room_t *, int);
+int _room_unlock(room_t *self);
+int _room_lock(room_t *, off_t);
+int _room_extend(room_t *, int);
 int _room_add(room_t *, room_base_t *);
-int _room_get(room_t *, short, room_base_t *);
-int _room_put(room_t *, short, room_base_t *);
+int _room_get_sequence(room_t *, long *);
+int _room_get(room_t *, int, room_base_t *);
+int _room_put(room_t *, int, room_base_t *);
 int _room_read(room_t *, room_base_t *, ssize_t *);
 int _room_next(room_t *, room_base_t *, ssize_t *);
 int _room_prev(room_t *, room_base_t *, ssize_t *);
@@ -46,6 +49,7 @@ int _room_last(room_t *, room_base_t *, ssize_t *);
 int _room_first(room_t *, room_base_t *, ssize_t *);
 int _room_write(room_t *, room_base_t *, ssize_t *);
 int _room_build(room_t *, room_base_t *, room_base_t *);
+int _room_normalize(room_t *, room_base_t *, room_base_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -59,10 +63,17 @@ declare_klass(ROOM_KLASS) {
 };
 
 /*----------------------------------------------------------------*/
+/* klass macros                                                   */
+/*----------------------------------------------------------------*/
+
+#define ROOM_OFFSET(n)   ((((n) - 1) * sizeof(room_base_t)))
+#define ROOM_RECORD(n)   (((n) / sizeof(room_base_t)) + 1)
+
+/*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-room_t *room_create(char *dbpath, char *msgpath, int retries, int timeout, int base, tracer_t *dump) {
+room_t *room_create(char *dbpath, char *msgpath, int rooms, int retries, int timeout, int base, tracer_t *dump) {
 
     int stat = ERR;
     room_t *self = NULL;
@@ -73,6 +84,7 @@ room_t *room_create(char *dbpath, char *msgpath, int retries, int timeout, int b
     SET_ITEM(items[2], ROOM_K_RETRIES, &retries, sizeof(int), NULL);
     SET_ITEM(items[3], ROOM_K_TIMEOUT, &timeout, sizeof(int), NULL);
     SET_ITEM(items[4], ROOM_K_BASE, &base, sizeof(int), NULL);
+    SET_ITEM(items[4], ROOM_K_ROOMS, &rooms, sizeof(int), NULL);
     SET_ITEM(items[5], ROOM_K_TRACE, dump, 0, NULL);
     SET_ITEM(items[6], 0,0,0,0);
 
@@ -252,34 +264,6 @@ int room_close(room_t *self) {
 
 }
 
-int room_size(room_t *self, ssize_t *size) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (size == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_size(self, size);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
 int room_first(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
@@ -420,7 +404,121 @@ int room_add(room_t *self, room_base_t *room) {
 
 }
 
-int room_del(room_t *self, short conference) {
+int room_del(room_t *self, int index) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) ||
+            ((index < 0) && (index > self->rooms))) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_del(self, index);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_get(room_t *self, int index, room_base_t *room) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL) ||
+            ((index < 0) && (index > self->rooms))) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_get(self, index, room);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_put(room_t *self, int index, room_base_t *room) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL) ||
+            ((index < 0) && (index > self->rooms))) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_put(self, index, room);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_index(room_t *self, int *index) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (index == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        *index = self->index;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int room_extend(room_t *self, int amount) {
 
     int stat = OK;
 
@@ -432,63 +530,7 @@ int room_del(room_t *self, short conference) {
 
         }
 
-        stat = self->_del(self, conference);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int room_get(room_t *self, short conference, room_base_t *room) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (room == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_get(self, conference, room);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int room_put(room_t *self, short conference, room_base_t *room) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (room == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_put(self, conference, room);
+        stat = self->_extend(self, amount);
         check_return(stat, self);
 
         exit_when;
@@ -511,7 +553,9 @@ int room_put(room_t *self, short conference, room_base_t *room) {
 int _room_ctor(object_t *object, item_list_t *items) {
 
     int base = 0;
+    char seq[256];
     int stat = ERR;
+    int rooms = 32;
     int timeout = 1;
     int retries = 30;
     char msgbase[256];
@@ -522,6 +566,7 @@ int _room_ctor(object_t *object, item_list_t *items) {
 
     if (object != NULL) {
 
+        memset(seq, '\0', 256);
         memset(msgbase, '\0', 256);
         memset(database, '\0', 256);
         memset(roombase, '\0', 256);
@@ -575,6 +620,12 @@ int _room_ctor(object_t *object, item_list_t *items) {
                         if (base < 1) base = 1;
                         break;
                     }
+                    case ROOM_K_ROOMS: {
+                        memcpy(&rooms, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
                 }
 
             }
@@ -609,22 +660,33 @@ int _room_ctor(object_t *object, item_list_t *items) {
         self->_read  = _room_read;
         self->_write = _room_write;
         self->_build = _room_build;
-        self->_size  = _room_size;
+        self->_lock  = _room_lock;
+        self->_unlock = _room_unlock;
+        self->_extend = _room_extend;
+        self->_normalize = _room_normalize;
+        self->_get_sequence = _room_get_sequence;
 
         /* initialize internal variables here */
 
         when_error_in {
 
+            self->index = 0;
             self->jam = NULL;
             self->base = base;
             self->trace = dump;
+            self->rooms = rooms;
+            self->locked = FALSE;
             self->retries = retries;
             self->timeout = timeout;
             self->msgbase = strdup(msgbase);
 
             strncpy(roombase, fnm_build(1, FnmPath, "rooms", ".dat", database, NULL), 255);
-            self->rooms = files_create(roombase, retries, timeout);
-            check_creation(self->rooms);
+            self->roomdb = files_create(roombase, retries, timeout);
+            check_creation(self->roomdb);
+
+            strncpy(seq, fnm_build(1, FnmPath, "rooms", ".seq", database, NULL), 255);
+            self->sequence = files_create(seq, retries, timeout);
+            check_creation(self->sequence);
 
             exit_when;
 
@@ -656,7 +718,8 @@ int _room_dtor(object_t *object) {
     }
 
     free(self->msgbase);
-    files_close(self->rooms);
+    files_close(self->roomdb);
+    files_close(self->sequence);
 
     /* walk the chain, freeing as we go */
 
@@ -755,6 +818,26 @@ int _room_override(room_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case ROOM_M_LOCK: {
+                    self->_lock = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_UNLOCK: {
+                    self->_unlock = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_EXTEND: {
+                    self->_extend = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ROOM_M_NORMALIZE: {
+                    self->_normalize = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -786,13 +869,18 @@ int _room_compare(room_t *self, room_t *other) {
         (self->_put   == other->_put) &&
         (self->_read  == other->_read) &&
         (self->_write == other->_write) &&
-        (self->_build == other->_build) &&
+        (self->_lock == other->_lock) &&
+        (self->_unlock == other->_unlock) &&
+        (self->_extend == other->_extend) &&
+        (self->_normalize == other->_normalize) &&
         (self->base == other->base) &&
         (self->retries == other->retries) &&
         (self->timeout == other->timeout) &&
         (self->msgbase == other->msgbase) &&
         (self->jam == other->jam) &&
         (self->rooms = other->rooms) &&
+        (self->roomdb = other->roomdb) &&
+        (self->sequence = other->sequence) &&
         (self->trace == other->trace)) {
 
         stat = OK;
@@ -807,33 +895,69 @@ int _room_open(room_t *self) {
 
     int stat = OK;
     int exists = 0;
+    int revision = 1;
     room_base_t aide;
     room_base_t email;
     room_base_t lobby;
+    long sequence = 1;
+    ssize_t count = 0;
     int flags = O_RDWR;
+    ssize_t position = 0;
     int create = (O_RDWR | O_CREAT);
     int mode = (S_IRWXU | S_IRWXG);
 
     when_error_in {
 
-        stat = files_exists(self->rooms, &exists);
-        check_return(stat, self->rooms);
+        stat = files_exists(self->sequence, &exists);
+        check_return(stat, self->sequence);
 
         if (exists) {
 
-            stat = files_open(self->rooms, flags, 0);
-            check_return(stat, self->rooms);
+            stat = files_open(self->sequence, flags, 0);
+            check_return(stat, self->sequence);
 
         } else {
 
-            stat = files_open(self->rooms, create, mode);
-            check_return(stat, self->rooms);
+            stat = files_open(self->sequence, create, mode);
+            check_return(stat, self->sequence);
+
+            stat = files_write(self->sequence, &sequence, sizeof(long), &count);
+            check_return(stat, self->sequence);
+
+            if (count != sizeof(long)) {
+
+                cause_error(EIO);
+
+            }
+
+        }
+
+        stat = files_exists(self->roomdb, &exists);
+        check_return(stat, self->roomdb);
+
+        if (exists) {
+
+            stat = files_open(self->roomdb, flags, 0);
+            check_return(stat, self->roomdb);
+
+        } else {
 
             memset(&aide, '\0', sizeof(room_base_t));
             memset(&email, '\0', sizeof(room_base_t));
             memset(&lobby, '\0', sizeof(room_base_t));
 
+            stat = files_open(self->roomdb, create, mode);
+            check_return(stat, self->roomdb);
+
+            stat = self->_extend(self, self->rooms);
+            check_return(stat, self);
+
+            stat = files_seek(self->roomdb, 0, SEEK_SET);
+            check_return(stat, self->roomdb);
+
+            email.roomnum = 1;
             email.base = self->base;
+            email.revision = revision;
             strcpy(email.name, "Mail");
             email.conference = MAILROOM;
             email.retries = self->retries;
@@ -841,21 +965,43 @@ int _room_open(room_t *self) {
             email.flags = (PERMROOM | PUBLIC | INUSE);
             strncpy(email.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
-            stat = self->_add(self, &email);
+            stat = files_tell(self->roomdb, &position);
+            check_return(stat, self->roomdb);
+
+            stat = self->_lock(self, position);
             check_return(stat, self);
 
+            stat = self->_write(self, &email, &count);
+            check_return(stat, self);
+
+            stat = self->_unlock(self);
+            check_return(stat, self);
+
+            lobby.roomnum = 2;
             lobby.base = self->base;
             lobby.conference = LOBBY;
+            lobby.revision = revision;
             strcpy(lobby.name, "Lobby");
             lobby.retries = self->retries;
             lobby.timeout = self->timeout;
             lobby.flags = (PERMROOM | PUBLIC | INUSE);
             strncpy(lobby.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
-            stat = self->_add(self, &lobby);
+            stat = files_tell(self->roomdb, &position);
+            check_return(stat, self->roomdb);
+
+            stat = self->_lock(self, position);
             check_return(stat, self);
 
+            stat = self->_write(self, &lobby, &count);
+            check_return(stat, self);
+
+            stat = self->_unlock(self);
+            check_return(stat, self);
+
+            aide.roomnum = 3;
             aide.base = self->base;
+            aide.revision = revision;
             strcpy(aide.name, "Aide");
             aide.conference = AIDEROOM;
             aide.retries = self->retries;
@@ -863,7 +1009,16 @@ int _room_open(room_t *self) {
             aide.flags = (PERMROOM | INUSE);
             strncpy(aide.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
 
-            stat = self->_add(self, &aide);
+            stat = files_tell(self->roomdb, &position);
+            check_return(stat, self->roomdb);
+
+            stat = self->_lock(self, position);
+            check_return(stat, self);
+
+            stat = self->_write(self, &aide, &count);
+            check_return(stat, self);
+
+            stat = self->_unlock(self);
             check_return(stat, self);
 
         }
@@ -899,8 +1054,11 @@ int _room_close(room_t *self) {
 
         }
 
-        stat = files_close(self->rooms);
-        check_return(stat, self->rooms);
+        stat = files_close(self->roomdb);
+        check_return(stat, self->roomdb);
+
+        stat = files_close(self->sequence);
+        check_return(stat, self->sequence);
 
         exit_when;
 
@@ -919,13 +1077,25 @@ int _room_first(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
     room_base_t ondisk;
+    ssize_t position = 0;
 
     when_error_in {
 
-        stat = files_seek(self->rooms, 0, SEEK_SET);
-        check_return(stat, self->rooms);
+        stat = files_seek(self->roomdb, 0, SEEK_SET);
+        check_return(stat, self->roomdb);
+
+        stat = files_tell(self->roomdb, &position);
+        check_return(stat, self->roomdb);
+
+        self->index = ROOM_RECORD(position);
+
+        stat = self->_lock(self, 0);
+        check_return(stat, self);
 
         stat = self->_read(self, &ondisk, count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
         check_return(stat, self);
 
         if (*count == sizeof(room_base_t)) {
@@ -942,6 +1112,8 @@ int _room_first(room_t *self, room_base_t *room, ssize_t *count) {
         stat = ERR;
         process_error(self);
 
+        if (self->locked) self->_unlock(self);
+
     } end_when;
 
     return stat;
@@ -952,10 +1124,22 @@ int _room_next(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
     room_base_t ondisk;
+    ssize_t position = 0;
 
     when_error_in {
 
+        stat = files_tell(self->roomdb, &position);
+        check_return(stat, self);
+
+        self->index = ROOM_RECORD(position);
+
+        stat = self->_lock(self, position);
+        check_return(stat, self);
+
         stat = self->_read(self, &ondisk, count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
         check_return(stat, self);
 
         if (*count == sizeof(room_base_t )) {
@@ -972,6 +1156,8 @@ int _room_next(room_t *self, room_base_t *room, ssize_t *count) {
         stat = ERR;
         process_error(self);
 
+        if (self->locked) self->_unlock(self);
+
     } end_when;
 
     return stat;
@@ -987,19 +1173,27 @@ int _room_prev(room_t *self, room_base_t *room, ssize_t *count) {
 
     when_error_in {
 
-        stat = files_tell(self->rooms, &position);
-        check_return(stat, self->rooms);
+        stat = files_tell(self->roomdb, &position);
+        check_return(stat, self->roomdb);
 
         if (position > 0) {
 
-            stat = files_seek(self->rooms, -offset, SEEK_CUR);
-            check_return(stat, self->rooms);
+            stat = files_seek(self->roomdb, -offset, SEEK_CUR);
+            check_return(stat, self->roomdb);
+
+            stat = self->_lock(self, position - offset);
+            check_return(stat, self);
+
+            self->index = ROOM_RECORD(position - offset);
 
             stat = self->_read(self, &ondisk, count);
             check_return(stat, self);
 
-            stat = files_seek(self->rooms, -offset, SEEK_CUR);
-            check_return(stat, self->rooms);
+            stat = self->_unlock(self);
+            check_return(stat, self);
+
+            stat = files_seek(self->roomdb, -offset, SEEK_CUR);
+            check_return(stat, self->roomdb);
 
             if (*count == sizeof(room_base_t)) {
 
@@ -1021,6 +1215,8 @@ int _room_prev(room_t *self, room_base_t *room, ssize_t *count) {
         stat = ERR;
         process_error(self);
 
+        if (self->locked) self->_unlock(self);
+
     } end_when;
 
     return stat;
@@ -1031,21 +1227,33 @@ int _room_last(room_t *self, room_base_t *room, ssize_t *count) {
 
     int stat = OK;
     room_base_t ondisk;
+    ssize_t position = 0;
     off_t offset = sizeof(room_base_t);
 
     when_error_in {
 
-        stat = files_seek(self->rooms, 0, SEEK_END);
-        check_return(stat, self->rooms);
+        stat = files_seek(self->roomdb, 0, SEEK_END);
+        check_return(stat, self->roomdb);
 
-        stat = files_seek(self->rooms, -offset, SEEK_CUR);
-        check_return(stat, self->rooms);
+        stat = files_seek(self->roomdb, -offset, SEEK_CUR);
+        check_return(stat, self->roomdb);
+
+        stat = files_tell(self->roomdb, &position);
+        check_return(stat, self->roomdb);
+
+        self->index = ROOM_RECORD(position);
+
+        stat = self->_lock(self, position);
+        check_return(stat, self);
 
         stat = self->_read(self, &ondisk, count);
         check_return(stat, self);
 
-        stat = files_seek(self->rooms, -offset, SEEK_CUR);
-        check_return(stat, self->rooms);
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        stat = files_seek(self->roomdb, -offset, SEEK_CUR);
+        check_return(stat, self->roomdb);
 
         if (*count == sizeof(room_base_t)) {
 
@@ -1061,6 +1269,8 @@ int _room_last(room_t *self, room_base_t *room, ssize_t *count) {
         stat = ERR;
         process_error(self);
 
+        if (self->locked) self->_unlock(self);
+
     } end_when;
 
     return stat;
@@ -1071,13 +1281,203 @@ int _room_add(room_t *self, room_base_t *room) {
 
     int stat = OK;
     ssize_t count = 0;
+    room_base_t ondisk;
+    int created = FALSE;
+    ssize_t recsize = sizeof(room_base_t);
 
     when_error_in {
 
-        stat = files_seek(self->rooms, 0, SEEK_END);
-        check_return(stat, self->rooms);
+        stat = self->_first(self, &ondisk, &count);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if ((ondisk.flags == 0) && (ondisk.conference == 0)) {
+
+                room->roomnum = ondisk.roomnum;
+                room->revision = ondisk.revision + 1;
+
+                stat = files_seek(self->roomdb, -recsize, SEEK_CUR);
+                check_return(stat, self->roomdb);
+
+                stat = self->_write(self, room, &count);
+                check_return(stat, self);
+
+                created = TRUE;
+                break;
+
+            }
+
+            stat = self->_next(self, &ondisk, &count);
+            check_return(stat, self);
+
+        }
+
+        if (created == FALSE) {
+
+            cause_error(EOVERFLOW);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_del(room_t *self, int index) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    room_base_t ondisk;
+    off_t offset = ROOM_OFFSET(index);
+    off_t recsize = sizeof(room_base_t);
+
+    when_error_in {
+
+        stat = files_seek(self->roomdb, offset, SEEK_SET);
+        check_return(stat, self->roomdb);
+
+        stat = self->_lock(self, offset);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        if (! (ondisk.flags & PERMROOM)) {
+
+            ondisk.flags = 0;
+            ondisk.revision++;
+            ondisk.conference = 0;
+            memset(&ondisk.name, '\0', 32);
+
+            stat = files_seek(self->roomdb, -recsize, SEEK_CUR);
+            check_return(stat, self->roomdb);
+
+            stat = self->_write(self, &ondisk, &count);
+            check_return(stat, self);
+
+            if (self->jam != NULL) {
+
+                stat = jam_remove(self->jam);
+                check_return(stat, self->jam);
+
+                stat = jam_destroy(self->jam);
+                check_return(stat, self->jam);
+
+                self->jam = NULL;
+
+            }
+
+        }
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_get(room_t *self, int index, room_base_t *room) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    room_base_t ondisk;
+    off_t offset = ROOM_OFFSET(index);
+
+    when_error_in {
+
+        stat = files_seek(self->roomdb, offset, SEEK_SET);
+        check_return(stat, self->roomdb);
+
+        self->_lock(self, offset);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        if (count == sizeof(room_base_t)) {
+
+            stat = self->_build(self, &ondisk, room);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_put(room_t *self, int index, room_base_t *room) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    room_base_t ondisk;
+    off_t offset = ROOM_OFFSET(index);
+    off_t recsize = sizeof(room_base_t);
+
+    when_error_in {
+
+        stat = files_seek(self->roomdb, offset, SEEK_SET);
+        check_return(stat, self->roomdb);
+
+        stat = self->_lock(self, offset);
+        check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        if (ondisk.revision > room->revision) {
+
+            self->_normalize(self, &ondisk, room);
+            check_return(stat, self);
+
+        } else {
+
+            room->revision = ondisk.revision + 1;;
+
+        }
+
+        stat = files_seek(self->roomdb, -recsize, SEEK_CUR);
+        check_return(stat, self->roomdb);
 
         stat = self->_write(self, room, &count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
         check_return(stat, self);
 
         if (count != sizeof(room_base_t)) {
@@ -1093,68 +1493,172 @@ int _room_add(room_t *self, room_base_t *room) {
         stat = ERR;
         process_error(self);
 
+        if (self->locked) self->_unlock(self);
+
     } end_when;
 
     return stat;
 
 }
 
-int _room_del(room_t *self, short conference) {
+int _room_lock(room_t *self, off_t offset) {
 
     int stat = OK;
-    ssize_t count = 0;
-    room_base_t ondisk;
-    off_t offset = sizeof(room_base_t);
+    int length = sizeof(room_base_t);
 
     when_error_in {
 
-        stat = files_seek(self->rooms, 0, SEEK_SET);
-        check_return(stat, self->rooms);
+        stat = files_lock(self->roomdb, offset, length);
+        check_return(stat, self->roomdb);
 
-        stat = self->_read(self, &ondisk, &count);
-        check_return(stat, self);
+        self->locked = TRUE;
 
-        while (count > 0) {
+        exit_when;
 
-            if (ondisk.conference == conference) {
+    } use {
 
-                if (! (ondisk.flags & PERMROOM)) {
+        stat = ERR;
+        process_error(self);
 
-                    ondisk.base = 0;
-                    ondisk.flags = 0;
-                    ondisk.retries = 0;
-                    ondisk.timeout = 0;
-                    ondisk.conference = -1;
-                    memset(&ondisk.name, '\0', 32);
-                    memset(&ondisk.path, '\0', 256);
+    } end_when;
 
-                    stat = files_seek(self->rooms, -offset, SEEK_CUR);
-                    check_return(stat, self->rooms);
+    return stat;
 
-                    stat = self->_write(self, &ondisk, &count);
-                    check_return(stat, self);
+}
 
-                    if (self->jam != NULL) {
+int _room_unlock(room_t *self) {
 
-                        stat = jam_remove(self->jam);
-                        check_return(stat, self->jam);
+    int stat = OK;
 
-                        stat = jam_destroy(self->jam);
-                        check_return(stat, self->jam);
+    when_error_in {
 
-                        self->jam = NULL;
+        stat = files_unlock(self->roomdb);
+        check_return(stat, self->roomdb);
 
-                    }
+        self->locked = FALSE;
 
-                }
+        exit_when;
 
-                break;
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_get_sequence(room_t *self, long *sequence) {
+
+    int stat = OK;
+    long buffer = 0;
+    ssize_t count = 0;
+    int locked = FALSE;
+
+    when_error_in {
+
+        stat = files_seek(self->sequence, 0, SEEK_SET);
+        check_return(stat, self->sequence);
+
+        stat = files_lock(self->sequence, 0, sizeof(long));
+        check_return(stat, self->sequence);
+
+        locked = TRUE;
+
+        stat = files_read(self->sequence, &buffer, sizeof(long), &count);
+        check_return(stat, self->sequence);
+
+        if (count != sizeof(long)) {
+
+            cause_error(EIO);
+
+        }
+
+        *sequence = buffer;
+        buffer++;
+
+        stat = files_seek(self->sequence, 0, SEEK_SET);
+        check_return(stat, self->sequence);
+
+        stat = files_write(self->sequence, &buffer, sizeof(long), &count);
+        check_return(stat, self->sequence);
+
+        if (count != sizeof(long)) {
+
+            cause_error(EIO);
+
+        }
+
+        stat = files_unlock(self->sequence);
+        check_return(stat, self->sequence);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (locked) files_unlock(self->sequence);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_extend(room_t *self, int amount) {
+
+    int stat = OK;
+    room_base_t room;
+    int revision = 1;
+    long sequence = 0;
+    ssize_t count = 0;
+    ssize_t position = 0;
+
+    when_error_in {
+
+        memset(&room, '\0', sizeof(room_base_t));
+
+        room.flags = 0;
+        room.conference = 0;
+        room.base = self->base;
+        room.revision = revision;
+        room.retries = self->retries;
+        room.timeout = self->timeout;
+        strncpy(room.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
+
+        stat = files_seek(self->roomdb, 0, SEEK_END);
+        check_return(stat, self->roomdb);
+
+        int x;
+        for (x = 0; x < amount; x++) {
+
+            stat = self->_get_sequence(self, &sequence);
+            check_return(stat, self);
+
+            room.roomnum = sequence;
+
+            stat = files_tell(self->roomdb, &position);
+            check_return(stat, self->roomdb);
+
+            stat = self->_lock(self, position);
+            check_return(stat, self);
+
+            stat = self->_write(self, &room, &count);
+            check_return(stat, self);
+
+            stat = self->_unlock(self);
+            check_return(stat, self);
+
+            if (count != sizeof(room_base_t)) {
+
+                cause_error(EIO);
 
             }
 
-            stat = self->_read(self, &ondisk, &count);
-            check_return(stat, self);
-
         }
 
         exit_when;
@@ -1170,139 +1674,23 @@ int _room_del(room_t *self, short conference) {
 
 }
 
-int _room_get(room_t *self, short conference, room_base_t *room) {
+int _room_normalize(room_t *self, room_base_t *ondisk, room_base_t *room) {
 
-    int stat = OK;
-    ssize_t count = 0;
-    room_base_t ondisk;
+    (*room).base = ondisk->base;
+    (*room).flags = ondisk->flags;
+    (*room).roomnum = ondisk->roomnum;
+    (*room).retries = ondisk->retries;
+    (*room).timeout = ondisk->timeout;
+    (*room).revision = ondisk->revision + 1;
+    (*room).conference = ondisk->conference;
 
-    when_error_in {
+    memset((*room).name, '\0', 32);
+    strncpy((*room).name, ondisk->name, 31);
 
-        stat = files_seek(self->rooms, 0, SEEK_SET);
-        check_return(stat, self->rooms);
+    memset((*room).path, '\0', 256);
+    strncpy((*room).path, ondisk->path, 255);
 
-        stat = self->_read(self, &ondisk, &count);
-        check_return(stat, self);
-
-        while (count > 0) {
-
-            if (ondisk.conference == conference) {
-
-                self->_build(self, &ondisk, room);
-                break;
-
-            }
-
-            stat = self->_read(self, &ondisk, &count);
-            check_return(stat, self);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _room_put(room_t *self, short conference, room_base_t *room) {
-
-    int stat = OK;
-    ssize_t count = 0;
-    room_base_t ondisk;
-    off_t offset = sizeof(room_base_t);
-
-    when_error_in {
-
-        stat = files_seek(self->rooms, 0, SEEK_SET);
-        check_return(stat, self->rooms);
-
-        stat = self->_read(self, &ondisk, &count);
-        check_return(stat, self);
-
-        while (count > 0) {
-
-            if (ondisk.conference == conference) {
-
-                ondisk.base = room->base;
-                ondisk.flags = room->flags;
-                ondisk.retries = room->retries;
-                ondisk.timeout = room->timeout;
-                ondisk.conference = room->conference;
-                strncpy(ondisk.name, room->name, 32);
-                strncpy(ondisk.path, room->path, 256);
-
-                stat = files_seek(self->rooms, -offset, SEEK_CUR);
-                check_return(stat, self->rooms);
-
-                stat = self->_write(self, &ondisk, &count);
-                check_return(stat, self);
-
-                if (count != sizeof(room_base_t)) {
-
-                    cause_error(EIO);
-
-                }
-
-                break;
-
-            }
-
-            stat = self->_read(self, &ondisk, &count);
-            check_return(stat, self);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _room_size(room_t *self, ssize_t *size) {
-
-    int stat = OK;
-    off_t offset = 0;
-
-    when_error_in {
-
-        *size = 0;
-
-        stat = files_seek(self->rooms, 0, SEEK_END);
-        check_return(stat, self->rooms);
-
-        stat = files_tell(self->rooms, &offset);
-        check_return(stat, self->rooms);
-
-        if (offset >= sizeof(room_base_t)) {
-
-            *size = offset / sizeof(room_base_t);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
+    return OK;
 
 }
 
@@ -1315,8 +1703,10 @@ int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
 
         (*room).base = ondisk->base;
         (*room).flags = ondisk->flags;
+        (*room).roomnum = ondisk->roomnum;
         (*room).retries = ondisk->retries;
         (*room).timeout = ondisk->timeout;
+        (*room).revision = ondisk->revision;
         (*room).conference = ondisk->conference;
 
         memset((*room).name, '\0', 32);
@@ -1365,8 +1755,8 @@ int _room_read(room_t *self, room_base_t *room, ssize_t *count) {
 
     when_error_in {
 
-        stat = files_read(self->rooms, room, sizeof(room_base_t), count);
-        check_return(stat, self->rooms);
+        stat = files_read(self->roomdb, room, sizeof(room_base_t), count);
+        check_return(stat, self->roomdb);
 
         exit_when;
 
@@ -1387,8 +1777,8 @@ int _room_write(room_t *self, room_base_t *room, ssize_t *count) {
 
     when_error_in {
 
-        stat = files_write(self->rooms, room, sizeof(room_base_t), count);
-        check_return(stat, self->rooms);
+        stat = files_write(self->roomdb, room, sizeof(room_base_t), count);
+        check_return(stat, self->roomdb);
 
         exit_when;
 

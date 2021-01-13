@@ -26,6 +26,7 @@ int setup(void) {
 
     int base = 1;
     int stat = OK;
+    int rooms = 32;
     int timeout = 1;
     int retries = 30;
     char *dbpath = "../../data/";
@@ -39,7 +40,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, retries, timeout, base, dump);
+        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;
@@ -68,7 +69,6 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     room_base_t temp;
-    ssize_t size = 0;
     ssize_t count = 0;
 
     when_error_in {
@@ -84,15 +84,13 @@ int main(int argc, char **argv) {
 
         while (count > 0) {
 
-            stat = jam_size(room->jam, &size);
-            check_return(stat, room->jam);
-
             printf("---------------------------------\n");
+            printf("room      : %ld\n", temp.roomnum);
             printf("name      : %s\n", temp.name);
             printf("path      : %s\n", temp.path);
             printf("conference: %d\n", temp.conference);
             printf("flags     : %d\n", temp.flags);
-            printf("messages  : %d\n", (int)size);
+            printf("revision  : %d\n", temp.revision);
 
             stat = room_next(room, &temp, &count);
             check_return(stat, room);

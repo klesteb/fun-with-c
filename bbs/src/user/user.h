@@ -99,6 +99,7 @@ typedef struct _user_base_s {
     off_t profile;                  /* pointer to profile record        */
     time_t lastcall;                /* Last time the user called        */
     time_t firstcall;               /* time of first call               */
+    int revision;                   /* record revision                  */
 } user_base_t;
 
 typedef struct _user_profile_t {

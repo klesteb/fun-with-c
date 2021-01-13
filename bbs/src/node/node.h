@@ -97,6 +97,7 @@ typedef struct _node_base_s {   /* Node information kept in NODE.DAB */
     ulong  extaux;              /* Extended aux dword for node       */
     long   msgnum;              /* Message number                    */
     long   nodenum;             /* Node number                       */
+    int    revision;            /* revision level of record          */
 } node_base_t;
 
 /*-------------------------------------------------------------*/

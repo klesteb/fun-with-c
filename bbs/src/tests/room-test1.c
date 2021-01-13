@@ -25,6 +25,7 @@ int setup(void) {
 
     int base = 1;
     int stat = OK;
+    int rooms = 32;
     int timeout = 1;
     int retries = 30;
     char *dbpath = "../../data/";
@@ -38,7 +39,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, retries, base, timeout, dump);
+        room = room_create(dbpath, msgpath, rooms, retries, base, timeout, dump);
         check_creation(room);
 
         exit_when;

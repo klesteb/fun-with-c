@@ -42,6 +42,7 @@
 
 typedef struct _room_base_s {
     long roomnum;           /* room number                               */
+    long aide;              /* the rooms aide                            */
     char name[32];          /* name of the room                          */
     char path[256];         /* path to the message base                  */
     short conference;       /* the qwk conference number                 */
@@ -89,6 +90,7 @@ struct _room_s {
     int (*_write)(room_t *, room_base_t *, ssize_t *);
     int (*_build)(room_t *, room_base_t *, room_base_t *);
     int (*_normalize)(room_t *, room_base_t *, room_base_t *);
+    int (*_find)(room_t *, void *, int (*compare)(void *, room_base_t *), int *);
 
     int base;
     int index;
@@ -136,6 +138,7 @@ struct _room_s {
 #define ROOM_M_UNLOCK     17
 #define ROOM_M_EXTEND     18
 #define ROOM_M_NORMALIZE  19
+#define ROOM_M_FIND       20
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -160,6 +163,7 @@ extern int room_next(room_t *, room_base_t *, ssize_t *);
 extern int room_prev(room_t *, room_base_t *, ssize_t *);
 extern int room_last(room_t *, room_base_t *, ssize_t *);
 extern int room_first(room_t *, room_base_t *, ssize_t *);
+extern int room_find(room_t *, void *, int (*compare)(void *, room_base_t *), int *);
 
 #endif
 

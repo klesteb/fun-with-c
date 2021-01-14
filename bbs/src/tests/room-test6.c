@@ -18,7 +18,8 @@ errors_t *errs;
 int display(room_base_t *temp) {
 
     printf("--------------------------------\n");
-    printf("room      : %ld\n", temp->roomnum);
+    printf("room #    : %ld\n", temp->roomnum);
+    printf("room aide : %ld\n", temp->aide);
     printf("base      : %d\n", temp->base);
     printf("timeout   : %d\n", temp->timeout);
     printf("retries   : %d\n", temp->retries);

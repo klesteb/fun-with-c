@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
+        temp1.aide = 1;
         temp1.base = 1;
         temp1.timeout = 1;
         temp1.retries = 30;
@@ -101,7 +102,8 @@ int main(int argc, char **argv) {
 
             if (temp2.conference == conference) {
 
-                printf("room      : %ld\n", temp2.roomnum);
+                printf("room #    : %ld\n", temp2.roomnum);
+                printf("room aide : %ld\n", temp2.aide);
                 printf("base      : %d\n", temp2.base);
                 printf("timeout   : %d\n", temp2.timeout);
                 printf("retries   : %d\n", temp2.retries);

@@ -130,7 +130,7 @@ struct _user_s {
     int (*_open)(user_t *);
     int (*_close)(user_t *);
     int (*_unlock)(user_t *);
-    int (*_del)(user_t *, long);
+    int (*_del)(user_t *, int);
     int (*_extend)(user_t *, int);
     int (*_lock)(user_t *, off_t);
     int (*_add)(user_t *, user_base_t *);
@@ -200,7 +200,7 @@ extern char *user_version(user_t *);
 
 extern int user_open(user_t *);
 extern int user_close(user_t *);
-extern int user_del(user_t *, ushort);
+extern int user_del(user_t *, int);
 extern int user_extend(user_t *, int);
 extern int user_index(user_t *, int *);
 extern int user_add(user_t *, user_base_t *);

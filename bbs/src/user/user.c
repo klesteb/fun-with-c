@@ -35,7 +35,7 @@ int _user_override(user_t *, item_list_t *);
 int _user_open(user_t *);
 int _user_close(user_t *);
 int _user_unlock(user_t *);
-int _user_del(user_t *, long);
+int _user_del(user_t *, int);
 int _user_extend(user_t *, int);
 int _user_lock(user_t *, off_t);
 int _user_add(user_t *, user_base_t *);
@@ -402,7 +402,7 @@ int user_add(user_t *self, user_base_t *user) {
 
 }
 
-int user_del(user_t *self, ushort userno) {
+int user_del(user_t *self, int index) {
 
     int stat = OK;
 
@@ -414,7 +414,7 @@ int user_del(user_t *self, ushort userno) {
 
         }
 
-        stat = self->_del(self, userno);
+        stat = self->_del(self, index);
         check_return(stat, self);
 
         exit_when;
@@ -1259,36 +1259,52 @@ int _user_add(user_t *self, user_base_t *user) {
 
 }
 
-int _user_del(user_t *self, long userno) {
+int _user_del(user_t *self, int index) {
 
     int stat = OK;
     ssize_t count = 0;
     user_base_t ondisk;
+    off_t offset = USER_OFFSET(index);
+    off_t recsize = sizeof(user_base_t);
 
     when_error_in {
 
-        stat = self->_first(self, &ondisk, &count);
+        stat = files_seek(self->userdb, offset, SEEK_SET);
+        check_return(stat, self->userdb);
+
+        stat = self->_lock(self, offset);
         check_return(stat, self);
 
-        while (count > 0) {
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
 
-            if ((ondisk.eternal == userno) &&
-                (! (ondisk.flags & US_PERM))) {
+        if (count != sizeof(user_base_t)) {
 
-                ondisk.flags |= US_DELETED;
-                ondisk.revision++;
+            cause_error(EIO);
 
-                stat = self->_put(self, self->index, &ondisk);
-                check_return(stat, self);
+        }
 
-                break;
+        if (! (ondisk.flags & US_PERM)) {
+
+            ondisk.flags |= US_DELETED;
+            ondisk.revision++;
+
+            stat = files_seek(self->userdb, -recsize, SEEK_CUR);
+            check_return(stat, self->userdb);
+
+            stat = self->_write(self, &ondisk, &count);
+            check_return(stat, self);
+
+            if (count != sizeof(user_base_t)) {
+
+                cause_error(EIO);
 
             }
 
-            stat = self->_next(self, &ondisk, &count);
-            check_return(stat, self);
-
         }
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
 
         exit_when;
 
@@ -1296,6 +1312,8 @@ int _user_del(user_t *self, long userno) {
 
         stat = ERR;
         process_error(self);
+
+        if (self->locked) self->_unlock(self);
 
     } end_when;
 

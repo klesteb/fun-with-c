@@ -8,11 +8,45 @@
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
+#include "fnm_util.h"
 #include "misc/misc.h"
 
 room_t *room;
 tracer_t *dump;
 errors_t *errs;
+
+int find_by_conference(void *data, room_base_t *room) {
+
+    int stat = FALSE;
+    short *conference = (short *)data;
+
+    if (room->conference == *conference) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
+int display(room_base_t *temp) {
+
+    printf("--------------------------------\n");
+    printf("room #    : %ld\n", temp->roomnum);
+    printf("room aide : %ld\n", temp->aide);
+    printf("base      : %d\n", temp->base);
+    printf("timeout   : %d\n", temp->timeout);
+    printf("retries   : %d\n", temp->retries);
+    printf("conference: %d\n", temp->conference);
+    printf("flags     : %d\n", temp->flags);
+    printf("name      : %s\n", temp->name);
+    printf("path      : %s\n", temp->path);
+    printf("revision  : %d\n", temp->revision);
+
+    return OK;
+
+}
 
 int dump_trace(char *buffer) {
 
@@ -68,8 +102,9 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
+    int index = 0;
     room_base_t temp;
-    ssize_t count = 0;
+    short conference = 3;
 
     when_error_in {
 
@@ -79,22 +114,33 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_last(room, &temp, &count);
+        stat = room_find(room, &conference, find_by_conference, &index);
         check_return(stat, room);
 
-        while (count > 0) {
-
-            printf("---------------------------------\n");
-            printf("room #    : %ld\n", temp.roomnum);
-            printf("room aide : %ld\n", temp.aide);
-            printf("name      : %s\n", temp.name);
-            printf("path      : %s\n", temp.path);
-            printf("conference: %d\n", temp.conference);
-            printf("flags     : %d\n", temp.flags);
-            printf("revision  : %d\n", temp.revision);
-
-            stat = room_prev(room, &temp, &count);
+        if (index > 0) {
+            
+            stat = room_get(room, index, &temp);
             check_return(stat, room);
+            
+            display(&temp);
+
+            temp.flags = (PUBLIC | INUSE);
+
+            stat = room_put(room, index, &temp);
+            check_return(stat, room);
+
+            stat = room_get(room, index, &temp);
+            check_return(stat, room);
+
+            display(&temp);
+
+            stat = room_del(room, index);
+            check_return(stat, room);
+
+            stat = room_get(room, index, &temp);
+            check_return(stat, room);
+
+            display(&temp);
 
         }
 

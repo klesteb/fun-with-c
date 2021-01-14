@@ -85,7 +85,8 @@ int main(int argc, char **argv) {
         while (count > 0) {
 
             printf("---------------------------------\n");
-            printf("room      : %ld\n", temp.roomnum);
+            printf("room #    : %ld\n", temp.roomnum);
+            printf("room aide : %ld\n", temp.aide);
             printf("name      : %s\n", temp.name);
             printf("path      : %s\n", temp.path);
             printf("conference: %d\n", temp.conference);

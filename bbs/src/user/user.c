@@ -49,6 +49,7 @@ int _user_read(user_t *, user_base_t *, ssize_t *);
 int _user_write(user_t *, user_base_t *, ssize_t *);
 int _user_first(user_t *, user_base_t *, ssize_t *);
 int _user_build(user_t *, user_base_t *, user_base_t *);
+int _user_normalize(user_t *, user_base_t *, user_base_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -613,6 +614,7 @@ int _user_ctor(object_t *object, item_list_t *items) {
         self->_close  = _user_close;
         self->_unlock = _user_unlock;
         self->_extend = _user_extend;
+        self->_normalize = _user_normalize;
         self->_get_sequence = _user_get_sequence;
 
         /* initialize internal variables here */
@@ -662,6 +664,7 @@ int _user_dtor(object_t *object) {
     /* free local resources here */
 
     files_close(self->userdb);
+    files_close(self->profiles);
     files_close(self->sequence);
     free(self->path);
 
@@ -767,6 +770,11 @@ int _user_override(user_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case USER_M_NORMALIZE: {
+                    self->_normalize = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -802,6 +810,8 @@ int _user_compare(user_t *self, user_t *other) {
         (self->_close  == other->_close) &&
         (self->_unlock == other->_unlock) &&
         (self->_extend == other->_extend) &&
+        (self->_normalize == other->_normalize) &&
+        (self->_get_sequence == other->_get_sequence) &&
         (self->locked == other->locked) &&
         (self->userdb == other->userdb) &&
         (self->trace  == other->trace)) {
@@ -822,6 +832,7 @@ int _user_open(user_t *self) {
     long sequence = 1;
     user_base_t ondisk;
     int flags = O_RDWR;
+    ssize_t position = 0;
     int mode = (S_IRWXU | S_IRWXG);
     int create = (O_RDWR | O_CREAT);
 
@@ -867,6 +878,9 @@ int _user_open(user_t *self) {
             stat = self->_extend(self, self->users);
             check_return(stat, self);
 
+            stat = files_seek(self->userdb, 0, SEEK_SET);
+            check_return(stat, self->userdb);
+
             /* create sysop account */
 
             ondisk.eternal = 1;
@@ -878,7 +892,16 @@ int _user_open(user_t *self) {
             memset(&ondisk.password, '\0', 26);
             strcpy(ondisk.password, "sysop");
 
-            self->_put(self, 1, &ondisk);
+            stat = files_tell(self->userdb, &position);
+            check_return(stat, self->userdb);
+
+            stat = self->_lock(self, position);
+            check_return(stat, self);
+
+            stat = self->_write(self, &ondisk, &count);
+            check_return(stat, self);
+
+            stat = self->_unlock(self);
             check_return(stat, self);
 
             /* create network account */
@@ -891,7 +914,16 @@ int _user_open(user_t *self) {
             memset(&ondisk.password, '\0', 26);
             strcpy(ondisk.password, "qwknet");
 
-            self->_put(self, 2, &ondisk);
+            stat = files_tell(self->userdb, &position);
+            check_return(stat, self->userdb);
+
+            stat = self->_lock(self, position);
+            check_return(stat, self);
+
+            stat = self->_write(self, &ondisk, &count);
+            check_return(stat, self);
+
+            stat = self->_unlock(self);
             check_return(stat, self);
 
             /* guest account */
@@ -904,7 +936,16 @@ int _user_open(user_t *self) {
             memset(&ondisk.password, '\0', 26);
             strcpy(ondisk.password, "guest");
 
-            self->_put(self, 3, &ondisk);
+            stat = files_tell(self->userdb, &position);
+            check_return(stat, self->userdb);
+
+            stat = self->_lock(self, position);
+            check_return(stat, self);
+
+            stat = self->_write(self, &ondisk, &count);
+            check_return(stat, self);
+
+            stat = self->_unlock(self);
             check_return(stat, self);
             
         }
@@ -1309,7 +1350,9 @@ int _user_put(user_t *self, int index, user_base_t *user) {
 
     int stat = OK;
     ssize_t count = 0;
+    user_base_t ondisk;
     off_t offset = USER_OFFSET(index);
+    off_t recsize = sizeof(user_base_t);
 
     when_error_in {
 
@@ -1318,6 +1361,23 @@ int _user_put(user_t *self, int index, user_base_t *user) {
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
+
+        stat = self->_read(self, &ondisk, &count);
+        check_return(stat, self);
+
+        if (ondisk.revision > user->revision) {
+
+            stat = self->_normalize(self, &ondisk, user);
+            check_return(stat, self);
+
+        } else {
+
+            user->revision = ondisk.revision + 1;
+
+        }
+
+        stat = files_seek(self->userdb, -recsize, SEEK_CUR);
+        check_return(stat, self->userdb);
 
         stat = self->_write(self, user, &count);
         check_return(stat, self);
@@ -1511,6 +1571,29 @@ int _user_extend(user_t *self, int amount) {
 
 }
 
+int _user_normalize(user_t *self, user_base_t *ondisk, user_base_t *user) {
+
+    strcpy((*user).username, ondisk->username);
+    strcpy((*user).password, ondisk->password);
+    (*user).axlevel = ondisk->axlevel;
+    (*user).qwk = ondisk->qwk;
+    (*user).flags = ondisk->flags;
+    (*user).screenwidth = ondisk->screenwidth;
+    (*user).screenlength = ondisk->screenlength;
+    (*user).timescalled = ondisk->timescalled;
+    (*user).posted = ondisk->posted;
+    (*user).eternal = ondisk->eternal;
+    (*user).today = ondisk->today;
+    (*user).online = ondisk->online;
+    (*user).profile = ondisk->profile;
+    (*user).lastcall = ondisk->lastcall;
+    (*user).firstcall = ondisk->firstcall;
+    (*user).revision = ondisk->revision + 1;
+
+    return OK;
+
+}
+
 int _user_build(user_t *self, user_base_t *ondisk, user_base_t *user) {
 
     strcpy((*user).username, ondisk->username);
@@ -1528,6 +1611,7 @@ int _user_build(user_t *self, user_base_t *ondisk, user_base_t *user) {
     (*user).profile = ondisk->profile;
     (*user).lastcall = ondisk->lastcall;
     (*user).firstcall = ondisk->firstcall;
+    (*user).revision = ondisk->revision;
 
     return OK;
 

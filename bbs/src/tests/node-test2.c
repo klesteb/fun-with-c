@@ -13,6 +13,24 @@ node_t *nodes;
 tracer_t *dump;
 errors_t *errs;
 
+int display(node_base_t *temp) {
+
+    printf("---------------------------------\n");
+    printf("node    : %d\n", temp->nodenum);
+    printf("status  : %d\n", temp->status);
+    printf("errors  : %d\n", temp->errors);
+    printf("action  : %d\n", temp->action);
+    printf("user    : %d\n", temp->useron);
+    printf("msgnum  : %d\n", temp->msgnum);
+    printf("misc    : %d\n", temp->misc);
+    printf("aux     : %d\n", temp->aux);
+    printf("extaux  : %ld\n", temp->extaux);
+    printf("revision: %d\n", temp->revision);
+
+    return OK;
+    
+}
+
 int dump_trace(char *buffer) {
 
     fprintf(stderr, "%s\n", buffer);
@@ -81,19 +99,7 @@ int main(int argc, char **argv) {
 
         while (count > 0) {
 
-            stat = node_index(nodes, &index);
-            check_return(stat, nodes);
-
-            printf("---------------------------------\n");
-            printf("index  : %d\n", index);
-            printf("status : %d\n", temp.status);
-            printf("errors : %d\n", temp.errors);
-            printf("action : %d\n", temp.action);
-            printf("user   : %d\n", temp.useron);
-            printf("msgnum : %d\n", temp.msgnum);
-            printf("misc   : %d\n", temp.misc);
-            printf("aux    : %d\n", temp.aux);
-            printf("extaux : %ld\n", temp.extaux);
+            display(&temp);
 
             stat = node_next(nodes, &temp, &count);
             check_return(stat, nodes);

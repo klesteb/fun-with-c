@@ -13,18 +13,19 @@ node_t *nodes;
 tracer_t *dump;
 errors_t *errs;
 
-int display(int index, node_base_t *temp) {
+int display(node_base_t *temp) {
 
     printf("---------------------------------\n");
-    printf("index  : %d\n", index);
-    printf("status : %d\n", temp->status);
-    printf("errors : %d\n", temp->errors);
-    printf("action : %d\n", temp->action);
-    printf("user   : %d\n", temp->useron);
-    printf("msgnum : %ld\n", temp->msgnum);
-    printf("misc   : %d\n", temp->misc);
-    printf("aux    : %d\n", temp->aux);
-    printf("extaux : %ld\n", temp->extaux);
+    printf("node    : %ld\n", temp->nodenum);
+    printf("status  : %d\n", temp->status);
+    printf("errors  : %d\n", temp->errors);
+    printf("action  : %d\n", temp->action);
+    printf("user    : %d\n", temp->useron);
+    printf("msgnum  : %ld\n", temp->msgnum);
+    printf("misc    : %d\n", temp->misc);
+    printf("aux     : %d\n", temp->aux);
+    printf("extaux  : %ld\n", temp->extaux);
+    printf("revision: %ld\n", temp->revision);
 
     return OK;
 
@@ -102,13 +103,13 @@ int main(int argc, char **argv) {
         check_return(stat, nodes);
 
         printf("\nbefore\n");
-        display(1, &ondisk);
+        display(&ondisk);
 
         ondisk.msgnum = msgnum;
         ondisk.misc |= NODE_UMSG;
 
         printf("\nafter\n");
-        display(1, &ondisk);
+        display(&ondisk);
 
         stat = node_put(nodes, 1, &ondisk);
         check_return(stat, nodes);

@@ -49,6 +49,7 @@ int _node_read(node_t *, node_base_t *, ssize_t *);
 int _node_write(node_t *, node_base_t *, ssize_t *);
 int _node_first(node_t *, node_base_t *, ssize_t *);
 int _node_build(node_t *, node_base_t *, node_base_t *);
+int _node_normalize(node_t *, node_base_t *, node_base_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -637,6 +638,7 @@ int _node_ctor(object_t *object, item_list_t *items) {
         self->_close  = _node_close;
         self->_unlock = _node_unlock;
         self->_extend = _node_extend;
+        self->_normalize = _node_normalize;
         self->_get_message  = _node_get_message;
         self->_put_message  = _node_put_message;
         self->_get_sequence = _node_get_sequence;
@@ -779,6 +781,11 @@ int _node_override(node_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case NODE_M_NORMALIZE: {
+                    self->_normalize = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -812,6 +819,7 @@ int _node_compare(node_t *self, node_t *other) {
         (self->_close  == other->_close) &&
         (self->_unlock == other->_unlock) &&
         (self->_extend == other->_extend) &&
+        (self->_normalize == other->_normalize) &&
         (self->nodes  == other->nodes) &&
         (self->locked == other->locked) &&
         (self->nodedb == other->nodedb) &&
@@ -1172,6 +1180,7 @@ int _node_put(node_t *self, int index, node_base_t *node) {
     ssize_t count = 0;
     node_base_t ondisk;
     off_t offset = NODE_OFFSET(index);
+    off_t recsize = sizeof(node_base_t);
 
     when_error_in {
 
@@ -1185,12 +1194,17 @@ int _node_put(node_t *self, int index, node_base_t *node) {
         check_return(stat, self);
 
         if (ondisk.revision > node->revision) {
-            
+
+            stat = self->_normalize(self, &ondisk, node);
+            check_return(stat, self);
+
+        } else {
+
             node->revision = ondisk.revision + 1;
 
         }
-        
-        stat = files_seek(self->nodedb, offset, SEEK_SET);
+
+        stat = files_seek(self->nodedb, -recsize, SEEK_CUR);
         check_return(stat, self->nodedb);
 
         stat = self->_write(self, node, &count);
@@ -1507,9 +1521,7 @@ int _node_extend(node_t *self, int amount) {
 
 }
 
-int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
-
-    int stat = OK;
+int _node_normalize(node_t *self, node_base_t *ondisk, node_base_t *node) {
 
     (*node).status = ondisk->status;
     (*node).errors = ondisk->errors;
@@ -1522,8 +1534,30 @@ int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
     (*node).aux    = ondisk->aux;
     (*node).extaux = ondisk->extaux;
     (*node).msgnum = ondisk->msgnum;
+    (*node).nodenum = ondisk->nodenum;
+    (*node).revision = ondisk->revision + 1;
 
-    return stat;
+    return OK;
+
+}
+
+int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
+
+    (*node).status = ondisk->status;
+    (*node).errors = ondisk->errors;
+    (*node).action = ondisk->action;
+    (*node).pad1   = ondisk->pad1;  
+    (*node).pad2   = ondisk->pad2; 
+    (*node).useron = ondisk->useron;
+    (*node).status = ondisk->status;
+    (*node).misc   = ondisk->misc;
+    (*node).aux    = ondisk->aux;
+    (*node).extaux = ondisk->extaux;
+    (*node).msgnum = ondisk->msgnum;
+    (*node).nodenum = ondisk->nodenum;
+    (*node).revision = ondisk->revision;
+
+    return OK;
 
 }
 

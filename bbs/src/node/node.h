@@ -121,8 +121,8 @@ struct _node_s {
     int (*_get_sequence)(node_t *, long *);
     int (*_get)(node_t *, int, node_base_t *);
     int (*_put)(node_t *, int, node_base_t *);
-    int (*_put_message)(node_t *, char *, long *);
     int (*_get_message)(node_t *, long, char **);
+    int (*_put_message)(node_t *, char *, long *);
     int (*_next)(node_t *, node_base_t *, ssize_t *);
     int (*_prev)(node_t *, node_base_t *, ssize_t *);
     int (*_last)(node_t *, node_base_t *, ssize_t *);
@@ -130,6 +130,7 @@ struct _node_s {
     int (*_write)(node_t *, node_base_t *, ssize_t *);
     int (*_first)(node_t *, node_base_t *, ssize_t *);
     int (*_build)(node_t *, node_base_t *, node_base_t *);
+    int (*_normalize)(node_t *, node_base_t *, node_base_t *);
 
     int index;
     int nodes;
@@ -168,6 +169,7 @@ struct _node_s {
 #define NODE_M_FIRST      12
 #define NODE_M_BUILD      13
 #define NODE_M_EXTEND     14
+#define NODE_M_NORMALIZE  15
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

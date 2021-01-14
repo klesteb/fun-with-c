@@ -144,6 +144,7 @@ struct _user_s {
     int (*_write)(user_t *, user_base_t *, ssize_t *);
     int (*_first)(user_t *, user_base_t *, ssize_t *);
     int (*_build)(user_t *, user_base_t *, user_base_t *);
+    int (*_normalize)(user_t *, user_base_t *, user_base_t *);
 
     int index;
     int users;
@@ -185,6 +186,7 @@ struct _user_s {
 #define USER_M_EXTEND     14
 #define USER_M_ADD        15
 #define USER_M_DEL        16
+#define USER_M_NORMALIZE  17
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

@@ -23,9 +23,9 @@ SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC
 #
 OLBS = $(STATIC) ../../../libs/libtracer.a ../../../libs/liberrors.a ../../../libs/libfiles.a ../../../libs/libobjects.a ../../../libs/libcclibs.a ../../../libs/libgpl.a 
 #
-INCS = room.h 
+INCS = room.h msgs.h finds.h
 #
-OBJS = room.o 
+OBJS = room.o msgs.o finds.o
 #
 all: $(OBJS)
 #
@@ -37,17 +37,30 @@ clean:
 	rm -f $(LIBS)libroom.a
 	rm -f $(LIBS)libroom.so.*
 	rm -f room.3
+	rm -f msgs.3
 #
 room.o: room.c $(INCS)
 	$(CC) $(CFLAGS) room.c
 	$(LIBR) $(LIBS)libroom.a room.o
 #
+msgs.o: msgs.c $(INCS)
+	$(CC) $(CFLAGS) msgs.c
+	$(LIBR) $(LIBS)libroom.a msgs.o
+#
+finds.o: finds.c $(INCS)
+	$(CC) $(CFLAGS) finds.c
+	$(LIBR) $(LIBS)libroom.a finds.o
+#
 man:
 	pod2man -c " " -r "room(3)" -s 3 room.pod room.3
+	pod2man -c " " -r "msgs(3)" -s 3 msgs.pod msgs.3
+	pod2man -c " " -r "finds(3)" -s 3 finds.pod finds.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) room.o room.c
-	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) room.o
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) msgs.o msgs.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) finds.o finds.c
+	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) room.o msgs.o finds.o
 #
 # eof
 #

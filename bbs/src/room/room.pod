@@ -21,6 +21,12 @@ room - A ANSI C class to manage rooms
  tracer_t *dump;
  errors_t *errs;
 
+ int find_all(void *data, int len, room_base_t *room) {
+ 
+     return TRUE;
+     
+ }
+ 
  int dump_trace(char *buffer) {
 
      fprintf(stderr, "%s\n", buffer);
@@ -74,11 +80,14 @@ room - A ANSI C class to manage rooms
  int main(int argc, char **argv) {
 
      int stat = OK;
+     queue results;
      room_base_t temp;
-     ssize_t size = 0;
-     ssize_t count = 0;
+     room_search_t *result = NULL;
 
      when_error_in {
+
+         stat = que_init(&results);
+         check_status(stat, QUE_ON, E_INVOPS);
 
          stat = setup();
          check_status(stat, OK, E_INVOPS);
@@ -86,13 +95,13 @@ room - A ANSI C class to manage rooms
          stat = room_open(room);
          check_return(stat, room);
 
-         stat = room_first(room, &temp, &count);
+         stat = room_search(room, NULL, 0, find_all, &results);
          check_return(stat, room);
 
-         while (count > 0) {
+         while ((result = que_pop_head(&results))) {
 
-             stat = jam_size(room->jam, &size);
-             check_return(stat, room->jam);
+             stat = room_get(room, result->index, &temp);
+             check_return(stat, room);
 
              printf("---------------------------------\n");
              printf("name      : %s\n", temp.name);
@@ -101,8 +110,7 @@ room - A ANSI C class to manage rooms
              printf("flags     : %d\n", temp.flags);
              printf("messages  : %d\n", (int)size);
 
-             stat = room_next(room, &temp, &count);
-             check_return(stat, room);
+             free(result);
 
          }
 
@@ -127,26 +135,21 @@ room - A ANSI C class to manage rooms
 
 =head1 DESCRIPTION
 
-This class implements "rooms". Rooms are a way to organize messages.
-This concept was first used in the CP/M version of Citadel. Other
-citadels expanded on the concept. 
+This class implements "rooms". Rooms are a way to organize resources. 
+This concept was first used in the CP/M version of Citadel. Which 
+apparently borrowed the concept from the MUDs of that era. Other Citadels 
+expanded on this concept. 
 
-Each room is associated with messages. This library uses JAM for
-maintaining those messages. When a room is added, the associated message
-files are also created. When a room is removed, the associated message files 
-are also removed. Rooms are addressable by conference number. 
+The database has a fixed number of rooms. It can be extended, but never 
+contracted. Rooms are numbered sequentially and always maintain their 
+number. Rooms that are deleted, are not removed from the database. They 
+are wiped and marked as inactive and any associated resources are removed. 
+Rooms that are marked inactive are reused. 
 
-When a room is removed. It is not removed from the database. It is
-marked as "deleted". This library does not reuse "deleted" rooms. A
-secondary utility would be needed to remove those records.
+The database consists of these two files:
 
-The following rooms are created by default.
-
-    Mail  - personal email.
-    Lobby - general discussion.
-    Aide  - mail only view able by "aides".
-    
-They can not be removed. 
+ rooms.dat - the actual data
+ rooms.seq - where the last room number is stored
 
 This library is a class. It is extensible and overridable. It also makes 
 use of the L<errors(3)> and L<tracer(3)> classes for error handling and 
@@ -277,102 +280,6 @@ A pointer to a room_t object.
 
 =back
 
-=head2 I<int room_size(room_t *self, ssize_t *size)>
-
-This method returns the number of rooms available.
-
-=over 4
-
-=item B<self>
-
-A pointer to a room_t object.
-
-=item B<size>
-
-A pointer to write the number of rooms.
-
-=back
-
-=head2 I<int room_first(room_t *self, room_base_t *room, ssize_t *count)>
-
-This method will retrieve the first room.
-
-=over 4
-
-=item B<self>
-
-A pointer to a room_t object.
-
-=item B<room>
-
-A pointer to a room_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int room_next(room_t *self, room_base_t *room, ssize_t *count)>
-
-This method retrieves the next room.
-
-=over 4
-
-=item B<self>
-
-A pointer to a room_t object.
-
-=item B<room>
-
-A pointer to a room_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int room_prev(room_t *self, room_base_t *room, ssize_t *count)>
-
-This method retrieves the previous room.
-
-=over 4
-
-=item B<self>
-
-A pointer to a room_t object.
-
-=item B<room>
-
-A pointer to a room_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int room_last(room_t *self, room_base_t *room, ssize_t *count)>
-
-This method retrieves the last room.
-
-=over 4
-
-=item B<self>
-
-A pointer to a room_t object.
-
-=item B<room>
-
-A pointer to a room_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
 =head2 I<int room_add(room_t *self, room_base_t *room)>
 
 This method adds a new room.
@@ -389,7 +296,7 @@ A pointer to a room_base_t type.
 
 =back
 
-=head2 I<int room_del(room_t *self, short conference)>
+=head2 I<int room_del(room_t *self, int index)>
 
 This method deletes a room.
 
@@ -399,13 +306,13 @@ This method deletes a room.
 
 A pointer to a room_t object.
 
-=item B<conference>
+=item B<index>
 
 The room to delete.
 
 =back
 
-=head2 I<int room_get(room_t *self, short conference, room_base_t *room)>
+=head2 I<int room_get(room_t *self, int index, room_base_t *room)>
 
 This method gets the indicated room.
 
@@ -415,7 +322,7 @@ This method gets the indicated room.
 
 A pointer to a room_t object.
 
-=item B<conference>
+=item B<index>
 
 The room to get.
 
@@ -425,7 +332,7 @@ A pointer to a room_base_t type to write the data too.
 
 =back
 
-=head2 I<int room_put(room_t *self, short conference, room_base_t *room)>
+=head2 I<int room_put(room_t *self, int index, room_base_t *room)>
 
 This method updates a room.
 
@@ -435,13 +342,73 @@ This method updates a room.
 
 A pointer to a room_t object.
 
-=item B<conference>
+=item B<index>
 
 The room to update.
 
 =item B<room>
 
 A pointer to a room_base_t type.
+
+=back
+
+=head2 I<int room_find(room_t *self, void *data, int len, int (*compare)(void *, int, room_base_t *), int *index)>
+
+This method will return the first room that matches the comparison.
+
+=over 4
+
+=item B<self>
+
+A pointer to a room_t object.
+
+=item B<data>
+
+A pointer to the data to use for comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a room_base_t type.
+This should return TRUE on match, otherwise FALSE.
+
+=item B<index>
+
+A pointer to write the index of the room that matches. A 0 is returned
+if nothing matches.
+
+=back
+
+=head2 I<int room_search(room_t *self, void *data, int len, int (*compare)(void *, int, room_base_t *), queue *results)>
+
+This method will return all the rooms that matches the comparison.
+
+=over 4
+
+=item B<self>
+
+A pointer to a room_t object.
+
+=item B<data>
+
+A pointer to the data to use for the comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a room_base_t type.
+This should return TRUE on match, otherwise FALSE.
+
+=item B<results>
+
+A pointer to write the list of room_search_t types. This list may be empty if 
+nothing matches.
 
 =back
 

@@ -15,6 +15,7 @@ room_t *room;
 tracer_t *dump;
 errors_t *errs;
 
+
 int display(room_base_t *temp) {
 
     printf("--------------------------------\n");
@@ -59,7 +60,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
+        room = msgs_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;
@@ -91,7 +92,7 @@ int main(int argc, char **argv) {
     room_base_t temp;
     ssize_t count = 0;
     short conference = 10;
-    
+
     when_error_in {
 
         stat = setup();

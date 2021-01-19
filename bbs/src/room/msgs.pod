@@ -1,0 +1,172 @@
+
+=pod
+
+=head1 NAME
+
+msgs - A ANSI C class to manage room resources
+
+=head1 SYNOPSIS
+
+ #include <stdio.h>
+ #include <errno.h>
+
+ #include "room.h"
+ #include "when.h"
+ #include "files.h"
+ #include "errors.h"
+ #include "tracer.h"
+ #include "misc/misc.h"
+
+ room_t *room;
+ tracer_t *dump;
+ errors_t *errs;
+
+ int setup(void) {
+
+     int base = 1;
+     int stat = OK;
+     int timeout = 1;
+     int retries = 30;
+     char *dbpath = "../../data/";
+     char *msgpath = "../../messages/";
+
+     when_error_in {
+
+         errs = errors_create();
+         check_creation(errs);
+
+         dump = tracer_create(errs);
+         check_creation(dump);
+
+         room = msgs_create(dbpath, msgpath, retries, timeout, base, dump);
+         check_creation(room);
+
+         exit_when;
+
+     } use {
+
+         stat = ERR;
+         capture_trace(dump);
+         clear_error();
+
+     } end_when;
+
+     return stat;
+
+ }
+
+=head1 DESCRIPTION
+
+This class implements a messages resource for rooms. The messages
+uses the de-facto standard JAM format. When a new room is created,
+the JAM message files are created. When the room is deleted, the JAM 
+message files are removed. 
+
+This class overrides methods within the room class and the object returned 
+from msgs_create() can be used with any of the other room methods.
+
+This library is a class. It is extensible and overridable. It also makes 
+use of the L<errors(3)> and L<tracer(3)> classes for error handling and 
+reporting. 
+
+The files msgs.c and msgs.h define the class. 
+
+=over 4
+
+=item B<msgs.h>
+
+This defines the interface to the class. 
+
+=item B<msgs.c> 
+
+This implements the interface.
+
+=back
+
+=head1 METHODS
+
+=head2 I<room_t *msgs_create(char *dbpath, char *msgpath, int retries, int timeout, int base, tracer_t *dump)>
+
+This method initializes the class. 
+
+=over 4
+
+=item B<dbpath>
+
+The path where the room database file is stored.
+
+=item B<msgpath>
+
+The path to where the messages are stored. 
+
+=item B<retires>
+
+The number of retires for file locking.
+
+=item B<timeout>
+
+The wait time in seconds between retires.
+
+=item B<dump>
+
+A pointer to a tracer_t object to manage a trace dump.
+
+=back
+
+=head1 RETURNS
+
+The method msgs_create() returns a pointer to a room_t object. 
+All other methods return either OK on success or ERR on failure. The 
+extended error description can be returned with object_get_error().
+
+=head1 BUILDING
+
+The following assumes a GNU/GCC build environment.
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruft from the directory.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<room(3)>
+
+=item L<object(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

@@ -50,6 +50,7 @@ int _user_write(user_t *, user_base_t *, ssize_t *);
 int _user_first(user_t *, user_base_t *, ssize_t *);
 int _user_build(user_t *, user_base_t *, user_base_t *);
 int _user_normalize(user_t *, user_base_t *, user_base_t *);
+int _user_find(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), int *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -515,6 +516,34 @@ int user_index(user_t *self, int *index) {
 
 }
 
+int user_find(user_t *self, void *data, int len,  int (*compare)(void *, int, user_base_t *), int *index) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (data == NULL) || (compare == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_find(self, data, len, compare, index);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -612,6 +641,7 @@ int _user_ctor(object_t *object, item_list_t *items) {
         self->_first  = _user_first;
         self->_build  = _user_build;
         self->_close  = _user_close;
+        self->_find   = _user_find;
         self->_unlock = _user_unlock;
         self->_extend = _user_extend;
         self->_normalize = _user_normalize;
@@ -775,6 +805,11 @@ int _user_override(user_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case USER_M_FIND: {
+                    self->_find = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -808,6 +843,7 @@ int _user_compare(user_t *self, user_t *other) {
         (self->_first  == other->_first) &&
         (self->_build  == other->_build) &&
         (self->_close  == other->_close) &&
+        (self->_find   == other->_find) &&
         (self->_unlock == other->_unlock) &&
         (self->_extend == other->_extend) &&
         (self->_normalize == other->_normalize) &&
@@ -1459,6 +1495,46 @@ int _user_unlock(user_t *self) {
         check_return(stat, self->userdb);
 
         self->locked = FALSE;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _user_find(user_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), int *index) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    user_base_t ondisk;
+
+    when_error_in {
+
+        *index = 0;
+
+        stat = self->_first(self, &ondisk, &count);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if (compare(data, len, &ondisk)) {
+
+                *index = self->index;
+                break;
+
+            }
+
+            stat = self->_next(self, &ondisk, &count);
+            check_return(stat, self);
+
+        }
 
         exit_when;
 

@@ -26,15 +26,16 @@
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-#define MAILROOM 1          /* mail is always room 0           */
-#define LOBBY    2          /* lobby is always room 1          */
-#define AIDEROOM 3          /* aide is always room 2           */
-
-#define INUSE    (1L<<0)    /* room is in use                  */
-#define PUBLIC   (1L<<1)    /* room is public                  */
-#define ISDIR    (1L<<2)    /* room is a directory             */
-#define PERMROOM (1L<<3)    /* room is permament               */
-#define QWKNET   (1L<<4)    /* room is netted via qwk          */
+#define RM_INUSE     (1L<<0)    /* room is in use                  */
+#define RM_PUBLIC    (1L<<1)    /* room is public                  */
+#define RM_MESSAGES  (1L<<2)    /* room had messages               */
+#define RM_BULLETIN  (1L<<3)    /* room has bulletins              */
+#define RM_DIRECTORY (1L<<4)    /* room has files                  */
+#define RM_PERMROOM  (1L<<5)    /* room is permament               */
+#define RM_NETWORK   (1L<<6)    /* room is netted via qwk          */
+#define RM_READONLY  (1L<<7)    /* Restrict posting to aides? No   */
+#define RM_UPLOAD    (1L<<8)    /* Allowed to upload               */
+#define RM_DOWNLOAD  (1L<<9)    /* Allowed to download             */
 
 /*-------------------------------------------------------------*/
 /* data structures                                             */
@@ -55,7 +56,7 @@ typedef struct _room_base_s {
 
 typedef struct _room_search_s {
     char name[32];          /* name of the room                          */
-    short conference;       /* the qwk conference number                 */
+    int index;              /* the index for the room                    */
 } room_search_t;
 
 /*-------------------------------------------------------------*/
@@ -90,8 +91,13 @@ struct _room_s {
     int (*_write)(room_t *, room_base_t *, ssize_t *);
     int (*_build)(room_t *, room_base_t *, room_base_t *);
     int (*_normalize)(room_t *, room_base_t *, room_base_t *);
-    int (*_find)(room_t *, void *, int (*compare)(void *, room_base_t *), int *);
-
+    int (*_find)(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), int *);
+    int (*_search)(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), queue *);
+    int (*_init)(room_t *);
+    int (*_detach)(room_t *);
+    int (*_remove)(room_t *);
+    int (*_attach)(room_t *, room_base_t *);
+    
     int base;
     int index;
     int rooms;
@@ -99,7 +105,7 @@ struct _room_s {
     int retries;
     int timeout;
     char *msgbase;
-    jam_t *jam;
+    void *handle;
     files_t *roomdb;
     files_t *sequence;
     tracer_t *trace;
@@ -139,6 +145,11 @@ struct _room_s {
 #define ROOM_M_EXTEND     18
 #define ROOM_M_NORMALIZE  19
 #define ROOM_M_FIND       20
+#define ROOM_M_SEARCH     21
+#define ROOM_M_INIT       22
+#define ROOM_M_ATTACH     23
+#define ROOM_M_DETACH     24
+#define ROOM_M_REMOVE     25
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -154,16 +165,11 @@ extern int room_open(room_t *);
 extern int room_close(room_t *);
 extern int room_del(room_t *, int);
 extern int room_extend(room_t *, int);
-extern int room_index(room_t *, int *);
-extern int room_size(room_t *, ssize_t *);
 extern int room_add(room_t *, room_base_t *);
 extern int room_get(room_t *, int, room_base_t *);
 extern int room_put(room_t *, int, room_base_t *);
-extern int room_next(room_t *, room_base_t *, ssize_t *);
-extern int room_prev(room_t *, room_base_t *, ssize_t *);
-extern int room_last(room_t *, room_base_t *, ssize_t *);
-extern int room_first(room_t *, room_base_t *, ssize_t *);
-extern int room_find(room_t *, void *, int (*compare)(void *, room_base_t *), int *);
+extern int room_find(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), int *);
+extern int room_search(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), queue *);
 
 #endif
 

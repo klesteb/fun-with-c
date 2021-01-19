@@ -5,14 +5,31 @@
 #include "jam.h"
 #include "room.h"
 #include "when.h"
+#include "finds.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
+#include "que_util.h"
 #include "misc/misc.h"
 
 room_t *room;
 tracer_t *dump;
 errors_t *errs;
+
+int display(room_base_t *room) {
+
+    printf("---------------------------------\n");
+    printf("room #    : %ld\n", room->roomnum);
+    printf("room aide : %ld\n", room->aide);
+    printf("name      : %s\n", room->name);
+    printf("path      : %s\n", room->path);
+    printf("conference: %d\n", room->conference);
+    printf("flags     : %d\n", room->flags);
+    printf("revision  : %d\n", room->revision);
+
+    return OK;
+
+}
 
 int dump_trace(char *buffer) {
 
@@ -68,33 +85,30 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
+    queue results;
     room_base_t temp;
-    ssize_t count = 0;
+    room_search_t *result = NULL;
 
     when_error_in {
 
         stat = setup();
         check_status(stat, OK, E_INVOPS);
 
+        stat = que_init(&results);
+        check_status(stat, QUE_OK, E_INVOPS);
+
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_first(room, &temp, &count);
+        stat = room_search(room, NULL, 0, find_all, &results);
         check_return(stat, room);
 
-        while (count > 0) {
+        while ((result = que_pop_head(&results))) {
 
-            printf("---------------------------------\n");
-            printf("room #    : %ld\n", temp.roomnum);
-            printf("room aide : %ld\n", temp.aide);
-            printf("name      : %s\n", temp.name);
-            printf("path      : %s\n", temp.path);
-            printf("conference: %d\n", temp.conference);
-            printf("flags     : %d\n", temp.flags);
-            printf("revision  : %d\n", temp.revision);
-
-            stat = room_next(room, &temp, &count);
+            stat = room_get(room, result->index, &temp);
             check_return(stat, room);
+
+            display(&temp);
 
         }
 

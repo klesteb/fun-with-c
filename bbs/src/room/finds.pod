@@ -1,0 +1,175 @@
+
+=pod
+
+=head1 NAME
+
+finds - A set of predefined comparision functions
+
+=head1 SYNOPSIS
+
+ #include "finds.h"
+ 
+
+ stat = room_search(room, NULL, 0, find_all, &results);
+ check_return(stat, room);
+
+ while ((result = que_pop_head(&results))) {
+
+     stat = room_get(room, result->index, &temp);
+     check_return(stat, room);
+
+     printf("---------------------------------\n");
+     printf("name      : %s\n", temp.name);
+     printf("path      : %s\n", temp.path);
+     printf("conference: %d\n", temp.conference);
+     printf("flags     : %d\n", temp.flags);
+     printf("messages  : %d\n", (int)size);
+
+     free(result);
+
+ }
+
+=head1 DESCRIPTION
+
+These are pre-defined comparision functions that can be used to search
+the room database.
+
+=head1 METHODS
+
+=head2 I<int find_all(void *data, int len, room_base_t *room)>
+
+Find all rooms. Suitable for room_search().
+
+=over 4
+
+=item B<data>
+
+A pointer to a data item be used for comparision.
+
+=item B<len>
+
+Then size of the item
+
+=item B<room>
+
+The room to compare against.
+
+=back
+
+=head2 I<int find_messages(void *data, int len, room_base_t *room)>
+
+Find rooms that manage message resources. Suitable for room_search().
+
+=over 4
+
+=item B<data>
+
+A pointer to a data item be used for comparision.
+
+=item B<len>
+
+Then size of the item
+
+=item B<room>
+
+The room to compare against.
+
+=back
+
+=head2 I<int find_networked(void *data, int len, room_base_t *room)>
+
+Find all rooms that are networked. Suitable for room_search().
+
+=over 4
+
+=item B<data>
+
+A pointer to a data item be used for comparision.
+
+=item B<len>
+
+Then size of the item
+
+=item B<room>
+
+The room to compare against.
+
+=back
+
+=head2 I<int find_by_conference(void *data, int len, room_base_t *room)>
+
+Find the room with this conference number. Suitable for room_find().
+
+=over 4
+
+=item B<data>
+
+A pointer to a data item be used for comparision.
+
+=item B<len>
+
+Then size of the item
+
+=item B<room>
+
+The room to compare against.
+
+=back
+
+=head1 RETURNS
+
+These functions return TRUE when a match is made, otherwise FALSE.
+
+=head1 BUILDING
+
+The following assumes a GNU/GCC build environment.
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruft from the directory.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<msgs(3)>
+
+=item L<room(3)>
+
+=item L<object(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

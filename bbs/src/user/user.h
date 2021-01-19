@@ -145,6 +145,7 @@ struct _user_s {
     int (*_first)(user_t *, user_base_t *, ssize_t *);
     int (*_build)(user_t *, user_base_t *, user_base_t *);
     int (*_normalize)(user_t *, user_base_t *, user_base_t *);
+    int (*_find)(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), int *);
 
     int index;
     int users;
@@ -187,6 +188,7 @@ struct _user_s {
 #define USER_M_ADD        15
 #define USER_M_DEL        16
 #define USER_M_NORMALIZE  17
+#define USER_M_FIND       18
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -210,6 +212,7 @@ extern int user_next(user_t *, user_base_t *, ssize_t *);
 extern int user_prev(user_t *, user_base_t *, ssize_t *);
 extern int user_last(user_t *, user_base_t *, ssize_t *);
 extern int user_first(user_t *, user_base_t *, ssize_t *);
+extern int user_find(user_t *, void *, int,  int (*compare)(void *, int, user_base_t *), int *);
 
 #endif
 

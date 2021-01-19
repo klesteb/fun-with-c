@@ -5,6 +5,7 @@
 #include "jam.h"
 #include "room.h"
 #include "when.h"
+#include "finds.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
@@ -14,6 +15,21 @@
 room_t *room;
 tracer_t *dump;
 errors_t *errs;
+
+int display(room_base_t *room) {
+
+    printf("---------------------------------\n");
+    printf("room #    : %ld\n", room->roomnum);
+    printf("room aide : %ld\n", room->aide);
+    printf("name      : %s\n", room->name);
+    printf("path      : %s\n", room->path);
+    printf("conference: %d\n", room->conference);
+    printf("flags     : %d\n", room->flags);
+    printf("revision  : %d\n", room->revision);
+
+    return OK;
+
+}
 
 int dump_trace(char *buffer) {
 
@@ -69,13 +85,17 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
+    queue results;
     room_base_t temp1;
     room_base_t temp2;
-    ssize_t count = 0;
     short conference = 10;
+    room_search_t *result = NULL;
     char *msgpath = "../messages/";
-    
+
     when_error_in {
+
+        stat = que_init(&results);
+        check_status(stat, QUE_OK, E_INVOPS);
 
         stat = setup();
         check_status(stat, OK, E_INVOPS);
@@ -89,39 +109,25 @@ int main(int argc, char **argv) {
         temp1.retries = 30;
         strcpy(temp1.name, "Testing");
         temp1.conference = conference;
-        temp1.flags = (PERMROOM | PUBLIC | INUSE);
+        temp1.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
         strncpy(temp1.path, fnm_build(1, FnmPath, msgpath, NULL), 255);
 
         stat = room_add(room, &temp1);
         check_return(stat, room);
 
-        stat = room_first(room, &temp2, &count);
+        stat = room_search(room, NULL, 0, find_messages, &results);
         check_return(stat, room);
 
-        while (count > 0) {
+        while ((result = que_pop_head(&results))) {
 
-            if (temp2.conference == conference) {
-
-                printf("room #    : %ld\n", temp2.roomnum);
-                printf("room aide : %ld\n", temp2.aide);
-                printf("base      : %d\n", temp2.base);
-                printf("timeout   : %d\n", temp2.timeout);
-                printf("retries   : %d\n", temp2.retries);
-                printf("conference: %d\n", temp2.conference);
-                printf("flags     : %d\n", temp2.flags);
-                printf("name      : %s\n", temp2.name);
-                printf("path      : %s\n", temp2.path);
-                printf("revision  : %d\n", temp2.revision);
-                
-                break;
-                
-            }
-            
-            stat = room_next(room, &temp2, &count);
+            stat = room_get(room, result->index, &temp2);
             check_return(stat, room);
-            
+
+            display(&temp2);
+            free(result);
+
         }
-            
+
         stat = room_close(room);
         check_return(stat, room);
 

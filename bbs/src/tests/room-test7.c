@@ -15,12 +15,14 @@ room_t *room;
 tracer_t *dump;
 errors_t *errs;
 
-int find_by_conference(void *data, room_base_t *room) {
+int find_by_conference(void *data, int len, room_base_t *room) {
 
     int stat = FALSE;
-    short *conference = (short *)data;
+    short conference;
 
-    if (room->conference == *conference) {
+    memcpy(&conference, data, len);
+
+    if (room->conference == conference) {
 
         stat = TRUE;
 
@@ -114,7 +116,7 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_find(room, &conference, find_by_conference, &index);
+        stat = room_find(room, &conference, sizeof(short), find_by_conference, &index);
         check_return(stat, room);
 
         if (index > 0) {

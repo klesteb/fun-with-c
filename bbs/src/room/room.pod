@@ -412,6 +412,20 @@ nothing matches.
 
 =back
 
+=head2 I<int room_extend(room_t *self, int size)>
+
+=over 4
+
+=item B<self>
+
+A pointer to a room_t object.
+
+=item B<size>
+
+A number of records to extend the database by.
+
+=back
+
 =head1 RETURNS
 
 The method room_create() returns a pointer to a room_t object. 

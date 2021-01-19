@@ -10,7 +10,7 @@ finds - A set of predefined comparision functions
  #include "finds.h"
  
 
- stat = room_search(room, NULL, 0, find_all, &results);
+ stat = room_search(room, NULL, 0, find_rooms_all, &results);
  check_return(stat, room);
 
  while ((result = que_pop_head(&results))) {
@@ -36,7 +36,7 @@ the room database.
 
 =head1 METHODS
 
-=head2 I<int find_all(void *data, int len, room_base_t *room)>
+=head2 I<int find_rooms_all(void *data, int len, room_base_t *room)>
 
 Find all rooms. Suitable for room_search().
 
@@ -56,7 +56,7 @@ The room to compare against.
 
 =back
 
-=head2 I<int find_messages(void *data, int len, room_base_t *room)>
+=head2 I<int find_rooms_messages(void *data, int len, room_base_t *room)>
 
 Find rooms that manage message resources. Suitable for room_search().
 
@@ -76,7 +76,7 @@ The room to compare against.
 
 =back
 
-=head2 I<int find_networked(void *data, int len, room_base_t *room)>
+=head2 I<int find_rooms_networked(void *data, int len, room_base_t *room)>
 
 Find all rooms that are networked. Suitable for room_search().
 
@@ -96,7 +96,7 @@ The room to compare against.
 
 =back
 
-=head2 I<int find_by_conference(void *data, int len, room_base_t *room)>
+=head2 I<int find_room_by_conference(void *data, int len, room_base_t *room)>
 
 Find the room with this conference number. Suitable for room_find().
 

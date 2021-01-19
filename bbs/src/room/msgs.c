@@ -139,7 +139,7 @@ int _msgs_attach(room_t *self, room_base_t *room) {
         memset(name, '\0', 7);
         snprintf(name, 6, "%05d", (int)room->conference);
 
-        jam = jam_create(self->msgbase, name, room->retries, room->timeout, room->base, self->trace);
+        jam = jam_create(room->path, name, room->retries, room->timeout, room->base, self->trace);
         check_creation(jam);
 
         stat = jam_open(jam);

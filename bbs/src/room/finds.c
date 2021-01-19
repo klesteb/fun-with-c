@@ -10,15 +10,15 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include "room.h"
+#include "finds.h"
 
-int find_all(void *data, int len, room_base_t *room) {
+int find_rooms_all(void *data, int len, room_base_t *room) {
 
     return TRUE;
 
 }
 
-int find_by_conference(void *data, int len, room_base_t *room) {
+int find_room_by_conference(void *data, int len, room_base_t *room) {
 
     int stat = FALSE;
     short conference;
@@ -35,7 +35,7 @@ int find_by_conference(void *data, int len, room_base_t *room) {
 
 }
 
-int find_messages(void *data, int len, room_base_t *room) {
+int find_rooms_messages(void *data, int len, room_base_t *room) {
 
     int stat = FALSE;
 
@@ -49,7 +49,7 @@ int find_messages(void *data, int len, room_base_t *room) {
 
 }
 
-int find_networked(void *data, int len, room_base_t *room) {
+int find_rooms_networked(void *data, int len, room_base_t *room) {
 
     int stat = FALSE;
 

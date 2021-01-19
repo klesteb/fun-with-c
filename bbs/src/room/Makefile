@@ -38,6 +38,7 @@ clean:
 	rm -f $(LIBS)libroom.so.*
 	rm -f room.3
 	rm -f msgs.3
+	rm -f finds.3
 #
 room.o: room.c $(INCS)
 	$(CC) $(CFLAGS) room.c

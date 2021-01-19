@@ -139,7 +139,6 @@ int _msgs_attach(room_t *self, room_base_t *room) {
         memset(name, '\0', 7);
         snprintf(name, 6, "%05d", (int)room->conference);
 
-fprintf(stderr, "path = %s\n", room->path);
         jam = jam_create(room->path, name, room->retries, room->timeout, room->base, self->trace);
         check_creation(jam);
 
@@ -186,7 +185,7 @@ int _msgs_detach(room_t *self) {
     } end_when;
 
     return stat;
-        
+
 }
 
 int _msgs_remove(room_t *self) {
@@ -235,10 +234,10 @@ room_t *msgs_create(char *dbpath, char *msgpath, int rooms, int retries, int tim
 
         stat = room_override(temp, items);
         if (stat != OK) {
-            
+
             room_destroy(temp);
             temp = NULL;
-            
+
         }
 
     }

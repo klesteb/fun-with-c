@@ -50,6 +50,8 @@ int _node_write(node_t *, node_base_t *, ssize_t *);
 int _node_first(node_t *, node_base_t *, ssize_t *);
 int _node_build(node_t *, node_base_t *, node_base_t *);
 int _node_normalize(node_t *, node_base_t *, node_base_t *);
+int _node_find(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), int *index);
+int _node_search(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), queue *results);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -262,118 +264,6 @@ int node_close(node_t *self) {
 
 }
 
-int node_first(node_t *self, node_base_t *node, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (node == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_first(self, node, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int node_next(node_t *self, node_base_t *node, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (node == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_next(self, node, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int node_prev(node_t *self, node_base_t *node, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (node == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_prev(self, node, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int node_last(node_t *self, node_base_t *node, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (node == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_last(self, node, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
 int node_get(node_t *self, int index, node_base_t *node) {
 
     int stat = OK;
@@ -418,33 +308,6 @@ int node_put(node_t *self, int index, node_base_t *node) {
 
         stat = self->_put(self, index, node);
         check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int node_index(node_t *self, int *index) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (index == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        *index = self->index;
 
         exit_when;
 
@@ -528,6 +391,62 @@ int node_extend(node_t *self, int amount) {
         }
 
         stat = self->_extend(self, amount);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int node_find(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), int *index) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (data == NULL) || (compare == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_find(self, data, len, compare, index);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int node_search(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), queue *results) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (compare == NULL) || (results == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_search(self, data, len, compare, results);
         check_return(stat, self);
 
         exit_when;
@@ -644,7 +563,9 @@ int _node_ctor(object_t *object, item_list_t *items) {
         self->_get_message  = _node_get_message;
         self->_put_message  = _node_put_message;
         self->_get_sequence = _node_get_sequence;
-
+        self->_find = _node_find;
+        self->_search = _node_search;
+        
         /* initialize internal variables here */
 
         when_error_in {
@@ -666,7 +587,7 @@ int _node_ctor(object_t *object, item_list_t *items) {
             check_creation(self->sequence);
 
             strncpy(msgseq, fnm_build(1, FnmPath, "node-msgs", ".seq", path, NULL), 255);
-            self->msgseq = files_create(seq, retries, timeout);
+            self->msgseq = files_create(msgseq, retries, timeout);
             check_creation(self->msgseq);
 
             exit_when;
@@ -693,6 +614,7 @@ int _node_dtor(object_t *object) {
 
     files_close(self->nodedb);
     files_close(self->sequence);
+    files_close(self->msgseq);
     free(self->path);
 
     /* walk the chain, freeing as we go */
@@ -789,6 +711,16 @@ int _node_override(node_t *self, item_list_t *items) {
                 }
                 case NODE_M_NORMALIZE: {
                     self->_normalize = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_FIND: {
+                    self->_find = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case NODE_M_SEARCH: {
+                    self->_search = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
@@ -1490,6 +1422,97 @@ int _node_get_sequence(node_t *self, files_t *file, long *sequence) {
         process_error(self);
 
         if (locked) files_unlock(file);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_find(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), int *index) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    node_base_t ondisk;
+
+    when_error_in {
+
+        *index = 0;
+
+        stat = self->_first(self, &ondisk, &count);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if (compare(data, len, &ondisk)) {
+
+                *index = self->index;
+                break;
+
+            }
+
+            stat = self->_next(self, &ondisk, &count);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _node_search(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), queue *results) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    node_base_t ondisk;
+    node_search_t *result = NULL;
+
+    when_error_in {
+
+        stat = self->_first(self, &ondisk, &count);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if (compare(data, len, &ondisk)) {
+
+                errno = 0;
+                result = calloc(1, sizeof(node_search_t));
+                if (result == NULL) {
+
+                    cause_error(errno);
+
+                }
+
+                result->nodenum = ondisk.nodenum;
+                result->useron  = ondisk.useron;
+                result->index   = self->index;
+
+                stat = que_push_head(results, result);
+                check_status(stat, QUE_OK, E_NOQUEUE);
+
+            }
+
+            stat = self->_next(self, &ondisk, &count);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
 
     } end_when;
 

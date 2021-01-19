@@ -13,6 +13,21 @@ user_t *users;
 tracer_t *dump;
 errors_t *errs;
 
+int find_users(void *data, int len, user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (!(user->flags & US_DELETED) &&
+        !(user->flags & US_INACTIVE)) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+    
 int display(user_base_t *user) {
 
     printf("---------------------------\n");
@@ -74,10 +89,14 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    ssize_t count = 0;
+    queue results;
     user_base_t ondisk;
+    user_search_t *result = NULL;
 
     when_error_in {
+
+        stat = que_init(&results);
+        check_status(stat, QUE_OK, E_INVOPS);
 
         stat = setup();
         check_status(stat, OK, E_INVOPS);
@@ -85,23 +104,19 @@ int main(int argc, char **argv) {
         stat = user_open(users);
         check_return(stat, users);
 
-        stat = user_first(users, &ondisk, &count);
+        stat = user_search(users, NULL, 0, find_users, &results);
         check_return(stat, users);
 
-        while (count > 0) {
+        while ((result = que_pop_head(&results))) {
 
-            if (!(ondisk.flags & US_DELETED) &&
-                !(ondisk.flags & US_INACTIVE)) {
-                
-                display(&ondisk);
-                
-            }
-            
-            stat = user_next(users, &ondisk, &count);
+            stat = user_get(users, result->index, &ondisk);
             check_return(stat, users);
-            
+
+            display(&ondisk);
+            free(result);
+
         }
-        
+
         stat = user_close(users);
         check_return(stat, users);
 

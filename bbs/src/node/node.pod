@@ -21,6 +21,12 @@ node - A ANSI C class to manage the node database
  tracer_t *dump;
  errors_t *errs;
 
+ int find_all(void *data, int len, node_base_t *node) {
+ 
+     return TRUE;
+     
+ }
+ 
  int dump_trace(char *buffer) {
 
      fprintf(stderr, "%s\n", buffer);
@@ -72,8 +78,10 @@ node - A ANSI C class to manage the node database
  int main(int argc, char **argv) {
 
      int stat = OK;
+     queue results;
      node_base_t temp;
      ssize_t count = 0;
+     node_search_t *result = NULL;
 
      when_error_in {
 
@@ -83,10 +91,13 @@ node - A ANSI C class to manage the node database
          stat = node_open(nodes);
          check_return(stat, nodes);
 
-         stat = node_first(nodes, &temp, &count);
+         stat = node_search(nodes, NULL, 0, find_all, &results);
          check_return(stat, nodes);
 
-         while (count > 0) {
+         while ((result = que_pop_head(&results))) {
+
+             stat = node_get(nodes, result->index, &temp);
+             check_return(stat, nodes);
 
              printf("---------------------------------\n");
              printf("status     : %d\n", temp.status);
@@ -97,9 +108,6 @@ node - A ANSI C class to manage the node database
              printf("misc       : %d\n", temp.misc);
              printf("aux        : %d\n", temp.aux);
              printf("extaux     : %ld\n", temp.extaux);
-
-             stat = node_next(nodes, &temp, &count);
-             check_return(stat, nodes);
 
          }
 
@@ -235,86 +243,6 @@ A pointer to a node_t object.
 
 =back
 
-=head2 I<int node_first(node_t *self, node_base_t *node, ssize_t *count)>
-
-This method will retrieve the first node.
-
-=over 4
-
-=item B<self>
-
-A pointer to a node_t object.
-
-=item B<node>
-
-A pointer to a node_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int node_next(node_t *self, node_base_t *node, ssize_t *count)>
-
-This method retrieves the next node.
-
-=over 4
-
-=item B<self>
-
-A pointer to a node_t object.
-
-=item B<node>
-
-A pointer to a node_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int node_prev(node_t *self, node_base_t *node, ssize_t *count)>
-
-This method retrieves the previous node.
-
-=over 4
-
-=item B<self>
-
-A pointer to a node_t object.
-
-=item B<node>
-
-A pointer to a node_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int node_last(node_t *self, node_base_t *node, ssize_t *count)>
-
-This method retrieves the last node.
-
-=over 4
-
-=item B<self>
-
-A pointer to a node_t object.
-
-=item B<node>
-
-A pointer to a node_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
 =head2 I<int node_get(node_t *self, int index, node_base_t *node)>
 
 This method gets the indicated node.
@@ -396,10 +324,9 @@ need to be freed.
 
 =back
 
-=head2 I<int node_index(node_t *self, int *index)>
+=head2 I<int node_find(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), int *index)>
 
-This method returns the current node index. This is usable when paging
-thru the node database.
+This method will return the first node that matches the comparison.
 
 =over 4
 
@@ -407,9 +334,53 @@ thru the node database.
 
 A pointer to a node_t object.
 
+=item B<data>
+
+A pointer to the data to use for comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a node_base_t type.
+This should return TRUE on match, otherwise FALSE.
+
 =item B<index>
 
-A pointer to write the index number too.
+A pointer to write the index of the node that matches. A 0 is returned
+if nothing matches.
+
+=back
+
+=head2 I<int node_search(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), queue *results)>
+
+This method will return all the nodes that matches the comparison.
+
+=over 4
+
+=item B<self>
+
+A pointer to a node_t object.
+
+=item B<data>
+
+A pointer to the data to use for the comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a node_base_t type.
+This should return TRUE on match, otherwise FALSE.
+
+=item B<results>
+
+A pointer to write the list of node_search_t types. This list may be empty if 
+nothing matches.
 
 =back
 

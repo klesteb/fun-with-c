@@ -19,6 +19,7 @@
 #include "object.h"
 #include "tracer.h"
 #include "fnm_util.h"
+#include "que_util.h"
 #include "error_codes.h"
 
 require_klass(OBJECT_KLASS);
@@ -51,6 +52,7 @@ int _user_first(user_t *, user_base_t *, ssize_t *);
 int _user_build(user_t *, user_base_t *, user_base_t *);
 int _user_normalize(user_t *, user_base_t *, user_base_t *);
 int _user_find(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), int *);
+int _user_search(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), queue *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -263,118 +265,6 @@ int user_close(user_t *self) {
 
 }
 
-int user_first(user_t *self, user_base_t *user, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (user == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_first(self, user, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int user_next(user_t *self, user_base_t *user, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (user == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_next(self, user, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int user_prev(user_t *self, user_base_t *user, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (user == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_prev(self, user, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int user_last(user_t *self, user_base_t *user, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (user == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_last(self, user, count);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
 int user_add(user_t *self, user_base_t *user) {
 
     int stat = OK;
@@ -489,19 +379,20 @@ int user_put(user_t *self, int index, user_base_t *user) {
 
 }
 
-int user_index(user_t *self, int *index) {
+int user_find(user_t *self, void *data, int len,  int (*compare)(void *, int, user_base_t *), int *index) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (index == NULL)) {
+        if ((self == NULL) || (data == NULL) || (compare == NULL)) {
 
             cause_error(E_INVPARM);
 
         }
 
-        *index = self->index;
+        stat = self->_find(self, data, len, compare, index);
+        check_return(stat, self);
 
         exit_when;
 
@@ -516,19 +407,19 @@ int user_index(user_t *self, int *index) {
 
 }
 
-int user_find(user_t *self, void *data, int len,  int (*compare)(void *, int, user_base_t *), int *index) {
+int user_search(user_t *self, void *data, int len,  int (*compare)(void *, int, user_base_t *), queue *results) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (data == NULL) || (compare == NULL)) {
+        if ((self == NULL) || (compare == NULL) || (results == NULL)) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_find(self, data, len, compare, index);
+        stat = self->_search(self, data, len, compare, results);
         check_return(stat, self);
 
         exit_when;
@@ -644,6 +535,7 @@ int _user_ctor(object_t *object, item_list_t *items) {
         self->_find   = _user_find;
         self->_unlock = _user_unlock;
         self->_extend = _user_extend;
+        self->_search = _user_search;
         self->_normalize = _user_normalize;
         self->_get_sequence = _user_get_sequence;
 
@@ -810,6 +702,11 @@ int _user_override(user_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case USER_M_SEARCH: {
+                    self->_search = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -846,6 +743,7 @@ int _user_compare(user_t *self, user_t *other) {
         (self->_find   == other->_find) &&
         (self->_unlock == other->_unlock) &&
         (self->_extend == other->_extend) &&
+        (self->_search == other->_search) &&
         (self->_normalize == other->_normalize) &&
         (self->_get_sequence == other->_get_sequence) &&
         (self->locked == other->locked) &&
@@ -1027,6 +925,9 @@ int _user_close(user_t *self) {
 
         stat = files_close(self->sequence);
         check_return(stat, self->sequence);
+
+        stat = files_close(self->profiles);
+        check_return(stat, self->profiles);
 
         exit_when;
 
@@ -1528,6 +1429,57 @@ int _user_find(user_t *self, void *data, int len, int (*compare)(void *, int, us
 
                 *index = self->index;
                 break;
+
+            }
+
+            stat = self->_next(self, &ondisk, &count);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _user_search(user_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), queue *results) {
+
+    int stat = OK;
+    ssize_t count = 0;
+    user_base_t ondisk;
+    user_search_t *result = NULL;
+
+    when_error_in {
+
+        stat = self->_first(self, &ondisk, &count);
+        check_return(stat, self);
+
+        while (count > 0) {
+
+            if (compare(data, len, &ondisk)) {
+
+                errno = 0;
+                result = calloc(1, sizeof(user_search_t));
+                if (result == NULL) {
+
+                    cause_error(errno);
+
+                }
+
+                strncpy(result->username, ondisk.username, LEN_NAME);
+                result->index = self->index;
+                result->profile = ondisk.profile;
+
+                stat = que_push_head(results, result);
+                check_status(stat, QUE_OK, E_NOQUEUE);
 
             }
 

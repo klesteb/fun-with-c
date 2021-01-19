@@ -16,6 +16,7 @@
 #include "files.h"
 #include "tracer.h"
 #include "object.h"
+#include "que_util.h"
 #include "datatypes.h"
 #include "item_list.h"
 
@@ -83,7 +84,7 @@
 /* users information */
 
 typedef struct _user_base_s {         
-    char username[LEN_NAME+1];      /* Name for Citadel messages & mail */
+    char username[LEN_NAME+1];      /* Name for messages & mail         */
     char password[LEN_PASSWD+1];    /* password (for BBS-only users)    */
     char axlevel;                   /* Access level                     */
     unsigned qwk;                   /* See QWK_ flags above             */
@@ -102,7 +103,7 @@ typedef struct _user_base_s {
     int revision;                   /* record revision                  */
 } user_base_t;
 
-typedef struct _user_profile_t {
+typedef struct _user_profile_s {
     off_t userdb;                   /* pointer to user record           */
     char name[LEN_NAME+1];          /* user's real full name            */
     char addr[LEN_ADDRESS+1];       /* user's address                   */
@@ -113,6 +114,12 @@ typedef struct _user_profile_t {
     char email[LEN_EMAIL+1];        /* user's email address             */
     char description[LEN_DESC+1];   /* user description                 */
 } user_profile_t;
+
+typedef struct _user_search_s {
+    char username[LEN_NAME+1];      /* Name for messages & mail         */
+    int index;                      /* index of user record             */
+    off_t profile;                  /* pointer to the user profile      */
+} user_search_t;
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */
@@ -146,6 +153,7 @@ struct _user_s {
     int (*_build)(user_t *, user_base_t *, user_base_t *);
     int (*_normalize)(user_t *, user_base_t *, user_base_t *);
     int (*_find)(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), int *);
+    int (*_search)(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), queue *);
 
     int index;
     int users;
@@ -189,6 +197,7 @@ struct _user_s {
 #define USER_M_DEL        16
 #define USER_M_NORMALIZE  17
 #define USER_M_FIND       18
+#define USER_M_SEARCH     19
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -204,15 +213,11 @@ extern int user_open(user_t *);
 extern int user_close(user_t *);
 extern int user_del(user_t *, int);
 extern int user_extend(user_t *, int);
-extern int user_index(user_t *, int *);
 extern int user_add(user_t *, user_base_t *);
 extern int user_get(user_t *, int, user_base_t *);
 extern int user_put(user_t *, int, user_base_t *);
-extern int user_next(user_t *, user_base_t *, ssize_t *);
-extern int user_prev(user_t *, user_base_t *, ssize_t *);
-extern int user_last(user_t *, user_base_t *, ssize_t *);
-extern int user_first(user_t *, user_base_t *, ssize_t *);
 extern int user_find(user_t *, void *, int,  int (*compare)(void *, int, user_base_t *), int *);
+extern int user_search(user_t *, void *, int,  int (*compare)(void *, int, user_base_t *), queue *);
 
 #endif
 

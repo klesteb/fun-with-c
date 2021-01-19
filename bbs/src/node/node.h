@@ -16,6 +16,7 @@
 #include "files.h"
 #include "tracer.h"
 #include "object.h"
+#include "que_util.h"
 #include "datatypes.h"
 #include "item_list.h"
 
@@ -97,8 +98,14 @@ typedef struct _node_base_s {   /* Node information kept in NODE.DAB */
     ulong  extaux;              /* Extended aux dword for node       */
     long   msgnum;              /* Message number                    */
     long   nodenum;             /* Node number                       */
-    int    revision;            /* revision level of record          */
+    int    revision;            /* Revision level of record          */
 } node_base_t;
+
+typedef struct _node_search_s {
+    long nodenum;               /* Node number                       */
+    ushort useron;              /* User on Node                      */
+    int index;                  /* Index of the rd                   */
+} node_search_t;
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */
@@ -131,6 +138,8 @@ struct _node_s {
     int (*_first)(node_t *, node_base_t *, ssize_t *);
     int (*_build)(node_t *, node_base_t *, node_base_t *);
     int (*_normalize)(node_t *, node_base_t *, node_base_t *);
+    int (*_find)(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), int *);
+    int (*_search)(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), queue *);
 
     int index;
     int nodes;
@@ -171,6 +180,8 @@ struct _node_s {
 #define NODE_M_BUILD      13
 #define NODE_M_EXTEND     14
 #define NODE_M_NORMALIZE  15
+#define NODE_M_FIND       16
+#define NODE_M_SEARCH     17
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -190,10 +201,8 @@ extern int node_get(node_t *, int, node_base_t *);
 extern int node_put(node_t *, int, node_base_t *);
 extern int node_get_message(node_t *, long, char **);
 extern int node_put_message(node_t *, char *, long *);
-extern int node_next(node_t *, node_base_t *, ssize_t *);
-extern int node_prev(node_t *, node_base_t *, ssize_t *);
-extern int node_last(node_t *, node_base_t *, ssize_t *);
-extern int node_first(node_t *, node_base_t *, ssize_t *);
+extern int node_find(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), int *);
+extern int node_search(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), queue *);
 
 #endif
 

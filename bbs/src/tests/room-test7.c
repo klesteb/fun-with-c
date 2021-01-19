@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
 #include "room.h"
 #include "when.h"
 #include "files.h"
@@ -120,13 +119,13 @@ int main(int argc, char **argv) {
         check_return(stat, room);
 
         if (index > 0) {
-            
+
             stat = room_get(room, index, &temp);
             check_return(stat, room);
-            
+
             display(&temp);
 
-            temp.flags = (PUBLIC | INUSE);
+            temp.flags = (RM_PUBLIC | RM_INUSE);
 
             stat = room_put(room, index, &temp);
             check_return(stat, room);

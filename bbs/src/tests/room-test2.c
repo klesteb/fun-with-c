@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
 #include "room.h"
 #include "when.h"
 #include "finds.h"
@@ -100,7 +99,7 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_search(room, NULL, 0, find_all, &results);
+        stat = room_search(room, NULL, 0, find_rooms_all, &results);
         check_return(stat, room);
 
         while ((result = que_pop_head(&results))) {

@@ -1196,6 +1196,9 @@ int _room_add(room_t *self, room_base_t *room) {
                 stat = self->_write(self, room, &count);
                 check_return(stat, self);
 
+                stat = self->_attach(self, room);
+                check_return(stat, self);
+
                 stat = self->_unlock(self);
                 check_return(stat, self);
 

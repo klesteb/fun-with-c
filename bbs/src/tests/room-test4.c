@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
+#include "msgs.h"
 #include "room.h"
 #include "when.h"
 #include "finds.h"
@@ -57,7 +57,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
+        room = msgs_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     room_base_t temp2;
     short conference = 10;
     room_search_t *result = NULL;
-    char *msgpath = "../messages/";
+    char *msgpath = "../../messages/";
 
     when_error_in {
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
         stat = room_add(room, &temp1);
         check_return(stat, room);
 
-        stat = room_search(room, NULL, 0, find_messages, &results);
+        stat = room_search(room, NULL, 0, find_rooms_messages, &results);
         check_return(stat, room);
 
         while ((result = que_pop_head(&results))) {

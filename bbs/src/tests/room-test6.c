@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
+#include "msgs.h"
 #include "room.h"
 #include "when.h"
+#include "finds.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
@@ -59,7 +60,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
+        room = msgs_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;
@@ -89,7 +90,6 @@ int main(int argc, char **argv) {
     int stat = OK;
     int index = 0;
     room_base_t temp;
-    ssize_t count = 0;
     short conference = 10;
 
     when_error_in {
@@ -100,43 +100,34 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_first(room, &temp, &count);
+        stat = room_find(room, &conference, sizeof(short), find_room_by_conference, &index);
         check_return(stat, room);
 
-        while (count > 0) {
+        if (index > 0) {
 
-            if (temp.conference == conference) {
-
-                display(&temp);
-
-                stat = room_index(room, &index);
-                check_return(stat, room);
-
-                temp.flags = (PUBLIC | INUSE);
-
-                stat = room_put(room, index, &temp);
-                check_return(stat, room);
-
-                stat = room_get(room, index, &temp);
-                check_return(stat, room);
-
-                display(&temp);
-
-                stat = room_del(room, index);
-                check_return(stat, room);
-
-                stat = room_get(room, index, &temp);
-                check_return(stat, room);
-
-                display(&temp);
-
-                break;
-
-            }
-
-            stat = room_next(room, &temp, &count);
+            stat = room_get(room, index, &temp);
             check_return(stat, room);
-            
+
+            display(&temp);
+
+            temp.flags = (RM_PUBLIC | RM_INUSE);
+
+            stat = room_put(room, index, &temp);
+            check_return(stat, room);
+
+            stat = room_get(room, index, &temp);
+            check_return(stat, room);
+
+            display(&temp);
+
+            stat = room_del(room, index);
+            check_return(stat, room);
+
+            stat = room_get(room, index, &temp);
+            check_return(stat, room);
+
+            display(&temp);
+
         }
 
         stat = room_close(room);

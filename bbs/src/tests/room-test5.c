@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
+#include "msgs.h"
 #include "room.h"
 #include "when.h"
+#include "finds.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
@@ -101,35 +102,26 @@ int main(int argc, char **argv) {
         stat = room_open(room);
         check_return(stat, room);
 
-        stat = room_first(room, &temp, &count);
+        stat = room_find(room, &conference, sizeof(short), find_room_by_conference, &index);
         check_return(stat, room);
 
-        while (count > 0) {
+        if (index > 0) {
 
-            if (temp.conference == conference) {
-
-                display(&temp);
-
-                stat = room_index(room, &index);
-                check_return(stat, room);
-
-                temp.timeout = 40;
-
-                stat = room_put(room, index, &temp);
-                check_return(stat, room);
-        
-                stat = room_get(room, index, &temp);
-                check_return(stat, room);
-
-                display(&temp);
-
-                break;
-
-            }
-
-            stat = room_next(room, &temp, &count);
+            stat = room_get(room, index, &temp);
             check_return(stat, room);
             
+            display(&temp);
+
+            temp.timeout = 40;
+
+            stat = room_put(room, index, &temp);
+            check_return(stat, room);
+        
+            stat = room_get(room, index, &temp);
+            check_return(stat, room);
+
+            display(&temp);
+
         }
 
         stat = room_close(room);

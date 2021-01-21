@@ -11,23 +11,24 @@
 /*---------------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <errno.h>
 
 #include "msgs.h"
 #include "room.h"
 #include "when.h"
-#include "files.h"
 #include "object.h"
+#include "handler.h"
 #include "jam/jam.h"
 #include "fnm_util.h"
 #include "error_codes.h"
 
-require_klass(ROOM_KLASS);
+require_klass(HANDLER_KLASS);
 
 /*----------------------------------------------------------------*/
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
-int _msgs_init(room_t *self) {
+int _msgs_init(handler_t *self) {
 
     int stat = OK;
     int revision = 1;
@@ -36,15 +37,16 @@ int _msgs_init(room_t *self) {
     room_base_t lobby;
     ssize_t count = 0;
     ssize_t position = 0;
+    int recsize = sizeof(room_base_t);
 
     when_error_in {
 
-        memset(&aide, '\0', sizeof(room_base_t));
-        memset(&email, '\0', sizeof(room_base_t));
-        memset(&lobby, '\0', sizeof(room_base_t));
+        memset(&aide, '\0', recsize);
+        memset(&email, '\0', recsize);
+        memset(&lobby, '\0', recsize);
 
-        stat = files_seek(self->roomdb, 0, SEEK_SET);
-        check_return(stat, self->roomdb);
+        stat = files_seek(self->db, 0, SEEK_SET);
+        check_return(stat, self->db);
 
         email.aide = 1;
         email.roomnum = 1;
@@ -55,18 +57,18 @@ int _msgs_init(room_t *self) {
         email.retries = self->retries;
         email.timeout = self->timeout;
         email.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
-        strncpy(email.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
+        strncpy(email.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
-        stat = files_tell(self->roomdb, &position);
-        check_return(stat, self->roomdb);
+        stat = files_tell(self->db, &position);
+        check_return(stat, self->db);
 
-        stat = self->_lock(self, position);
+        stat = files_lock(self->db, position, recsize);
         check_return(stat, self);
 
-        stat = self->_write(self, &email, &count);
+        stat = files_write(self->db, &email, recsize, &count);
         check_return(stat, self);
 
-        stat = self->_unlock(self);
+        stat = files_unlock(self->db);
         check_return(stat, self);
 
         lobby.aide = 1;
@@ -78,18 +80,18 @@ int _msgs_init(room_t *self) {
         lobby.retries = self->retries;
         lobby.timeout = self->timeout;
         lobby.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
-        strncpy(lobby.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
+        strncpy(lobby.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
-        stat = files_tell(self->roomdb, &position);
-        check_return(stat, self->roomdb);
+        stat = files_tell(self->db, &position);
+        check_return(stat, self->db);
 
-        stat = self->_lock(self, position);
+        stat = files_lock(self->db, position, recsize);
         check_return(stat, self);
 
-        stat = self->_write(self, &lobby, &count);
+        stat = files_write(self->db, &lobby, recsize, &count);
         check_return(stat, self);
 
-        stat = self->_unlock(self);
+        stat = files_unlock(self->db);
         check_return(stat, self);
 
         aide.aide = 1;
@@ -101,18 +103,18 @@ int _msgs_init(room_t *self) {
         aide.retries = self->retries;
         aide.timeout = self->timeout;
         aide.flags = (RM_PERMROOM | RM_INUSE | RM_MESSAGES);
-        strncpy(aide.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
+        strncpy(aide.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
-        stat = files_tell(self->roomdb, &position);
-        check_return(stat, self->roomdb);
+        stat = files_tell(self->db, &position);
+        check_return(stat, self->db);
 
-        stat = self->_lock(self, position);
+        stat = files_lock(self->db, position, recsize);
         check_return(stat, self);
 
-        stat = self->_write(self, &aide, &count);
+        stat = files_write(self->db, &aide, recsize, &count);
         check_return(stat, self);
 
-        stat = self->_unlock(self);
+        stat = files_unlock(self->db);
         check_return(stat, self);
 
         exit_when;
@@ -128,7 +130,7 @@ int _msgs_init(room_t *self) {
 
 }
 
-int _msgs_attach(room_t *self, room_base_t *room) {
+int _msgs_attach(handler_t *self, room_base_t *room) {
 
     char name[7];
     int stat = OK;
@@ -160,7 +162,7 @@ int _msgs_attach(room_t *self, room_base_t *room) {
 
 }
 
-int _msgs_detach(room_t *self) {
+int _msgs_detach(handler_t *self) {
 
     int stat = OK;
     jam_t *jam = (jam_t *)self->handle;
@@ -188,7 +190,7 @@ int _msgs_detach(room_t *self) {
 
 }
 
-int _msgs_remove(room_t *self) {
+int _msgs_remove(handler_t *self) {
 
     int stat = OK;
     jam_t *jam = (jam_t *)self->handle;
@@ -214,28 +216,59 @@ int _msgs_remove(room_t *self) {
 
 }
 
+int _msgs_handle(handler_t *self, void **handle) {
+
+    int stat = OK;
+    jam_t *jam = (jam_t *)self->handle;
+
+    when_error_in {
+
+        errno = 0;
+        *handle = calloc(1, sizeof(jam_t));
+        if (*handle == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        memcpy(*handle, jam, sizeof(jam_t));
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-room_t *msgs_create(char *dbpath, char *msgpath, int rooms, int retries, int timeout, int base, tracer_t *dump) {
+handler_t *msgs_create(files_t *db, char *path, int retries, int timeout, int base, tracer_t *dump) {
 
     int stat = ERR;
-    room_t *temp = NULL;
+    handler_t *temp = NULL;
     item_list_t items[5];
 
-    if ((temp = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump))) {
+    if ((temp = handler_create(db, path, retries, timeout, base, dump))) {
 
-        SET_ITEM(items[0], ROOM_M_INIT, _msgs_init, 0, NULL);
-        SET_ITEM(items[1], ROOM_M_ATTACH, _msgs_attach, 0, NULL);
-        SET_ITEM(items[2], ROOM_M_DETACH, _msgs_detach, 0, NULL);
-        SET_ITEM(items[3], ROOM_M_REMOVE, _msgs_remove, 0, NULL);
-        SET_ITEM(items[4], 0, 0, 0, 0);
+        SET_ITEM(items[0], HANDLER_M_INIT, _msgs_init, 0, NULL);
+        SET_ITEM(items[1], HANDLER_M_ATTACH, _msgs_attach, 0, NULL);
+        SET_ITEM(items[2], HANDLER_M_DETACH, _msgs_detach, 0, NULL);
+        SET_ITEM(items[3], HANDLER_M_REMOVE, _msgs_remove, 0, NULL);
+        SET_ITEM(items[4], HANDLER_M_HANDLE, _msgs_handle, 0, NULL);
+        SET_ITEM(items[5], 0, 0, 0, 0);
 
-        stat = room_override(temp, items);
+        stat = handler_override(temp, items);
         if (stat != OK) {
 
-            room_destroy(temp);
+            handler_destroy(temp);
             temp = NULL;
 
         }

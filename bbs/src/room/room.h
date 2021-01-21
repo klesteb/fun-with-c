@@ -93,10 +93,6 @@ struct _room_s {
     int (*_normalize)(room_t *, room_base_t *, room_base_t *);
     int (*_find)(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), int *);
     int (*_search)(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), queue *);
-    int (*_init)(room_t *);
-    int (*_detach)(room_t *);
-    int (*_remove)(room_t *);
-    int (*_attach)(room_t *, room_base_t *);
     
     int base;
     int index;
@@ -104,11 +100,11 @@ struct _room_s {
     int locked;
     int retries;
     int timeout;
-    char *msgbase;
-    void *handle;
+    char *path;
     files_t *roomdb;
-    files_t *sequence;
     tracer_t *trace;
+    files_t *sequence;
+    void *handler;
 };
 
 /*-------------------------------------------------------------*/

@@ -13,8 +13,7 @@
 #ifndef _MSGS_H
 #define _MSGS_H
 
-#include "room.h"
-#include "tracer.h"
+#include "handler.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
@@ -24,12 +23,11 @@
 #define LOBBY    2          /* lobby is always room 1          */
 #define AIDEROOM 3          /* aide is always room 2           */
 
-
 /*----------------------------------------------------------------*/
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern room_t *msgs_create(char *, char *, int, int, int, int, tracer_t *);
+extern handler_t *msgs_create(files_t *, char *, int, int, int, tracer_t *);
 
 #endif
 

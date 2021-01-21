@@ -13,9 +13,11 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "msgs.h"
 #include "room.h"
 #include "when.h"
 #include "files.h"
+#include "handler.h"
 #include "object.h"
 #include "fnm_util.h"
 #include "error_codes.h"
@@ -32,18 +34,14 @@ int _room_dtor(object_t *);
 int _room_compare(room_t *, room_t *);
 int _room_override(room_t *, item_list_t *);
 
-int _room_init(room_t *);
 int _room_open(room_t *);
 int _room_close(room_t *);
-int _room_detach(room_t *);
-int _room_remove(room_t *);
 int _room_del(room_t *, int);
 int _room_unlock(room_t *self);
 int _room_lock(room_t *, off_t);
 int _room_extend(room_t *, int);
 int _room_add(room_t *, room_base_t *);
 int _room_get_sequence(room_t *, long *);
-int _room_attach(room_t *, room_base_t *);
 int _room_get(room_t *, int, room_base_t *);
 int _room_put(room_t *, int, room_base_t *);
 int _room_read(room_t *, room_base_t *, ssize_t *);
@@ -469,6 +467,61 @@ int room_search(room_t *self, void *data, int len, int (*compare)(void *, int, r
 
 }
 
+/* int room_set_handler(room_t *self, handler_t *(*create)(files_t *, char *, int, int, int, tracer_t *)) { */
+
+/*     int stat = OK; */
+
+/*     when_error_in { */
+
+/*         if ((self == NULL) || (create == NULL)) { */
+
+/*             cause_error(E_INVPARM); */
+
+/*         } */
+
+/*         self->handler = (*create)(self->roomdb, self->path, self->retries, self->timeout, self->base, self->trace); */
+/*         check_creation(self->handler); */
+
+/*         exit_when; */
+
+/*     } use { */
+
+/*         stat = ERR; */
+/*         process_error(self); */
+
+/*     } end_when; */
+
+/*     return stat; */
+
+/* } */
+
+/* int room_get_handler(room_t *self, handler_t *handler) { */
+
+/*     int stat = OK; */
+
+/*     when_error_in { */
+
+/*         if ((self == NULL) || (handler == NULL)) { */
+
+/*             cause_error(E_INVPARM); */
+
+/*         } */
+
+/*         *handler = self->handler; */
+
+/*         exit_when; */
+
+/*     } use { */
+
+/*         stat = ERR; */
+/*         process_error(self); */
+
+/*     } end_when; */
+
+/*     return stat; */
+
+/* } */
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -570,7 +623,6 @@ int _room_ctor(object_t *object, item_list_t *items) {
         self->_compare = _room_compare;
         self->_override = _room_override;
 
-        self->_init  = _room_init;
         self->_open  = _room_open;
         self->_close = _room_close;
         self->_add   = _room_add;
@@ -586,9 +638,6 @@ int _room_ctor(object_t *object, item_list_t *items) {
         self->_build = _room_build;
         self->_lock  = _room_lock;
         self->_find  = _room_find;
-        self->_attach = _room_attach;
-        self->_detach = _room_detach;
-        self->_remove = _room_remove;
         self->_unlock = _room_unlock;
         self->_extend = _room_extend;
         self->_search = _room_search;
@@ -603,11 +652,11 @@ int _room_ctor(object_t *object, item_list_t *items) {
             self->base = base;
             self->trace = dump;
             self->rooms = rooms;
-            self->handle = NULL;
+            self->handler = NULL;
             self->locked = FALSE;
             self->retries = retries;
             self->timeout = timeout;
-            self->msgbase = strdup(msgbase);
+            self->path = strdup(msgbase);
 
             strncpy(roombase, fnm_build(1, FnmPath, "rooms", ".dat", database, NULL), 255);
             self->roomdb = files_create(roombase, retries, timeout);
@@ -639,13 +688,18 @@ int _room_dtor(object_t *object) {
 
     /* free local resources here */
 
-    if (self->handle != NULL) {
+    if (self->handler != NULL) {
 
-        self->_detach(self);
+        handler_t *handler = (handler_t *)self->handler;
+
+        handler_detach(handler);
+        handler_destroy(handler);
         
+        self->handler = NULL;
+
     }
 
-    free(self->msgbase);
+    free(self->path);
     files_close(self->roomdb);
     files_close(self->sequence);
 
@@ -776,26 +830,6 @@ int _room_override(room_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
-                case ROOM_M_INIT: {
-                    self->_init = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case ROOM_M_ATTACH: {
-                    self->_attach = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case ROOM_M_DETACH: {
-                    self->_detach = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case ROOM_M_REMOVE: {
-                    self->_remove = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
             }
 
         }
@@ -833,15 +867,11 @@ int _room_compare(room_t *self, room_t *other) {
         (self->_normalize == other->_normalize) &&
         (self->_find == other->_find) &&
         (self->_search == other->_search) &&
-        (self->_init == other->_init) &&
-        (self->_attach == other->_attach) &&
-        (self->_detach == other->_detach) &&
-        (self->_remove == other->_remove) &&
         (self->base == other->base) &&
         (self->retries == other->retries) &&
         (self->timeout == other->timeout) &&
-        (self->msgbase == other->msgbase) &&
-        (self->handle == other->handle) &&
+        (self->path == other->path) &&
+        (self->handler == other->handler) &&
         (self->rooms = other->rooms) &&
         (self->roomdb = other->roomdb) &&
         (self->sequence = other->sequence) &&
@@ -909,9 +939,6 @@ int _room_open(room_t *self) {
 
         }
 
-        stat = self->_init(self);
-        check_return(stat, self);
-
         exit_when;
 
     } use {
@@ -931,12 +958,17 @@ int _room_close(room_t *self) {
 
     when_error_in {
 
-        if (self->handle != NULL) {
+        if (self->handler != NULL) {
 
-            stat = self->_detach(self);
-            check_return(stat, self);
-            
-            self->handle = NULL;
+            handler_t *handler = (handler_t *)self->handler;
+
+            stat = handler_detach(handler);
+            check_return(stat, handler);
+
+            stat = handler_destroy(handler);
+            check_return(stat, handler);
+
+            self->handler = NULL;
 
         }
 
@@ -1196,8 +1228,13 @@ int _room_add(room_t *self, room_base_t *room) {
                 stat = self->_write(self, room, &count);
                 check_return(stat, self);
 
-                stat = self->_attach(self, room);
-                check_return(stat, self);
+                {
+                    handler_t *handler = (handler_t *)self->handler;
+                    
+                    stat = handler_attach(handler, room);
+                    check_return(stat, handler);
+                    
+                }
 
                 stat = self->_unlock(self);
                 check_return(stat, self);
@@ -1272,12 +1309,17 @@ int _room_del(room_t *self, int index) {
             stat = self->_write(self, &ondisk, &count);
             check_return(stat, self);
 
-            if (self->handle != NULL) {
+            if (self->handler != NULL) {
 
-                stat = self->_remove(self);
-                check_return(stat, self);
+                handler_t *handler = (handler_t *)self->handler;
 
-                self->handle = NULL;
+                stat = handler_remove(handler);
+                check_return(stat, handler);
+
+                stat = handler_destroy(handler);
+                check_return(stat, handler);
+
+                self->handler = NULL;
 
             }
 
@@ -1622,7 +1664,7 @@ int _room_extend(room_t *self, int amount) {
         room.revision = revision;
         room.retries = self->retries;
         room.timeout = self->timeout;
-        strncpy(room.path, fnm_build(1, FnmPath, self->msgbase, NULL), 255);
+        strncpy(room.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
         stat = files_seek(self->roomdb, 0, SEEK_END);
         check_return(stat, self->roomdb);
@@ -1710,15 +1752,29 @@ int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
         memset((*room).path, '\0', 256);
         strncpy((*room).path, ondisk->path, 255);
 
-        if (self->handle != NULL) {
+        handler_t *handler = (handler_t *)self->handler;
 
-            stat = self->_detach(self);
-            check_return(stat, self);
+        if (handler != NULL) {
+
+            stat = handler_detach(handler);
+            check_return(stat, handler);
+
+            stat = handler_destroy(handler);
+            check_return(stat, handler);
 
         }
 
-        stat = self->_attach(self, room);
-        check_return(stat, self);
+        if (room->flags & RM_MESSAGES) {
+
+            handler = msgs_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
+            check_creation(handler);
+
+        }
+
+        stat = handler_attach(handler, room);
+        check_return(stat, handler);
+
+        (*self).handler = (void *)handler;
 
         exit_when;
 
@@ -1730,30 +1786,6 @@ int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
     } end_when;
 
     return stat;
-
-}
-
-int _room_init(room_t *self) {
-
-    return OK;
-
-}
-
-int _room_attach(room_t *self, room_base_t *room) {
-
-    return OK;
-
-}
-
-int _room_detach(room_t *self) {
-
-    return OK;
-
-}
-
-int _room_remove(room_t *self) {
-
-    return OK;
 
 }
 

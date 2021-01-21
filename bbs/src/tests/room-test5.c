@@ -61,7 +61,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = msgs_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
+        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;

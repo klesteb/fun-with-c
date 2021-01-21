@@ -89,6 +89,7 @@ struct _room_s {
     int (*_read)(room_t *, room_base_t *, ssize_t *);
     int (*_first)(room_t *, room_base_t *, ssize_t *);
     int (*_write)(room_t *, room_base_t *, ssize_t *);
+    int (*_get_handler)(room_t *, room_base_t *, void **);
     int (*_build)(room_t *, room_base_t *, room_base_t *);
     int (*_normalize)(room_t *, room_base_t *, room_base_t *);
     int (*_find)(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), int *);
@@ -121,31 +122,32 @@ struct _room_s {
 #define ROOM_K_BASE     6
 #define ROOM_K_ROOMS    7
 
-#define ROOM_M_DESTRUCTOR 1
-#define ROOM_M_OPEN       2
-#define ROOM_M_CLOSE      3
-#define ROOM_M_DEL        4
-#define ROOM_M_SIZE       5
-#define ROOM_M_ADD        6
-#define ROOM_M_GET        7
-#define ROOM_M_PUT        8
-#define ROOM_M_READ       9
-#define ROOM_M_NEXT       10
-#define ROOM_M_PREV       11
-#define ROOM_M_LAST       12
-#define ROOM_M_FIRST      13
-#define ROOM_M_WRITE      14
-#define ROOM_M_BUILD      15
-#define ROOM_M_LOCK       16
-#define ROOM_M_UNLOCK     17
-#define ROOM_M_EXTEND     18
-#define ROOM_M_NORMALIZE  19
-#define ROOM_M_FIND       20
-#define ROOM_M_SEARCH     21
-#define ROOM_M_INIT       22
-#define ROOM_M_ATTACH     23
-#define ROOM_M_DETACH     24
-#define ROOM_M_REMOVE     25
+#define ROOM_M_DESTRUCTOR  1
+#define ROOM_M_OPEN        2
+#define ROOM_M_CLOSE       3
+#define ROOM_M_DEL         4
+#define ROOM_M_SIZE        5
+#define ROOM_M_ADD         6
+#define ROOM_M_GET         7
+#define ROOM_M_PUT         8
+#define ROOM_M_READ        9
+#define ROOM_M_NEXT        10
+#define ROOM_M_PREV        11
+#define ROOM_M_LAST        12
+#define ROOM_M_FIRST       13
+#define ROOM_M_WRITE       14
+#define ROOM_M_BUILD       15
+#define ROOM_M_LOCK        16
+#define ROOM_M_UNLOCK      17
+#define ROOM_M_EXTEND      18
+#define ROOM_M_NORMALIZE   19
+#define ROOM_M_FIND        20
+#define ROOM_M_SEARCH      21
+#define ROOM_M_INIT        22
+#define ROOM_M_ATTACH      23
+#define ROOM_M_DETACH      24
+#define ROOM_M_REMOVE      25
+#define ROOM_M_GET_HANDLER 26
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -164,6 +166,7 @@ extern int room_extend(room_t *, int);
 extern int room_add(room_t *, room_base_t *);
 extern int room_get(room_t *, int, room_base_t *);
 extern int room_put(room_t *, int, room_base_t *);
+extern int room_handler(room_t *, room_base_t *, void **);
 extern int room_find(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), int *);
 extern int room_search(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), queue *);
 

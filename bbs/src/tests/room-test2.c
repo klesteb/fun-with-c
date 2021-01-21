@@ -56,6 +56,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
+fprintf(stderr, "before create\n");
         room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
         check_creation(room);
 
@@ -96,16 +97,20 @@ int main(int argc, char **argv) {
         stat = que_init(&results);
         check_status(stat, QUE_OK, E_INVOPS);
 
+fprintf(stderr, "before open\n");
         stat = room_open(room);
         check_return(stat, room);
 
+fprintf(stderr, "before search\n");
         stat = room_search(room, NULL, 0, find_rooms_all, &results);
         check_return(stat, room);
 
         while ((result = que_pop_head(&results))) {
 
+fprintf(stderr, "before get\n");
             stat = room_get(room, result->index, &temp);
             check_return(stat, room);
+fprintf(stderr, "after get\n");
 
             display(&temp);
 

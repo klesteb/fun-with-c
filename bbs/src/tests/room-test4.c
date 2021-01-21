@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "jam.h"
 #include "msgs.h"
 #include "room.h"
 #include "when.h"
@@ -16,7 +17,7 @@ room_t *room;
 tracer_t *dump;
 errors_t *errs;
 
-int display(room_base_t *room) {
+int display(room_base_t *room, int size) {
 
     printf("---------------------------------\n");
     printf("room #    : %ld\n", room->roomnum);
@@ -26,6 +27,7 @@ int display(room_base_t *room) {
     printf("conference: %d\n", room->conference);
     printf("flags     : %d\n", room->flags);
     printf("revision  : %d\n", room->revision);
+    printf("room size : %d\n", size);
 
     return OK;
 
@@ -86,8 +88,10 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     queue results;
+    ssize_t size = 0;
     room_base_t temp1;
     room_base_t temp2;
+    jam_t *jam = NULL;
     short conference = 10;
     room_search_t *result = NULL;
     char *msgpath = "../../messages/";
@@ -123,7 +127,17 @@ int main(int argc, char **argv) {
             stat = room_get(room, result->index, &temp2);
             check_return(stat, room);
 
-            display(&temp2);
+            stat = room_handler(room, &temp2, &jam);
+            check_return(stat, room);
+
+            if (jam != NULL) {
+
+                stat = jam_size(jam, &size);
+                check_return(stat, jam);
+
+            }
+
+            display(&temp2, size);
             free(result);
 
         }

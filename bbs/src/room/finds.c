@@ -10,10 +10,12 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
+#include <stdio.h>
 #include "finds.h"
 
 int find_rooms_all(void *data, int len, room_base_t *room) {
 
+fprintf(stderr, "find_rooms_all()\n");
     return TRUE;
 
 }

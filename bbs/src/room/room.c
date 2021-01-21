@@ -51,9 +51,19 @@ int _room_last(room_t *, room_base_t *, ssize_t *);
 int _room_first(room_t *, room_base_t *, ssize_t *);
 int _room_write(room_t *, room_base_t *, ssize_t *);
 int _room_build(room_t *, room_base_t *, room_base_t *);
+int _room_get_handler(room_t *, room_base_t *, void **);
 int _room_normalize(room_t *, room_base_t *, room_base_t *);
 int _room_find(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), int *);
 int _room_search(room_t *, void *, int, int (*compare)(void *, int, room_base_t *), queue *);
+
+/*----------------------------------------------------------------*/
+/* private klass methods                                          */
+/*----------------------------------------------------------------*/
+
+static int _init_defaults(room_t *);
+static int _detach_handler(room_t *);
+static int _remove_handler(room_t *);
+static int _attach_handler(room_t *, room_base_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -467,60 +477,33 @@ int room_search(room_t *self, void *data, int len, int (*compare)(void *, int, r
 
 }
 
-/* int room_set_handler(room_t *self, handler_t *(*create)(files_t *, char *, int, int, int, tracer_t *)) { */
+int room_handler(room_t *self, room_base_t *room, void **handle) {
+    
+    int stat = OK;
 
-/*     int stat = OK; */
+    when_error_in {
 
-/*     when_error_in { */
+        if ((self == NULL) || (room == NULL)) {
 
-/*         if ((self == NULL) || (create == NULL)) { */
+            cause_error(E_INVPARM);
 
-/*             cause_error(E_INVPARM); */
+        }
 
-/*         } */
+        stat = self->_get_handler(self, room, handle);
+        check_return(stat, self);
 
-/*         self->handler = (*create)(self->roomdb, self->path, self->retries, self->timeout, self->base, self->trace); */
-/*         check_creation(self->handler); */
+        exit_when;
 
-/*         exit_when; */
+    } use {
 
-/*     } use { */
+        stat = ERR;
+        process_error(self);
 
-/*         stat = ERR; */
-/*         process_error(self); */
+    } end_when;
 
-/*     } end_when; */
+    return stat;
 
-/*     return stat; */
-
-/* } */
-
-/* int room_get_handler(room_t *self, handler_t *handler) { */
-
-/*     int stat = OK; */
-
-/*     when_error_in { */
-
-/*         if ((self == NULL) || (handler == NULL)) { */
-
-/*             cause_error(E_INVPARM); */
-
-/*         } */
-
-/*         *handler = self->handler; */
-
-/*         exit_when; */
-
-/*     } use { */
-
-/*         stat = ERR; */
-/*         process_error(self); */
-
-/*     } end_when; */
-
-/*     return stat; */
-
-/* } */
+}
 
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
@@ -642,6 +625,7 @@ int _room_ctor(object_t *object, item_list_t *items) {
         self->_extend = _room_extend;
         self->_search = _room_search;
         self->_normalize = _room_normalize;
+        self->_get_handler = _room_get_handler;
         self->_get_sequence = _room_get_sequence;
 
         /* initialize internal variables here */
@@ -688,16 +672,7 @@ int _room_dtor(object_t *object) {
 
     /* free local resources here */
 
-    if (self->handler != NULL) {
-
-        handler_t *handler = (handler_t *)self->handler;
-
-        handler_detach(handler);
-        handler_destroy(handler);
-        
-        self->handler = NULL;
-
-    }
+    _detach_handler(self);
 
     free(self->path);
     files_close(self->roomdb);
@@ -830,6 +805,11 @@ int _room_override(room_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case ROOM_M_GET_HANDLER: {
+                    self->_get_handler = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -937,6 +917,9 @@ int _room_open(room_t *self) {
             stat = self->_extend(self, self->rooms);
             check_return(stat, self);
 
+            stat = _init_defaults(self);
+            check_return(stat, self);
+
         }
 
         exit_when;
@@ -958,20 +941,9 @@ int _room_close(room_t *self) {
 
     when_error_in {
 
-        if (self->handler != NULL) {
-
-            handler_t *handler = (handler_t *)self->handler;
-
-            stat = handler_detach(handler);
-            check_return(stat, handler);
-
-            stat = handler_destroy(handler);
-            check_return(stat, handler);
-
-            self->handler = NULL;
-
-        }
-
+        stat = _detach_handler(self);
+        check_return(stat, self);
+        
         stat = files_close(self->roomdb);
         check_return(stat, self->roomdb);
 
@@ -1228,13 +1200,8 @@ int _room_add(room_t *self, room_base_t *room) {
                 stat = self->_write(self, room, &count);
                 check_return(stat, self);
 
-                {
-                    handler_t *handler = (handler_t *)self->handler;
-                    
-                    stat = handler_attach(handler, room);
-                    check_return(stat, handler);
-                    
-                }
+                stat = _attach_handler(self, room);
+                check_return(stat, self);
 
                 stat = self->_unlock(self);
                 check_return(stat, self);
@@ -1309,19 +1276,8 @@ int _room_del(room_t *self, int index) {
             stat = self->_write(self, &ondisk, &count);
             check_return(stat, self);
 
-            if (self->handler != NULL) {
-
-                handler_t *handler = (handler_t *)self->handler;
-
-                stat = handler_remove(handler);
-                check_return(stat, handler);
-
-                stat = handler_destroy(handler);
-                check_return(stat, handler);
-
-                self->handler = NULL;
-
-            }
+            stat = _remove_handler(self);
+            check_return(stat, self);
 
         }
 
@@ -1481,6 +1437,33 @@ int _room_unlock(room_t *self) {
         check_return(stat, self->roomdb);
 
         self->locked = FALSE;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _room_get_handler(room_t *self, room_base_t *room, void **handle) {
+
+    int stat = OK;
+    handler_t *handler = (handler_t *)self->handler;
+
+    when_error_in {
+
+        if (handler != NULL) {
+
+            stat = handler_handle(handler, handle);
+            check_return(stat, handler);
+
+        }
 
         exit_when;
 
@@ -1752,29 +1735,11 @@ int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
         memset((*room).path, '\0', 256);
         strncpy((*room).path, ondisk->path, 255);
 
-        handler_t *handler = (handler_t *)self->handler;
+        stat = _detach_handler(self);
+        check_return(stat, self);
 
-        if (handler != NULL) {
-
-            stat = handler_detach(handler);
-            check_return(stat, handler);
-
-            stat = handler_destroy(handler);
-            check_return(stat, handler);
-
-        }
-
-        if (room->flags & RM_MESSAGES) {
-
-            handler = msgs_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
-            check_creation(handler);
-
-        }
-
-        stat = handler_attach(handler, room);
-        check_return(stat, handler);
-
-        (*self).handler = (void *)handler;
+        stat = _attach_handler(self, room);
+        check_return(stat, self);
 
         exit_when;
 
@@ -1819,6 +1784,143 @@ int _room_write(room_t *self, room_base_t *room, ssize_t *count) {
 
         stat = files_write(self->roomdb, room, sizeof(room_base_t), count);
         check_return(stat, self->roomdb);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+/*----------------------------------------------------------------*/
+/* private methods                                                */
+/*----------------------------------------------------------------*/
+
+static int _init_defaults(room_t *self) {
+
+    int stat = OK;
+    handler_t *handler = NULL;
+
+    when_error_in {
+
+        /* create default message rooms */
+
+        handler = msgs_create(self->roomdb, self->path, self->retries, self->timeout, self->base, self->trace);
+        check_creation(handler);
+
+        stat = handler_init(handler);
+        check_return(stat, handler);
+
+        stat = handler_destroy(handler);
+        check_return(stat, handler);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _attach_handler(room_t *self, room_base_t *room) {
+
+    int stat = OK;
+    handler_t *handler = (handler_t *)self->handler;
+
+    when_error_in {
+
+        if (handler == NULL) {
+
+            if (room->flags & RM_MESSAGES) {
+
+                handler = msgs_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
+                check_creation(handler);
+
+            }
+
+        }
+
+        if (handler != NULL) {
+
+            stat = handler_attach(handler, room);
+            check_return(stat, handler);
+
+        }
+
+        self->handler = (void *)handler;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _remove_handler(room_t *self) {
+
+    int stat = OK;
+    handler_t *handler = (handler_t *)self->handler;
+
+    when_error_in {
+
+        if (handler != NULL) {
+
+            stat = handler_remove(handler);
+            check_return(stat, handler);
+
+            stat = _detach_handler(self);
+            check_return(stat, handler);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _detach_handler(room_t *self) {
+    
+    int stat = OK;
+    handler_t *handler = (handler_t *)self->handler;
+
+    when_error_in {
+
+        if (handler != NULL) {
+
+            stat = handler_detach(handler);
+            check_return(stat, handler);
+
+            stat = handler_destroy(handler);
+            check_return(stat, handler);
+
+            (*self).handler = NULL;
+
+        }
 
         exit_when;
 

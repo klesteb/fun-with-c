@@ -253,8 +253,8 @@ int _msgs_handle(handler_t *self, void **handle) {
 handler_t *msgs_create(files_t *db, char *path, int retries, int timeout, int base, tracer_t *dump) {
 
     int stat = ERR;
+    item_list_t items[6];
     handler_t *temp = NULL;
-    item_list_t items[5];
 
     if ((temp = handler_create(db, path, retries, timeout, base, dump))) {
 

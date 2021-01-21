@@ -49,7 +49,7 @@ msgs - A ANSI C class to manage room resources
 
 =head1 DESCRIPTION
 
-This class implements a messages resource for rooms. The messages
+This class implements a message resource for rooms. The messages
 uses the de-facto standard JAM format. When a new room is created,
 the JAM message files are created. When the room is deleted, the JAM 
 message files are removed. When the room database is created, it 
@@ -66,7 +66,6 @@ not be removed.
 This class overrides methods within the handler class and the object 
 returned from msgs_create() can be used with any of the other handler
 methods.
-
 
 This library is a class. It is extensible and overridable. It also makes 
 use of the L<errors(3)> and L<tracer(3)> classes for error handling and 

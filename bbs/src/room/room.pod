@@ -442,7 +442,7 @@ A pointer to a room_base_t type.
 
 =item B<handle>
 
-A pointer a room resource handle. This handle can then used with the
+A pointer to a room resource handle. This handle can then used with the
 resource access methods. This handle should not be freed.
 
 =back

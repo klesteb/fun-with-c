@@ -3,20 +3,20 @@
 
 =head1 NAME
 
-template - A ANSI C class
+handler - A ANSI C class to handle room resources
 
 =head1 SYNOPSIS
 
  #include <stdio.h>
- #include "template.h"
+ #include "handler.h"
 
  int main(int argc, char **argv) {
 
-     template_t *temp = NULL;
+     handler_t *temp = NULL;
 
-     if ((temp = template_create(NULL))) {
+     if ((temp = handler_create(db, path, retries, timeout, base, dump))) {
 
-         template_destroy(temp);
+         handler_destroy(temp);
 
      }
 
@@ -26,18 +26,18 @@ template - A ANSI C class
 
 =head1 DESCRIPTION
 
-This is a basic class written in ANSI C. It shows a way to implement
-object oriented programming. Why do this? It is a nice thought exercise. 
+This is a base class to access room resources. This class provides a
+call interface and needs to be overridden to be useful. 
 
-The files template.c and template.h define the class. 
+The files handler.c and handler.h define the class. 
 
 =over 4
 
-=item B<template.h>
+=item B<handler.h>
 
 This defines the interface to the class. 
 
-=item B<template.c> 
+=item B<handler.c> 
 
 This implements the interface.
 
@@ -45,11 +45,35 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<template_t *template_create(NULL)>
+=head2 I<handler_t *handler_create(files_t *db, char *path, int retries, int timeout, int base, tracer_t *dump)>
 
 This method initializes the class. 
 
-=head2 I<int template_destroy(template_t *self)>
+=over 4
+
+=item B<db>
+
+This is a pointer to the room database.
+
+=item B<path>
+
+The path to where the resource is stored. 
+
+=item B<retires>
+
+The number of retires for file locking.
+
+=item B<timeout>
+
+The wait time in seconds between retires.
+
+=item B<dump>
+
+A pointer to a tracer_t object to manage a trace dump.
+
+=back
+
+=head2 I<int handler_destroy(handler_t *self)>
 
 This destroys the object. 
 
@@ -57,11 +81,11 @@ This destroys the object.
 
 =item B<self>
 
-A pointer to the template_t object.
+A pointer to the handler_t object.
 
 =back
 
-=head2 I<int template_override(template_t *self, item_list_t *items)>
+=head2 I<int handler_override(handler_t *self, item_list_t *items)>
 
 This method allows you to override methods. 
 
@@ -69,7 +93,7 @@ This method allows you to override methods.
 
 =item B<self>
 
-A pointer to the template_t object.
+A pointer to the handler_t object.
 
 =item B<items>
 
@@ -77,23 +101,23 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int template_compare(template_t *this, template_t *that)>
+=head2 I<int handler_compare(handler_t *this, handler_t *that)>
 
-This method allows you to compare one template_t object to another. 
+This method allows you to compare one handler_t object to another. 
 
 =over 4
 
 =item B<this>
 
-A pointer to a template_t object.
+A pointer to a handler_t object.
 
 =item B<that>
 
-A pointer to a template_t object.
+A pointer to a handler_t object.
 
 =back
 
-=head2 I<char *template_version(template_t *self)>
+=head2 I<char *handler_version(handler_t *self)>
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -102,13 +126,65 @@ follows the guidelines from L<semver.org|https://semver.org/>.
 
 =item B<self>
 
-A pointer to the template_t object.
+A pointer to the handler_t object.
+
+=back
+
+=head2 I<handler_init(handler_t *self)>
+
+This method initializes the resource.
+
+=over 4
+
+=item B<self>
+
+A pointer to the handler_t object.
+
+=back
+
+=head2 <handler_attach(handler_t *self, room_base_t *room)>
+
+This method attaches a handler to a room.
+
+=over 4
+
+=item B<self>
+
+A pointer to the handler_t object.
+
+=item B<room>
+
+A pointer to a room_base_t type.
+
+=back
+
+=head2 I<handler_detach(handler_t *self)>
+
+This method detaches the handler for the resource.
+
+=over 4
+
+=item B<self>
+
+A pointer to the handler_t object.
+
+=back
+
+=head2 I<handler_remove(handler_t *self)>
+
+This handler removes the resource.
+
+=over 4
+
+=item B<self>
+
+A pointer to the handler_t object.
 
 =back
 
 =head1 RETURNS
 
-The method template_create() returns a pointer to a template_t object. 
+The method handler_create() returns a pointer to a handler_t object. 
 All other methods return either OK on success or ERR on failure. The 
 extended error description can be returned with object_get_error().
 
@@ -139,6 +215,10 @@ Builds the module and provides a shared library.
 =head1 SEE ALSO
 
 =over 4
+
+=item L<msgs(3)>
+
+=item L<room(3)>
 
 =item L<object(3)>
 

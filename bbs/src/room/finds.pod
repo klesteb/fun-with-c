@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-finds - A set of predefined comparision functions
+finds - A set of predefined comparison functions
 
 =head1 SYNOPSIS
 
@@ -31,7 +31,7 @@ finds - A set of predefined comparision functions
 
 =head1 DESCRIPTION
 
-These are pre-defined comparision functions that can be used to search
+These are pre-defined comparison functions that can be used to search
 the room database.
 
 =head1 METHODS
@@ -44,7 +44,7 @@ Find all rooms. Suitable for room_search().
 
 =item B<data>
 
-A pointer to a data item be used for comparision.
+A pointer to a data item be used for comparison.
 
 =item B<len>
 
@@ -64,7 +64,7 @@ Find rooms that manage message resources. Suitable for room_search().
 
 =item B<data>
 
-A pointer to a data item be used for comparision.
+A pointer to a data item be used for comparison.
 
 =item B<len>
 
@@ -84,7 +84,7 @@ Find all rooms that are networked. Suitable for room_search().
 
 =item B<data>
 
-A pointer to a data item be used for comparision.
+A pointer to a data item be used for comparison.
 
 =item B<len>
 
@@ -104,7 +104,7 @@ Find the room with this conference number. Suitable for room_find().
 
 =item B<data>
 
-A pointer to a data item be used for comparision.
+A pointer to a data item be used for comparison.
 
 =item B<len>
 

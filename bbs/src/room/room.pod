@@ -426,6 +426,27 @@ A number of records to extend the database by.
 
 =back
 
+=head2 I<room_handler(room_t *self, room_base_t *room, void **handle)>
+
+This method returns the handler for the room resource.
+
+=over 4
+
+=item B<self>
+
+A pointer to a room_t object.
+
+=item B<room>
+
+A pointer to a room_base_t type.
+
+=item B<handle>
+
+A pointer a room resource handle. This handle can then used with the
+resource access methods. This handle should not be freed.
+
+=back
+
 =head1 RETURNS
 
 The method room_create() returns a pointer to a room_t object. 
@@ -459,6 +480,12 @@ Builds the module and provides a shared library.
 =head1 SEE ALSO
 
 =over 4
+
+=item L<finds(3)>
+
+=item L<msgs(3)>
+
+=item L<handler(3)>
 
 =item L<object(3)>
 

@@ -125,15 +125,13 @@ struct _node_s {
     int (*_unlock)(node_t *);
     int (*_lock)(node_t *, off_t);
     int (*_extend)(node_t *, int);
+    int (*_get_sequence)(node_t *, long *);
     int (*_get)(node_t *, int, node_base_t *);
     int (*_put)(node_t *, int, node_base_t *);
-    int (*_get_message)(node_t *, long, char **);
-    int (*_put_message)(node_t *, char *, long *);
     int (*_next)(node_t *, node_base_t *, ssize_t *);
     int (*_prev)(node_t *, node_base_t *, ssize_t *);
     int (*_last)(node_t *, node_base_t *, ssize_t *);
     int (*_read)(node_t *, node_base_t *, ssize_t *);
-    int (*_get_sequence)(node_t *, files_t *, long *);
     int (*_write)(node_t *, node_base_t *, ssize_t *);
     int (*_first)(node_t *, node_base_t *, ssize_t *);
     int (*_build)(node_t *, node_base_t *, node_base_t *);
@@ -149,7 +147,6 @@ struct _node_s {
     char *path;
     files_t *nodedb;
     files_t *sequence;
-    files_t *msgseq;
     tracer_t *trace;
 };
 
@@ -199,8 +196,6 @@ extern int node_extend(node_t *, int);
 extern int node_index(node_t *, int *);
 extern int node_get(node_t *, int, node_base_t *);
 extern int node_put(node_t *, int, node_base_t *);
-extern int node_get_message(node_t *, long, char **);
-extern int node_put_message(node_t *, char *, long *);
 extern int node_find(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), int *);
 extern int node_search(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), queue *);
 

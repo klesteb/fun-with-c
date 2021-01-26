@@ -19,9 +19,9 @@
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-#define MAILROOM 1          /* mail is always room 0           */
-#define LOBBY    2          /* lobby is always room 1          */
-#define AIDEROOM 3          /* aide is always room 2           */
+#define LOBBY    1          /* lobby is always room 1          */
+#define MAILROOM 2          /* mail is always room 2           */
+#define AIDEROOM 3          /* aide is always room 3           */
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

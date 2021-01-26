@@ -48,31 +48,8 @@ int _msgs_init(handler_t *self) {
         stat = files_seek(self->db, 0, SEEK_SET);
         check_return(stat, self->db);
 
-        email.aide = 1;
-        email.roomnum = 1;
-        email.base = self->base;
-        email.revision = revision;
-        strcpy(email.name, "Mail");
-        email.conference = MAILROOM;
-        email.retries = self->retries;
-        email.timeout = self->timeout;
-        email.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
-        strncpy(email.path, fnm_build(1, FnmPath, self->path, NULL), 255);
-
-        stat = files_tell(self->db, &position);
-        check_return(stat, self->db);
-
-        stat = files_lock(self->db, position, recsize);
-        check_return(stat, self);
-
-        stat = files_write(self->db, &email, recsize, &count);
-        check_return(stat, self);
-
-        stat = files_unlock(self->db);
-        check_return(stat, self);
-
         lobby.aide = 1;
-        lobby.roomnum = 2;
+        lobby.roomnum = 1;
         lobby.base = self->base;
         lobby.conference = LOBBY;
         lobby.revision = revision;
@@ -89,6 +66,29 @@ int _msgs_init(handler_t *self) {
         check_return(stat, self);
 
         stat = files_write(self->db, &lobby, recsize, &count);
+        check_return(stat, self);
+
+        stat = files_unlock(self->db);
+        check_return(stat, self);
+
+        email.aide = 1;
+        email.roomnum = 2;
+        email.base = self->base;
+        email.revision = revision;
+        strcpy(email.name, "Mail");
+        email.conference = MAILROOM;
+        email.retries = self->retries;
+        email.timeout = self->timeout;
+        email.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
+        strncpy(email.path, fnm_build(1, FnmPath, self->path, NULL), 255);
+
+        stat = files_tell(self->db, &position);
+        check_return(stat, self->db);
+
+        stat = files_lock(self->db, position, recsize);
+        check_return(stat, self);
+
+        stat = files_write(self->db, &email, recsize, &count);
         check_return(stat, self);
 
         stat = files_unlock(self->db);

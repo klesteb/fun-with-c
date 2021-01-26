@@ -1847,6 +1847,12 @@ static int _attach_handler(room_t *self, room_base_t *room) {
                 handler = msgs_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
                 check_creation(handler);
 
+            } else if (room->flags & RM_BULLETIN) {
+                
+            } else if (room->flags & RM_DIRECTORY) {
+                
+            } else if (room->flags & RM_SUBSYS) {
+                
             }
 
         }

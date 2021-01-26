@@ -37,15 +37,13 @@ int _node_close(node_t *);
 int _node_unlock(node_t *);
 int _node_lock(node_t *, off_t);
 int _node_extend(node_t *, int);
+int _node_get_sequence(node_t *, long *);
 int _node_get(node_t *, int, node_base_t *);
 int _node_put(node_t *, int, node_base_t *);
-int _node_get_message(node_t *, long, char **);
-int _node_put_message(node_t *, char *, long *);
 int _node_next(node_t *, node_base_t *, ssize_t *);
 int _node_prev(node_t *, node_base_t *, ssize_t *);
 int _node_last(node_t *, node_base_t *, ssize_t *);
 int _node_read(node_t *, node_base_t *, ssize_t *);
-int _node_get_sequence(node_t *, files_t *, long *);
 int _node_write(node_t *, node_base_t *, ssize_t *);
 int _node_first(node_t *, node_base_t *, ssize_t *);
 int _node_build(node_t *, node_base_t *, node_base_t *);
@@ -322,62 +320,6 @@ int node_put(node_t *self, int index, node_base_t *node) {
 
 }
 
-int node_get_message(node_t *self, long msgnum, char **buffer) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if (self == NULL) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_get_message(self, msgnum, buffer);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int node_put_message(node_t *self, char *buffer, long *msgnum) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (buffer == NULL) || (msgnum == NULL)) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_put_message(self, buffer, msgnum);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
 int node_extend(node_t *self, int amount) {
 
     int stat = OK;
@@ -472,7 +414,6 @@ int _node_ctor(object_t *object, item_list_t *items) {
     int nodes = 2;
     char seq[256];
     char path[256];
-    char msgseq[256];
     int timeout = 1;
     char nodedb[256];
     int retries = 30;
@@ -483,7 +424,6 @@ int _node_ctor(object_t *object, item_list_t *items) {
 
         memset(path, '\0', 256);
         memset(nodedb, '\0', 256);
-        memset(msgseq, '\0', 256);
 
         /* capture our items */
 
@@ -547,24 +487,22 @@ int _node_ctor(object_t *object, item_list_t *items) {
 
         self->_get    = _node_get;
         self->_put    = _node_put;
-        self->_open   = _node_open;
+        self->_find   = _node_find;
+        self->_last   = _node_last;
         self->_lock   = _node_lock;
         self->_next   = _node_next;
+        self->_open   = _node_open;
         self->_prev   = _node_prev;
-        self->_last   = _node_last;
         self->_read   = _node_read;
-        self->_write  = _node_write;
-        self->_first  = _node_first;
         self->_build  = _node_build;
         self->_close  = _node_close;
-        self->_unlock = _node_unlock;
+        self->_first  = _node_first;
+        self->_write  = _node_write;
         self->_extend = _node_extend;
-        self->_normalize = _node_normalize;
-        self->_get_message  = _node_get_message;
-        self->_put_message  = _node_put_message;
-        self->_get_sequence = _node_get_sequence;
-        self->_find = _node_find;
         self->_search = _node_search;
+        self->_unlock = _node_unlock;
+        self->_normalize = _node_normalize;
+        self->_get_sequence = _node_get_sequence;
         
         /* initialize internal variables here */
 
@@ -585,10 +523,6 @@ int _node_ctor(object_t *object, item_list_t *items) {
             strncpy(seq, fnm_build(1, FnmPath, "nodes", ".seq", path, NULL), 255);
             self->sequence = files_create(seq, retries, timeout);
             check_creation(self->sequence);
-
-            strncpy(msgseq, fnm_build(1, FnmPath, "node-msgs", ".seq", path, NULL), 255);
-            self->msgseq = files_create(msgseq, retries, timeout);
-            check_creation(self->msgseq);
 
             exit_when;
 
@@ -614,7 +548,6 @@ int _node_dtor(object_t *object) {
 
     files_close(self->nodedb);
     files_close(self->sequence);
-    files_close(self->msgseq);
     free(self->path);
 
     /* walk the chain, freeing as we go */
@@ -762,7 +695,6 @@ int _node_compare(node_t *self, node_t *other) {
         (self->locked == other->locked) &&
         (self->nodedb == other->nodedb) &&
         (self->sequence == other->sequence) &&
-        (self->msgseq == other->msgseq) &&
         (self->trace  == other->trace)) {
 
         stat = OK;
@@ -800,30 +732,6 @@ int _node_open(node_t *self) {
 
             stat = files_write(self->sequence, &sequence, sizeof(long), &count);
             check_return(stat, self->sequence);
-
-            if (count != sizeof(long)) {
-
-                cause_error(EIO);
-
-            }
-
-        }
-
-        stat = files_exists(self->msgseq, &exists);
-        check_return(stat, self->msgseq);
-
-        if (exists) {
-
-            stat = files_open(self->msgseq, flags, 0);
-            check_return(stat, self->msgseq);
-
-        } else {
-
-            stat = files_open(self->msgseq, create, mode);
-            check_return(stat, self->msgseq);
-
-            stat = files_write(self->msgseq, &sequence, sizeof(long), &count);
-            check_return(stat, self->msgseq);
 
             if (count != sizeof(long)) {
 
@@ -877,9 +785,6 @@ int _node_close(node_t *self) {
 
         stat = files_close(self->sequence);
         check_return(stat, self->sequence);
-
-        stat = files_close(self->msgseq);
-        check_return(stat, self->msgseq);
 
         exit_when;
 
@@ -1195,132 +1100,6 @@ int _node_put(node_t *self, int index, node_base_t *node) {
 
 }
 
-int _node_get_message(node_t *self, long msgnum, char **buffer) {
-
-    char name[32];
-    int stat = OK;
-    int exists = 0;
-    ssize_t size = 0;
-    ssize_t count = 0;
-    char filename[256];
-    int flags = O_RDWR;
-    files_t *message = NULL;
-
-    when_error_in {
-
-        memset(name, '\0', 32);
-        memset(filename, '\0', 256);
-        snprintf(name, 31, "%ld", msgnum);
-
-        strncpy(filename, fnm_build(1, FnmPath, name, ".msg", self->path, NULL), 255);
-        message = files_create(filename, self->retries, self->timeout);
-        check_creation(message);
-
-        stat = files_exists(message, &exists);
-        check_return(stat, message);
-
-        if (! exists) {
-
-            cause_error(EIO);
-
-        }
-
-        stat = files_size(message, &size);
-        check_return(stat, message);
-
-        errno = 0;
-        *buffer = calloc(1, size + 1);
-        if (*buffer == NULL) {
-
-            cause_error(ENOMEM);
-
-        }
-
-        stat = files_open(message, flags, 0);
-        check_return(stat, message);
-
-        stat = files_read(message, *buffer, size, &count);
-        check_return(stat, message);
-
-        stat = files_close(message);
-        check_return(stat, message);
-
-        stat = files_unlink(message);
-        check_return(stat, message);
-
-        stat = files_destroy(message);
-        check_return(stat, message);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _node_put_message(node_t *self, char *buffer, long *msgnum) {
-
-    char name[32];
-    int stat = OK;
-    long junk = 0;
-    ssize_t count = 0;
-    char filename[256];
-    files_t *message = NULL;
-    int mode = (S_IRWXU | S_IRWXG);
-    int create = (O_RDWR | O_CREAT);
-
-    when_error_in {
-
-        stat = self->_get_sequence(self, self->msgseq, &junk);
-        check_return(stat, self);
-
-        memset(name, '\0', 32);
-        memset(filename, '\0', 256);
-        snprintf(name, 31, "%ld", junk);
-
-        strncpy(filename, fnm_build(1, FnmPath, name, ".msg", self->path, NULL), 255);
-        message = files_create(filename, self->retries, self->timeout);
-        check_creation(message);
-
-        stat = files_open(message, create, mode);
-        check_return(stat, message);
-
-        stat = files_write(message, buffer, strlen(buffer), &count);
-        check_return(stat, message);
-
-        stat = files_close(message);
-        check_return(stat, message);
-
-        stat = files_destroy(message);
-        check_return(stat, message);
-
-        if (count != strlen(buffer)) {
-
-            cause_error(EIO);
-
-        }
-
-        *msgnum = junk;
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
 int _node_lock(node_t *self, off_t offset) {
 
     int stat = OK;
@@ -1370,7 +1149,7 @@ int _node_unlock(node_t *self) {
 
 }
 
-int _node_get_sequence(node_t *self, files_t *file, long *sequence) {
+int _node_get_sequence(node_t *self, long *sequence) {
 
     int stat = OK;
     long buffer = 0;
@@ -1379,16 +1158,16 @@ int _node_get_sequence(node_t *self, files_t *file, long *sequence) {
 
     when_error_in {
 
-        stat = files_seek(file, 0, SEEK_SET);
-        check_return(stat, file);
+        stat = files_seek(self->sequence, 0, SEEK_SET);
+        check_return(stat, self->sequence);
 
-        stat = files_lock(file, 0, sizeof(long));
-        check_return(stat, file);
+        stat = files_lock(self->sequence, 0, sizeof(long));
+        check_return(stat, self->sequence);
 
         locked = TRUE;
 
-        stat = files_read(file, &buffer, sizeof(long), &count);
-        check_return(stat, file);
+        stat = files_read(self->sequence, &buffer, sizeof(long), &count);
+        check_return(stat, self->sequence);
 
         if (count != sizeof(long)) {
 
@@ -1399,11 +1178,11 @@ int _node_get_sequence(node_t *self, files_t *file, long *sequence) {
         *sequence = buffer;
         buffer++;
 
-        stat = files_seek(file, 0, SEEK_SET);
-        check_return(stat, file);
+        stat = files_seek(self->sequence, 0, SEEK_SET);
+        check_return(stat, self->sequence);
 
-        stat = files_write(file, &buffer, sizeof(long), &count);
-        check_return(stat, file);
+        stat = files_write(self->sequence, &buffer, sizeof(long), &count);
+        check_return(stat, self->sequence);
 
         if (count != sizeof(long)) {
 
@@ -1411,8 +1190,8 @@ int _node_get_sequence(node_t *self, files_t *file, long *sequence) {
 
         }
 
-        stat = files_unlock(file);
-        check_return(stat, file);
+        stat = files_unlock(self->sequence);
+        check_return(stat, self->sequence);
 
         exit_when;
 
@@ -1421,7 +1200,7 @@ int _node_get_sequence(node_t *self, files_t *file, long *sequence) {
         stat = ERR;
         process_error(self);
 
-        if (locked) files_unlock(file);
+        if (locked) files_unlock(self->sequence);
 
     } end_when;
 
@@ -1539,7 +1318,7 @@ int _node_extend(node_t *self, int amount) {
         int x;
         for (x = 0; x < amount; x++) {
 
-            stat = self->_get_sequence(self, self->sequence, &sequence);
+            stat = self->_get_sequence(self, &sequence);
             check_return(stat, self);
 
             node.status = NODE_OFFLINE;

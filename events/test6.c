@@ -65,6 +65,20 @@ int inkey(void) {
 
 }
 
+int worker(void *data) {
+
+    printf("worker went off\n");
+    return OK;
+
+}
+
+int timer(void *data) {
+
+    printf("timer went off\n");
+    return OK;
+
+}
+
 int input(void *data) {
 
     int ch;
@@ -89,6 +103,12 @@ int main(int argc, char **argv) {
         check_creation(temp);
 
         stat = events_register_input(temp, fileno(stdin), input, NULL);
+        check_return(stat, temp);
+
+        stat = events_register_timer(temp, FALSE, 1.0, timer, NULL);
+        check_return(stat, temp);
+
+        stat = events_register_worker(temp, TRUE, worker, NULL);
         check_return(stat, temp);
 
         stat = events_loop(temp);

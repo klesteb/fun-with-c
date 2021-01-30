@@ -278,10 +278,9 @@ int _form_remove_component(container_t *self, component_t *component) {
 
 }
 
-int _form_event(container_t *self, event_t *event) {
+int _form_event(container_t *self, events_t *event) {
 
     int stat = ERR;
-    char *buffer = NULL;
     forms_data_t *data = (forms_data_t *)self->data;
 
     if (data != NULL) {

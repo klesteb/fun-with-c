@@ -10,15 +10,43 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _FINDS_H
-#define _FINDS_H
+#include <stdio.h>
+#include "finds.h"
 
-#include "room.h"
+int find_users_all(void *data, int len, user_base_t *user) {
 
-extern int find_rooms_all(void *, int, room_base_t *);
-extern int find_rooms_messages(void *, int, room_base_t *);
-extern int find_rooms_networked(void *, int, room_base_t *);
-extern int find_room_by_conference(void *, int, room_base_t *);
+    int stat = FALSE;
 
-#endif
+    if (!(user->flags & US_DELETED) &&
+        !(user->flags & US_INACTIVE)) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
+int find_user_by_name(void *data, int len, user_base_t *user) {
+
+    int stat = FALSE;
+    char username[LEN_NAME+1];
+
+    memset(username, '\0', LEN_NAME+1);
+    strncpy(username, (char *)data, LEN_NAME);
+
+    if (!(user->flags & US_INACTIVE)) {
+
+        if (strcmp(user->username, username) == 0) {
+
+            stat = TRUE;
+
+        }
+
+    }
+
+    return stat;
+
+}
 

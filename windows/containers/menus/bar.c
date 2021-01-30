@@ -26,7 +26,7 @@ require_klass(MENUS_KLASS);
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
-int _bar_menu_event(container_t *self, event_t *event) {
+int _bar_menu_event(container_t *self, events_t *event) {
 
     int stat = OK;
     ITEM *item = NULL;

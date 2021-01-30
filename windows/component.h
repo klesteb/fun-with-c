@@ -32,7 +32,7 @@ struct _component_s {
     int (*_draw)(component_t *);
     int (*_erase)(component_t *);
     int (*_refresh)(component_t *);
-    int (*_event)(component_t *, event_t *);
+    int (*_event)(component_t *, events_t *);
     int (*_compare)(component_t *, component_t *);
     int (*_override)(component_t *, item_list_t *);
     int bg;
@@ -96,7 +96,7 @@ extern int component_draw(component_t *);
 extern int component_erase(component_t *);
 extern int component_destroy(component_t *);
 extern int component_refresh(component_t *);
-extern int component_event(component_t *, event_t *);
+extern int component_event(component_t *, events_t *);
 extern int component_set_padding(component_t *, int);
 extern int component_set_data(component_t *, void *);
 extern int component_get_padding(component_t *, int *);

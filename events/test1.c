@@ -1,15 +1,15 @@
 
 #include <stdio.h>
-#include "events.h"
+#include "event.h"
 
 int main(int argc, char **argv) {
 
-    events_t *temp = NULL;
+    event_t *temp = NULL;
 
-    if ((temp = events_create(NULL))) {
+    if ((temp = event_create(NULL))) {
 
-        printf("version = %s\n", events_version(temp));
-        events_destroy(temp);
+        printf("version = %s\n", event_version(temp));
+        event_destroy(temp);
 
     }
 

@@ -15,7 +15,6 @@
 
 int find_rooms_all(void *data, int len, room_base_t *room) {
 
-fprintf(stderr, "find_rooms_all()\n");
     return TRUE;
 
 }
@@ -28,6 +27,23 @@ int find_room_by_conference(void *data, int len, room_base_t *room) {
     memcpy(&conference, data, len);
 
     if (room->conference == conference) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
+int find_room_by_number(void *data, int len, room_base_t *room) {
+
+    int roomnum;
+    int stat = FALSE;
+
+    memcpy(&roomnum, data, len);
+
+    if (room->roomnum == roomnum) {
 
         stat = TRUE;
 

@@ -32,7 +32,7 @@ int _component_dtor(object_t *);
 int _component_draw(component_t *);
 int _component_erase(component_t *);
 int _component_refresh(component_t *);
-int _component_event(component_t *, event_t *);
+int _component_event(component_t *, events_t *);
 int _component_compare(component_t *, component_t *);
 int _component_override(component_t *, item_list_t *);
 
@@ -242,7 +242,7 @@ int component_draw(component_t *self) {
 
 }
 
-int component_event(component_t *self, event_t *event) {
+int component_event(component_t *self, events_t *event) {
 
     int stat = OK;
 
@@ -927,7 +927,7 @@ int _component_draw(component_t *self) {
 
 }
 
-int _component_event(component_t *self, event_t *event) {
+int _component_event(component_t *self, events_t *event) {
 
     /* must be overridden in a derived klass */
 

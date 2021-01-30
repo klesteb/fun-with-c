@@ -34,7 +34,7 @@ struct _window_s {
     int (*_draw)(window_t *);
     int (*_erase)(window_t *);
     int (*_refresh)(window_t *);
-    int (*_event)(window_t *, event_t *);
+    int (*_event)(window_t *, events_t *);
     int (*_compare)(window_t *, window_t *);
     int (*_override)(window_t *, item_list_t *);
     int (*_add_container)(window_t *, container_t *);
@@ -75,7 +75,7 @@ extern int window_clear(window_t *);
 extern int window_destroy(window_t *);
 extern int window_refresh(window_t *);
 extern int window_box(window_t *, char *);
-extern int window_event(window_t *, event_t *);
+extern int window_event(window_t *, events_t *);
 extern int window_compare(window_t *, window_t *);
 extern int window_set_colors(window_t *, int, int);
 extern int window_set_position(window_t *, int, int);

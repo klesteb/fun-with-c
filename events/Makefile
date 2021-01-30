@@ -3,7 +3,7 @@
 # Date: 25-Jan-2021
 # By  : Kevin Esteb
 #
-# Makefile to build events.
+# Makefile to build event.
 #
 MAJOR=0
 MINOR=1
@@ -14,8 +14,8 @@ CC = gcc
 LINK = gcc
 LIBR = ar rs
 WORKING = $(shell pwd)
-STATIC = ../libs/libevents.a
-SHARED = libevents.so.$(VERSION)
+STATIC = ../libs/libevent.a
+SHARED = libevent.so.$(VERSION)
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
@@ -23,9 +23,9 @@ SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC
 #
 OLBS = $(STATIC) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
-INCS = events.h
+INCS = event.h
 #
-OBJS = events.o
+OBJS = event.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6
 #
@@ -68,16 +68,16 @@ test6: test6.o
 	$(CC) $(CFLAGS) test6.c
 	$(LINK) $(LOPTS) test6 test6.o $(OLBS)
 #
-events.o: events.c $(INCS)
-	$(CC) $(CFLAGS) events.c
-	$(LIBR) $(STATIC) events.o
+event.o: event.c $(INCS)
+	$(CC) $(CFLAGS) event.c
+	$(LIBR) $(STATIC) event.o
 #
 man:
-	pod2man -c " " -r "events(3)" -s 3 events.pod events.3
+	pod2man -c " " -r "event(3)" -s 3 event.pod event.3
 #
 shared:
-	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) events.o events.c
-	$(LINK) $(SOPTS) $(SHARED) events.o
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) event.o event.c
+	$(LINK) $(SOPTS) $(SHARED) event.o
 #
 # eof
 #

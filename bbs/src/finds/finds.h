@@ -10,13 +10,21 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _INTERFACES_H
-#define _INTERFACES_H
+#ifndef _FINDS_H
+#define _FINDS_H
 
-#include "error_trace.h"
+#include "node.h"
+#include "user.h"
+#include "room.h"
 
-extern int bbs_run(error_trace_t *);
-extern int bbs_logoff(error_trace_t *);
+extern int find_rooms_all(void *, int, room_base_t *);
+extern int find_rooms_messages(void *, int, room_base_t *);
+extern int find_rooms_networked(void *, int, room_base_t *);
+extern int find_room_by_number(void *, int, room_base_t *);
+extern int find_room_by_conference(void *, int, room_base_t *);
+
+extern int find_users_all(void *, int, user_base_t *);
+extern int find_user_by_name(void *, int, user_base_t *);
 
 #endif
 

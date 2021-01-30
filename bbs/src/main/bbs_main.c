@@ -19,14 +19,19 @@
 #include "room.h"
 #include "user.h"
 #include "when.h"
+#include "event.h"
 #include "finds.h"
 #include "files.h"
 #include "errors.h"
-#include "events.h"
 #include "tracer.h"
 #include "fnm_util.h"
 #include "misc/misc.h"
+#include "workbench.h"
 #include "interfaces.h"
+#include "errors_bbs.h"
+#include "bbs_workbench.h"
+#include "errors_ncurses.h"
+#include "bbs_error_codes.h"
 
 /* global items */
 
@@ -35,22 +40,33 @@ user_t *users = NULL;
 room_t *rooms = NULL;
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
-events_t *events = NULL;
+event_t *events = NULL;
+workbench_t *workbench = NULL;
 
 int xnode = 1;
 int sysop = FALSE;
+int user_index = 0;
+int room_index = 0;
+char *username = NULL;
+
+room_base_t qroom;
+user_base_t useron;
+
+/*---------------------------------------------------------------------------*/
 
 char *bbs_version(void) {
-    
+
     char *version = VERSION;
     return version;
 
 }
 
-int setup(void) {
+int setup(error_trace_t *errors) {
+
+    int stat = OK;
+    int lobby = LOBBY;
 
     int base = 1;
-    int stat = OK;
     int timeout = 1;
     int retries = 30;
     int roomnum = 32;
@@ -61,11 +77,27 @@ int setup(void) {
 
     when_error_in {
 
+        /* setup error handling */
+
         errs = errors_create();
         check_creation(errs);
 
+        stat = errors_load(errs, bbs_codes, sizeof(bbs_codes));
+        check_return(stat, errs);
+
+        stat = errors_load(errs, ncurses_codes, sizeof(ncurses_codes));
+        check_return(stat, errs);
+
         dump = tracer_create(errs);
         check_creation(dump);
+
+        /* create the objects */
+
+        workbench = bbs_workbench_create();
+        check_creation(workbench);
+
+        events = event_create();
+        check_creation(events);
 
         rooms = room_create(datapath, msgpath, roomnum, retries, timeout, base, dump);
         check_creation(rooms);
@@ -76,25 +108,55 @@ int setup(void) {
         nodes = node_create(datapath, nodenum, retries, timeout, dump);
         check_creation(nodes);
 
-        events = events_create();
-        check_creation(events);
-
         /* access the databases */
 
         stat = room_open(rooms);
         check_return(stat, rooms);
-        
+
         stat = user_open(users);
         check_return(stat, users);
-        
+
         stat = node_open(nodes);
         check_return(stat, nodes);
+
+        /* load the user record */
+        
+        stat = user_find(users, username, strlen(username), find_user_by_name, &user_index);
+        check_return(stat, users);
+
+        if (user_index > 0) {
+
+            stat = user_get(users, user_index, &useron);
+            check_return(stat, users);
+
+        } else {
+
+            cause_error(E_UNKUSER);
+
+        }
+
+        /* load the lobby */
+
+        stat = room_find(rooms, &lobby, sizeof(int), find_room_by_number, &room_index);
+        check_return(stat, rooms);
+
+        if (room_index > 0) {
+
+            stat = room_get(rooms, room_index, &qroom);
+            check_return(stat, rooms);
+
+        } else {
+
+            cause_error(E_UNKROOM);
+
+        }
 
         exit_when;
 
     } use {
 
         stat = ERR;
+        copy_error(errors);
         capture_trace(dump);
         clear_error();
 
@@ -111,7 +173,8 @@ int cleanup(void) {
     node_destroy(nodes);
     tracer_destroy(dump);
     errors_destroy(errs);
-    events_destroy(events);
+    event_destroy(events);
+    workbench_destroy(workbench);
 
     return OK;
 
@@ -119,7 +182,7 @@ int cleanup(void) {
 
 int print_dump(char *string) {
 
-    fprintf(stderr, string);
+    fprintf(stderr, "%s\n",string);
     return OK;
 
 }
@@ -131,22 +194,30 @@ int main(int argc, char **argv) {
     extern int optind;
     extern char *optarg;
     char *configs = NULL;
+    error_trace_t errors;
     int rc = EXIT_SUCCESS;
-    char opts[] = "c:n:vsh?";
+    char opts[] = "c:n:u:vsh?";
 
     opterr = 0;
+    username = strndup(getenv("LOGNAME"), LEN_NAME);
 
     while ((c = getopt(argc, argv, opts)) != -1) {
 
         switch(c) {
             case 'c':
-                configs = argv[optind];
+                configs = strdup(optarg);
                 break;
             case 's':
                 sysop = TRUE;
+                free(username);
+                username = strdup("sysop");
                 break;
             case 'n':
-                xnode = atol(argv[optind]);
+                xnode = atol(optarg);
+                break;
+            case 'u':
+                free(username);
+                username = strndup(optarg, LEN_NAME);
                 break;
             case 'h':
                 printf("\n");
@@ -175,20 +246,21 @@ int main(int argc, char **argv) {
 
     when_error_in {
 
-        stat = setup();
-        check_status(stat, OK, E_INVOPS);
+        stat = setup(&errors);
+        check_status2(stat, OK, errors);
 
-        stat = bbs_run();
-        check_status(stat, OK, E_INVOPS);
+        stat = bbs_run(&errors);
+        check_status2(stat, OK, errors);
 
-        stat = bbs_logoff();
-        check_status(stat, OK, E_INVOPS);
+        stat = bbs_logoff(&errors);
+        check_status2(stat, OK, errors);
 
         exit_when;
 
     } use {
 
         rc = EXIT_FAILURE;
+        capture_trace(dump);
         tracer_dump(dump, print_dump);
         clear_error();
 

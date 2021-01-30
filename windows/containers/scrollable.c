@@ -61,7 +61,7 @@ int _scrollable_refresh(container_t *self) {
 
 }
 
-int _scrollable_event(container_t *self, event_t *event) {
+int _scrollable_event(container_t *self, events_t *event) {
 
     int stat = ERR;
     component_t *temp = NULL;

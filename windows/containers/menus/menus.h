@@ -48,7 +48,7 @@ extern int menus_erase(menus_t *);
 extern int menus_refresh(menus_t *);
 extern int menus_destroy(menus_t *);
 extern int menus_show_description(menus_t *);
-extern int menus_event(menus_t *, event_t *);
+extern int menus_event(menus_t *, events_t *);
 extern int menus_compare(menus_t *, menus_t *);
 extern int menus_override(menus_t *, item_list_t *);
 extern int menus_add_component(menus_t *, component_t *);

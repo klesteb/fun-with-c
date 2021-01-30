@@ -88,7 +88,7 @@ int _input_draw(component_t *self) {
 
 }
 
-int _input_event(component_t *self, event_t *event) {
+int _input_event(component_t *self, events_t *event) {
 
     int stat = OK;
     input_data_t *data = self->data;

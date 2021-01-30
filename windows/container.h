@@ -33,7 +33,7 @@ struct _container_s {
     int (*_draw)(container_t *);
     int (*_erase)(container_t *);
     int (*_refresh)(container_t *);
-    int (*_event)(container_t *, event_t *);
+    int (*_event)(container_t *, events_t *);
     int (*_compare)(container_t *, container_t *);
     int (*_override)(container_t *, item_list_t *);
     int (*_add_component)(container_t *, component_t *);
@@ -83,7 +83,7 @@ extern int container_draw(container_t *);
 extern int container_erase(container_t *);
 extern int container_refresh(container_t *);
 extern int container_destroy(container_t *);
-extern int container_event(container_t *, event_t *);
+extern int container_event(container_t *, events_t *);
 extern int container_compare(container_t *, container_t *);
 extern int container_override(container_t *, item_list_t *);
 extern int container_add_component(container_t *, component_t *);

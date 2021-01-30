@@ -68,6 +68,21 @@ struct _tracer_s {
     }                                      \
 }
 
+#undef check_status2
+    
+#define check_status2(status, expected, error) { \
+    if ((status) != (expected)) {                \
+        capture_error((error));                  \
+        trace_lineno = __LINE__ - 1;             \
+        free(trace_filename);                    \
+        trace_filename = strdup(__FILE__);       \
+        free(trace_function);                    \
+        trace_function = strdup(__func__);       \
+        clear_copied((error));                   \
+        goto handler;                            \
+    }                                            \
+}
+    
 #define capture_trace(dump) {                                \
     if ((dump) != NULL) {                                    \
         error_trace_t *junk = malloc(sizeof(error_trace_t)); \

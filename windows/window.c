@@ -36,7 +36,7 @@ int _window_dtor(object_t *);
 int _window_draw(window_t *);
 int _window_erase(window_t *);
 int _window_refresh(window_t *);
-int _window_event(window_t *, event_t *);
+int _window_event(window_t *, events_t *);
 int _window_compare(window_t *, window_t *);
 int _window_override(window_t *, item_list_t *);
 int _window_add_container(window_t *, container_t *);
@@ -279,7 +279,7 @@ int window_refresh(window_t *self) {
 
 }
 
-int window_event(window_t *self, event_t *event) {
+int window_event(window_t *self, events_t *event) {
 
     int stat = OK;
 
@@ -923,7 +923,7 @@ int _window_erase(window_t *self) {
 
 }
 
-int _window_event(window_t *self, event_t *event) {
+int _window_event(window_t *self, events_t *event) {
 
     int stat = ERR;
     container_t *container = NULL;

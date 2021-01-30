@@ -27,7 +27,7 @@ require_klass(MENUS_KLASS);
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
-int _list_menu_event(container_t *self, event_t *event) {
+int _list_menu_event(container_t *self, events_t *event) {
 
     int stat = ERR;
     userptr_data_t *userptr = NULL;

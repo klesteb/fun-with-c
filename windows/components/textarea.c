@@ -62,7 +62,7 @@ int _textarea_draw(component_t *self) {
 
 }
 
-int _textarea_event(component_t *self, event_t *event) {
+int _textarea_event(component_t *self, events_t *event) {
 
     int cols = 0;
     int rows = 0;

@@ -17,10 +17,10 @@
 /* defination                                                     */
 /*----------------------------------------------------------------*/
 
-typedef struct _event_s {
+typedef struct _events_s {
     int type;
     void *data;
-} event_t;
+} events_t;
 
 typedef struct _kevent_s {
     int keycode;

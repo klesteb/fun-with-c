@@ -22,13 +22,15 @@
 #include "room.h"
 #include "user.h"
 #include "when.h"
+#include "event.h"
 #include "finds.h"
 #include "files.h"
 #include "errors.h"
-#include "events.h"
 #include "tracer.h"
 #include "fnm_util.h"
 #include "misc/misc.h"
+#include "workbench.h"
+#include "bbs_error_codes.h"
 
 /* global items */
 
@@ -37,10 +39,17 @@ extern user_t *users;
 extern room_t *rooms;
 extern tracer_t *dump;
 extern errors_t *errs;
-extern events_t *events;
+extern event_t *events;
+extern workbench_t *workbench;
 
 extern int xnode;
 extern int sysop;
+extern int room_index;
+extern int user_index;
+extern char *username;
+
+extern room_base_t qroom;
+extern user_base_t useron;
 
 #endif
 

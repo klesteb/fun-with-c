@@ -40,7 +40,7 @@ int _menus_override(menus_t *, item_list_t *);
 int _menus_draw(container_t *);
 int _menus_erase(container_t *);
 int _menus_refresh(container_t *);
-int _menus_event(container_t *, event_t *);
+int _menus_event(container_t *, events_t *);
 int _menus_show_description(container_t *);
 int _menus_remove_component(container_t *, component_t *);
 
@@ -231,7 +231,7 @@ int menus_draw(menus_t *self) {
 
 }
 
-int menus_event(menus_t *self, event_t *event) {
+int menus_event(menus_t *self, events_t *event) {
 
     int stat = OK;
 
@@ -516,7 +516,7 @@ int _menus_show_description(container_t *self) {
 
     int stat = ERR;
     ITEM *item = NULL;
-    event_t *event = NULL;
+    events_t *event = NULL;
     const char *description = NULL;
     menu_data_t *data = (menu_data_t *)self->data;
 
@@ -524,7 +524,7 @@ int _menus_show_description(container_t *self) {
 
         if ((description = item_description(item)) != NULL) {
 
-            if ((event = calloc(1, sizeof(event_t))) != NULL) {
+            if ((event = calloc(1, sizeof(events_t))) != NULL) {
 
                 event->type = EVENT_K_MESSAGE;
                 event->data = (void *)strdup(description);
@@ -581,7 +581,7 @@ int _menus_remove_component(container_t *self, component_t *component) {
 
 }
 
-int _menus_event(container_t *self, event_t *event) {
+int _menus_event(container_t *self, events_t *event) {
 
     int stat = ERR;
 

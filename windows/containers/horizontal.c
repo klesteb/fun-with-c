@@ -60,7 +60,7 @@ int _horizontal_draw(container_t *self) {
 
 }
 
-int _horizontal_event(container_t *self, event_t *event) {
+int _horizontal_event(container_t *self, events_t *event) {
 
     int stat = ERR;
 

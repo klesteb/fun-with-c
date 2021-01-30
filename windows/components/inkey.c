@@ -27,7 +27,7 @@ require_klass(COMPONENT_KLASS);
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
-int _inkey_event(component_t *self, event_t *event) {
+int _inkey_event(component_t *self, events_t *event) {
 
     int x;
     int stat = OK;

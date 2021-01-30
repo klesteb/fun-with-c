@@ -6,9 +6,9 @@
 #include <signal.h>
 
 #include "when.h"
-#include "events.h"
+#include "event.h"
 
-events_t *temp = NULL;
+event_t *temp = NULL;
 
 struct termios oldChars;
 struct termios newChars;
@@ -99,19 +99,19 @@ int main(int argc, char **argv) {
 
         tty_raw();
 
-        temp = events_create();
+        temp = event_create();
         check_creation(temp);
 
-        stat = events_register_input(temp, fileno(stdin), input, NULL);
+        stat = event_register_input(temp, fileno(stdin), input, NULL);
         check_return(stat, temp);
 
-        stat = events_register_timer(temp, TRUE, 1.0, timer, NULL);
+        stat = event_register_timer(temp, TRUE, 1.0, timer, NULL);
         check_return(stat, temp);
 
-        stat = events_register_worker(temp, FALSE, worker, NULL);
+        stat = event_register_worker(temp, FALSE, worker, NULL);
         check_return(stat, temp);
 
-        stat = events_loop(temp);
+        stat = event_loop(temp);
         check_return(stat, temp);
 
         exit_when;
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
 
     } end_when;
 
-    events_destroy(temp);
+    event_destroy(temp);
     tty_reset();
 
     return 0;

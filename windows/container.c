@@ -32,7 +32,7 @@ int _container_dtor(object_t *);
 int _container_draw(container_t *);
 int _container_erase(container_t *);
 int _container_refresh(container_t *);
-int _container_event(container_t *, event_t *);
+int _container_event(container_t *, events_t *);
 int _container_compare(container_t *, container_t *);
 int _container_override(container_t *, item_list_t *);
 int _container_add_component(container_t *, component_t *);
@@ -235,7 +235,7 @@ int container_draw(container_t *self) {
 
 }
 
-int container_event(container_t *self, event_t *event) {
+int container_event(container_t *self, events_t *event) {
 
     int stat = OK;
 
@@ -676,7 +676,7 @@ int _container_draw(container_t *self) {
 
 }
 
-int _container_event(container_t *self, event_t *event) {
+int _container_event(container_t *self, events_t *event) {
 
     /* must be overridden in a derived klass */
 

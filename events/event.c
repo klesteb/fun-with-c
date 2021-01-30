@@ -16,8 +16,8 @@
 #include <unistd.h>
 
 #include "when.h"
+#include "event.h"
 #include "object.h"
-#include "events.h"
 #include "nix_util.h"
 #include "que_util.h"
 #include "item_list.h"
@@ -39,28 +39,28 @@ typedef struct _callback_s {
     int reque;
     double interval;
     void *data;
-    events_t *self;
+    event_t *self;
 } callback_t;
 
 /*----------------------------------------------------------------*/
 /* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
-int _events_ctor(object_t *, item_list_t *);
-int _events_dtor(object_t *);
-int _events_compare(events_t *, events_t *);
-int _events_override(events_t *, item_list_t *);
+int _event_ctor(object_t *, item_list_t *);
+int _event_dtor(object_t *);
+int _event_compare(event_t *, event_t *);
+int _event_override(event_t *, item_list_t *);
 
-int _events_loop(events_t *);
-int _events_register_input(events_t *, int, int (*input)(void *), void *);
-int _events_register_worker(events_t *, int, int (*input)(void *), void *);
-int _events_register_timer(events_t *, int, double, int (*input)(void *), void *);
+int _event_loop(event_t *);
+int _event_register_input(event_t *, int, int (*input)(void *), void *);
+int _event_register_worker(event_t *, int, int (*input)(void *), void *);
+int _event_register_timer(event_t *, int, double, int (*input)(void *), void *);
 
 /*----------------------------------------------------------------*/
 /* private klass methods                                          */
 /*----------------------------------------------------------------*/
 
-static int _init_self_pipe(events_t *);
+static int _init_self_pipe(event_t *);
 static int _read_pipe(NxAppContext, NxInputId, int, void *);
 static int _dispatch_timer(NxAppContext, NxIntervalId, void *);
 static int _dispatch_worker(NxAppContext, NxWorkProcId, void *);
@@ -70,32 +70,32 @@ static int _dispatch_input(NxAppContext, NxInputId, int, void *);
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/
 
-declare_klass(EVENTS_KLASS) {
-    .size = KLASS_SIZE(events_t),
-    .name = KLASS_NAME(events_t),
-    .ctor = _events_ctor,
-    .dtor = _events_dtor,
+declare_klass(EVENT_KLASS) {
+    .size = KLASS_SIZE(event_t),
+    .name = KLASS_NAME(event_t),
+    .ctor = _event_ctor,
+    .dtor = _event_dtor,
 };
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-events_t *events_create() {
+event_t *event_create() {
 
     int stat = ERR;
     item_list_t items[1];
-    events_t *self = NULL;
+    event_t *self = NULL;
 
     SET_ITEM(items[0], 0, 0, 0, 0);
 
-    self = (events_t *)object_create(EVENTS_KLASS, items, &stat);
+    self = (event_t *)object_create(EVENT_KLASS, items, &stat);
 
     return self;
 
 }
 
-int events_destroy(events_t *self) {
+int event_destroy(event_t *self) {
 
     int stat = OK;
 
@@ -107,7 +107,7 @@ int events_destroy(events_t *self) {
             
         }
 
-        if (object_assert(self, events_t)) {
+        if (object_assert(self, event_t)) {
 
             stat = self->dtor(OBJECT(self));
             check_status(stat, OK, E_INVOPS);
@@ -133,7 +133,7 @@ int events_destroy(events_t *self) {
 
 }
 
-int events_override(events_t *self, item_list_t *items) {
+int event_override(event_t *self, item_list_t *items) {
 
     int stat = OK;
 
@@ -163,7 +163,7 @@ int events_override(events_t *self, item_list_t *items) {
 
 }
 
-int events_compare(events_t *us, events_t *them) {
+int event_compare(event_t *us, event_t *them) {
 
     int stat = OK;
 
@@ -175,7 +175,7 @@ int events_compare(events_t *us, events_t *them) {
 
         }
 
-        if (object_assert(them, events_t)) {
+        if (object_assert(them, event_t)) {
 
             stat = us->_compare(us, them);
             check_status(stat, OK, E_NOTSAME);
@@ -201,7 +201,7 @@ int events_compare(events_t *us, events_t *them) {
 
 }
 
-char *events_version(events_t *self) {
+char *event_version(event_t *self) {
 
     char *version = VERSION;
 
@@ -209,7 +209,7 @@ char *events_version(events_t *self) {
 
 }
 
-int events_loop(events_t *self) {
+int event_loop(event_t *self) {
 
     int stat = OK;
 
@@ -239,7 +239,7 @@ int events_loop(events_t *self) {
 
 }
 
-int events_register_input(events_t *self, int fd, int (*input)(void *), void *data) {
+int event_register_input(event_t *self, int fd, int (*input)(void *), void *data) {
 
     int stat = OK;
 
@@ -269,7 +269,7 @@ int events_register_input(events_t *self, int fd, int (*input)(void *), void *da
 
 }
 
-int events_register_worker(events_t *self, int reque, int (*input)(void *), void *data) {
+int event_register_worker(event_t *self, int reque, int (*input)(void *), void *data) {
 
     int stat = OK;
 
@@ -299,7 +299,7 @@ int events_register_worker(events_t *self, int reque, int (*input)(void *), void
 
 }
 
-int events_register_timer(events_t *self, int reque, double interval, int (*input)(void *), void *data) {
+int event_register_timer(event_t *self, int reque, double interval, int (*input)(void *), void *data) {
 
     int stat = OK;
 
@@ -333,10 +333,10 @@ int events_register_timer(events_t *self, int reque, double interval, int (*inpu
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-int _events_ctor(object_t *object, item_list_t *items) {
+int _event_ctor(object_t *object, item_list_t *items) {
 
     int stat = OK;
-    events_t *self = NULL;
+    event_t *self = NULL;
 
     if (object != NULL) {
 
@@ -351,7 +351,7 @@ int _events_ctor(object_t *object, item_list_t *items) {
                     (items[x].item_code == 0)) break;
 
                 /* switch(items[x].item_code) { */
-                /*     case EVENTS_K_TYPE: { */
+                /*     case EVENT_K_TYPE: { */
                 /*         memcpy(&type,  */
                 /*                items[x].buffer_address,  */
                 /*                items[x].buffer_length); */
@@ -369,19 +369,19 @@ int _events_ctor(object_t *object, item_list_t *items) {
 
         /* initialize our derived klass here */
 
-        self = EVENTS(object);
+        self = EVENT(object);
 
         /* assign our methods here */
 
-        self->ctor = _events_ctor;
-        self->dtor = _events_dtor;
-        self->_compare = _events_compare;
-        self->_override = _events_override;
+        self->ctor = _event_ctor;
+        self->dtor = _event_dtor;
+        self->_compare = _event_compare;
+        self->_override = _event_override;
 
-        self->_loop = _events_loop;
-        self->_register_input = _events_register_input;
-        self->_register_timer = _events_register_timer;
-        self->_register_worker = _events_register_worker;
+        self->_loop = _event_loop;
+        self->_register_input = _event_register_input;
+        self->_register_timer = _event_register_timer;
+        self->_register_worker = _event_register_worker;
 
         /* initialize internal variables here */
 
@@ -414,11 +414,11 @@ int _events_ctor(object_t *object, item_list_t *items) {
 
 }
 
-int _events_dtor(object_t *object) {
+int _event_dtor(object_t *object) {
 
     int stat = OK;
-    events_t *self = EVENTS(object);
-    events_handler_t *handler = NULL;
+    event_t *self = EVENT(object);
+    event_handler_t *handler = NULL;
 
     /* free local resources here */
 
@@ -451,7 +451,7 @@ int _events_dtor(object_t *object) {
 
 }
 
-int _events_override(events_t *self, item_list_t *items) {
+int _event_override(event_t *self, item_list_t *items) {
 
     int stat = ERR;
 
@@ -464,7 +464,7 @@ int _events_override(events_t *self, item_list_t *items) {
                 (items[x].item_code == 0)) break;
 
             switch(items[x].item_code) {
-                case EVENTS_M_DESTRUCTOR: {
+                case EVENT_M_DESTRUCTOR: {
                     self->dtor = items[x].buffer_address;
                     stat = 0;
                     break;
@@ -479,7 +479,7 @@ int _events_override(events_t *self, item_list_t *items) {
 
 }
 
-int _events_compare(events_t *self, events_t *other) {
+int _event_compare(event_t *self, event_t *other) {
 
     int stat = ERR;
 
@@ -501,11 +501,11 @@ int _events_compare(events_t *self, events_t *other) {
 
 }
 
-int _events_register_input(events_t *self, int fd, int (*input)(void *), void *data) {
+int _event_register_input(event_t *self, int fd, int (*input)(void *), void *data) {
 
     int stat = OK;
     callback_t *callback = NULL;
-    events_handler_t *handler= NULL;
+    event_handler_t *handler= NULL;
 
     when_error_in {
 
@@ -517,7 +517,7 @@ int _events_register_input(events_t *self, int fd, int (*input)(void *), void *d
         }
         
         errno = 0;
-        if ((handler = calloc(1, sizeof(events_handler_t))) == NULL) {
+        if ((handler = calloc(1, sizeof(event_handler_t))) == NULL) {
             
             cause_error(errno);
             
@@ -548,11 +548,11 @@ int _events_register_input(events_t *self, int fd, int (*input)(void *), void *d
 
 }
 
-int _events_register_worker(events_t * self, int reque, int (*input)(void *), void *data) {
+int _event_register_worker(event_t * self, int reque, int (*input)(void *), void *data) {
 
     int stat = OK;
     callback_t *callback = NULL;
-    events_handler_t *handler= NULL;
+    event_handler_t *handler= NULL;
 
     when_error_in {
 
@@ -564,7 +564,7 @@ int _events_register_worker(events_t * self, int reque, int (*input)(void *), vo
         }
         
         errno = 0;
-        if ((handler = calloc(1, sizeof(events_handler_t))) == NULL) {
+        if ((handler = calloc(1, sizeof(event_handler_t))) == NULL) {
             
             cause_error(errno);
             
@@ -596,11 +596,11 @@ int _events_register_worker(events_t * self, int reque, int (*input)(void *), vo
 
 }
 
-int _events_register_timer(events_t *self, int reque, double interval, int (*input)(void *), void *data) {
+int _event_register_timer(event_t *self, int reque, double interval, int (*input)(void *), void *data) {
 
     int stat = OK;
     callback_t *callback = NULL;
-    events_handler_t *handler= NULL;
+    event_handler_t *handler= NULL;
 
     when_error_in {
 
@@ -612,7 +612,7 @@ int _events_register_timer(events_t *self, int reque, double interval, int (*inp
         }
 
         errno = 0;
-        if ((handler = calloc(1, sizeof(events_handler_t))) == NULL) {
+        if ((handler = calloc(1, sizeof(event_handler_t))) == NULL) {
 
             cause_error(errno);
 
@@ -645,7 +645,7 @@ int _events_register_timer(events_t *self, int reque, double interval, int (*inp
 
 }
 
-int _events_loop(events_t *self) {
+int _event_loop(event_t *self) {
 
     int stat = OK;
 
@@ -674,10 +674,10 @@ static int _dispatch_input(NxAppContext context, NxInputId id, int fd, void *dat
 static int _dispatch_worker(NxAppContext context, NxWorkProcId id, void *data) {
 
     NxWorkProcId temp_id;
-    events_handler_t *temp = NULL;
-    events_handler_t *handler = NULL;
+    event_handler_t *temp = NULL;
+    event_handler_t *handler = NULL;
     callback_t *callback = (callback_t *)data;
-    events_t *self = (events_t *)callback->self;
+    event_t *self = (event_t *)callback->self;
 
     (*callback->input)(callback->data);
 
@@ -717,10 +717,10 @@ static int _dispatch_worker(NxAppContext context, NxWorkProcId id, void *data) {
 static int _dispatch_timer(NxAppContext context, NxIntervalId id, void *data) {
 
     NxIntervalId temp_id;
-    events_handler_t *temp = NULL;
-    events_handler_t *handler = NULL;
+    event_handler_t *temp = NULL;
+    event_handler_t *handler = NULL;
     callback_t *callback = (callback_t *)data;
-    events_t *self = (events_t *)callback->self;
+    event_t *self = (event_t *)callback->self;
 
     (*callback->input)(callback->data);
 
@@ -762,7 +762,7 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
     int sig;
     int size = 0;
     int stat = OK;
-    events_t *self = (events_t *)data;
+    event_t *self = (event_t *)data;
 
     when_error_in {
 
@@ -855,7 +855,7 @@ static void _sig_handler(int sig) {
 
 }
 
-static int _init_self_pipe(events_t *self) {
+static int _init_self_pipe(event_t *self) {
 
     int flags = 0;
     int stat = OK;
@@ -913,7 +913,7 @@ static int _init_self_pipe(events_t *self) {
         /*                                                     */
         /* this is a shim to capture signal handlers so that   */
         /* we can hook in our own signal handlers to clean up  */
-        /* resources. _events_read_pipe() reinstalls the saved */
+        /* resources. _read_pipe() reinstalls the saved */
         /* signal handlers to allow normal signal handling.    */
 
         /* capture signal handlers */

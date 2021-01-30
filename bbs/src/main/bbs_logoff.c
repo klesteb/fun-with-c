@@ -13,7 +13,7 @@
 #include "common.h"
 #include "interfaces.h"
 
-int bbs_logoff(void) {
+int bbs_logoff(error_trace_t *error) {
 
     return OK;
 

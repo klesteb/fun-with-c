@@ -56,6 +56,7 @@ int _msgs_init(handler_t *self) {
         strcpy(lobby.name, "Lobby");
         lobby.retries = self->retries;
         lobby.timeout = self->timeout;
+        strcpy(lobby.description, "The general message area");
         lobby.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
         strncpy(lobby.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
@@ -79,7 +80,8 @@ int _msgs_init(handler_t *self) {
         email.conference = MAILROOM;
         email.retries = self->retries;
         email.timeout = self->timeout;
-        email.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
+        strcpy(email.description, "Personal messages");
+        email.flags = (RM_PERMROOM | RM_PRIVATE | RM_INUSE | RM_MESSAGES);
         strncpy(email.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
         stat = files_tell(self->db, &position);
@@ -102,7 +104,8 @@ int _msgs_init(handler_t *self) {
         aide.conference = AIDEROOM;
         aide.retries = self->retries;
         aide.timeout = self->timeout;
-        aide.flags = (RM_PERMROOM | RM_INUSE | RM_MESSAGES);
+        strcpy(aide.description, "Private aide messages");
+        aide.flags = (RM_PERMROOM | RM_PRIVATE | RM_INUSE | RM_MESSAGES);
         strncpy(aide.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
         stat = files_tell(self->db, &position);

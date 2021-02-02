@@ -81,7 +81,7 @@ declare_klass(EVENT_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-event_t *event_create() {
+event_t *event_create(void) {
 
     int stat = ERR;
     item_list_t items[1];
@@ -511,25 +511,25 @@ int _event_register_input(event_t *self, int fd, int (*input)(void *), void *dat
 
         errno = 0;
         if ((callback = calloc(1, sizeof(callback_t))) == NULL) {
-            
+
             cause_error(errno);
-            
+
         }
-        
+
         errno = 0;
         if ((handler = calloc(1, sizeof(event_handler_t))) == NULL) {
-            
+
             cause_error(errno);
-            
+
         }
-        
+
         callback->data = data;
         callback->self = self;
         callback->input = input;
 
         handler->type = EV_INPUT;
         handler->input_id = NxAddInput(NULL, fd, NxInputReadMask, _dispatch_input, callback);
-        
+
         stat = que_push_head(&self->handlers, handler);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -558,18 +558,18 @@ int _event_register_worker(event_t * self, int reque, int (*input)(void *), void
 
         errno = 0;
         if ((callback = calloc(1, sizeof(callback_t))) == NULL) {
-            
+
             cause_error(errno);
-            
+
         }
-        
+
         errno = 0;
         if ((handler = calloc(1, sizeof(event_handler_t))) == NULL) {
-            
+
             cause_error(errno);
-            
+
         }
-        
+
         callback->data = data;
         callback->self = self;
         callback->input = input;
@@ -709,7 +709,7 @@ static int _dispatch_worker(NxAppContext context, NxWorkProcId id, void *data) {
         }
 
     }
-        
+
     return OK;
 
 }
@@ -862,7 +862,7 @@ static int _init_self_pipe(event_t *self) {
     struct sigaction sa;
 
     when_error_in {
-        
+
         /* create our pipe */
 
         errno = 0;
@@ -942,7 +942,7 @@ static int _init_self_pipe(event_t *self) {
         if (sigaction(SIGINT, &sa, NULL) == -1) {
 
             cause_error(errno);
-            
+
         }
 
         errno = 0;
@@ -955,14 +955,14 @@ static int _init_self_pipe(event_t *self) {
         exit_when;
 
     } use {
-        
+
         stat = ERR;
 
         object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
-        
+
     } end_when;
-    
+
     return stat;
 
 }

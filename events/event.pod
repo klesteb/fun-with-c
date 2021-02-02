@@ -3,41 +3,89 @@
 
 =head1 NAME
 
-template - A ANSI C class
+event - A ANSI C class to handle events
 
 =head1 SYNOPSIS
 
  #include <stdio.h>
- #include "template.h"
+
+ #include "tty.h"
+ #include "when.h"
+ #include "event.h"
+
+ int read_stdin(void *data) {
+
+     int ch = inkey();
+     printf("key = %d\n", ch);
+
+     return OK;
+
+ }
 
  int main(int argc, char **argv) {
 
-     template_t *temp = NULL;
+     int stat = OK;
+     int rc = EXIT_SUCCESS;
+     event_t *events = NULL;
 
-     if ((temp = template_create(NULL))) {
+     when_error_in {
 
-         template_destroy(temp);
+         stat = tty_raw();
+         check_status(stat, OK, E_INVOPS);
 
-     }
+         events = event_create();
+         check_creation(events);
 
-     return 0;
+         stat = event_register_input(events, fileno(stdin), read_stdin, NULL);
+         check_return(stat, events);
+
+         stat = event_loop(events);
+         check_return(stat, events);
+
+         stat = event_destroy(events);
+         check_return(stat, events);
+
+         stat = tty_reset();
+         check_return(stat, OK, E_INVOPS);
+
+         exit_when;
+
+     } use {
+
+        rc = EXIT_FAILURE;
+
+     } end_when;
+
+     return rc;
 
  }
 
 =head1 DESCRIPTION
 
-This is a basic class written in ANSI C. It shows a way to implement
-object oriented programming. Why do this? It is a nice thought exercise. 
+This class is a wrapper around the L<nix_util(3)> function library. It
+attempts to make event handling easier. Using this class will allow
+you to create event queues and allow multiplexing between input events,
+background "workers" and timers.
 
-The files template.c and template.h define the class. 
+Any signal handlers must be defined before this class is initialized. As 
+it hooks the SIGTERM and SIGINT signals for internal cleanup. Any 
+pre-existing handlers are saved off and re-implemented after the internal 
+cleanup is done, and the signal is re-raised. Thus allowing them to
+fulfill there original function.
+
+For an example of how to set the terminal into raw mode, so that single
+key processing can happen, please see tty.c and tty.h. Another
+alternative is to use the ncurses package.
+
+The files event.c and event.h define the class. 
 
 =over 4
 
-=item B<template.h>
+=item B<event.h>
 
 This defines the interface to the class. 
 
-=item B<template.c> 
+=item B<event.c> 
 
 This implements the interface.
 
@@ -45,11 +93,11 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<template_t *template_create(NULL)>
+=head2 I<event_t *event_create(NULL)>
 
 This method initializes the class. 
 
-=head2 I<int template_destroy(template_t *self)>
+=head2 I<int event_destroy(event_t *self)>
 
 This destroys the object. 
 
@@ -57,11 +105,11 @@ This destroys the object.
 
 =item B<self>
 
-A pointer to the template_t object.
+A pointer to the event_t object.
 
 =back
 
-=head2 I<int template_override(template_t *self, item_list_t *items)>
+=head2 I<int event_override(event_t *self, item_list_t *items)>
 
 This method allows you to override methods. 
 
@@ -69,7 +117,7 @@ This method allows you to override methods.
 
 =item B<self>
 
-A pointer to the template_t object.
+A pointer to the event_t object.
 
 =item B<items>
 
@@ -77,23 +125,23 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int template_compare(template_t *this, template_t *that)>
+=head2 I<int event_compare(event_t *this, event_t *that)>
 
-This method allows you to compare one template_t object to another. 
+This method allows you to compare one event_t object to another. 
 
 =over 4
 
 =item B<this>
 
-A pointer to a template_t object.
+A pointer to a event_t object.
 
 =item B<that>
 
-A pointer to a template_t object.
+A pointer to a event_t object.
 
 =back
 
-=head2 I<char *template_version(template_t *self)>
+=head2 I<char *event_version(event_t *self)>
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -102,13 +150,105 @@ follows the guidelines from L<semver.org|https://semver.org/>.
 
 =item B<self>
 
-A pointer to the template_t object.
+A pointer to the event_t object.
+
+=back
+
+=head2 I<int event_loop(event_t *self)>
+
+The never ending event loop. This will loop until there are no active
+handlers. Sending a SIGINT or SIGTERM to the process, or typing a ^C or 
+^\ , will cleanup the event handlers.
+
+=over 4
+
+=item B<self>
+
+A pointer to the event_t object.
+
+=back
+
+=head2 I<int event_register_input(event_t *self, int fd, int (*input)(void *), void *data)>
+
+This method will register a input event handler.
+
+=over 4
+
+=item B<self>
+
+A pointer to the event_t object.
+
+=item B<fd>
+
+The file descriptor to listen on.
+
+=item B<int (*input)(void *data)>
+
+The callback method to process the input event.
+
+=item B<data>
+
+The optional data to pass to the input handler.
+
+=back
+
+=head2 I<int event_register_worker(event_t *self, int reque, int (*input)(void *), void *data)>
+
+This method will register a background worker. This will run when
+processing is idle.
+
+=over 4
+
+=item B<self>
+
+A pointer to the event_t object.
+
+=item B<reque>
+
+A flag on wither to reque the worker when it is done.
+
+=item B<int (*input)(void *data)>
+
+The callback method to process the worker event.
+
+=item B<data>
+
+The optional data to pass to the worker handler.
+
+=back
+
+=head2 I<int event_register_timer(event_t *self, int reque, double interval, int (*input)(void *), void *data)>
+
+This method will register a timer method.  
+
+=over 4
+
+=item B<self>
+
+A pointer to the event_t object.
+
+=item B<reque>
+
+A flag on wither to reque the worker when it is done.
+
+=item B<interval>
+
+Specifies the timeout interval in seconds. (This is a real
+number, so fractions of a second can be specified.)
+
+=item B<int (*input)(void *data)>
+
+The callback method to process the timer event.
+
+=item B<data>
+
+The optional data to pass to the timer handler.
 
 =back
 
 =head1 RETURNS
 
-The method template_create() returns a pointer to a template_t object. 
+The method event_create() returns a pointer to a event_t object. 
 All other methods return either OK on success or ERR on failure. The 
 extended error description can be returned with object_get_error().
 
@@ -142,6 +282,8 @@ Builds the module and provides a shared library.
 
 =item L<object(3)>
 
+=item L<nix_util(3)>
+
 =back
 
 =head1 AUTHOR
@@ -150,7 +292,7 @@ Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2020 by Kevin L. Esteb
+Copyright (c) 2021 by Kevin L. Esteb
 
 Permission to use, copy, modify, and distribute this software and its
 documentation for any purpose and without fee is hereby granted,

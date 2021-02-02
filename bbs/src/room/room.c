@@ -1601,8 +1601,11 @@ int _room_search(room_t *self, void *data, int len, int (*compare)(void *, int, 
 
                 }
 
-                strcpy(result->name, ondisk.name);
                 result->index = self->index;
+                result->aide  = ondisk.aide;
+                result->flags = ondisk.flags;
+                result->roomnum = ondisk.roomnum;
+                strcpy(result->name, ondisk.name);
 
                 stat = que_push_head(results, result);
                 check_status(stat, QUE_OK, E_NOQUEUE);
@@ -1805,20 +1808,20 @@ int _room_write(room_t *self, room_base_t *room, ssize_t *count) {
 static int _init_defaults(room_t *self) {
 
     int stat = OK;
-    handler_t *handler = NULL;
+    handler_t *msgs = NULL;
 
     when_error_in {
 
         /* create default message rooms */
 
-        handler = msgs_create(self->roomdb, self->path, self->retries, self->timeout, self->base, self->trace);
-        check_creation(handler);
+        msgs = msgs_create(self->roomdb, self->path, self->retries, self->timeout, self->base, self->trace);
+        check_creation(msgs);
 
-        stat = handler_init(handler);
-        check_return(stat, handler);
+        stat = handler_init(msgs);
+        check_return(stat, msgs);
 
-        stat = handler_destroy(handler);
-        check_return(stat, handler);
+        stat = handler_destroy(msgs);
+        check_return(stat, msgs);
 
         exit_when;
 

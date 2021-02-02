@@ -37,7 +37,6 @@ typedef struct _event_handler_s {
     NxIntervalId timer_id;
 } event_handler_t;
 
-
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/

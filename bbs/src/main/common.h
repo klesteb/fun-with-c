@@ -27,6 +27,7 @@
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
+#include "windows.h"
 #include "fnm_util.h"
 #include "misc/misc.h"
 #include "workbench.h"
@@ -50,6 +51,8 @@ extern char *username;
 
 extern room_base_t qroom;
 extern user_base_t useron;
+
+extern window_t *available_rooms;
 
 #endif
 

@@ -24,7 +24,7 @@ STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
 CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) -I../../../windows -I../../../events -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
 LFLAGS =
 LOPTS = -o 
-MODULES = bbs_main.o bbs_run.o bbs_logoff.o bbs_workbench.o
+MODULES = bbs_main.o bbs_run.o bbs_logoff.o bbs_workbench.o bbs_access.o
 #
 OLBS = $(STATIC)
 #
@@ -50,6 +50,9 @@ bbs_run.o: bbs_run.c
 #
 bbs_logoff.o: bbs_logoff.c
 	$(CC) $(CFLAGS) bbs_logoff.c
+#
+bbs_access.o: bbs_access.c
+	$(CC) $(CFLAGS) bbs_access.c
 #
 bbs_workbench.o: bbs_workbench.c
 	$(CC) $(CFLAGS) bbs_workbench.c

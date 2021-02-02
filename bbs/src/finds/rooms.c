@@ -15,7 +15,15 @@
 
 int find_rooms_all(void *data, int len, room_base_t *room) {
 
-    return TRUE;
+    int stat = FALSE;
+
+    if (room->flags & RM_INUSE) {
+
+        stat= TRUE;
+
+    }
+
+    return stat;
 
 }
 

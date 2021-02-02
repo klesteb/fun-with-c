@@ -28,15 +28,17 @@
 
 #define RM_INUSE     (1L<<0)    /* room is in use                  */
 #define RM_PUBLIC    (1L<<1)    /* room is public                  */
-#define RM_PERMROOM  (1L<<2)    /* room is permament               */
-#define RM_NETWORK   (1L<<3)    /* room is netted via qwk          */
-#define RM_READONLY  (1L<<4)    /* Restrict posting to aides? No   */
-#define RM_UPLOAD    (1L<<5)    /* Allowed to upload               */
-#define RM_DOWNLOAD  (1L<<6)    /* Allowed to download             */
-#define RM_MESSAGES  (1L<<7)    /* room has messages               */
-#define RM_BULLETIN  (1L<<8)    /* room has bulletins              */
-#define RM_DIRECTORY (1L<<9)    /* room has files                  */
-#define RM_SUBSYS    (1L<<10)   /* room has "doors"                */
+#define RM_PRIVATE   (1L<<2)    /* room is private                 */
+#define RM_PERFONLY  (1L<<3)    /* room is perference only         */
+#define RM_PERMROOM  (1L<<4)    /* room is permament               */
+#define RM_NETWORK   (1L<<5)    /* room is network shared          */
+#define RM_READONLY  (1L<<6)    /* Restrict posting to aides? No   */
+#define RM_UPLOAD    (1L<<7)    /* Allowed to upload               */
+#define RM_DOWNLOAD  (1L<<8)    /* Allowed to download             */
+#define RM_MESSAGES  (1L<<9)    /* room has messages               */
+#define RM_BULLETIN  (1L<<10)   /* room has bulletins              */
+#define RM_DIRECTORY (1L<<11)   /* room has files                  */
+#define RM_SUBSYS    (1L<<12)   /* room has "doors"                */
 
 /*-------------------------------------------------------------*/
 /* data structures                                             */
@@ -47,6 +49,7 @@ typedef struct _room_base_s {
     long aide;              /* the rooms aide                            */
     char name[32];          /* name of the room                          */
     char path[256];         /* path to the resource                      */
+    char description[64];   /* description                               */
     short conference;       /* the qwk conference number                 */
     short flags;            /* capability flags                          */
     int retries;            /* number of retires for file locking        */
@@ -57,7 +60,11 @@ typedef struct _room_base_s {
 
 typedef struct _room_search_s {
     char name[32];          /* name of the room                          */
+    char description[64];   /* description                               */
+    long roomnum;           /* room number                               */
+    long aide;              /* the rooms aide                            */
     int index;              /* the index for the room                    */
+    short flags;            /* capability flags                          */
 } room_search_t;
 
 /*-------------------------------------------------------------*/

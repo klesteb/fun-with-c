@@ -249,6 +249,9 @@ int main(int argc, char **argv) {
         stat = setup(&errors);
         check_status2(stat, OK, errors);
 
+        stat = bbs_init_terminal(&errors);
+        check_status2(stat, OK, errors);
+
         stat = bbs_run(&errors);
         check_status2(stat, OK, errors);
 

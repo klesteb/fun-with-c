@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
     error_trace_t trace;
     event_t *temp = NULL;
 
-    if ((temp = event_create(NULL))) {
+    if ((temp = event_create())) {
 
         object_set_error1(OBJECT(temp), EAGAIN);
         object_get_error(OBJECT(temp), &trace);

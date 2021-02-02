@@ -18,5 +18,9 @@
 extern int bbs_run(error_trace_t *);
 extern int bbs_logoff(error_trace_t *);
 
+/* access */
+
+extern int known_room(room_search_t *);
+
 #endif
 

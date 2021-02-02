@@ -27,7 +27,7 @@
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
-#include "windows.h"
+#include "window.h"
 #include "fnm_util.h"
 #include "misc/misc.h"
 #include "workbench.h"
@@ -47,10 +47,12 @@ extern int xnode;
 extern int sysop;
 extern int room_index;
 extern int user_index;
+extern int qnode_index;
 extern char *username;
 
 extern room_base_t qroom;
 extern user_base_t useron;
+extern node_base_t qnode;
 
 extern window_t *available_rooms;
 

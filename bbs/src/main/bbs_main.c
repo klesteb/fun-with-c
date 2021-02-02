@@ -28,7 +28,7 @@
 #include "misc/misc.h"
 #include "workbench.h"
 #include "interfaces.h"
-#include "errors_bbs.h"
+#include "bbs_errors.h"
 #include "bbs_workbench.h"
 #include "errors_ncurses.h"
 #include "bbs_error_codes.h"
@@ -47,10 +47,12 @@ int xnode = 1;
 int sysop = FALSE;
 int user_index = 0;
 int room_index = 0;
+int qnode_index = 0;
 char *username = NULL;
 
 room_base_t qroom;
 user_base_t useron;
+node_base_t qnode;
 
 /*---------------------------------------------------------------------------*/
 
@@ -119,6 +121,22 @@ int setup(error_trace_t *errors) {
         stat = node_open(nodes);
         check_return(stat, nodes);
 
+        /* load the node record */
+        
+        stat = node_find(nodes, &xnode, sizeof(int), find_node_by_number, &qnode_index);
+        check_return(stat, nodes);
+
+        if (qnode_index > 0) {
+
+            stat = node_get(nodes, qnode_index, &qnode);
+            check_return(stat, nodes);
+
+        } else {
+
+            cause_error(E_UNKNODE);
+
+        }
+
         /* load the user record */
         
         stat = user_find(users, username, strlen(username), find_user_by_name, &user_index);
@@ -168,9 +186,15 @@ int setup(error_trace_t *errors) {
 
 int cleanup(void) {
 
+    room_close(rooms);
     room_destroy(rooms);
+
+    user_close(users);
     user_destroy(users);
+
+    node_close(nodes);
     node_destroy(nodes);
+
     tracer_destroy(dump);
     errors_destroy(errs);
     event_destroy(events);

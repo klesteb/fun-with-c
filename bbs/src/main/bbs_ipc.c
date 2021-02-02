@@ -15,35 +15,42 @@
 
 /*---------------------------------------------------------------------------*/
 
-int read_stdin(void *data) {
-
-    workbench_capture(workbench);
-    return OK;
-
-}
-
-int monitor_nodes(void *data) {
-
-    bbs_get_status();
-    return OK;
-
-}
-
-int bbs_run(error_trace_t *errors) {
+int bbs_send_status(int status, int action, error_trace_t *errors) {
 
     int stat = OK;
-    error_trace_t error;
 
     when_error_in {
 
-        stat = event_register_input(events, fileno(stdin), read_stdin, NULL);
-        check_return(stat, events);
+        qnode.status = status;
+        qnode.action = action;
+        qnode.useron = useron.eternal;
 
-        stat = event_register_timer(events, TRUE, 10.0, monitor_nodes, NULL);
-        check_return(stat, events);
+        stat = node_put(nodes, qnode_index, &qnode);
+        check_return(stat, nodes);
 
-        stat = event_loop(events);
-        check_return(stat, events);
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int bbs_get_status(error_trace_t *errors) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = node_get(nodes, qnode_index, &qnode);
+        check_return(stat, nodes);
 
         exit_when;
 

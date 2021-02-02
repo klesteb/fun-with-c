@@ -10,12 +10,12 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include "bbs_common.h"
-#include "interfaces.h"
+#ifndef _BBS_WORKBENCH_H
+#define _BBS_WORKBENCH_H
 
-int bbs_logoff(error_trace_t *error) {
+#include "workbench.h"
 
-    return OK;
+extern workbench_t *bbs_workbench_create(void);
 
-}
+#endif
 

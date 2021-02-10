@@ -32,6 +32,9 @@ int _widget_compare(widget_t *, widget_t *);
 int _widget_override(widget_t *, item_list_t *);
 int _widget_draw(widget_t *);
 int _widget_erase(widget_t *);
+int _widget_add(widget_t *, void *);
+int _widget_remove(widget_t *, void *);
+int _widget_event(widget_t *, events_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -155,6 +158,36 @@ int widget_compare(widget_t *us, widget_t *them) {
 
 }
 
+int widget_add(widget_t *self, void *thing) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (thing == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+        
+        stat = self->_add(self, thing);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int widget_draw(widget_t *self) {
 
     int stat = OK;
@@ -203,6 +236,99 @@ int widget_erase(widget_t *self) {
             cause_error(E_INVPARM);
 
         }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int widget_event(widget_t *self, events_t *event) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (event == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_event(self, event);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int widget_refresh(widget_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_erase(self);
+        check_return(stat, self);
+
+        stat = self->_draw(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int widget_remove(widget_t *self, void *thing) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (thing == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_remove(self, thing);
+        check_return(stat, self);
 
         exit_when;
 
@@ -293,8 +419,8 @@ int widget_set_coordinates(widget_t *self, coordinates_t *coordinates) {
 
         if ((self != NULL) && (coordinates != NULL)) {
 
-            self->coordinates->cols   = coordinates->cols;
-            self->coordinates->rows   = coordinates->rows;
+            self->coordinates->width  = coordinates->width;
+            self->coordinates->height = coordinates->height;
             self->coordinates->startx = coordinates->startx;
             self->coordinates->starty = coordinates->starty;
 
@@ -327,78 +453,10 @@ int widget_get_coordinates(widget_t *self, coordinates_t *coordinates) {
 
         if ((self != NULL) && (coordinates != NULL)) {
 
-            (*coordinates).cols   = self->coordinates->cols;
-            (*coordinates).rows   = self->coordinates->rows;
+            (*coordinates).width  = self->coordinates->width;
+            (*coordinates).height = self->coordinates->height;
             (*coordinates).startx = self->coordinates->startx;
             (*coordinates).starty = self->coordinates->starty;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int widget_set_padding(widget_t *self, padding_t *padding) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL) && (padding != NULL)) {
-
-            self->padding->top    = padding->top;
-            self->padding->left   = padding->left;
-            self->padding->right  = padding->right;
-            self->padding->bottom = padding->bottom;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int widget_get_padding(widget_t *self, padding_t *padding) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL) && (padding != NULL)) {
-
-            (*padding).top = self->padding->top;
-            (*padding).left = self->padding->left;
-            (*padding).right = self->padding->right;
-            (*padding).bottom = self->padding->bottom;
 
         } else {
 
@@ -427,127 +485,116 @@ int widget_get_padding(widget_t *self, padding_t *padding) {
 
 int _widget_ctor(object_t *object, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
     widget_t *self = NULL;
     theme_t *theme = NULL;
-    padding_t *padding = NULL;
     coordinates_t *coordinates = NULL;
 
     if (object != NULL) {
 
-        /* default theme */
-
-        errno = 0;
-        if ((theme = calloc(1, sizeof(theme_t))) != NULL) {
-
-            theme->attribute = A_NORMAL;
-            theme->background = BLACK;
-            theme->foreground = WHITE;
-
-        } else {
-
-            object_set_error1(object, errno);
-            goto fini;
-
-        }
-
-        /* default coordinates */
-        
-        errno = 0;
-        if ((coordinates = calloc(1, sizeof(coordinates_t))) != NULL) {
+        when_error_in {
             
-            coordinates->cols = 1;
-            coordinates->rows = 1;
-            coordinates->startx = 0;
-            coordinates->starty = 0;
-            
-        } else {
-            
-            object_set_error1(object, errno);
-            goto fini;
-            
-        }
-        
-        /* default padding */
+            /* default theme */
 
-        errno = 0;
-        if ((padding = calloc(1, sizeof(padding_t))) != NULL) {
+            errno = 0;
+            if ((theme = calloc(1, sizeof(theme_t))) != NULL) {
 
-            padding->top = 1;
-            padding->left = 1;
-            padding->right = 1;
-            padding->bottom = 1;
+                theme->attribute = A_NORMAL;
+                theme->background = BLACK;
+                theme->foreground = WHITE;
+
+            } else {
+
+                cause_error(errno);
+                
+            }
+
+            /* default coordinates */
+
+            errno = 0;
+            if ((coordinates = calloc(1, sizeof(coordinates_t))) != NULL) {
+
+                coordinates->width  = 1;
+                coordinates->height = 1;
+                coordinates->startx = 0;
+                coordinates->starty = 0;
+
+            } else {
+
+                cause_error(errno);
+
+            }
             
-        } else {
-            
-            object_set_error1(object, errno);
-            goto fini;
-            
-        }
-        
-        /* capture our items */
+            /* capture our items */
 
-        if (items != NULL) {
+            if (items != NULL) {
 
-            int x;
-            for (x = 0;; x++) {
+                int x;
+                for (x = 0;; x++) {
 
-                if ((items[x].buffer_length == 0) &&
-                    (items[x].item_code == 0)) break;
+                    if ((items[x].buffer_length == 0) &&
+                        (items[x].item_code == 0)) break;
 
-                switch(items[x].item_code) {
-                    case WIDGET_K_THEME: {
-                        memcpy(theme, 
-                               items[x].buffer_address, 
-                               items[x].buffer_length);
-                        break;
+                    switch(items[x].item_code) {
+                        case WIDGET_K_THEME: {
+                            memcpy(theme, 
+                                   items[x].buffer_address, 
+                                   items[x].buffer_length);
+                            break;
+                        }
+                        case WIDGET_K_COORDINATES: {
+                            memcpy(coordinates, 
+                                   items[x].buffer_address, 
+                                   items[x].buffer_length);
+                            break;
+                        }
                     }
-                    case WIDGET_K_COORDINATES: {
-                        memcpy(coordinates, 
-                               items[x].buffer_address, 
-                               items[x].buffer_length);
-                        break;
-                    }
-                    case WIDGET_K_PADDING: {
-                        memcpy(padding, 
-                               items[x].buffer_address, 
-                               items[x].buffer_length);
-                        break;
-                    }
+
                 }
 
             }
 
-        }
+            /* initialize our base klass here */
 
-        /* initialize our base klass here */
+            object_set_error1(object, OK);
 
-        object_set_error1(object, OK);
+            /* initialize our derived klass here */
 
-        /* initialize our derived klass here */
+            self = WIDGET(object);
 
-        self = WIDGET(object);
+            /* assign our methods here */
 
-        /* assign our methods here */
+            self->ctor = _widget_ctor;
+            self->dtor = _widget_dtor;
+            self->_compare = _widget_compare;
+            self->_override = _widget_override;
 
-        self->ctor = _widget_ctor;
-        self->dtor = _widget_dtor;
-        self->_compare = _widget_compare;
-        self->_override = _widget_override;
-        self->_draw = _widget_draw;
-        self->_erase = _widget_erase;
+            self->_add = widget_add;
+            self->_draw = _widget_draw;
+            self->_erase = _widget_erase;
+            self->_remove = _widget_remove;
 
-        /* initialize internal variables here */
+            /* initialize internal variables here */
 
-        self->theme = theme;
-        self->padding = padding;
-        self->coordinates = coordinates;
+            self->theme = theme;
+            self->coordinates = coordinates;
 
-        stat = OK;
+            stat = que_init(&self->things);
+            check_status(stat, QUE_OK, E_INVOPS);
+
+            exit_when;
+
+        } use {
+
+            stat = ERR;
+
+            object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+            clear_error();
+
+        } end_when;
 
     }
 
-    fini:
     return stat;
 
 }
@@ -560,7 +607,6 @@ int _widget_dtor(object_t *object) {
     /* free local resources here */
 
     free(widget->theme);
-    free(widget->padding);
     free(widget->coordinates);
 
     /* walk the chain, freeing as we go */
@@ -590,6 +636,11 @@ int _widget_override(widget_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case WIDGET_M_ADD: {
+                    self->_add = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
                 case WIDGET_M_DRAW: {
                     self->_draw = items[x].buffer_address;
                     stat = OK;
@@ -597,6 +648,16 @@ int _widget_override(widget_t *self, item_list_t *items) {
                 }
                 case WIDGET_M_ERASE: {
                     self->_erase = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WIDGET_M_EVENT: {
+                    self->_event = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case WIDGET_M_REMOVE: {
+                    self->_remove = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
@@ -619,23 +680,46 @@ int _widget_compare(widget_t *self, widget_t *other) {
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
         (self->_override == other->_override) &&
+        (self->_add == other->_add) &&
         (self->_draw == other->_draw) &&
         (self->_erase == other->_erase) &&
+        (self->_event == other->_event) &&
+        (self->_remove == other->_remove) &&
         (self->theme->attribute == self->theme->attribute) &&
         (self->theme->background == self->theme->background) &&
         (self->theme->foreground == self->theme->foreground) &&
-        (self->padding->top == other->padding->top) &&
-        (self->padding->left == other->padding->left) &&
-        (self->padding->right == other->padding->right) &&
-        (self->padding->bottom == other->padding->bottom) &&
-        (self->coordinates->cols == other->coordinates->cols) &&
-        (self->coordinates->rows == other->coordinates->rows) &&
+        (self->coordinates->width == other->coordinates->width) &&
+        (self->coordinates->height == other->coordinates->height) &&
         (self->coordinates->startx == other->coordinates->startx) &&
         (self->coordinates->starty == other->coordinates->starty) ) {
 
         stat = OK;
 
     }
+
+    return stat;
+
+}
+
+int _widget_add(widget_t *self, void *data) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = que_push_head(&self->things, data);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -650,11 +734,11 @@ int _widget_draw(widget_t *self) {
     int attr = self->theme->attribute;
     int col = self->coordinates->startx;
     int row = self->coordinates->starty;
-    char *blank = string(self->coordinates->cols, '.');
+    char *blank = string(self->coordinates->width, '.');
 
     when_error_in {
 
-        for (x = 0; x < self->coordinates->rows; x++) {
+        for (x = 0; x < self->coordinates->height; x++) {
 
             stat = move(row + x, col);
             check_status(stat, OK, E_INVOPS);
@@ -677,7 +761,7 @@ int _widget_draw(widget_t *self) {
         exit_when;
 
     } use {
-        
+
         stat = ERR;
 
         object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
@@ -698,11 +782,11 @@ int _widget_erase(widget_t *self) {
     int attr = self->theme->attribute;
     int col = self->coordinates->startx;
     int row = self->coordinates->starty;
-    char *blank = spaces(self->coordinates->cols);
+    char *blank = spaces(self->coordinates->width);
 
     when_error_in {
 
-        for (x = 0; x < self->coordinates->rows; x++) {
+        for (x = 0; x < self->coordinates->height; x++) {
 
             stat = move(row + x, col);
             check_status(stat, OK, E_INVOPS);
@@ -725,7 +809,7 @@ int _widget_erase(widget_t *self) {
         exit_when;
 
     } use {
-        
+
         stat = ERR;
 
         object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
@@ -734,6 +818,55 @@ int _widget_erase(widget_t *self) {
     } end_when;
 
     return stat;
+
+}
+
+int _widget_remove(widget_t *self, void *data) {
+
+    int stat = OK;
+    widget_t *temp = NULL;
+
+    when_error_in {
+
+        for (temp = que_first(&self->things);
+             temp != NULL;
+             temp = que_next(&self->things)) {
+
+            if (memcmp(temp, data, sizeof(widget_t)) == 0) {
+
+                widget_t *junk = que_delete(&self->things);
+                free(junk);
+                break;
+
+            }
+
+        }
+
+        if (que_empty(&self->things)) {
+
+            stat = que_init(&self->things);
+            check_status(stat, QUE_OK, E_INVOPS);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return OK;
+
+}
+
+int _widget_event(widget_t *self, events_t *event) {
+
+    return OK;
 
 }
 

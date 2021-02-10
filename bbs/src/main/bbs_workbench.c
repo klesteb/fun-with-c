@@ -71,8 +71,21 @@ int _bbs_read_stdin(workbench_t *self) {
 
         } else if (ch == KEY_F(12)) {
 
-            self->dtor(OBJECT(self));
-            raise(SIGTERM);
+            if ((self->panels > 0)) {
+
+                window_t *window = NULL;
+
+                window = panel_userptr(self->panel);
+                self->_remove_window(self, window);
+                update_panels();
+                doupdate();
+
+            } else {
+
+                self->dtor(OBJECT(self));
+                raise(SIGTERM);
+
+            }
 
         } else {
 

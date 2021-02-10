@@ -51,10 +51,12 @@ struct _event_s {
     int (*_override)(event_t *, item_list_t *);
 
     int (*_loop)(event_t *);
+    int (*_break)(event_t *);
     int (*_register_input)(event_t *, int , int (*input)(void *), void *);
     int (*_register_worker)(event_t *, int , int (*input)(void *), void *);
     int (*_register_timer)(event_t *, int, double, int (*input)(void *), void *);
-    
+
+    int broken;
     queue handlers;
 };
 
@@ -77,6 +79,7 @@ extern int event_override(event_t *, item_list_t *);
 extern char *event_version(event_t *);
 
 extern int event_loop(event_t *);
+extern int event_break(event_t *);
 extern int event_register_input(event_t *, int, int (*input)(void *), void *);
 extern int event_register_worker(event_t *, int, int (*input)(void *), void *);
 extern int event_register_timer(event_t *, int, double, int (*input)(void *), void *);

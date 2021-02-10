@@ -945,7 +945,7 @@ int _window_event(window_t *self, events_t *event) {
 
 int _window_refresh(window_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
     container_t *container = NULL;
 
     if (self->boxed) {
@@ -959,7 +959,10 @@ int _window_refresh(window_t *self) {
          container != NULL;
          container = que_next(&self->containers)) {
 
+fprintf(stderr, "found container\n");
+fprintf(stderr, "container %p\n", container);
         stat = container_refresh(container);
+fprintf(stderr, "container stat %d\n", stat);
         if (stat != OK) goto fini;
 
     }

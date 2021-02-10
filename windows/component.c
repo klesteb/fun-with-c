@@ -892,7 +892,7 @@ int _component_override(component_t *self, item_list_t *items) {
 
 int _component_erase(component_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
     if (self->area != NULL) {
 
@@ -907,7 +907,7 @@ int _component_erase(component_t *self) {
 
 int _component_refresh(component_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
 
     if ((stat == self->_erase(self)) == OK) {
 

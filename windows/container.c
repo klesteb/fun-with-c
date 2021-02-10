@@ -546,7 +546,7 @@ int _container_erase(container_t *self) {
 
 int _container_refresh(container_t *self) {
 
-    int stat = ERR;
+    int stat = OK;
     component_t *component = NULL;
 
     if (self->area != NULL) {
@@ -555,7 +555,10 @@ int _container_refresh(container_t *self) {
              component != NULL;
              component = que_prev(&self->components)) {
 
+fprintf(stderr, "found a component\n");
+fprintf(stderr, "component %p\n", component);            
             if ((stat = component_refresh(component)) != OK) {
+fprintf(stderr, "component stat %d\n", stat);
 
                 break;
 

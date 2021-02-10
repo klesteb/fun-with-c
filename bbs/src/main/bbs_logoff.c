@@ -11,11 +11,28 @@
 /*---------------------------------------------------------------------------*/
 
 #include "bbs_common.h"
-#include "interfaces.h"
+#include "bbs_protos.h"
 
-int bbs_logoff(error_trace_t *error) {
+/*---------------------------------------------------------------------------*/
 
-    return OK;
+int bbs_logoff(error_trace_t *errors) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
 
 }
 

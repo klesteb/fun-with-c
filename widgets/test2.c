@@ -34,16 +34,15 @@ int main(void) {
     theme_t junk1;
     coordinates_t junk2;
     coordinates_t coordinates;
-    padding_t junk3;
 
     theme.attribute  = A_NORMAL;
-    theme.foreground = WHITE;
-    theme.background = BLACK;
+    theme.foreground = BLACK;
+    theme.background = RED;
 
-    coordinates.cols = 40;
-    coordinates.rows = 10;
+    coordinates.width  = 40;
+    coordinates.height = 10;
     coordinates.startx = 10;
-    coordinates.starty = 10;
+    coordinates.starty = 4;
 
     SET_ITEM(items[0], WIDGET_K_THEME, &theme, sizeof(theme_t), NULL);
     SET_ITEM(items[1], WIDGET_K_COORDINATES, &coordinates, sizeof(coordinates_t), NULL);
@@ -68,19 +67,11 @@ int main(void) {
         stat = widget_get_coordinates(widget, &junk2);
         check_return(stat, widget);
 
-        printw("rows: %d, cols: %d, startx: %d, starty: %d\n", 
-               junk2.rows, junk2.cols, junk2.startx, junk2.starty);
+        printw("height: %d, width: %d, startx: %d, starty: %d\n", 
+               junk2.height, junk2.width, junk2.startx, junk2.starty);
         refresh();
 
         getch();
-
-        stat = widget_get_padding(widget, &junk3);
-        check_return(stat, widget);
-
-        printw("top: %d, left: %d, right: %d, bottom: %d\n", 
-               junk3.top, junk3.left, junk3.right, junk3.bottom);
-
-        refresh();
 
         stat = widget_draw(widget);
         check_return(stat, widget);

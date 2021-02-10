@@ -11,15 +11,18 @@
 /*---------------------------------------------------------------------------*/
 
 #include "bbs_common.h"
-#include "interfaces.h"
+#include "bbs_protos.h"
+
+#include "containers/menus/bar.h"
+#include "containers/menus/box.h"
+#include "components/menu/menu_items.h"
 
 /*---------------------------------------------------------------------------*/
 
-int bbs_list_known_rooms(queue *results, error_trace_t *errors) {
+int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *), error_trace_t *errors) {
 
     queue temp;
     int stat = OK;
-    error_trace_t error;
     room_search_t *result = NULL;
 
     when_error_in {
@@ -27,14 +30,14 @@ int bbs_list_known_rooms(queue *results, error_trace_t *errors) {
         stat = que_init(&temp);
         check_status(stat, OK, E_INVOPS);
 
-        stat = room_search(rooms, NULL, 0, find_rooms_all, &temp);
+        stat = room_search(rooms, NULL, 0, filter, &temp);
         check_return(stat, rooms);
 
         while ((result = que_pop_tail(&temp))) {
 
             if (known_room(result)) {
 
-                stat = que_push_head(results);
+                stat = que_push_head(results, result);
                 check_status(stat, OK, E_NOQUEUE);
 
             }
@@ -58,33 +61,72 @@ int bbs_list_known_rooms(queue *results, error_trace_t *errors) {
 
 }
 
-int bbs_list_message_rooms(queue *results, error_trace_t *errors) {
+int load_room(void *data, int len) {
 
-    queue temp;
     int stat = OK;
-    error_trace_t error;
-    room_search_t *result = NULL;
 
     when_error_in {
 
-        stat = que_init(&temp);
-        check_status(stat, OK, E_INVOPS);
+        memcpy(&qroom_index, data, len);
 
-        stat = room_search(rooms, NULL, 0, find_rooms_messages, &temp);
+        stat = room_get(rooms, qroom_index, &qroom);
         check_return(stat, rooms);
 
-        while ((result = que_pop_tail(&temp))) {
+        if (qroom.flags & RM_MESSAGES) {
+            
+        } else if (qroom.flags & RM_BULLETIN) {
+            
+        } else if (qroom.flags & RM_DIRECTORY) {
+            
+        } else if (qroom.flags & RM_SUBSYS) {
+            
+        }
+        
+        exit_when;
 
-            if (known_room(result)) {
+    } use {
 
-                stat = que_push_head(results);
-                check_status(stat, OK, E_NOQUEUE);
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
 
-            }
+    } end_when;
 
-            free(result);
+    return stat;
+
+}
+
+int create_menu_item(room_search_t *result, component_t **item, error_trace_t *errors) {
+
+    int stat = OK;
+    item_data_t *data = NULL;
+
+    when_error_in {
+
+        errno = 0;
+        data = calloc(1, sizeof(item_data_t));
+        if (data == NULL) {
+
+            cause_error(errno);
 
         }
+
+        errno = 0;
+        *item = calloc(1, sizeof(component_t));
+        if (*item == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        data->label = strdup(result->name);
+        data->description = strdup(result->description);
+        data->callback = load_room;
+        data->data = (void *)&result->index;
+        data->data_size = sizeof(int);
+
+        *item = menu_item_create(data);
+        check_creation(*item);
 
         exit_when;
 
@@ -101,14 +143,70 @@ int bbs_list_message_rooms(queue *results, error_trace_t *errors) {
 
 }
 
-int bbs_load_room(int index, room_base_t *room, error_trace_t *errors) {
+int bbs_list_rooms(int type, error_trace_t *errors) {
 
     int stat = OK;
+    queue results;
+    char *title = NULL;
+    error_trace_t error;
+    container_t *menu = NULL;
+    component_t *item = NULL;
+    room_search_t *result = NULL;
+    int row = getbegy(stdscr) / 2;
+    int col = getbegx(stdscr) / 2;
+    int width = getmaxx(stdscr) / 2;
+    int height = getmaxy(stdscr) / 2;
 
     when_error_in {
 
-        stat = room_get(rooms, index, room);
-        check_status(stat, rooms);
+        stat = que_init(&results);
+        check_status(stat, QUE_OK, E_INVOPS);
+
+        switch (type) {
+            case RM_BULLETIN:
+            case RM_DIRECTORY:
+            case RM_SUBSYS:
+            case RM_MESSAGES:
+                title = "Message Rooms";
+                stat = list_rooms(&results, find_rooms_messages, &error);
+                check_status2(stat, OK, error);
+                break;
+            default:
+                title = "Available Rooms";
+                stat = list_rooms(&results, find_rooms_all, &error);
+                check_status2(stat, OK, error);
+                break;
+        }
+
+        available_rooms = window_create(row, col, height, width);
+        check_creation(available_rooms);
+
+        stat = window_box(available_rooms, title);
+        check_return(stat, available_rooms);
+
+        menu = box_menu_create(1, 1, height - 2, width - 2);
+        check_creation(menu);
+
+        while ((result = que_pop_tail(&results))) {
+
+            stat = create_menu_item(result, &item, &error);
+            check_status2(stat, OK, error);
+
+            stat = container_add_component(menu, item);
+            check_return(stat, menu);
+
+            free(result);
+
+        }
+
+        stat = window_add_container(available_rooms, menu);
+        check_return(stat, available_rooms);
+
+        stat = workbench_add_window(workbench, available_rooms);
+        check_return(stat, workbench);
+
+        stat = workbench_set_focus(workbench, available_rooms);
+        check_return(stat, workbench);
 
         exit_when;
 

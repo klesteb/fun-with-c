@@ -45,7 +45,7 @@ extern workbench_t *workbench;
 
 extern int xnode;
 extern int sysop;
-extern int room_index;
+extern int qroom_index;
 extern int user_index;
 extern int qnode_index;
 extern char *username;

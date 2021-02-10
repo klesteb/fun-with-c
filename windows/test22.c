@@ -4,6 +4,7 @@
 #include <errno.h>
 
 #include "when.h"
+#include "event.h"
 #include "window.h"
 #include "container.h"
 #include "component.h"
@@ -11,6 +12,9 @@
 #include "components/label.h"
 #include "components/hline.h"
 #include "containers/vertical.h"
+
+event_t *events = NULL;
+workbench_t *wb = NULL;
 
 window_t *create_window(int row, int col, int height, int width, char *text, int *stat) {
 
@@ -62,17 +66,78 @@ window_t *create_window(int row, int col, int height, int width, char *text, int
 
 }
 
+int process_stdin(void *data) {
+
+    int stat = OK;
+    int again = FALSE;
+
+    when_error_in {
+
+        stat = workbench_dispatch(wb, &again);
+        check_return(stat, wb);
+
+        if (again) {
+
+            stat = event_register_worker(events, FALSE, process_stdin, NULL);
+            check_return(stat, events);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int read_stdin(void *data) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = workbench_capture(wb);
+        check_return(stat, wb);
+
+        stat = event_register_worker(events, FALSE, process_stdin, NULL);
+        check_return(stat, events);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int main(int argc, char **argv) {
 
     int stat = OK;
     window_t win2;
     window_t *win1 = NULL;
-    workbench_t *wb = NULL;
 
     when_error {
 
         wb = workbench_create(NULL);
         check_creation(wb);
+
+        events = event_create();
+        check_creation(events);
 
         printw("Press ^C or F12 to exit, F11 to cycle windows\n");
         refresh();
@@ -102,7 +167,14 @@ int main(int argc, char **argv) {
 
         }
 
-        workbench_loop(wb);
+        stat = workbench_refresh(wb);
+        check_return(stat, wb);
+
+        stat = event_register_input(events, fileno(stdin), read_stdin, NULL);
+        check_return(stat, events);
+
+        stat = event_loop(events);
+        check_return(stat, events);
 
         exit_when;
 

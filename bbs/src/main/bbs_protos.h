@@ -10,8 +10,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _INTERFACES_H
-#define _INTERFACES_H
+#ifndef _BBS_PROTOS_H
+#define _BBS_PROTOS_H
 
 #include "error_trace.h"
 
@@ -21,6 +21,15 @@ extern int bbs_logoff(error_trace_t *);
 /* access */
 
 extern int known_room(room_search_t *);
+
+/* bbs_ipc */
+
+extern int bbs_get_status(error_trace_t *);
+extern int bbs_send_status(int, int, error_trace_t *);
+
+/* bbs_rooms */
+
+extern int bbs_list_rooms(int, error_trace_t *);
 
 #endif
 

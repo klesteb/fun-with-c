@@ -3,11 +3,13 @@
 #include <ncurses.h>
 
 #include "when.h"
+#include "event.h"
 #include "common.h"
 #include "containers/menus/box.h"
 #include "components/menu/menu_items.h"
 
 
+event_t *events = NULL;
 workbench_t *wb = NULL;
 
 
@@ -77,6 +79,65 @@ window_t *create_menu(int *stat) {
 
 }
 
+int process_stdin(void *data) {
+
+    int stat = OK;
+    int again = FALSE;
+
+    when_error_in {
+
+        stat = workbench_dispatch(wb, &again);
+        check_return(stat, wb);
+
+        if (again) {
+
+            stat = event_register_worker(events, FALSE, process_stdin, NULL);
+            check_return(stat, events);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int read_stdin(void *data) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = workbench_capture(wb);
+        check_return(stat, wb);
+
+        stat = event_register_worker(events, FALSE, process_stdin, NULL);
+        check_return(stat, events);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int main(int argc, char **argv) {
 
     int stat = OK;
@@ -87,6 +148,9 @@ int main(int argc, char **argv) {
         wb = workbench_create(NULL);
         check_creation(wb);
 
+        events = event_create();
+        check_creation(events);
+
         printw("Press ^C or F12 to exit, F11 to cycle and F10 for menu\n");
         refresh();
 
@@ -96,8 +160,14 @@ int main(int argc, char **argv) {
         stat = workbench_add_window(wb, window);
         check_return(stat, wb);
 
-        stat = workbench_loop(wb);
+        stat = workbench_refresh(wb);
         check_return(stat, wb);
+
+        stat = event_register_input(events, fileno(stdin), read_stdin, NULL);
+        check_return(stat, events);
+
+        stat = event_loop(events);
+        check_return(stat, events);
 
         exit_when;
 

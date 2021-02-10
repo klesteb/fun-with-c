@@ -38,6 +38,7 @@ struct _workbench_s {
     int (*_refresh)(workbench_t *);
     int (*_read_stdin)(workbench_t *);
     int (*_init_terminal)(workbench_t *);
+    int (*_dispatch)(workbench_t *, int *);
     int (*_event)(workbench_t *, events_t *);
     int (*_get_focus)(workbench_t *, window_t *);
     int (*_set_focus)(workbench_t *, window_t *);
@@ -68,6 +69,7 @@ struct _workbench_s {
 #define WORKBENCH_M_GET_FOCUS        8
 #define WORKBENCH_M_INIT_TERMINAL    9
 #define WORKBENCH_M_READ_STDIN       10
+#define WORKBENCH_M_DISPATCH         11
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -78,6 +80,7 @@ extern int workbench_loop(workbench_t *);
 extern int workbench_destroy(workbench_t *);
 extern int workbench_refresh(workbench_t *);
 extern int workbench_capture(workbench_t *);
+extern int workbench_dispatch(workbench_t *, int *);
 extern int workbench_get_focus(workbench_t *, window_t *);
 extern int workbench_set_focus(workbench_t *, window_t *);
 extern int workbench_compare(workbench_t *, workbench_t *);

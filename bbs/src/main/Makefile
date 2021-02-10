@@ -20,12 +20,12 @@ STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(LIBS)libfinds.a $(OLIBS)libevent.a \
          $(OLIBS)libtracer.a $(OLIBS)liberrors.a $(OLIBS)libfiles.a \
          $(OLIBS)libwindows.a $(OLIBS)libobjects.a $(OLIBS)libcclibs.a \
-         $(OLIBS)libgpl.a -lncurses -lpanel
+         $(OLIBS)libgpl.a -lncurses -lpanel -lmenu
 CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) -I../../../windows -I../../../events -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
 LFLAGS =
 LOPTS = -o 
 MODULES = bbs_main.o bbs_run.o bbs_logoff.o bbs_workbench.o bbs_access.o \
-          bbs_ui.o bbs_ipc.o
+          bbs_ipc.o bbs_rooms.o
 #
 OLBS = $(STATIC)
 #
@@ -63,6 +63,9 @@ bbs_ui.o: bbs_ui.c
 #
 bbs_ipc.o: bbs_ipc.c
 	$(CC) $(CFLAGS) bbs_ipc.c
+#
+bbs_rooms.o: bbs_rooms.c
+	$(CC) $(CFLAGS) bbs_rooms.c
 #
 # eof
 #

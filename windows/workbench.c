@@ -56,6 +56,7 @@ int _workbench_draw(workbench_t *);
 int _workbench_refresh(workbench_t *);
 int _workbench_read_stdin(workbench_t *);
 int _workbench_init_terminal(workbench_t *);
+int _workbench_dispatch(workbench_t *, int *);
 int _workbench_event(workbench_t *, events_t *);
 int _workbench_get_focus(workbench_t *, window_t *);
 int _workbench_set_focus(workbench_t *, window_t *);
@@ -425,36 +426,33 @@ int workbench_capture(workbench_t *self) {
 
 }
 
-/*----------------------------------------------------------------*/
-/* private klass methods                                          */
-/*----------------------------------------------------------------*/
-
-static int _event_handler(NxAppContext context, NxWorkProcId id, void *data) {
+int workbench_dispatch(workbench_t *self, int *again) {
 
     int stat = OK;
-    events_t *event = NULL;
-    workbench_t *self = (workbench_t *)data;
 
-    if ((event = que_pop_head(&self->events))) {
+    when_error {
 
-        stat = self->_event(self, event);
+        if (self != NULL) {
 
-        free(event->data);
-        free(event);
+            stat = self->_dispatch(self, again);
+            check_status(stat, OK, E_INVOPS);
 
-        if (que_empty(&self->events)) {
+        } else {
 
-            stat = que_init(&self->events);
+            cause_error(E_INVPARM);
 
         }
 
-        if (stat == OK) {
+        exit_when;
 
-            workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
+    } use {
 
-        }
+        stat = ERR;
 
-    }
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -512,6 +510,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
         self->_event = _workbench_event;
         self->_refresh = _workbench_refresh;
         self->_init_terminal = init_terminal;
+        self->_dispatch = _workbench_dispatch;
         self->_get_focus = _workbench_get_focus;
         self->_set_focus = _workbench_set_focus;
         self->_read_stdin = _workbench_read_stdin;
@@ -661,6 +660,11 @@ int _workbench_override(workbench_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case WORKBENCH_M_DISPATCH: {
+                    self->_dispatch = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -683,6 +687,7 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         (self->_draw == other->_draw) &&
         (self->_event == other->_event) &&
         (self->_refresh == other->_refresh) &&
+        (self->_dispatch == other->_dispatch) &&
         (self->_get_focus == other->_get_focus) &&
         (self->_set_focus == other->_set_focus) &&
         (self->_read_stdin == other->_read_stdin) &&
@@ -694,39 +699,6 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         stat = OK;
 
     }
-
-    return stat;
-
-}
-
-int _workbench_event(workbench_t *self, events_t *event) {
-
-    int stat = ERR;
-    int length = 0;
-    char message[256];
-    window_t *window = NULL;
-
-    if (event->type == EVENT_K_MESSAGE) {
-
-        length = strlen((char *)event->data) + 3;
-        length = (length > 255) ? 255 : length; 
-        memset(message, '\0', 256);
-        snprintf(message, length, "* %s", (char *)event->data);
-
-        werase(self->messages);
-        mvwaddstr(self->messages, 0, 0, message);
-        stat = wnoutrefresh(self->messages);
-
-    } else if (self->panel != NULL) {
-
-        window = (window_t *)panel_userptr(self->panel);
-        stat = window_event(window, event);
-
-        update_panels();
-
-    }
-
-    doupdate();
 
     return stat;
 
@@ -765,8 +737,11 @@ int _workbench_refresh(workbench_t *self) {
          panel != NULL;
          panel = panel_above(panel)) {
 
+fprintf(stderr, "found a panel\n");
         window = (window_t *)panel_userptr(panel);
+fprintf(stderr, "window %p\n", window);
         stat = window_refresh(window);
+fprintf(stderr, "stat %d\n", stat);
         if (stat != OK) break;
 
     }
@@ -872,31 +847,6 @@ int _workbench_get_focus(workbench_t *self, window_t *window) {
 
 }
 
-int _workbench_queue_event(workbench_t *self, events_t *event) {
-
-    int stat = OK;
-
-    if (que_empty(&self->events)) {
-
-        stat = que_init(&self->events);
-
-    }
-
-    if (stat == OK) {
-
-        stat = que_push_tail(&self->events, event);
-        if (stat == OK) {
-
-            workproc_id = NxAddWorkProc(NULL, &_event_handler, (void *)self);
-
-        }
-
-    }
-
-    return stat;
-
-}
-
 int _workbench_init_terminal(workbench_t *self) {
 
     int stat = OK;
@@ -963,10 +913,100 @@ int _workbench_init_terminal(workbench_t *self) {
 
 }
 
+/*----------------------------------------------------------------*/
+/* event processing                                               */
+/*----------------------------------------------------------------*/
+
+int _workbench_event(workbench_t *self, events_t *event) {
+
+    int stat = ERR;
+    int length = 0;
+    char message[256];
+    window_t *window = NULL;
+
+    if (event->type == EVENT_K_MESSAGE) {
+
+        length = strlen((char *)event->data) + 3;
+        length = (length > 255) ? 255 : length; 
+        memset(message, '\0', 256);
+        snprintf(message, length, "* %s", (char *)event->data);
+
+        werase(self->messages);
+        mvwaddstr(self->messages, 0, 0, message);
+        stat = wnoutrefresh(self->messages);
+
+    } else if (self->panel != NULL) {
+
+        window = (window_t *)panel_userptr(self->panel);
+        stat = window_event(window, event);
+
+        update_panels();
+
+    }
+
+    doupdate();
+
+    return stat;
+
+}
+
+int _workbench_dispatch(workbench_t *self, int *again) {
+
+    int stat = OK;
+    events_t *event = NULL;
+
+    *again = TRUE;
+
+    if ((event = que_pop_head(&self->events))) {
+
+        stat = self->_event(self, event);
+
+        free(event->data);
+        free(event);
+
+        if (que_empty(&self->events)) {
+
+            *again = FALSE;
+            stat = que_init(&self->events);
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int _workbench_queue_event(workbench_t *self, events_t *event) {
+
+    int stat = OK;
+
+    if (que_empty(&self->events)) {
+
+        stat = que_init(&self->events);
+
+    }
+
+    if (stat == OK) {
+
+        stat = que_push_tail(&self->events, event);
+
+    }
+
+    return stat;
+
+}
+
 int _workbench_read_stdin(workbench_t *self) {
 
     int ch;
     int stat = OK;
+
+    if (que_empty(&self->events)) {
+
+        stat = que_init(&self->events);
+
+    }
 
     if ((ch = getch()) != ERR) {
 
@@ -989,7 +1029,7 @@ int _workbench_read_stdin(workbench_t *self) {
 
             }
 
-        } else if ((ch == KEY_RESIZE) || (ch == KEY_F(9))) {
+        } else if ((ch == KEY_RESIZE) || (ch == CTRL('w'))) {
 
             self->_refresh(self);
             update_panels();
@@ -1018,8 +1058,28 @@ int _workbench_read_stdin(workbench_t *self) {
 
         } else if (ch == KEY_F(12)) {
 
-            self->dtor(OBJECT(self));
-            raise(SIGTERM);
+            if ((self->panels > 0)) {
+
+                PANEL *current = NULL;
+                window_t *window = NULL;
+
+                window = panel_userptr(self->panel);
+                self->_remove_window(self, window);
+                update_panels();
+                doupdate();
+
+                if ((current = panel_below(NULL)) != NULL) {
+
+                    self->panel = current;
+                    
+                }
+
+            } else {
+
+                self->dtor(OBJECT(self));
+                raise(SIGTERM);
+                
+            }
 
         } else {
 

@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
 
         while ((ch = getch()) != KEY_F(12)) {
 
-            event_t *event = calloc(1, sizeof(event_t));
+            events_t *event = calloc(1, sizeof(events_t));
             KEVENT *kevent = calloc(1, sizeof(KEVENT));
             kevent->keycode = ch;
 

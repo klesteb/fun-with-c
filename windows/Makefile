@@ -6,15 +6,15 @@
 # Makefile to build libwindows.
 #
 CC = gcc
-CFLAGS = -Wall -c -I. -I../include -I../cclibs -I../objects -I../errors -I../gpl
-OLBS = ../libs/libwindows.a ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -lncurses -lpanel -lform -lmenu
+CFLAGS = -Wall -c -I. -I../include -I../events -I../cclibs -I../objects -I../errors -I../gpl
+OLBS = ../libs/libwindows.a ../libs/libevent.a ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -lncurses -lpanel -lform -lmenu
 LINK = gcc
 LFLAGS = -o 
 LIBS = ../libs/libwindows.a
 LIBR = ar -r
 #
 INCS = common.h container.h colors.h events.h jobs.h component.h workbench.h \
-       window.h widget.h containers/horizontal.h containers/vertical.h \
+       window.h containers/horizontal.h containers/vertical.h \
        containers/scrollable.h containers/form.h containers/menus/bar.h \
        containers/menus/box.h containers/menus/list.h \
        containers/menus/menus.h containers/menus/menus_priv.h \
@@ -23,7 +23,7 @@ INCS = common.h container.h colors.h events.h jobs.h component.h workbench.h \
        components/textarea.h components/input.h components/forms/forms.h \
        components/menu/menu_items.h
 #
-OBJS = container.o colors.o component.o workbench.o window.o widget.o \
+OBJS = container.o colors.o component.o workbench.o window.o  \
        containers/horizontal.o containers/vertical.o \
        containers/scrollable.o containers/form.o containers/menus/bar.o \
        containers/menus/box.o containers/menus/list.o \
@@ -36,8 +36,7 @@ OBJS = container.o colors.o component.o workbench.o window.o widget.o \
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
      test10 test11 test12 test13 test14 test15 test16 test17 test18 \
-     test19 test20 test21 test22 test23 test24 test25 test26 test27 \
-     test28 test29
+     test19 test20 test21 test22 test23 test24 test25 test26 
 #
 libs: $(OBJS)
 #
@@ -217,9 +216,9 @@ component.o: component.c $(INCS)
 	$(CC) $(CFLAGS) component.c
 	$(LIBR) $(LIBS) component.o
 #
-widget.o: widget.c $(INCS)
-	$(CC) $(CFLAGS) widget.c
-	$(LIBR) $(LIBS) widget.o
+#widget.o: widget.c $(INCS)
+#	$(CC) $(CFLAGS) widget.c
+#	$(LIBR) $(LIBS) widget.o
 #
 window.o: window.c $(INCS)
 	$(CC) $(CFLAGS) window.c

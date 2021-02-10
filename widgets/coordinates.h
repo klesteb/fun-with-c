@@ -14,8 +14,8 @@
 #define _COORDINATES_H
 
 typedef struct _coordiantes_s {
-    int cols;
-    int rows;
+    int width;
+    int height;
     int startx;
     int starty;
 } coordinates_t;

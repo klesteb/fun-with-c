@@ -85,26 +85,24 @@
 
 typedef struct _user_base_s {         
     char username[LEN_NAME+1];      /* Name for messages & mail         */
-    char password[LEN_PASSWD+1];    /* password (for BBS-only users)    */
     char axlevel;                   /* Access level                     */
     unsigned qwk;                   /* See QWK_ flags above             */
     unsigned flags;                 /* See US_ flags above              */
     int screenwidth;                /* For formatting messages          */
-    int screenlength;               /* lines before MORE                */
+    int screenlength;               /* Lines before MORE                */
     int timescalled;                /* Number of logins                 */
     int posted;                     /* Number of messages posted (ever) */
     long eternal;                   /* Eternal user number              */
-    long today;                     /* time spent online today          */
-    long timelimit;                 /* user's time limit in minutes     */
+    long today;                     /* Time spent online today          */
+    long timelimit;                 /* User's time limit in minutes     */
     long online;                    /* Total Number of seconds spent onl */
-    off_t profile;                  /* pointer to profile record        */
+    off_t profile;                  /* Pointer to profile record        */
     time_t lastcall;                /* Last time the user called        */
-    time_t firstcall;               /* time of first call               */
-    int revision;                   /* record revision                  */
+    time_t firstcall;               /* Time of first call               */
+    int revision;                   /* Record revision                  */
 } user_base_t;
 
 typedef struct _user_profile_s {
-    off_t userdb;                   /* pointer to user record           */
     char name[LEN_NAME+1];          /* user's real full name            */
     char addr[LEN_ADDRESS+1];       /* user's address                   */
     char city[LEN_CITY+1];          /* user's address                   */
@@ -113,6 +111,7 @@ typedef struct _user_profile_s {
     char phone[LEN_PHONE+1];        /* user's phone number              */
     char email[LEN_EMAIL+1];        /* user's email address             */
     char description[LEN_DESC+1];   /* user description                 */
+    int revision;                   /* record revision                  */
 } user_profile_t;
 
 typedef struct _user_search_s {

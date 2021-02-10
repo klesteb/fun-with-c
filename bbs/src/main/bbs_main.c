@@ -41,12 +41,14 @@ room_t *rooms = NULL;
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
 event_t *events = NULL;
+
 workbench_t *workbench = NULL;
+window_t *available_rooms = NULL;
 
 int xnode = 1;
 int sysop = FALSE;
 int user_index = 0;
-int room_index = 0;
+int qroom_index = 0;
 int qnode_index = 0;
 char *username = NULL;
 
@@ -155,12 +157,12 @@ int setup(error_trace_t *errors) {
 
         /* load the lobby */
 
-        stat = room_find(rooms, &lobby, sizeof(int), find_room_by_number, &room_index);
+        stat = room_find(rooms, &lobby, sizeof(int), find_room_by_number, &qroom_index);
         check_return(stat, rooms);
 
-        if (room_index > 0) {
+        if (qroom_index > 0) {
 
-            stat = room_get(rooms, room_index, &qroom);
+            stat = room_get(rooms, qroom_index, &qroom);
             check_return(stat, rooms);
 
         } else {
@@ -245,7 +247,7 @@ int main(int argc, char **argv) {
                 break;
             case 'h':
                 printf("\n");
-                printf("xa-bbs %s - Linux port\n", bbs_version());
+                printf("xa-bbs %s - linux port\n", bbs_version());
                 printf("\n");
                 printf("Usage: xa-bbs [-s] [-n <number>] [-c <filename>]\n");
                 printf("\n");
@@ -273,8 +275,8 @@ int main(int argc, char **argv) {
         stat = setup(&errors);
         check_status2(stat, OK, errors);
 
-        stat = bbs_init_terminal(&errors);
-        check_status2(stat, OK, errors);
+        /* stat = bbs_init_terminal(&errors); */
+        /* check_status2(stat, OK, errors); */
 
         stat = bbs_run(&errors);
         check_status2(stat, OK, errors);

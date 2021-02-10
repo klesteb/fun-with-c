@@ -11,28 +11,100 @@
 /*---------------------------------------------------------------------------*/
 
 #include "bbs_common.h"
-#include "interfaces.h"
+#include "bbs_protos.h"
 
 /*---------------------------------------------------------------------------*/
 
+int process_stdin(void *data) {
+
+    int stat = OK;
+    int again = FALSE;
+
+    when_error_in {
+
+        stat = workbench_dispatch(workbench, &again);
+        check_return(stat, workbench);
+
+        if (again) {
+
+            stat = event_register_worker(events, FALSE, process_stdin, NULL);
+            check_return(stat, events);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int read_stdin(void *data) {
 
-    workbench_capture(workbench);
-    return OK;
+    int stat = OK;
+
+    when_error_in {
+
+        stat = workbench_capture(workbench);
+        check_return(stat, workbench);
+
+        stat = event_register_worker(events, FALSE, process_stdin, NULL);
+        check_return(stat, events);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
 
 }
 
 int monitor_nodes(void *data) {
 
-    bbs_get_status();
-    return OK;
+    int stat = OK;
+    error_trace_t error;
+
+    when_error_in {
+
+        stat = bbs_get_status(&error);
+        check_status2(stat, OK, error);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
 
 }
 
 int bbs_run(error_trace_t *errors) {
 
     int stat = OK;
-    error_trace_t error;
 
     when_error_in {
 

@@ -17,7 +17,6 @@
 #include "colors.h"
 #include "window.h"
 #include "component.h"
-#include "container.h"
 #include "misc/misc.h"
 #include "error_codes.h"
 
@@ -305,14 +304,13 @@ int _window_compare(window_t *self, window_t *other) {
 
     int stat = ERR;
 
-    if (((object_compare(OBJECT(self), OBJECT(other)) == OK)) &&
-        ((widget_compare(WIDGET(self), WIDGET(other)) == OK)) &&
-         (self->tab == other->tab) &&
-         (self->tabs == other->tabs) &&
-         (self->boxed == other->boxed) &&
-         (self->title == other->title) &&
-         (self->inner == other->inner) &&
-         (self->outer == other->outer)) {
+    if (((widget_compare(WIDGET(self), WIDGET(other)) == OK)) &&
+        (self->tab == other->tab) &&
+        (self->tabs == other->tabs) &&
+        (self->boxed == other->boxed) &&
+        (self->title == other->title) &&
+        (self->inner == other->inner) &&
+        (self->outer == other->outer)) {
 
         stat = OK;
 
@@ -576,10 +574,6 @@ static int _box_window(widget_t *widget) {
 
         if (self->outer != NULL) {
 
-            /* errno = 0; */
-            /* stat = wbkgd(self->outer, COLOR_PAIR(colornum(widget->theme->foreground, widget->theme->background))); */
-            /* check_status(stat, OK, errno); */
-
             errno = 0;
             stat = box(self->outer, ACS_VLINE, ACS_HLINE);
             check_status(stat, OK, errno);
@@ -587,10 +581,6 @@ static int _box_window(widget_t *widget) {
             len = strlen(self->title);
 
             if (len > 0) {
-
-                errno = 0;
-                stat = wcolorset(self->outer, widget->theme->foreground, widget->theme->background);
-                check_status(stat, OK, errno);
 
                 errno = 0;
                 stat = wmove(self->outer, 0, 2);

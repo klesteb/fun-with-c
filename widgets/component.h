@@ -16,7 +16,7 @@
 #include <ncurses.h>
 
 #include "widget.h"
-#include "container.h"
+#include "window.h"
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */

@@ -11,13 +11,13 @@
 /*---------------------------------------------------------------------------*/
 
 #include <ncurses.h>
-#include <errno.h>
 
 #include "when.h"
 #include "colors.h"
 #include "widget.h"
 #include "component.h"
 #include "item_list.h"
+#include "error_codes.h"
 
 require_klass(COMPONENT_KLASS);
 
@@ -32,25 +32,21 @@ int _hline_draw(widget_t *widget) {
 
     when_error_in {
 
-        errno = 0;
         stat = wattron(self->window->inner, widget->theme->attribute);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
     
-        errno = 0;
         stat = wcoloron(self->window->inner, 
                         widget->theme->foreground, widget->theme->background);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
     
-        errno = 0;
         stat = mvwhline(self->window->inner, 
                         widget->coordinates->startx, 
                         widget->coordinates->starty, 
                         ACS_HLINE, widget->coordinates->width);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
         stat = wstandend(self->window->inner);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
         exit_when;
 

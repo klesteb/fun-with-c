@@ -18,6 +18,7 @@
 #include "widget.h"
 #include "component.h"
 #include "item_list.h"
+#include "error_codes.h"
 
 require_klass(COMPONENT_KLASS);
 
@@ -55,21 +56,17 @@ int _label_draw(widget_t *widget) {
         strcat(value, ":");
         memcpy(value, self->data, count);
 
-        errno = 0;
         stat = wattron(self->window->inner, widget->theme->attribute);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
         stat = wcoloron(self->window->inner, widget->theme->foreground, widget->theme->background);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
         stat = mvwaddstr(self->window->inner, widget->coordinates->startx, widget->coordinates->starty, value);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
         stat = wstandend(self->window->inner);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
         free(value);
 

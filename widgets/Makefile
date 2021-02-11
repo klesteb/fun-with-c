@@ -24,12 +24,14 @@ SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC
 OLBS = $(STATIC) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
 INCS = widget.h colors.h window.h component.h components/label.h \
-       components/hline.h components/vline.h
+       components/hline.h components/vline.h components/text.h \
+       components/prompt.h
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
-       components/hline.o components/vline.o
+       components/hline.o components/vline.o components/text.o \
+       components/prompt.o
 #
-all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9
 #
 debug:
 #
@@ -48,6 +50,8 @@ clean:
 	rm -f test5
 	rm -f test6
 	rm -f test7
+	rm -f test8
+	rm -f test9
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -76,6 +80,14 @@ test6: test6.o
 test7: test7.o
 	$(CC) $(CFLAGS) test7.c
 	$(LINK) $(LOPTS) test7 test7.o $(OLBS) -lncurses
+#
+test8: test8.o
+	$(CC) $(CFLAGS) test8.c
+	$(LINK) $(LOPTS) test8 test8.o $(OLBS) -lncurses
+#
+test9: test9.o
+	$(CC) $(CFLAGS) test9.c
+	$(LINK) $(LOPTS) test9 test9.o $(OLBS) -lncurses
 #
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c
@@ -109,6 +121,14 @@ components/vline.o: components/vline.c $(INCS)
 	$(CC) $(CFLAGS) $(LOPTS) components/vline.o components/vline.c 
 	$(LIBR) $(STATIC) components/vline.o
 #
+components/text.o: components/text.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/text.o components/text.c 
+	$(LIBR) $(STATIC) components/text.o
+#
+components/prompt.o: components/prompt.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/prompt.o components/prompt.c 
+	$(LIBR) $(STATIC) components/prompt.o
+#
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3
 #
@@ -120,6 +140,8 @@ shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/label.o components/label.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/hline.o components/hline.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/vline.o components/vline.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/text.o components/text.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/prompt.o components/prompt.c
 	$(LINK) $(SOPTS) $(SHARED) $(OBJS)
 #
 # eof

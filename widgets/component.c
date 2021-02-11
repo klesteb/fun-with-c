@@ -386,13 +386,11 @@ int _component_erase(widget_t *widget) {
 
         if (self->window != NULL) {
 
-            errno = 0;
             stat = wmove(self->window->inner, widget->coordinates->startx, widget->coordinates->starty);
-            check_status(stat, OK, errno);
+            check_status(stat, OK, E_INVOPS);
 
-            errno = 0;
             stat = wclrtoeol(self->window->inner);
-            check_status(stat, OK, errno);
+            check_status(stat, OK, E_INVOPS);
 
         }
 

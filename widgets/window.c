@@ -228,19 +228,19 @@ int _window_ctor(object_t *object, item_list_t *items) {
             self->boxed = boxed;
             self->title = strdup(title);
 
-            errno = 0;
+            height += 2;
+            width += 2;
             if ((self->outer = newwin(height, width, starty, startx)) == NULL) {
 
-                cause_error(errno);
+                cause_error(E_INVOPS);
 
             }
 
-            errno = 0;
             height -= 2;
             width  -= 2;
             if ((self->inner = derwin(self->outer, height, width, 1, 1)) == NULL) {
 
-                cause_error(errno);
+                cause_error(E_INVOPS);
 
             }
 
@@ -360,17 +360,14 @@ int _window_draw(widget_t *widget) {
 
     when_error_in {
 
-        errno = 0;
         stat = wattrset(self->outer, widget->theme->attribute);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
         stat = wcolorset(self->outer, widget->theme->foreground, widget->theme->background);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
         stat = wbkgd(self->inner, COLOR_PAIR(colornum(widget->theme->foreground, widget->theme->background)));
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
         if (self->boxed) {
 
@@ -388,13 +385,11 @@ int _window_draw(widget_t *widget) {
 
         }
 
-        errno = 0;
         stat = wstandend(self->inner);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
         stat = wnoutrefresh(self->inner);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
         exit_when;
 
@@ -429,15 +424,13 @@ int _window_erase(widget_t *widget) {
 
         if (self->inner != NULL) {
 
-            errno = 0;
             stat = wclear(self->inner);
-            check_status(stat, OK, errno);
+            check_status(stat, OK, E_INVOPS);
 
         }
 
-        errno = 0;
         stat = wnoutrefresh(self->inner);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
         exit_when;
 
@@ -542,9 +535,8 @@ int _window_event(widget_t *widget, events_t *event) {
             
         }
 
-        errno = 0;
         stat = wnoutrefresh(self->inner);
-        check_status(stat, OK, errno);
+        check_status(stat, OK, E_INVOPS);
 
         exit_when;
 
@@ -574,47 +566,38 @@ static int _box_window(widget_t *widget) {
 
         if (self->outer != NULL) {
 
-            errno = 0;
             stat = box(self->outer, ACS_VLINE, ACS_HLINE);
-            check_status(stat, OK, errno);
+            check_status(stat, OK, E_INVOPS);
 
             len = strlen(self->title);
 
             if (len > 0) {
 
-                errno = 0;
                 stat = wmove(self->outer, 0, 2);
-                check_status(stat, OK, errno);
+                check_status(stat, OK, E_INVOPS);
 
-                errno = 0;
                 stat = waddch(self->outer, ACS_RTEE);
-                check_status(stat, OK, errno);
+                check_status(stat, OK, E_INVOPS);
 
-                errno = 0;
                 stat = wmove(self->outer, 0, 3);
-                check_status(stat, OK, errno);
+                check_status(stat, OK, E_INVOPS);
 
-                errno = 0;
                 stat = waddstr(self->outer, self->title);
-                check_status(stat, OK, errno);
+                check_status(stat, OK, E_INVOPS);
 
-                errno = 0;
-                check_status(stat, OK, errno);
                 stat = wmove(self->outer, 0, 3 + len);
+                check_status(stat, OK, E_INVOPS);
 
-                errno = 0;
                 stat = waddch(self->outer, ACS_LTEE);
-                check_status(stat, OK, errno);
+                check_status(stat, OK, E_INVOPS);
 
-                errno = 0;
                 stat = wstandend(self->outer);
-                check_status(stat, OK, errno);
+                check_status(stat, OK, E_INVOPS);
 
             }
 
-            errno = 0;
             stat = wnoutrefresh(self->outer);
-            check_status(stat, OK, errno);
+            check_status(stat, OK, E_INVOPS);
 
         }
 

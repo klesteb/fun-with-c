@@ -32,6 +32,7 @@ struct _component_s {
     int (*_override)(component_t *, item_list_t *);
 
     int tab;
+    int padding;
     int data_size;
     void *data;
     window_t *window;
@@ -43,9 +44,10 @@ struct _component_s {
 
 #define COMPONENT(x) ((component_t *)(x))
 
-#define COMPONENT_K_WINDOW 7
-#define COMPONENT_K_TAB    8
-#define COMPONENT_K_DATA   9
+#define COMPONENT_K_WINDOW  7
+#define COMPONENT_K_TAB     8
+#define COMPONENT_K_DATA    9
+#define COMPONENT_K_PADDING 10
 
 #define KEY_IILEGAL (KEY_MAX - 1)
 
@@ -53,7 +55,7 @@ struct _component_s {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern component_t *component_create(window_t *, int, int, int, int, int, void *, int);
+extern component_t *component_create(window_t *, int, int, int, int, int, int, void *, int);
 extern int component_destroy(component_t *);
 extern int component_compare(component_t *, component_t *); 
 

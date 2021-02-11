@@ -14,7 +14,7 @@
 #include <errno.h>
 
 #include "when.h"
-#include "container.h"
+#include "window.h"
 #include "component.h"
 #include "error_codes.h"
 
@@ -45,10 +45,10 @@ declare_klass(COMPONENT_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-component_t *component_create(window_t *window, int startx, int starty, int height, int width, int tab, void *data, int size) {
+component_t *component_create(window_t *window, int startx, int starty, int height, int width, int tab, int padding, void *data, int size) {
 
     int stat = ERR;
-    item_list_t items[5];
+    item_list_t items[6];
     coordinates_t coords;
     component_t *self = NULL;
 
@@ -60,16 +60,17 @@ component_t *component_create(window_t *window, int startx, int starty, int heig
     SET_ITEM(items[0], WIDGET_K_COORDINATES, &coords, sizeof(coordinates_t), NULL);
     SET_ITEM(items[1], COMPONENT_K_WINDOW, window, 0, NULL);
     SET_ITEM(items[2], COMPONENT_K_TAB, &tab, sizeof(int), NULL);
+    SET_ITEM(items[3], COMPONENT_K_PADDING, &padding, sizeof(int), NULL);
 
     if (data != NULL) {
 
-        SET_ITEM(items[3], COMPONENT_K_DATA, data, size, NULL);
-        SET_ITEM(items[4], 0, 0, 0, 0);
+        SET_ITEM(items[4], COMPONENT_K_DATA, data, size, NULL);
+        SET_ITEM(items[5], 0, 0, 0, 0);
 
     } else {
 
-        SET_ITEM(items[3], 0, 0, 0, 0);
         SET_ITEM(items[4], 0, 0, 0, 0);
+        SET_ITEM(items[5], 0, 0, 0, 0);
 
     }
 
@@ -228,6 +229,7 @@ int _component_ctor(object_t *object, item_list_t *items) {
     int stat = ERR;
     void *value = NULL;
     int value_size = 0;
+    int padding = FALSE;
     window_t *window = NULL;
     component_t *self = NULL;
 
@@ -274,6 +276,12 @@ int _component_ctor(object_t *object, item_list_t *items) {
                                    items[x].buffer_length);
                             break;
                         }
+                        case COMPONENT_K_PADDING: {
+                            memcpy(&padding, 
+                                   items[x].buffer_address,
+                                   items[x].buffer_length);
+                            break;
+                        }
                     }
 
                 }
@@ -295,6 +303,7 @@ int _component_ctor(object_t *object, item_list_t *items) {
             self->tab = tab;
             self->data = value;
             self->window = window;
+            self->padding = padding;
             self->data_size = value_size;
 
             exit_when;
@@ -335,15 +344,15 @@ int _component_compare(component_t *us, component_t *them) {
 
     int stat = ERR;
 
-    if (((object_compare(OBJECT(us), OBJECT(them))) == OK) &&
-        ((widget_compare(WIDGET(us), WIDGET(them)) == OK) &&
+    if (((widget_compare(WIDGET(us), WIDGET(them)) == OK) &&
+         (us->tab == them->tab) &&
          (us->ctor == them->ctor) &&
          (us->dtor == them->dtor) &&
          (us->data == them->data) &&
-         (us->tab == them->tab) &&
          (us->window == them->window) &&
+         (us->padding == them->padding) &&
          (us->data_size == them->data_size))) {
-
+        
         stat = OK;
 
     }

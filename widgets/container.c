@@ -277,8 +277,7 @@ int _container_compare(container_t *us, container_t *them) {
 
     int stat = ERR;
 
-    if (((object_compare(OBJECT(us), OBJECT(them))) == OK) &&
-        ((widget_compare(WIDGET(us), WIDGET(them))) == OK) &&
+    if (((widget_compare(WIDGET(us), WIDGET(them))) == OK) &&
         (us->ctor == them->ctor) &&
         (us->dtor == them->dtor) &&
         (us->_compare == them->_compare) &&

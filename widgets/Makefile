@@ -5,8 +5,8 @@
 #
 # Makefile to build widgets.
 #
-MAJOR=0
-MINOR=1
+MAJOR=1
+MINOR=0
 PATCH=0
 VERSION="$(MAJOR).$(MINOR).$(PATCH)"
 #
@@ -16,24 +16,28 @@ LIBR = ar rs
 WORKING = $(shell pwd)
 STATIC = libwidgets.a
 SHARED = libwidgets.so.$(VERSION)
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I. -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 #
 OLBS = $(STATIC) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
-INCS = widget.h colors.h window.h component.h
+INCS = widget.h colors.h window.h component.h components/label.h \
+       components/hline.h components/vline.h
 #
-OBJS = widget.o colors.o window.o component.o
+OBJS = widget.o colors.o window.o component.o components/label.o \
+       components/hline.o components/vline.o
 #
-all: $(OBJS) test1 test2 test3 test4 test5
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
 #
 debug:
 #
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f components/*.o
+	rm -f components/*~
 	rm -f $(STATIC)
 	rm -f $(SHARED)
 	rm -f widgets.3
@@ -42,6 +46,8 @@ clean:
 	rm -f test3
 	rm -f test4
 	rm -f test5
+	rm -f test6
+	rm -f test7
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -63,6 +69,14 @@ test5: test5.o
 	$(CC) $(CFLAGS) test5.c
 	$(LINK) $(LOPTS) test5 test5.o $(OLBS) -lncurses
 #
+test6: test6.o
+	$(CC) $(CFLAGS) test6.c
+	$(LINK) $(LOPTS) test6 test6.o $(OLBS) -lncurses
+#
+test7: test7.o
+	$(CC) $(CFLAGS) test7.c
+	$(LINK) $(LOPTS) test7 test7.o $(OLBS) -lncurses
+#
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c
 	$(LIBR) $(STATIC) colors.o
@@ -83,6 +97,18 @@ component.o: component.c $(INCS)
 	$(CC) $(CFLAGS) component.c
 	$(LIBR) $(STATIC) component.o
 #
+components/label.o: components/label.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/label.o components/label.c 
+	$(LIBR) $(STATIC) components/label.o
+#
+components/hline.o: components/hline.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/hline.o components/hline.c 
+	$(LIBR) $(STATIC) components/hline.o
+#
+components/vline.o: components/vline.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/vline.o components/vline.c 
+	$(LIBR) $(STATIC) components/vline.o
+#
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3
 #
@@ -91,6 +117,9 @@ shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) colors.o colors.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) window.o window.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) component.o component.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/label.o components/label.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/hline.o components/hline.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/vline.o components/vline.c
 	$(LINK) $(SOPTS) $(SHARED) $(OBJS)
 #
 # eof

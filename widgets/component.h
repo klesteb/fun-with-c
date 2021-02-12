@@ -36,6 +36,7 @@ struct _component_s {
     int data_size;
     void *data;
     window_t *window;
+    WINDOW *area;
 };
 
 /*----------------------------------------------------------------*/

@@ -301,6 +301,7 @@ int _component_ctor(object_t *object, item_list_t *items) {
             /* initialize internal variables here */
 
             self->tab = tab;
+            self->area = NULL;
             self->data = value;
             self->window = window;
             self->padding = padding;
@@ -334,7 +335,7 @@ int _component_dtor(object_t *object) {
     /* walk the chain, freeing as we go */
 
     object_demote(object, widget_t);
-    widget_destroy(WIDGET(object));
+    widget_destroy(widget);
 
     return stat;
 

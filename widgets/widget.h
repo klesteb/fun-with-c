@@ -53,6 +53,7 @@ struct _widget_s {
 #define WIDGET_K_THEME       2
 
 #define WIDGET_M_DESTRUCTOR 1
+#define WIDGET_M_DESTROY    1
 #define WIDGET_M_ADD        2
 #define WIDGET_M_DRAW       3
 #define WIDGET_M_ERASE      4

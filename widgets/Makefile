@@ -25,11 +25,11 @@ OLBS = $(STATIC) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a
 #
 INCS = widget.h colors.h window.h component.h components/label.h \
        components/hline.h components/vline.h components/text.h \
-       components/prompt.h components/textarea.h
+       components/prompt.h components/textarea.h components/input.h
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
-       components/prompt.o components/textarea.o
+       components/prompt.o components/textarea.o components/input.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 test10
 #
@@ -138,6 +138,10 @@ components/textarea.o: components/textarea.c $(INCS)
 	$(CC) $(CFLAGS) $(LOPTS) components/textarea.o components/textarea.c 
 	$(LIBR) $(STATIC) components/textarea.o
 #
+components/input.o: components/input.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/input.o components/input.c 
+	$(LIBR) $(STATIC) components/input.o
+#
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3
 #
@@ -152,6 +156,7 @@ shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/text.o components/text.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/prompt.o components/prompt.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/textarea.o components/textarea.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/input.o components/input.c
 	$(LINK) $(SOPTS) $(SHARED) $(OBJS)
 #
 # eof

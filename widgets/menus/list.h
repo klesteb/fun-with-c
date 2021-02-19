@@ -13,13 +13,14 @@
 #ifndef _LIST_MENU_H
 #define _LIST_MENU_H
 
-#include "container.h"
+#include "menus.h"
+#include "menus_list.h"
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern container_t *list_menu_create(int, int, int, int);
+extern menus_t *list_menu_create(int, int, int, int, menus_list_t *);
 
 #endif
 

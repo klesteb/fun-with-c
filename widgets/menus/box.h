@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2020 by Kevin L. Esteb                       */
+/*                Copyright (c) 2021 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -13,13 +13,14 @@
 #ifndef _BOX_MENU_H
 #define _BOX_MENU_H
 
-#include "container.h"
+#include "menus.h"
+#include "menus_list.h"
 
 /*----------------------------------------------------------------*/
-/* interface                                                      */
+/* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern container_t *box_menu_create(int, int, int, int);
+extern menus_t *box_menu_create(int, int, int, int, menus_list_t *);
 
 #endif
 

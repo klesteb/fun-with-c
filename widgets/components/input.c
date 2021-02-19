@@ -129,6 +129,19 @@ int _input_event(widget_t *widget, events_t *event) {
                 KEVENT *key = (KEVENT *)event->data;
 
                 switch(key->keycode) {
+                    case KEY_UP:
+                        COMPONENT(widget)->window->tab--;
+                        if (COMPONENT(widget)->window->tab < 0) {
+                            COMPONENT(widget)->window->tab = 1;
+                        }
+                        break;
+                    case KEY_ENTER:
+                    case KEY_DOWN:
+                        COMPONENT(widget)->window->tab++;
+                        if (COMPONENT(widget)->window->tab > COMPONENT(widget)->window->tabs) {
+                            COMPONENT(widget)->window->tab = 1;
+                        }
+                        break;
                     case KEY_LEFT:
                         if (data->bp > data->buf) {
                             data->bp--;

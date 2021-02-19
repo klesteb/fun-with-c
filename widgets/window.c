@@ -343,7 +343,7 @@ int _window_add(widget_t *widget, void *data) {
 
         stat = ERR;
 
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -396,7 +396,7 @@ int _window_draw(widget_t *widget) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -437,7 +437,7 @@ int _window_erase(widget_t *widget) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -483,7 +483,7 @@ int _window_remove(widget_t *widget, void *thing) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -513,28 +513,6 @@ int _window_event(widget_t *widget, events_t *event) {
 
         }
 
-        if (event->type == EVENT_K_KEYBOARD) {
-
-            KEVENT *key = (KEVENT *)event->data;
-
-            switch(key->keycode) {
-                case KEY_ENTER:
-                case KEY_DOWN:
-                    self->tab++;
-                    if (self->tab > self->tabs) {
-                        self->tab = 1;
-                    }
-                    break;
-                case KEY_UP:
-                    self->tab--;
-                    if (self->tab < 1) {
-                        self->tab = 1;
-                    }
-                    break;
-            }
-            
-        }
-
         stat = wnoutrefresh(self->inner);
         check_status(stat, OK, E_INVOPS);
 
@@ -543,7 +521,7 @@ int _window_event(widget_t *widget, events_t *event) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -606,7 +584,7 @@ static int _box_window(widget_t *widget) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;

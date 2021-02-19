@@ -69,7 +69,7 @@ int _text_draw(widget_t *widget) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;

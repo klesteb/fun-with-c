@@ -20,7 +20,7 @@
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern menus_t *box_menu_create(int, int, int, int, menus_list_t *);
+extern menus_t *box_menu_create(char *, int, int, int, int, int (*display)(const char *), menus_list_t *, int);
 
 #endif
 

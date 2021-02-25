@@ -140,7 +140,7 @@ int _list_menu_event(widget_t *widget, events_t *event) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-menus_t *list_menu_create(int startx, int starty, int height, int width, menus_list_t *list) {
+menus_t *list_menu_create(int startx, int starty, int height, int width, menus_list_t *list, int list_size) {
 
     item_list_t items[2];
     menus_t *self = NULL;
@@ -148,15 +148,14 @@ menus_t *list_menu_create(int startx, int starty, int height, int width, menus_l
 
     if ((data = calloc(1, sizeof(menus_data_t)))) {
 
-        data->col = 0;
-        data->row = 0;
-        data->mark = "->";
-        data->callback = NULL;
-        data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | 
-                         O_SHOWMATCH | O_NONCYCLIC);
+        if ((self = menus_create("", startx, starty, height, width, list, list_size))) {
 
-        if ((self = menus_create("", startx, starty, height, width, list))) {
-
+            data->col = 0;
+            data->row = 0;
+            data->mark = "->";
+            data->callback = NULL;
+            data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | 
+                             O_SHOWMATCH | O_NONCYCLIC);
             self->data = data;
 
             SET_ITEM(items[0], WIDGET_M_EVENT, _list_menu_event, 0, NULL);

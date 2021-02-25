@@ -84,9 +84,9 @@ int _bar_menu_event(widget_t *widget, events_t *event) {
                     }
                 }
 
-                stat = self->data->callback(widget);
+                stat = self->_show_description(self);
                 check_return(stat, self);
-                
+
                 stat = pos_menu_cursor(self->data->menu);
                 check_status(stat, E_OK, stat);
 
@@ -97,7 +97,7 @@ int _bar_menu_event(widget_t *widget, events_t *event) {
             stat = wnoutrefresh(self->inner);
             check_status(stat, OK, E_INVOPS);
 
-        }             
+        }
 
         exit_when;
 
@@ -117,7 +117,7 @@ int _bar_menu_event(widget_t *widget, events_t *event) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-menus_t *bar_menu_create(int startx, int starty, int height, int width, menus_list_t *list) {
+menus_t *bar_menu_create(int startx, int starty, int height, int width, int (*display)(const char *), menus_list_t *list, int list_size) {
 
     item_list_t items[2];
     menus_t *self = NULL;
@@ -125,14 +125,13 @@ menus_t *bar_menu_create(int startx, int starty, int height, int width, menus_li
 
     if ((data = calloc(1, sizeof(menus_data_t)))) {
 
-        data->row = 1;
-        data->col = 16;
-        data->mark = ">";
-        data->callback = self->_show_description;
-        data->options = (O_ONEVALUE | O_IGNORECASE | O_SHOWMATCH | O_ROWMAJOR);
+        if ((self = menus_create("", startx, starty, height, width, list, list_size))) {
 
-        if ((self = menus_create("", startx, starty, height, width, list))) {
-
+            data->row = 1;
+            data->col = 16;
+            data->mark = ">";
+            data->callback = display;
+            data->options = (O_ONEVALUE | O_IGNORECASE | O_SHOWMATCH | O_ROWMAJOR);
             self->data = data;
 
             SET_ITEM(items[0], WIDGET_M_EVENT, _bar_menu_event, 0, NULL);

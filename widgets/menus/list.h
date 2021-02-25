@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2020 by Kevin L. Esteb                       */
+/*                Copyright (c) 2021 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -20,7 +20,7 @@
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern menus_t *list_menu_create(int, int, int, int, menus_list_t *);
+extern menus_t *list_menu_create(int, int, int, int, menus_list_t *, int);
 
 #endif
 

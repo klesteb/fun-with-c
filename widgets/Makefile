@@ -26,14 +26,15 @@ OLBS = $(STATIC) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a
 INCS = widget.h colors.h window.h component.h components/label.h \
        components/hline.h components/vline.h components/text.h \
        components/prompt.h components/textarea.h components/input.h \
-       menus/menus.h
+       menus/menus.h menus/bar.h menus/box.h menus/list.h
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
        components/prompt.o components/textarea.o components/input.o \
        menus/menus.o menus/bar.o menus/box.o menus/list.o
 #
-all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 test10
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
+             test10 test11
 #
 debug:
 #
@@ -57,6 +58,7 @@ clean:
 	rm -f test8
 	rm -f test9
 	rm -f test10
+	rm -f test11
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -97,6 +99,10 @@ test9: test9.o
 test10: test10.o
 	$(CC) $(CFLAGS) test10.c
 	$(LINK) $(LOPTS) test10 test10.o $(OLBS) -lncurses
+#
+test11: test11.o
+	$(CC) $(CFLAGS) test11.c
+	$(LINK) $(LOPTS) test11 test11.o $(OLBS) -lncurses -lmenu
 #
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c
@@ -150,6 +156,18 @@ menus/menus.o: menus/menus.c $(INCS)
 	$(CC) $(CFLAGS) $(LOPTS) menus/menus.o menus/menus.c 
 	$(LIBR) $(STATIC) menus/menus.o
 #
+menus/box.o: menus/box.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) menus/box.o menus/box.c 
+	$(LIBR) $(STATIC) menus/box.o
+#
+menus/bar.o: menus/bar.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) menus/bar.o menus/bar.c 
+	$(LIBR) $(STATIC) menus/bar.o
+#
+menus/list.o: menus/list.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) menus/list.o menus/list.c 
+	$(LIBR) $(STATIC) menus/list.o
+#
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3
 #
@@ -166,6 +184,9 @@ shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/textarea.o components/textarea.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/input.o components/input.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) menus/menus.o menus/menus.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) menus/bar.o menus/bar.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) menus/box.o menus/box.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) menus/list.o menus/list.c
 	$(LINK) $(SOPTS) $(SHARED) $(OBJS)
 #
 # eof

@@ -34,7 +34,7 @@ int _menus_ctor(object_t *object, item_list_t *);
 int _menus_dtor(object_t *);
 int _menus_compare(menus_t *, menus_t *);
 int _menus_override(menus_t *, item_list_t *);
-int _menus_show_description(menus_t *, int (*inject)(events_t *));
+int _menus_show_description(menus_t *);
 
 int _menus_draw(widget_t *);
 int _menus_erase(widget_t *);
@@ -61,7 +61,7 @@ declare_klass(MENUS_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-menus_t *menus_create(char *title, int startx, int starty, int height, int width, menus_list_t *list) {
+menus_t *menus_create(char *title, int startx, int starty, int height, int width, menus_list_t *list, int list_size) {
 
     int stat = ERR;
     item_list_t items[4];
@@ -75,7 +75,7 @@ menus_t *menus_create(char *title, int startx, int starty, int height, int width
 
     SET_ITEM(items[0], WIDGET_K_COORDINATES, &coords, sizeof(coordinates_t), NULL);
     SET_ITEM(items[1], MENUS_K_TITLE, title, strlen(title), NULL);
-    SET_ITEM(items[2], MENUS_K_LIST, list, 0, NULL);
+    SET_ITEM(items[2], MENUS_K_LIST, list, list_size, NULL);
     SET_ITEM(items[3], 0, 0, 0, 0);
 
     self = (menus_t *)object_create(MENUS_KLASS, items, &stat);
@@ -179,35 +179,6 @@ int menus_override(menus_t *self, item_list_t *items) {
 
 }
 
-int menus_show_description(menus_t *self, int (*inject)(events_t *)) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if (self == NULL) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_show_description(self, inject);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -221,6 +192,7 @@ int _menus_ctor(object_t *object, item_list_t *items) {
     int starty = 0;
     int height = 0;
     char title[32];
+    int list_size = 0;
     menus_t *self = NULL;
     menus_list_t *list = NULL;
     userptr_data_t *userptr = NULL;                 
@@ -267,6 +239,7 @@ int _menus_ctor(object_t *object, item_list_t *items) {
                         }
                         case MENUS_K_LIST: {
                             list = items[x].buffer_address;
+                            list_size = items[x].buffer_length;
                             break;
                         }
                     }
@@ -311,11 +284,11 @@ int _menus_ctor(object_t *object, item_list_t *items) {
             /* create menu items */
 
             errno = 0;
-            self->items_count = (sizeof(list) / sizeof(menus_list_t));
+            self->items_count = (list_size / sizeof(menus_list_t));
             self->items = calloc(self->items_count + 1, sizeof(ITEM));
             if (self->items == NULL) cause_error(errno);
 
-            for (x = 0; x <= self->items_count; x++) {
+            for (x = 0; x < self->items_count; x++) {
 
                 errno = 0;
                 self->items[x] = new_item(list[x].label, list[x].description);
@@ -453,30 +426,39 @@ int _menus_override(menus_t *self, item_list_t *items) {
 
 }
 
-int _menus_show_description(menus_t *self, int (*inject)(events_t *)) {
+int _menus_show_description(menus_t *self) {
 
     int stat = ERR;
     ITEM *item = NULL;
-    events_t *event = NULL;
     const char *description = NULL;
     menus_data_t *data = self->data;
 
-    if ((item = current_item(data->menu)) != NULL) {
+    when_error_in {
 
-        if ((description = item_description(item)) != NULL) {
+        if ((item = current_item(data->menu)) != NULL) {
 
-            if ((event = calloc(1, sizeof(events_t))) != NULL) {
+            if ((description = item_description(item)) != NULL) {
 
-                event->type = EVENT_K_MESSAGE;
-                event->data = (void *)strdup(description);
+                if (data->callback != NULL) {
 
-                stat = (*inject)(event);
+                    stat = (*data->callback)(description);
+                    check_status(stat, OK, E_INVOPS);
+
+                }
 
             }
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return stat;
 
@@ -532,17 +514,14 @@ int _menus_draw(widget_t *widget) {
 
             }
 
-            if (self->data->callback != NULL) {
-
-                stat = (*self->data->callback)(widget);
-
-            }
+            stat = self->_show_description(self);
+            check_return(stat, widget);
 
             stat = pos_menu_cursor(self->data->menu);
             check_status(stat, E_OK, stat);
 
             stat = curs_set(1);
-            check_status(stat, OK, E_INVOPS);
+            if (stat == ERR) cause_error(E_INVOPS);
 
         }
 

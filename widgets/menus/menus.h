@@ -32,7 +32,7 @@ struct _menus_s {
     int (*dtor)(object_t *);
     int (*_compare)(menus_t *, menus_t *);
     int (*_override)(menus_t *, item_list_t *);
-    int (*_show_description)(menus_t *, int (*inject)(events_t *));
+    int (*_show_description)(menus_t *);
 
     int items_count;
     char *title;
@@ -58,7 +58,7 @@ struct _menus_s {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern menus_t *menus_create(char *, int, int, int, int, menus_list_t *);
+extern menus_t *menus_create(char *, int, int, int, int, menus_list_t *, int);
 extern int menus_destroy(menus_t *);
 extern int menus_compare(menus_t *, menus_t *);
 extern int menus_override(menus_t *, item_list_t *);

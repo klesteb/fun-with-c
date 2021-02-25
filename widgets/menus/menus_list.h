@@ -27,7 +27,7 @@ typedef struct _menus_list_s {
 
 #define SET_MENU(x,a,b,c,d,e) {\
     (x).label=(a);\
-    (x).description(b);\
+    (x).description=(b);\
     (x).data=(c);\
     (x).data_size=(d);\
     (x).callback=(e);\

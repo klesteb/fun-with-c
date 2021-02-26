@@ -587,7 +587,6 @@ int _widget_ctor(object_t *object, item_list_t *items) {
         } use {
 
             stat = ERR;
-
             object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
             clear_error();
 

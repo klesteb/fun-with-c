@@ -89,8 +89,6 @@ int _box_menu_event(widget_t *widget, events_t *event) {
                     case 10:
                     case KEY_ENTER: {
                         ITEM *item = NULL;
-                        stat = menu_driver(self->data->menu, REQ_TOGGLE_ITEM);
-                        check_status(stat, E_OK, stat);
                         item = current_item(self->data->menu);
                         if (item != NULL) {
                             if ((userptr = item_userptr(item)) != NULL) {
@@ -147,11 +145,11 @@ menus_t *box_menu_create(char *title, int startx, int starty, int height, int wi
 
         if ((self = menus_create(title, startx, starty, height, width, list, list_size))) {
 
-            data->col = 3;
-            data->row = 0;
+            data->col = 4;
+            data->row = 3;
             data->mark = ">";
             data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | 
-                         O_SHOWMATCH | O_NONCYCLIC);
+                             O_SHOWMATCH);
             data->callback = display;
             self->data = data;
 

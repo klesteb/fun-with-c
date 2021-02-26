@@ -37,19 +37,16 @@ int _list_menu_event(widget_t *widget, events_t *event) {
     userptr_data_t *userptr = NULL;
 
     when_error_in {
-        
+
         if (self->data != NULL) {
 
             if (event->type == EVENT_K_KEYBOARD) {
 
                 KEVENT *kevent = (KEVENT *)event->data;
-                
+
                 switch(kevent->keycode) {
                     case KEY_UP: {
                         stat = menu_driver(self->data->menu, REQ_UP_ITEM);
-                        check_status(stat, E_OK, stat);
-                        self->focus = current_item(self->data->menu);
-                        stat = pos_menu_cursor(self->data->menu);
                         check_status(stat, E_OK, stat);
                         break;
                     }
@@ -57,51 +54,41 @@ int _list_menu_event(widget_t *widget, events_t *event) {
                     case KEY_DOWN: {
                         stat = menu_driver(self->data->menu, REQ_DOWN_ITEM);
                         check_status(stat, E_OK, stat);
-                        self->focus = current_item(self->data->menu);
-                        stat = pos_menu_cursor(self->data->menu);
+                        break;
+                    }
+                    case KEY_LEFT: {
+                        stat = menu_driver(self->data->menu, REQ_LEFT_ITEM);
+                        check_status(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_RIGHT: {
+                        stat = menu_driver(self->data->menu, REQ_RIGHT_ITEM);
                         check_status(stat, E_OK, stat);
                         break;
                     }
                     case KEY_HOME: {
                         stat = menu_driver(self->data->menu, REQ_FIRST_ITEM);
                         check_status(stat, E_OK, stat);
-                        self->focus = current_item(self->data->menu);
-                        stat = pos_menu_cursor(self->data->menu);
-                        check_status(stat, E_OK, stat);
                         break;
                     }
                     case KEY_END: {
                         stat = menu_driver(self->data->menu, REQ_LAST_ITEM);
-                        check_status(stat, E_OK, stat);
-                        self->focus = current_item(self->data->menu);
-                        stat = pos_menu_cursor(self->data->menu);
                         check_status(stat, E_OK, stat);
                         break;
                     }
                     case KEY_NPAGE: {
                         stat = menu_driver(self->data->menu, REQ_SCR_DPAGE);
                         check_status(stat, E_OK, stat);
-                        self->focus = current_item(self->data->menu);
-                        stat = pos_menu_cursor(self->data->menu);
-                        check_status(stat, E_OK, stat);
                         break;
                     }
                     case KEY_PPAGE: {
                         stat = menu_driver(self->data->menu, REQ_SCR_UPAGE);
-                        check_status(stat, E_OK, stat);
-                        self->focus = current_item(self->data->menu);
-                        stat = pos_menu_cursor(self->data->menu);
                         check_status(stat, E_OK, stat);
                         break;
                     }
                     case 10:
                     case KEY_ENTER: {
                         ITEM *item = NULL;
-                        stat = menu_driver(self->data->menu, REQ_TOGGLE_ITEM);
-                        check_status(stat, E_OK, stat);
-                        self->focus = current_item(self->data->menu);
-                        stat = pos_menu_cursor(self->data->menu);
-                        check_status(stat, E_OK, stat);
                         item = current_item(self->data->menu);
                         if (item != NULL) {
                             if ((userptr = item_userptr(item)) != NULL) {
@@ -114,6 +101,14 @@ int _list_menu_event(widget_t *widget, events_t *event) {
                         break;
                     }
                 }
+
+                stat = self->_show_description(self);
+                check_return(stat, self);
+
+                stat = pos_menu_cursor(self->data->menu);
+                check_status(stat, E_OK, stat);
+
+                self->focus = (void *)current_item(self->data->menu);
 
             }
 
@@ -150,12 +145,14 @@ menus_t *list_menu_create(int startx, int starty, int height, int width, menus_l
 
         if ((self = menus_create("", startx, starty, height, width, list, list_size))) {
 
-            data->col = 0;
+            data->col = 3;
             data->row = 0;
-            data->mark = "->";
-            data->callback = NULL;
+            data->mark = ">";
+            /* data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE |  */
+            /*                  O_SHOWMATCH | O_NONCYCLIC); */
             data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | 
-                             O_SHOWMATCH | O_NONCYCLIC);
+                             O_SHOWMATCH);
+            data->callback = NULL;
             self->data = data;
 
             SET_ITEM(items[0], WIDGET_M_EVENT, _list_menu_event, 0, NULL);

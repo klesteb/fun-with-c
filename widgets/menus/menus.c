@@ -73,6 +73,8 @@ menus_t *menus_create(char *title, int startx, int starty, int height, int width
     coords.height = height;
     coords.width  = width;
 
+    if (title == NULL) title = "";
+
     SET_ITEM(items[0], WIDGET_K_COORDINATES, &coords, sizeof(coordinates_t), NULL);
     SET_ITEM(items[1], MENUS_K_TITLE, title, strlen(title), NULL);
     SET_ITEM(items[2], MENUS_K_LIST, list, list_size, NULL);
@@ -491,6 +493,8 @@ int _menus_draw(widget_t *widget) {
 
             stat = set_menu_format(self->data->menu, self->data->row, self->data->col);
             check_status(stat, E_OK, stat);
+            /* stat = set_menu_format(NULL, self->data->row, self->data->col); */
+            /* check_status(stat, E_OK, stat); */
 
             stat = set_menu_win(self->data->menu, self->outer);
             check_status(stat, E_OK, stat);

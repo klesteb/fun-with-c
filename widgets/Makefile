@@ -34,7 +34,7 @@ OBJS = widget.o colors.o window.o component.o components/label.o \
        menus/menus.o menus/bar.o menus/box.o menus/list.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-             test10 test11
+             test10 test11 test12 test13
 #
 debug:
 #
@@ -59,6 +59,8 @@ clean:
 	rm -f test9
 	rm -f test10
 	rm -f test11
+	rm -f test12
+	rm -f test13
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -103,6 +105,14 @@ test10: test10.o
 test11: test11.o
 	$(CC) $(CFLAGS) test11.c
 	$(LINK) $(LOPTS) test11 test11.o $(OLBS) -lncurses -lmenu
+#
+test12: test12.o
+	$(CC) $(CFLAGS) test12.c
+	$(LINK) $(LOPTS) test12 test12.o $(OLBS) -lncurses -lmenu
+#
+test13: test13.o
+	$(CC) $(CFLAGS) test13.c
+	$(LINK) $(LOPTS) test13 test13.o $(OLBS) -lncurses -lmenu
 #
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c

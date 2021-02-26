@@ -3,7 +3,7 @@
 
 #include "when.h"
 #include "colors.h"
-#include "menus/box.h"
+#include "menus/list.h"
 #include "menus/menus.h"
 #include "menus/menus_list.h"
 
@@ -55,13 +55,10 @@ int main(void) {
     int stat = OK;
     theme_t theme;
     menus_t *bmenu = NULL;
-    menus_list_t list[6];
+    menus_list_t list[3];
     char *data1 = "this is data for test1";
     char *data2 = "this is data for test2";
-    char *data3 = "this is data for test3";
-    char *data4 = "this is data for test4";
-    char *data5 = "this is data for test5";
-    char *data6 = "this is data for test6";
+    char *data3 = "this is data fors test3";
 
     theme.attribute  = A_NORMAL;
     theme.foreground = BROWN;
@@ -74,11 +71,8 @@ int main(void) {
         SET_MENU(list[0], "test 1", "this is test 1", data1, strlen(data1), print_result);
         SET_MENU(list[1], "test 2", "this is test 2", data2, strlen(data2), print_result);
         SET_MENU(list[2], "test 3", "this is test 3", data3, strlen(data3), print_result);
-        SET_MENU(list[3], "test 4", "this is test 4", data4, strlen(data4), print_result);
-        SET_MENU(list[4], "test 5", "this is test 5", data5, strlen(data5), print_result);
-        SET_MENU(list[5], "test 6", "this is test 6", data6, strlen(data6), print_result);
 
-        bmenu = box_menu_create("testing", 10, 4, 10, 40, print_description, list, sizeof(list));
+        bmenu = list_menu_create(10, 4, 10, 10, list, sizeof(list));
         check_creation(bmenu);
 
         stat = menus_set_theme(bmenu, &theme);

@@ -16,22 +16,24 @@ LIBR = ar rs
 WORKING = $(shell pwd)
 STATIC = libwidgets.a
 SHARED = libwidgets.so.$(VERSION)
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I. -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I. -I../events -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 #
-OLBS = $(STATIC) ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
+OLBS = $(STATIC) ../libs/libtracer.a ../libs/libevent.a ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
 INCS = widget.h colors.h window.h component.h components/label.h \
        components/hline.h components/vline.h components/text.h \
        components/prompt.h components/textarea.h components/input.h \
-       menus/menus.h menus/bar.h menus/box.h menus/list.h
+       windows/menus/menus.h windows/menus/bar.h windows/menus/box.h \
+       windows/menus/list.h workbench.h
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
        components/prompt.o components/textarea.o components/input.o \
-       menus/menus.o menus/bar.o menus/box.o menus/list.o
+       windows/menus/menus.o windows/menus/bar.o windows/menus/box.o \
+       windows/menus/list.o workbench.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10 test11 test12 test13
@@ -43,8 +45,8 @@ clean:
 	rm -f *~
 	rm -f components/*.o
 	rm -f components/*~
-	rm -f menus/*.o
-	rm -f menus/*~
+	rm -f windows/menus/*.o
+	rm -f windows/menus/*~
 	rm -f $(STATIC)
 	rm -f $(SHARED)
 	rm -f widgets.3
@@ -112,7 +114,7 @@ test12: test12.o
 #
 test13: test13.o
 	$(CC) $(CFLAGS) test13.c
-	$(LINK) $(LOPTS) test13 test13.o $(OLBS) -lncurses -lmenu
+	$(LINK) $(LOPTS) test13 test13.o $(OLBS) -lpanel  -lncurses -lmenu
 #
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c
@@ -126,9 +128,9 @@ window.o: window.c $(INCS)
 	$(CC) $(CFLAGS) window.c
 	$(LIBR) $(STATIC) window.o
 #
-#container.o: container.c $(INCS)
-#	$(CC) $(CFLAGS) container.c
-#	$(LIBR) $(STATIC) container.o
+workbench.o: workbench.c $(INCS)
+	$(CC) $(CFLAGS) workbench.c
+	$(LIBR) $(STATIC) workbench.o
 #
 component.o: component.c $(INCS)
 	$(CC) $(CFLAGS) component.c
@@ -162,21 +164,21 @@ components/input.o: components/input.c $(INCS)
 	$(CC) $(CFLAGS) $(LOPTS) components/input.o components/input.c 
 	$(LIBR) $(STATIC) components/input.o
 #
-menus/menus.o: menus/menus.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) menus/menus.o menus/menus.c 
-	$(LIBR) $(STATIC) menus/menus.o
+windows/menus/menus.o: windows/menus/menus.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/menus/menus.o windows/menus/menus.c 
+	$(LIBR) $(STATIC) windows/menus/menus.o
 #
-menus/box.o: menus/box.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) menus/box.o menus/box.c 
-	$(LIBR) $(STATIC) menus/box.o
+windows/menus/box.o: windows/menus/box.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/menus/box.o windows/menus/box.c 
+	$(LIBR) $(STATIC) windows/menus/box.o
 #
-menus/bar.o: menus/bar.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) menus/bar.o menus/bar.c 
-	$(LIBR) $(STATIC) menus/bar.o
+windows/menus/bar.o: windows/menus/bar.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/menus/bar.o windows/menus/bar.c 
+	$(LIBR) $(STATIC) windows/menus/bar.o
 #
-menus/list.o: menus/list.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) menus/list.o menus/list.c 
-	$(LIBR) $(STATIC) menus/list.o
+windows/menus/list.o: windows/menus/list.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/menus/list.o windows/menus/list.c 
+	$(LIBR) $(STATIC) windows/menus/list.o
 #
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3

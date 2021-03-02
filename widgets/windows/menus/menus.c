@@ -16,15 +16,16 @@
 
 #include "when.h"
 #include "menus.h"
+#include "colors.h"
 #include "events.h"
 #include "object.h"
-#include "widget.h"
+#include "window.h"
 #include "item_list.h"
 #include "menus_list.h"
 #include "menus_priv.h"
 #include "error_codes.h"
 
-require_klass(WIDGET_KLASS);
+require_klass(WINDOW_KLASS);
 
 /*----------------------------------------------------------------*/
 /* klass methods                                                  */
@@ -38,13 +39,9 @@ int _menus_show_description(menus_t *);
 
 int _menus_draw(widget_t *);
 int _menus_erase(widget_t *);
+int _menus_add(widget_t *, void *);
+int _menus_remove(widget_t *, void *);
 int _menus_event(widget_t *, events_t *);
-
-/*----------------------------------------------------------------*/
-/* private klass methods                                          */
-/*----------------------------------------------------------------*/
-
-static int _menu_box_window(menus_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -64,7 +61,8 @@ declare_klass(MENUS_KLASS) {
 menus_t *menus_create(char *title, int startx, int starty, int height, int width, menus_list_t *list, int list_size) {
 
     int stat = ERR;
-    item_list_t items[4];
+    int boxed = TRUE;
+    item_list_t items[5];
     coordinates_t coords;
     menus_t *self = NULL;
 
@@ -76,9 +74,10 @@ menus_t *menus_create(char *title, int startx, int starty, int height, int width
     if (title == NULL) title = "";
 
     SET_ITEM(items[0], WIDGET_K_COORDINATES, &coords, sizeof(coordinates_t), NULL);
-    SET_ITEM(items[1], MENUS_K_TITLE, title, strlen(title), NULL);
-    SET_ITEM(items[2], MENUS_K_LIST, list, list_size, NULL);
-    SET_ITEM(items[3], 0, 0, 0, 0);
+    SET_ITEM(items[1], WINDOW_K_TITLE, title, strlen(title), NULL);
+    SET_ITEM(items[2], WINDOW_K_BOXED, &boxed, sizeof(int), NULL);
+    SET_ITEM(items[3], MENUS_K_LIST, list, list_size, NULL);
+    SET_ITEM(items[4], 0, 0, 0, 0);
 
     self = (menus_t *)object_create(MENUS_KLASS, items, &stat);
 
@@ -181,6 +180,7 @@ int menus_override(menus_t *self, item_list_t *items) {
 
 }
 
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -193,7 +193,6 @@ int _menus_ctor(object_t *object, item_list_t *items) {
     int startx = 0;
     int starty = 0;
     int height = 0;
-    char title[32];
     int list_size = 0;
     menus_t *self = NULL;
     menus_list_t *list = NULL;
@@ -207,14 +206,16 @@ int _menus_ctor(object_t *object, item_list_t *items) {
 
             /* initialize the base klass here */
 
-            stat = WIDGET_KLASS->ctor(object, items); 
+            stat = WINDOW_KLASS->ctor(object, items); 
             check_return(stat, object);
 
             /* overrides to the base initialization */
 
+            WIDGET(object)->_add = _menus_add;
             WIDGET(object)->_draw = _menus_draw;
             WIDGET(object)->_erase = _menus_erase;
             WIDGET(object)->_event = _menus_event;
+            WIDGET(object)->_remove = _menus_remove;
 
             startx = WIDGET(object)->coordinates->startx;
             starty = WIDGET(object)->coordinates->starty;
@@ -231,14 +232,6 @@ int _menus_ctor(object_t *object, item_list_t *items) {
                         (items[x].item_code == 0)) break;
 
                     switch(items[x].item_code) {
-                        case MENUS_K_TITLE: {
-                            int len = items[x].buffer_length <= 31 
-                                ? items[x].buffer_length
-                                : 31;
-                            memset(title, '\0', 32);
-                            memcpy(title, items[x].buffer_address, len);
-                            break;
-                        }
                         case MENUS_K_LIST: {
                             list = items[x].buffer_address;
                             list_size = items[x].buffer_length;
@@ -265,23 +258,6 @@ int _menus_ctor(object_t *object, item_list_t *items) {
             /* initialize variables here */
 
             self->data = NULL;
-            self->title = strdup(title);
-
-            height += 2;
-            width += 2;
-            if ((self->outer = newwin(height, width, starty, startx)) == NULL) {
-
-                cause_error(E_INVOPS);
-
-            }
-
-            height -= 2;
-            width  -= 2;
-            if ((self->inner = derwin(self->outer, height, width, 1, 1)) == NULL) {
-
-                cause_error(E_INVOPS);
-
-            }
 
             /* create menu items */
 
@@ -331,11 +307,9 @@ int _menus_dtor(object_t *object) {
     int x;
     int stat = OK;
     menus_t *self = MENUS(object);
-    widget_t *widget = WIDGET(object);
 
     /* free local resources here */
 
-    if (self->title != NULL) free(self->title);
     if (self->data  != NULL) free(self->data);
 
     for (x = 0; x <= self->items_count; x++) {
@@ -347,24 +321,10 @@ int _menus_dtor(object_t *object) {
 
     }
 
-    if (self->inner != NULL) {
-
-        werase(self->inner);
-        delwin(self->inner);
-
-    }
-
-    if (self->outer != NULL) {
-
-        werase(self->outer);
-        delwin(self->outer);
-
-    }
-
     /* walk the chain, freeing as we go */
 
-    object_demote(object, widget_t);
-    widget_destroy(widget);
+    object_demote(object, window_t);
+    window_destroy(WINDOW(object));
 
     return stat;
 
@@ -374,10 +334,8 @@ int _menus_compare(menus_t *us, menus_t *them) {
 
     int stat = ERR;
 
-    if (((widget_compare(WIDGET(us), WIDGET(them)) == OK)) &&
+    if (((window_compare(WINDOW(us), WINDOW(them)) == OK)) &&
         (us->_show_description == them->_show_description) &&
-        (us->outer == them->outer) &&
-        (us->inner == them->inner) &&
         (us->items == them->items) &&
         (us->data == them->data)) {
 
@@ -396,7 +354,7 @@ int _menus_override(menus_t *self, item_list_t *items) {
 
     when_error_in {
 
-        stat = WIDGET(self)->_override(WIDGET(self), items);
+        stat = WINDOW(self)->_override(WINDOW(self), items);
         check_return(stat, self);
 
         for (x = 0;; x++) {
@@ -466,17 +424,33 @@ int _menus_show_description(menus_t *self) {
 
 }
 
+int _menus_add(widget_t *widget, void *data) {
+
+    return OK;
+
+}
+
 int _menus_draw(widget_t *widget) {
 
     int stat = OK;
     menus_t *self = MENUS(widget);
+    window_t *window = WINDOW(widget);
 
     when_error_in {
 
         if (self->data != NULL) {
 
-            stat = _menu_box_window(self);
-            check_return(stat, self);
+            stat = wattrset(window->outer, widget->theme->attribute);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = wcolorset(window->outer, widget->theme->foreground, widget->theme->background);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = wbkgd(window->inner, COLOR_PAIR(colornum(widget->theme->foreground, widget->theme->background)));
+            check_status(stat, OK, E_INVOPS);
+
+            stat = window->_box(window);
+            check_return(stat, window);
 
             errno = 0;
             if ((self->data->menu = new_menu(self->items)) == NULL) {
@@ -493,13 +467,11 @@ int _menus_draw(widget_t *widget) {
 
             stat = set_menu_format(self->data->menu, self->data->row, self->data->col);
             check_status(stat, E_OK, stat);
-            /* stat = set_menu_format(NULL, self->data->row, self->data->col); */
-            /* check_status(stat, E_OK, stat); */
 
-            stat = set_menu_win(self->data->menu, self->outer);
+            stat = set_menu_win(self->data->menu, window->outer);
             check_status(stat, E_OK, stat);
 
-            stat = set_menu_sub(self->data->menu, self->inner);
+            stat = set_menu_sub(self->data->menu, window->inner);
             check_status(stat, E_OK, stat);
 
             stat = post_menu(self->data->menu);
@@ -529,7 +501,10 @@ int _menus_draw(widget_t *widget) {
 
         }
 
-        stat = wnoutrefresh(self->inner);
+        stat = wstandend(window->inner);
+        check_status(stat, OK, E_INVOPS);
+
+        stat = wnoutrefresh(window->inner);
         check_status(stat, OK, E_INVOPS);
 
         exit_when;
@@ -550,6 +525,7 @@ int _menus_erase(widget_t *widget) {
 
     int stat = OK;
     menus_t *self = MENUS(widget);
+    window_t *window = WINDOW(widget);
 
     when_error_in {
 
@@ -566,6 +542,9 @@ int _menus_erase(widget_t *widget) {
                 check_status(stat, E_OK, stat);
 
             }
+
+            stat = wnoutrefresh(window->inner);
+            check_status(stat, OK, E_INVOPS);
 
         }
 
@@ -589,65 +568,9 @@ int _menus_event(widget_t *widget, events_t *event) {
 
 }
 
-/*----------------------------------------------------------------*/
-/* private methods                                                */
-/*----------------------------------------------------------------*/
+int _menus_remove(widget_t *widget, void *thing) {
 
-static int _menu_box_window(menus_t *self) {
-
-    int len = 0;
-    int stat = OK;
-
-    when_error_in {
-
-        if (self->outer != NULL) {
-
-            stat = box(self->outer, ACS_VLINE, ACS_HLINE);
-            check_status(stat, OK, E_INVOPS);
-
-            len = strlen(self->title);
-
-            if (len > 0) {
-
-                stat = wmove(self->outer, 0, 2);
-                check_status(stat, OK, E_INVOPS);
-
-                stat = waddch(self->outer, ACS_RTEE);
-                check_status(stat, OK, E_INVOPS);
-
-                stat = wmove(self->outer, 0, 3);
-                check_status(stat, OK, E_INVOPS);
-
-                stat = waddstr(self->outer, self->title);
-                check_status(stat, OK, E_INVOPS);
-
-                stat = wmove(self->outer, 0, 3 + len);
-                check_status(stat, OK, E_INVOPS);
-
-                stat = waddch(self->outer, ACS_LTEE);
-                check_status(stat, OK, E_INVOPS);
-
-                stat = wstandend(self->outer);
-                check_status(stat, OK, E_INVOPS);
-
-            }
-
-            stat = wnoutrefresh(self->outer);
-            check_status(stat, OK, E_INVOPS);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
+    return OK;
 
 }
 

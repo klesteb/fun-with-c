@@ -16,7 +16,7 @@
 #include <ncurses.h>
 #include <menu.h>
 
-#include "widget.h"
+#include "window.h"
 #include "menus_list.h"
 #include "menus_priv.h"
 
@@ -27,7 +27,7 @@
 typedef struct _menus_s menus_t;
 
 struct _menus_s {
-    widget_t parent_klass;
+    window_t parent_klass;
     int (*ctor)(object_t *, item_list_t *);
     int (*dtor)(object_t *);
     int (*_compare)(menus_t *, menus_t *);
@@ -35,11 +35,8 @@ struct _menus_s {
     int (*_show_description)(menus_t *);
 
     int items_count;
-    char *title;
     ITEM *focus;
     ITEM **items;
-    WINDOW *outer;
-    WINDOW *inner;
     menus_data_t *data;
 };
 
@@ -49,8 +46,7 @@ struct _menus_s {
 
 #define MENUS(x) ((menus_t *)(x))
 
-#define MENUS_K_TITLE 4
-#define MENUS_K_LIST  5
+#define MENUS_K_LIST  9
 
 #define MENUS_M_SHOW_DESCRIPTION 8
 

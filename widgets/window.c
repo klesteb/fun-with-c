@@ -23,12 +23,6 @@
 require_klass(WIDGET_KLASS);
 
 /*----------------------------------------------------------------*/
-/* klass private methods                                          */
-/*----------------------------------------------------------------*/
-
-static int _box_window(widget_t *);
-
-/*----------------------------------------------------------------*/
 /* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
@@ -36,6 +30,7 @@ int _window_ctor(object_t *, item_list_t *);
 int _window_dtor(object_t *);
 int _window_compare(window_t *, window_t *);
 int _window_override(window_t *, item_list_t *);
+int _window_box(window_t *);
 
 int _window_draw(widget_t *);
 int _window_erase(widget_t *);
@@ -165,7 +160,7 @@ int _window_ctor(object_t *object, item_list_t *items) {
     if (object != NULL) {
 
         when_error_in {
-            
+
             /* initialize our base klass here */
 
             stat = WIDGET_KLASS->ctor(object, items);
@@ -222,6 +217,8 @@ int _window_ctor(object_t *object, item_list_t *items) {
             self->ctor = _window_ctor;
             self->dtor = _window_dtor;
             self->_compare = _window_compare;
+            self->_override = _window_override;
+            self->_box = _window_box;
 
             self->tab = 0;
             self->tabs = 0;
@@ -320,6 +317,29 @@ int _window_compare(window_t *self, window_t *other) {
 
 }
 
+int _window_override(window_t *self, item_list_t *items) {
+
+    int stat = ERR;
+
+    when_error_in {
+
+        stat = WIDGET(self)->_override(WIDGET(self), items);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int _window_add(widget_t *widget, void *data) {
 
     int stat = OK;
@@ -371,8 +391,8 @@ int _window_draw(widget_t *widget) {
 
         if (self->boxed) {
 
-            stat = _box_window(widget);
-            check_return(stat, widget);
+            stat = self->_box(self);
+            check_return(stat, self);
 
         }
 
@@ -451,7 +471,6 @@ int _window_remove(widget_t *widget, void *thing) {
 
     int stat = ERR;
     component_t *temp = NULL;
-    window_t *self = WINDOW(widget);
     component_t *component = (component_t *)thing;
 
     when_error_in {
@@ -530,15 +549,10 @@ int _window_event(widget_t *widget, events_t *event) {
 
 }
 
-/*----------------------------------------------------------------*/
-/* private methods                                                */
-/*----------------------------------------------------------------*/
-
-static int _box_window(widget_t *widget) {
+int _window_box(window_t *self) {
 
     int len = 0;
     int stat = OK;
-    window_t *self = WINDOW(widget);
 
     when_error_in {
 
@@ -584,7 +598,7 @@ static int _box_window(widget_t *widget) {
     } use {
 
         stat = ERR;
-        object_set_error2(widget, trace_errnum, trace_lineno, trace_filename, trace_function);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;

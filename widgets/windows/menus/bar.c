@@ -16,6 +16,7 @@
 
 #include "when.h"
 #include "menus.h"
+#include "colors.h"
 #include "events.h"
 #include "object.h"
 #include "widget.h"
@@ -30,11 +31,53 @@ require_klass(MENUS_KLASS);
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
-int _list_menu_event(widget_t *widget, events_t *event) {
+int _bar_show_description(menus_t *self) {
 
     int stat = ERR;
+    ITEM *item = NULL;
+    const char *description = NULL;
+    menus_data_t *data = self->data;
+    window_t *window = WINDOW(self);
+
+    when_error_in {
+
+        if ((item = current_item(data->menu)) != NULL) {
+
+            if ((description = item_description(item)) != NULL) {
+
+                stat = wmove(window->inner, 1, 1);
+                check_status(stat, OK, stat);
+
+                stat = wclrtoeol(window->inner);
+                check_status(stat, OK, stat);
+
+                stat = wprintw(window->inner, description);
+                check_status(stat, OK, stat);
+
+            }
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _bar_menu_event(widget_t *widget, events_t *event) {
+
+    int stat = OK;
     menus_t *self = MENUS(widget);
     userptr_data_t *userptr = NULL;
+    window_t *window = WINDOW(widget);
 
     when_error_in {
 
@@ -45,22 +88,12 @@ int _list_menu_event(widget_t *widget, events_t *event) {
                 KEVENT *kevent = (KEVENT *)event->data;
 
                 switch(kevent->keycode) {
-                    case KEY_UP: {
-                        stat = menu_driver(self->data->menu, REQ_UP_ITEM);
-                        check_status(stat, E_OK, stat);
-                        break;
-                    }
-                    case 9:
-                    case KEY_DOWN: {
-                        stat = menu_driver(self->data->menu, REQ_DOWN_ITEM);
-                        check_status(stat, E_OK, stat);
-                        break;
-                    }
                     case KEY_LEFT: {
                         stat = menu_driver(self->data->menu, REQ_LEFT_ITEM);
                         check_status(stat, E_OK, stat);
                         break;
                     }
+                    case 9:
                     case KEY_RIGHT: {
                         stat = menu_driver(self->data->menu, REQ_RIGHT_ITEM);
                         check_status(stat, E_OK, stat);
@@ -73,16 +106,6 @@ int _list_menu_event(widget_t *widget, events_t *event) {
                     }
                     case KEY_END: {
                         stat = menu_driver(self->data->menu, REQ_LAST_ITEM);
-                        check_status(stat, E_OK, stat);
-                        break;
-                    }
-                    case KEY_NPAGE: {
-                        stat = menu_driver(self->data->menu, REQ_SCR_DPAGE);
-                        check_status(stat, E_OK, stat);
-                        break;
-                    }
-                    case KEY_PPAGE: {
-                        stat = menu_driver(self->data->menu, REQ_SCR_UPAGE);
                         check_status(stat, E_OK, stat);
                         break;
                     }
@@ -112,10 +135,10 @@ int _list_menu_event(widget_t *widget, events_t *event) {
 
             }
 
-        }
+            stat = wnoutrefresh(window->inner);
+            check_status(stat, OK, E_INVOPS);
 
-        stat = wnoutrefresh(self->inner);
-        check_status(stat, OK, E_INVOPS);
+        }
 
         exit_when;
 
@@ -126,7 +149,7 @@ int _list_menu_event(widget_t *widget, events_t *event) {
         clear_error();
 
     } end_when;
-
+    
     return stat;
 
 }
@@ -135,9 +158,9 @@ int _list_menu_event(widget_t *widget, events_t *event) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-menus_t *list_menu_create(int startx, int starty, int height, int width, menus_list_t *list, int list_size) {
+menus_t *bar_menu_create(int startx, int starty, int height, int width, menus_list_t *list, int list_size) {
 
-    item_list_t items[2];
+    item_list_t items[3];
     menus_t *self = NULL;
     menus_data_t *data = NULL;
 
@@ -145,18 +168,17 @@ menus_t *list_menu_create(int startx, int starty, int height, int width, menus_l
 
         if ((self = menus_create("", startx, starty, height, width, list, list_size))) {
 
-            data->col = 3;
-            data->row = 0;
+            data->row = 1;
+            data->col = 9;
             data->mark = ">";
-            /* data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE |  */
-            /*                  O_SHOWMATCH | O_NONCYCLIC); */
-            data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | 
-                             O_SHOWMATCH);
             data->callback = NULL;
+            data->options = (O_ONEVALUE | O_IGNORECASE | O_SHOWMATCH | 
+                             O_ROWMAJOR);
             self->data = data;
 
-            SET_ITEM(items[0], WIDGET_M_EVENT, _list_menu_event, 0, NULL);
-            SET_ITEM(items[1], 0, 0, 0, 0);
+            SET_ITEM(items[0], WIDGET_M_EVENT, _bar_menu_event, 0, NULL);
+            SET_ITEM(items[1], MENUS_M_SHOW_DESCRIPTION, _bar_show_description, 0, NULL);
+            SET_ITEM(items[2], 0, 0, 0, 0);
 
             menus_override(self, items);
 

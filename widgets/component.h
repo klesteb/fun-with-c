@@ -45,10 +45,10 @@ struct _component_s {
 
 #define COMPONENT(x) ((component_t *)(x))
 
-#define COMPONENT_K_WINDOW  7
-#define COMPONENT_K_TAB     8
-#define COMPONENT_K_DATA    9
-#define COMPONENT_K_PADDING 10
+#define COMPONENT_K_WINDOW  5
+#define COMPONENT_K_TAB     6
+#define COMPONENT_K_DATA    7
+#define COMPONENT_K_PADDING 8
 
 #define KEY_IILEGAL (KEY_MAX - 1)
 

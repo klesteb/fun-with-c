@@ -3,9 +3,9 @@
 
 #include "when.h"
 #include "colors.h"
-#include "menus/box.h"
-#include "menus/menus.h"
-#include "menus/menus_list.h"
+#include "windows/menus/box.h"
+#include "windows/menus/menus.h"
+#include "windows/menus/menus_list.h"
 
 int print_description(const char *description) {
 

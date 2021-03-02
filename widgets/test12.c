@@ -3,9 +3,9 @@
 
 #include "when.h"
 #include "colors.h"
-#include "menus/bar.h"
-#include "menus/menus.h"
-#include "menus/menus_list.h"
+#include "windows/menus/bar.h"
+#include "windows/menus/menus.h"
+#include "windows/menus/menus_list.h"
 
 int print_result(void *data, int size) {
 

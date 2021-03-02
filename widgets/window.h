@@ -29,6 +29,7 @@ struct _window_s {
     int (*dtor)(object_t *);
     int (*_compare)(window_t *, window_t *);
     int (*_override)(window_t *, item_list_t *);
+    int (*_box)(window_t *);
 
     int tab;
     int tabs;
@@ -44,8 +45,8 @@ struct _window_s {
 
 #define WINDOW(x) ((window_t *)(x))
 
-#define WINDOW_K_TITLE 4
-#define WINDOW_K_BOXED 5
+#define WINDOW_K_TITLE 3
+#define WINDOW_K_BOXED 4
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

@@ -18,7 +18,6 @@
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
 event_t *events = NULL;
-
 workbench_t *workbench = NULL;
 
 /*---------------------------------------------------------------------------*/
@@ -97,7 +96,10 @@ int build_menu(error_trace_t *errors) {
         stat = menus_set_theme(bmenu, &theme);
         check_return(stat, bmenu);
 
-        stat = workbench_add_window(workbench, (window_t *)bmenu);
+        stat = workbench_add(workbench, (window_t *)bmenu);
+        check_return(stat, workbench);
+
+        stat = workbench_set_focus(workbench, (window_t *)bmenu);
         check_return(stat, workbench);
 
         exit_when;
@@ -259,10 +261,12 @@ int setup(error_trace_t *errors) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        /* create the objects */
+        /* create the workbench */
 
         workbench = workbench_create(NULL);
         check_creation(workbench);
+
+        /* create event polling */
 
         events = event_create();
         check_creation(events);

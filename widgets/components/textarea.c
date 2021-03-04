@@ -48,6 +48,37 @@ static wrapped_t *_data_create(component_t *, int, char *, int);
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
+int _textarea_dtor(object_t *object) {
+
+    int stat = OK;
+    widget_t *widget = WIDGET(object);
+    component_t *textarea = COMPONENT(object);
+
+    /* free local resources here */
+
+    if (textarea->data != NULL) {
+
+        _data_destroy(textarea->data);
+
+    }
+
+    if (textarea->area) {
+
+        delwin(textarea->area);
+
+    }
+
+    widget->_erase(widget);
+
+    /* walk the chain, freeing as we go */
+
+    object_demote(object, widget_t);
+    widget_destroy(widget);
+
+    return stat;
+
+}
+
 int _textarea_draw(widget_t *widget) {
 
     int stat = OK;
@@ -88,7 +119,7 @@ int _textarea_event(widget_t *widget, events_t *event) {
     wrapped_t *data = COMPONENT(widget)->data;
 
     when_error_in {
-        
+
         if (data != NULL) {
 
             getmaxyx(area, rows, cols);
@@ -203,24 +234,10 @@ int _textarea_erase(widget_t *widget) {
 
     when_error_in {
 
-        if (data != NULL) {
-
-            stat = _data_destroy(data);
-            check_status(stat, OK, E_INVOPS);
-
-            COMPONENT(widget)->data = NULL;
-
-        }
-
         if (self->area) {
 
             stat = werase(self->area);
             check_status(stat, OK, E_INVOPS);
-
-            stat = delwin(self->area);
-            check_status(stat, OK, E_INVOPS);
-
-            COMPONENT(widget)->area = NULL;
 
         }
 
@@ -265,6 +282,7 @@ component_t *textarea_create(window_t *window, int startx, int starty, int heigh
             SET_ITEM(items[0], WIDGET_M_DRAW, _textarea_draw, 0, NULL);
             SET_ITEM(items[1], WIDGET_M_EVENT, _textarea_event, 0, NULL);
             SET_ITEM(items[2], WIDGET_M_ERASE, _textarea_erase, 0, NULL);
+            SET_ITEM(items[3], WIDGET_M_DESTROY, _textarea_dtor, 0, NULL);
             SET_ITEM(items[3], 0, 0, 0, 0);
 
             component_override(textarea, items);
@@ -295,8 +313,7 @@ static int _data_display(widget_t *widget) {
             stat = wattron(area, widget->theme->attribute);
             check_status(stat, OK, E_INVOPS);
             
-            stat = wcoloron(area, widget->theme->foreground, 
-                            widget->theme->background);
+            stat = wbkgd(area, COLOR_PAIR(colornum(widget->theme->foreground, widget->theme->background)));
             check_status(stat, OK, E_INVOPS);
 
             for (x = data->cur_pos; x < data->size; x++) {

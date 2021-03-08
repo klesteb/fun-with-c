@@ -20,6 +20,7 @@
 #include "window.h"
 #include "que_util.h"
 #include "item_list.h"
+#include "windows/menus/menus.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */
@@ -36,6 +37,7 @@ struct _workbench_s {
     int (*_read_stdin)(workbench_t *);
     int (*_init_terminal)(workbench_t *);
     int (*_dispatch)(workbench_t *, int *);
+    int (*_set_menu)(workbench_t *, menus_t *);
     int (*_get_focus)(workbench_t *, window_t *);
     int (*_set_focus)(workbench_t *, window_t *);
     int (*_queue_event)(workbench_t *, events_t *);
@@ -47,6 +49,7 @@ struct _workbench_s {
     int (*_remove)(workbench_t *, window_t *);
 
     int panels;
+    menus_t *main;
     WINDOW *messages;
     PANEL *panel;
     queue events;
@@ -82,6 +85,7 @@ extern int workbench_override(workbench_t *, item_list_t *);
 
 extern int workbench_capture(workbench_t *);
 extern int workbench_dispatch(workbench_t *, int *);
+extern int workbench_set_menu(workbench_t *, menus_t *);
 extern int workbench_get_focus(workbench_t *, window_t *);
 extern int workbench_set_focus(workbench_t *, window_t *);
 extern int workbench_inject_event(workbench_t *, events_t *);

@@ -54,6 +54,7 @@ int _workbench_remove(workbench_t *, window_t *);
 int _workbench_read_stdin(workbench_t *);
 int _workbench_init_terminal(workbench_t *);
 int _workbench_dispatch(workbench_t *, int *);
+int _workbench_set_menu(workbench_t *, menus_t *);
 int _workbench_get_focus(workbench_t *, window_t *);
 int _workbench_set_focus(workbench_t *, window_t *);
 int _workbench_queue_event(workbench_t *, events_t *);
@@ -279,6 +280,35 @@ int workbench_remove(workbench_t *self, window_t *window) {
 
 }
 
+int workbench_set_menu(workbench_t *self, menus_t *main) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (main == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_set_menu(self, main);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int workbench_get_focus(workbench_t *self, window_t *window) {
 
     int stat = OK;
@@ -483,6 +513,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 
         self->_init_terminal = init_terminal;
         self->_dispatch = _workbench_dispatch;
+        self->_set_menu = _workbench_set_menu;
         self->_get_focus = _workbench_get_focus;
         self->_set_focus = _workbench_set_focus;
         self->_read_stdin = _workbench_read_stdin;
@@ -496,6 +527,7 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
             check_status(stat, QUE_OK, E_INVOPS);
 
             self->panels = 0;
+            self->main = NULL;
             self->panel = NULL;
 
             stat = self->_init_terminal(self);
@@ -654,11 +686,16 @@ int _workbench_compare(workbench_t *self, workbench_t *other) {
         (self->_erase == other->_erase) &&
         (self->_remove == other->_remove) &&
         (self->_dispatch == other->_dispatch) &&
+        (self->_set_menu == other->_set_menu) &&
         (self->_get_focus == other->_get_focus) &&
         (self->_set_focus == other->_set_focus) &&
         (self->_read_stdin == other->_read_stdin) &&
         (self->_queue_event == other->_queue_event) &&
-        (self->_init_terminal == other->_init_terminal)) {
+        (self->_init_terminal == other->_init_terminal) &&
+        (self->main == other->main) &&
+        (self->panel == other->panel) &&
+        (self->panels == other->panels) &&
+        (self->messages == other->messages)) {
 
         stat = OK;
 
@@ -682,7 +719,11 @@ int _workbench_add(workbench_t *self, window_t *window) {
         }
 
         self->panels++;
+        self->panel = panel;
         set_panel_userptr(panel, (void *)window);
+
+        stat = top_panel(panel);
+        check_status(stat, OK, E_INVOPS);
 
         exit_when;
 
@@ -858,6 +899,40 @@ int _workbench_remove(workbench_t *self, window_t *window) {
             }
 
         }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+
+int _workbench_set_menu(workbench_t *self, menus_t *main) {
+
+    int stat = OK;
+    PANEL *panel = NULL;
+
+    when_error_in {
+
+        if (self->main != NULL) {
+
+            stat = self->_remove(self, (window_t *)self->main);
+            check_return(stat, self);
+
+        }
+
+        stat = self->_add(self, (window_t *)main);
+        check_return(stat, self);
+
+        self->main = main;
 
         exit_when;
 
@@ -1120,6 +1195,41 @@ int _workbench_read_stdin(workbench_t *self) {
                 stat = doupdate();
                 check_status(stat, OK, E_INVOPS);
 
+            } else if (ch == KEY_F(10)) {
+
+                if (self->main != NULL) {
+
+                    PANEL *panel = NULL;
+                    window_t *temp = NULL;
+
+                    for (panel = panel_above(NULL);
+                         panel != NULL;
+                         panel = panel_above(panel)) {
+
+                        temp = (window_t *)panel_userptr(panel);
+
+                        if ((window_compare((window_t *)self->main, temp)) == OK) {
+
+                            self->panel = panel;
+
+                            stat = top_panel(panel);
+                            check_status(stat, OK, E_INVOPS);
+
+                            stat = window_refresh(self->main);
+                            check_return(stat, self->main);
+
+                            update_panels();
+
+                            stat = doupdate();
+                            check_status(stat, OK, E_INVOPS);
+                            break;
+
+                        }
+
+                    }
+
+                }
+
             } else if (ch == KEY_F(11)) {
 
                 if ((self->panels > 0)) {
@@ -1141,7 +1251,7 @@ int _workbench_read_stdin(workbench_t *self) {
                         update_panels();
 
                         stat = doupdate();
-                        check_status(stat, OK,E_INVOPS);
+                        check_status(stat, OK, E_INVOPS);
 
                     }
 
@@ -1149,29 +1259,33 @@ int _workbench_read_stdin(workbench_t *self) {
 
             } else if (ch == KEY_F(12)) {
 
-                if ((self->panels > 0)) {
+                if ((self->panels > 1)) {
 
                     PANEL *current = NULL;
                     window_t *window = NULL;
 
                     window = panel_userptr(self->panel);
 
-                    stat = self->_remove(self, window);
-                    check_return(stat, self);
+                    if ((window_compare((window_t *)self->main, window)) == ERR) {
 
-                    update_panels();
+                        stat = self->_remove(self, window);
+                        check_return(stat, self);
 
-                    stat = doupdate();
-                    check_status(stat, OK, E_INVOPS);
+                        update_panels();
 
-                    if ((current = panel_below(NULL)) != NULL) {
+                        stat = doupdate();
+                        check_status(stat, OK, E_INVOPS);
 
-                        self->panel = current;
+                        if ((current = panel_below(NULL)) != NULL) {
 
-                    } else {
+                            self->panel = current;
 
-                        self->dtor(OBJECT(self));
-                        raise(SIGTERM);
+                        } else {
+
+                            self->dtor(OBJECT(self));
+                            raise(SIGTERM);
+
+                        }
 
                     }
 

@@ -119,10 +119,7 @@ int build_menu(error_trace_t *errors) {
         stat = menus_set_theme(bmenu, &theme);
         check_return(stat, bmenu);
 
-        stat = workbench_add(workbench, (window_t *)bmenu);
-        check_return(stat, workbench);
-
-        stat = workbench_set_focus(workbench, (window_t *)bmenu);
+        stat = workbench_set_menu(workbench, bmenu);
         check_return(stat, workbench);
 
         exit_when;

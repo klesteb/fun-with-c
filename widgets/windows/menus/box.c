@@ -23,6 +23,7 @@
 #include "menus_list.h"
 #include "menus_priv.h"
 #include "error_codes.h"
+#include "error_trace.h"
 
 require_klass(MENUS_KLASS);
 
@@ -33,6 +34,7 @@ require_klass(MENUS_KLASS);
 int _box_menu_event(widget_t *widget, events_t *event) {
 
     int stat = ERR;
+    error_trace_t errors;
     menus_t *self = MENUS(widget);
     userptr_data_t *userptr = NULL;
     window_t *window = WINDOW(widget);
@@ -94,8 +96,8 @@ int _box_menu_event(widget_t *widget, events_t *event) {
                         if (item != NULL) {
                             if ((userptr = item_userptr(item)) != NULL) {
                                 if (userptr->callback != NULL) {
-                                    stat = userptr->callback(userptr->data, userptr->data_size);
-                                    check_status(stat, OK, E_INVOPS);
+                                    stat = userptr->callback(userptr->data, userptr->data_size, &errors);
+                                    check_status2(stat, OK, errors);
                                 }
                             }
                         }

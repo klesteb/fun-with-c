@@ -14,13 +14,14 @@
 #define _MENUS_LIST_H
 
 #include "data_types.h"
+#include "error_trace.h"
 
 typedef struct _menus_list_s {
     char *label;
     char *description;
     void *data;
     int data_size;
-    int (*callback)(void *, int);
+    int (*callback)(void *, int, error_trace_t *);
 } menus_list_t;
 
 /* macro to easily set up the structure */

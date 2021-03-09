@@ -15,6 +15,8 @@
 
 #include <menu.h>
 
+#include "error_trace.h"
+
 /*----------------------------------------------------------------*/
 /* private data                                                   */
 /*----------------------------------------------------------------*/
@@ -30,7 +32,7 @@ typedef struct _menus_data_s {
 } menus_data_t;
 
 typedef struct _userptr_data_s {
-        int (*callback)(void *, int);
+        int (*callback)(void *, int, error_trace_t *);
         int data_size;
         void *data;
 } userptr_data_t;

@@ -15,12 +15,17 @@
 
 #include "error_trace.h"
 
+/* bbs_main */
+
+extern int bbs_init(error_trace_t *);
 extern int bbs_run(error_trace_t *);
 extern int bbs_logoff(error_trace_t *);
 
-/* access */
+/* bbs_access */
 
-extern int known_room(room_search_t *);
+extern int is_aide(room_base_t *, user_base_t *);
+extern int known_room(room_search_t *, user_base_t *);
+extern int allowed_in_room(room_base_t *, user_base_t *);
 
 /* bbs_ipc */
 
@@ -29,7 +34,13 @@ extern int bbs_send_status(int, int, error_trace_t *);
 
 /* bbs_rooms */
 
-extern int bbs_list_rooms(int, error_trace_t *);
+extern int bbs_load_room(void *, int, error_trace_t *);
+extern int bbs_list_rooms(void *, int, error_trace_t *);
+
+/* bbs_ui */
+
+extern int bbs_mail_menu(error_trace_t *);
+extern int bbs_main_menu(error_trace_t *);
 
 #endif
 

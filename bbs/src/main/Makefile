@@ -19,13 +19,13 @@ INCLUDE = -I.. -I../jam -I../qwk -I../room -I../node -I../user -I../finds
 STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(LIBS)libfinds.a $(OLIBS)libevent.a \
          $(OLIBS)libtracer.a $(OLIBS)liberrors.a $(OLIBS)libfiles.a \
-         $(OLIBS)libwindows.a $(OLIBS)libobjects.a $(OLIBS)libcclibs.a \
+         $(OLIBS)libwidgets.a $(OLIBS)libobjects.a $(OLIBS)libcclibs.a \
          $(OLIBS)libgpl.a -lncurses -lpanel -lmenu
-CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) -I../../../windows -I../../../events -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) -I../../../widgets -I../../../events -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
 LFLAGS =
 LOPTS = -o 
-MODULES = bbs_main.o bbs_run.o bbs_logoff.o bbs_workbench.o bbs_access.o \
-          bbs_ipc.o bbs_rooms.o
+MODULES = bbs_main.o bbs_run.o bbs_logoff.o bbs_access.o bbs_ipc.o \
+          bbs_rooms.o bbs_ui.o
 #
 OLBS = $(STATIC)
 #
@@ -54,9 +54,6 @@ bbs_logoff.o: bbs_logoff.c
 #
 bbs_access.o: bbs_access.c
 	$(CC) $(CFLAGS) bbs_access.c
-#
-bbs_workbench.o: bbs_workbench.c
-	$(CC) $(CFLAGS) bbs_workbench.c
 #
 bbs_ui.o: bbs_ui.c
 	$(CC) $(CFLAGS) bbs_ui.c

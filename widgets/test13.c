@@ -33,7 +33,7 @@ int print_description(const char *description) {
 
 }
 
-int print_result(void *data, int size) {
+int print_result(void *data, int size, error_trace_t *errors) {
 
     move(20, 1);
     clrtoeol();

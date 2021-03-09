@@ -13,11 +13,11 @@
 #include <stdio.h>
 
 #include "bbs_common.h"
-#include "interfaces.h"
+#include "bbs_protos.h"
 
 /*---------------------------------------------------------------------------*/
 
-int known_room(room_search_t *result) {
+int known_room(room_search_t *result, user_base_t *user) {
 
     int stat = FALSE;
 
@@ -33,11 +33,11 @@ int known_room(room_search_t *result) {
 
         stat = TRUE;
 
-    } else if (result->aide == useron.eternal) {
+    } else if (result->aide == user->eternal) {
 
         stat = TRUE;
 
-    } else if (useron.axlevel >= AX_AIDE) {
+    } else if (user->axlevel >= AX_AIDE) {
 
         stat = TRUE;
 
@@ -66,6 +66,28 @@ int allowed_in_room(room_base_t *room, user_base_t *user) {
             stat = TRUE;
 
         } else if (room->aide == user->eternal) {
+
+            stat = TRUE;
+
+        } else if (user->axlevel >= AX_AIDE) {
+
+            stat = TRUE;
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int is_aide(room_base_t *room, user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (room->flags & RM_INUSE) {
+
+        if (room->aide == user->eternal) {
 
             stat = TRUE;
 

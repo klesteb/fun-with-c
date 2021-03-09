@@ -3,11 +3,12 @@
 
 #include "when.h"
 #include "colors.h"
+#include "error_trace.h"
 #include "windows/menus/bar.h"
 #include "windows/menus/menus.h"
 #include "windows/menus/menus_list.h"
 
-int print_result(void *data, int size) {
+int print_result(void *data, int size, error_trace_t *errors) {
 
     move(20, 1);
     clrtoeol();

@@ -34,7 +34,7 @@ int print_description(const char *description) {
 
 }
 
-int print_result(void *data, int size) {
+int print_result(void *data, int size, error_trace_t *errors) {
 
     int stat = OK;
     window_t *temp = NULL;
@@ -58,6 +58,7 @@ int print_result(void *data, int size) {
     } use {
 
         stat = ERR;
+        copy_error(errors);
         capture_trace(dump);
         clear_error();
 

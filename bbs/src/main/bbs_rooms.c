@@ -13,11 +13,37 @@
 #include "bbs_common.h"
 #include "bbs_protos.h"
 
-#include "containers/menus/bar.h"
-#include "containers/menus/box.h"
-#include "components/menu/menu_items.h"
+#include "event.h"
+#include "windows/menus/box.h"
 
 /*---------------------------------------------------------------------------*/
+
+int display_description(const char *message) {
+
+    int stat;
+    events_t *event = NULL;
+
+    if ((event = calloc(1, sizeof(events_t))) != NULL) {
+
+        event->type = EVENT_K_MESSAGE;
+
+        if (message != NULL) {
+
+            event->data = (void *)strndup(message, strlen(message));
+
+        } else {
+
+            event->data = (void *)strdup("no data provided");
+
+        }
+
+        stat = workbench_inject_event(workbench, event);
+
+    }
+
+    return stat;
+    
+}
 
 int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *), error_trace_t *errors) {
 
@@ -35,7 +61,7 @@ int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *), error
 
         while ((result = que_pop_tail(&temp))) {
 
-            if (known_room(result)) {
+            if (known_room(result, &useron)) {
 
                 stat = que_push_head(results, result);
                 check_status(stat, OK, E_NOQUEUE);
@@ -61,7 +87,7 @@ int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *), error
 
 }
 
-int load_room(void *data, int len) {
+int bbs_load_room(void *data, int len, error_trace_t *errors) {
 
     int stat = OK;
 
@@ -73,60 +99,14 @@ int load_room(void *data, int len) {
         check_return(stat, rooms);
 
         if (qroom.flags & RM_MESSAGES) {
-            
+
         } else if (qroom.flags & RM_BULLETIN) {
-            
+
         } else if (qroom.flags & RM_DIRECTORY) {
-            
+
         } else if (qroom.flags & RM_SUBSYS) {
-            
-        }
-        
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        capture_trace(dump);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int create_menu_item(room_search_t *result, component_t **item, error_trace_t *errors) {
-
-    int stat = OK;
-    item_data_t *data = NULL;
-
-    when_error_in {
-
-        errno = 0;
-        data = calloc(1, sizeof(item_data_t));
-        if (data == NULL) {
-
-            cause_error(errno);
 
         }
-
-        errno = 0;
-        *item = calloc(1, sizeof(component_t));
-        if (*item == NULL) {
-
-            cause_error(errno);
-
-        }
-
-        data->label = strdup(result->name);
-        data->description = strdup(result->description);
-        data->callback = load_room;
-        data->data = (void *)&result->index;
-        data->data_size = sizeof(int);
-
-        *item = menu_item_create(data);
-        check_creation(*item);
 
         exit_when;
 
@@ -143,24 +123,29 @@ int create_menu_item(room_search_t *result, component_t **item, error_trace_t *e
 
 }
 
-int bbs_list_rooms(int type, error_trace_t *errors) {
+int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
 
+    int type = 0;
     int stat = OK;
+    int count = 0;
     queue results;
+    int list_size = 0;
     char *title = NULL;
     error_trace_t error;
-    container_t *menu = NULL;
-    component_t *item = NULL;
+    menus_t *bmenu = NULL;
+    menus_list_t *list = NULL;
     room_search_t *result = NULL;
-    int row = getbegy(stdscr) / 2;
-    int col = getbegx(stdscr) / 2;
-    int width = getmaxx(stdscr) / 2;
+    int startx = getbegy(stdscr) / 2;
+    int starty = getbegx(stdscr) / 2;
+    int width  = getmaxx(stdscr) / 2;
     int height = getmaxy(stdscr) / 2;
 
     when_error_in {
 
         stat = que_init(&results);
         check_status(stat, QUE_OK, E_INVOPS);
+
+        if (len > 0) memcpy(&type, data, len);
 
         switch (type) {
             case RM_BULLETIN:
@@ -178,35 +163,39 @@ int bbs_list_rooms(int type, error_trace_t *errors) {
                 break;
         }
 
-        available_rooms = window_create(row, col, height, width);
-        check_creation(available_rooms);
+        if ((count = que_size(&results)) > 1) {
 
-        stat = window_box(available_rooms, title);
-        check_return(stat, available_rooms);
+            errno = 0;
+            list = calloc(count, sizeof(menus_list_t));
+            if (list == NULL) cause_error(errno);
+            list_size = count * sizeof(menus_list_t);
 
-        menu = box_menu_create(1, 1, height - 2, width - 2);
-        check_creation(menu);
+            int x;
+            for (x = 0; x <= count; x++) {
 
-        while ((result = que_pop_tail(&results))) {
+                if ((result = que_pop_tail(&results)) != NULL) {
 
-            stat = create_menu_item(result, &item, &error);
-            check_status2(stat, OK, error);
+                    SET_MENU(list[x], result->name, result->description, 
+                             &result->index, sizeof(int), bbs_load_room);
 
-            stat = container_add_component(menu, item);
-            check_return(stat, menu);
+                    free(result);
 
-            free(result);
+                }
+
+            }
+
+            bmenu = box_menu_create(title, startx, starty, height, width, display_description, list, list_size);
+            check_creation(bmenu);
+
+            stat = workbench_add(workbench, WINDOW(bmenu));
+            check_return(stat, workbench);
+
+            stat = workbench_refresh(workbench);
+            check_return(stat, workbench);
+
+            free(list);
 
         }
-
-        stat = window_add_container(available_rooms, menu);
-        check_return(stat, available_rooms);
-
-        stat = workbench_add_window(workbench, available_rooms);
-        check_return(stat, workbench);
-
-        stat = workbench_set_focus(workbench, available_rooms);
-        check_return(stat, workbench);
 
         exit_when;
 

@@ -14,8 +14,8 @@ CC = gcc
 LINK = gcc
 LIBR = ar rs
 WORKING = $(shell pwd)
-STATIC = libwidgets.a
-SHARED = libwidgets.so.$(VERSION)
+STATIC = ../libs/libwidgets.a
+SHARED = ../libs/libwidgets.so.$(VERSION)
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I. -I../events -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
 LOPTS = -o 
 SOPTS = -shared -o 

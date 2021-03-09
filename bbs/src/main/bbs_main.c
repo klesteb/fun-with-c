@@ -27,13 +27,12 @@
 #include "fnm_util.h"
 #include "misc/misc.h"
 #include "workbench.h"
-#include "interfaces.h"
+#include "bbs_protos.h"
 #include "bbs_errors.h"
-#include "bbs_workbench.h"
 #include "errors_ncurses.h"
 #include "bbs_error_codes.h"
 
-/* global items */
+/* global items ---------------------------------------------------------- */
 
 node_t *nodes = NULL;
 user_t *users = NULL;
@@ -56,7 +55,99 @@ room_base_t qroom;
 user_base_t useron;
 node_base_t qnode;
 
-/*---------------------------------------------------------------------------*/
+/* config items ---------------------------------------------------------- */
+
+int base = 1;                       /* base message number                 */
+int xtimeout = 1;                   /* timeout for file locking            */
+int retries = 30;                   /* retires for file locking            */
+int roomnum = 32;                   /* max number of rooms                 */
+int nodenum = 32;                   /* max number of nodes                 */
+int usernum = 256;                  /* max number of users                 */
+char *datapath = "../../data/";     /* where the data files are located    */
+char *msgpath = "../../messages/";  /* where the messages are located      */
+
+/*-------------------------------------------------------------------------*/
+
+int bbs_init(error_trace_t *errors) {
+    
+    int stat = OK;
+    int lobby = LOBBY;
+
+    when_error_in {
+
+        /* access the databases */
+
+        stat = room_open(rooms);
+        check_return(stat, rooms);
+
+        stat = user_open(users);
+        check_return(stat, users);
+
+        stat = node_open(nodes);
+        check_return(stat, nodes);
+
+        /* load the node record */
+        
+        stat = node_find(nodes, &xnode, sizeof(int), find_node_by_number, &qnode_index);
+        check_return(stat, nodes);
+
+        if (qnode_index > 0) {
+
+            stat = node_get(nodes, qnode_index, &qnode);
+            check_return(stat, nodes);
+
+        } else {
+
+            cause_error(E_UNKNODE);
+
+        }
+
+        /* load the user record */
+        
+        stat = user_find(users, username, strlen(username), find_user_by_name, &user_index);
+        check_return(stat, users);
+
+        if (user_index > 0) {
+
+            stat = user_get(users, user_index, &useron);
+            check_return(stat, users);
+
+        } else {
+
+            cause_error(E_UNKUSER);
+
+        }
+
+        /* load the lobby */
+
+        stat = room_find(rooms, &lobby, sizeof(int), find_room_by_number, &qroom_index);
+        check_return(stat, rooms);
+
+        if (qroom_index > 0) {
+
+            stat = room_get(rooms, qroom_index, &qroom);
+            check_return(stat, rooms);
+
+        } else {
+
+            cause_error(E_UNKROOM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+} 
 
 char *bbs_version(void) {
 
@@ -69,15 +160,6 @@ int setup(error_trace_t *errors) {
 
     int stat = OK;
     int lobby = LOBBY;
-
-    int base = 1;
-    int timeout = 1;
-    int retries = 30;
-    int roomnum = 32;
-    int nodenum = 32;
-    int usernum = 256;
-    char *datapath = "../../data/";
-    char *msgpath = "../../messages/";
 
     when_error_in {
 
@@ -97,19 +179,19 @@ int setup(error_trace_t *errors) {
 
         /* create the objects */
 
-        workbench = bbs_workbench_create();
+        workbench = workbench_create(NULL);
         check_creation(workbench);
 
         events = event_create();
         check_creation(events);
 
-        rooms = room_create(datapath, msgpath, roomnum, retries, timeout, base, dump);
+        rooms = room_create(datapath, msgpath, roomnum, retries, xtimeout, base, dump);
         check_creation(rooms);
 
-        users = user_create(datapath, usernum, retries, timeout, dump);
+        users = user_create(datapath, usernum, retries, xtimeout, dump);
         check_creation(users);
 
-        nodes = node_create(datapath, nodenum, retries, timeout, dump);
+        nodes = node_create(datapath, nodenum, retries, xtimeout, dump);
         check_creation(nodes);
 
         /* access the databases */
@@ -275,8 +357,11 @@ int main(int argc, char **argv) {
         stat = setup(&errors);
         check_status2(stat, OK, errors);
 
-        /* stat = bbs_init_terminal(&errors); */
-        /* check_status2(stat, OK, errors); */
+        stat = bbs_init(&errors);
+        check_status2(stat, OK, errors);
+
+        stat = bbs_main_menu(&errors);
+        check_status2(stat, OK, errors);
 
         stat = bbs_run(&errors);
         check_status2(stat, OK, errors);

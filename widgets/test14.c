@@ -148,9 +148,6 @@ int build_ui(error_trace_t *errors) {
         stat = build_menu(&error);
         check_status2(stat, OK, error);
 
-        stat = workbench_refresh(workbench);
-        check_return(stat, workbench);
-
         exit_when;
 
     } use {

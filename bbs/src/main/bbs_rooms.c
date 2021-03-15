@@ -18,34 +18,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-int display_description(const char *message) {
-
-    int stat;
-    events_t *event = NULL;
-
-    if ((event = calloc(1, sizeof(events_t))) != NULL) {
-
-        event->type = EVENT_K_MESSAGE;
-
-        if (message != NULL) {
-
-            event->data = (void *)strndup(message, strlen(message));
-
-        } else {
-
-            event->data = (void *)strdup("no data provided");
-
-        }
-
-        stat = workbench_inject_event(workbench, event);
-
-    }
-
-    return stat;
-    
-}
-
-int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *), error_trace_t *errors) {
+static int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *), error_trace_t *errors) {
 
     queue temp;
     int stat = OK;
@@ -61,14 +34,16 @@ int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *), error
 
         while ((result = que_pop_tail(&temp))) {
 
-            if (known_room(result, &useron)) {
+            if (allowed_in_room(result, &useron)) {
 
                 stat = que_push_head(results, result);
                 check_status(stat, OK, E_NOQUEUE);
 
-            }
+            } else {
 
-            free(result);
+                free(result);
+
+            }
 
         }
 
@@ -127,20 +102,23 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
 
     int type = 0;
     int stat = OK;
-    int count = 0;
     queue results;
+    int count = 0;
+    int startx = 0;
+    int starty = 0;
+    int height = 12;
+    int width  = 60;
     int list_size = 0;
     char *title = NULL;
     error_trace_t error;
     menus_t *bmenu = NULL;
     menus_list_t *list = NULL;
     room_search_t *result = NULL;
-    int startx = getbegy(stdscr) / 2;
-    int starty = getbegx(stdscr) / 2;
-    int width  = getmaxx(stdscr) / 2;
-    int height = getmaxy(stdscr) / 2;
 
     when_error_in {
+
+        startx = ((getmaxx(stdscr) - width) / 2);
+        starty = ((getmaxy(stdscr) - height) / 2);
 
         stat = que_init(&results);
         check_status(stat, QUE_OK, E_INVOPS);
@@ -170,27 +148,26 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
             if (list == NULL) cause_error(errno);
             list_size = count * sizeof(menus_list_t);
 
-            int x;
-            for (x = 0; x <= count; x++) {
+            int x = 0;
+            while ((result = que_pop_tail(&results))) {
 
-                if ((result = que_pop_tail(&results)) != NULL) {
+                errno = 0;
+                int *index = calloc(1, sizeof(int));
+                if (index == NULL) cause_error(errno);
+                memcpy(index, &result->index, sizeof(int));
 
-                    SET_MENU(list[x], result->name, result->description, 
-                             &result->index, sizeof(int), bbs_load_room);
+                SET_MENU(list[x], result->name, result->description, 
+                         (void *)index, sizeof(int), bbs_load_room);
 
-                    free(result);
-
-                }
+                x++;
+                free(result);
 
             }
 
-            bmenu = box_menu_create(title, startx, starty, height, width, display_description, list, list_size);
+            bmenu = box_menu_create(title, startx, starty, height, width, bbs_send_message, list, list_size);
             check_creation(bmenu);
 
-            stat = workbench_add(workbench, WINDOW(bmenu));
-            check_return(stat, workbench);
-
-            stat = workbench_refresh(workbench);
+            stat = workbench_add(workbench, (window_t *)bmenu);
             check_return(stat, workbench);
 
             free(list);

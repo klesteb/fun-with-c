@@ -28,17 +28,17 @@ INCS = widget.h colors.h window.h component.h components/label.h \
        components/prompt.h components/textarea.h components/input.h \
        components/bell.h windows/menus/menus.h windows/menus/bar.h \
        windows/menus/box.h windows/menus/list.h workbench.h \
-       windows/alert.h
+       windows/alert.h windows/status.h
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
        components/prompt.o components/textarea.o components/input.o \
        components/bell.o windows/menus/menus.o windows/menus/bar.o \
        windows/menus/box.o windows/menus/list.o workbench.o \
-       windows/alert.o
+       windows/alert.o windows/status.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-             test10 test11 test12 test13 test14
+             test10 test11 test12 test13 test14 test15
 #
 debug:
 #
@@ -67,6 +67,8 @@ clean:
 	rm -f test11
 	rm -f test12
 	rm -f test13
+	rm -f test14
+	rm -f test15
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -124,6 +126,10 @@ test14: test14.o
 	$(CC) $(CFLAGS) test14.c
 	$(LINK) $(LOPTS) test14 test14.o $(OLBS) -lpanel  -lncurses -lmenu
 #
+test15: test15.o
+	$(CC) $(CFLAGS) test15.c
+	$(LINK) $(LOPTS) test15 test15.o $(OLBS) -lpanel  -lncurses -lmenu
+#
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c
 	$(LIBR) $(STATIC) colors.o
@@ -179,6 +185,10 @@ components/input.o: components/input.c $(INCS)
 windows/alert.o: windows/alert.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) windows/alert.o windows/alert.c 
 	$(LIBR) $(STATIC) windows/alert.o
+#
+windows/status.o: windows/status.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/status.o windows/status.c 
+	$(LIBR) $(STATIC) windows/status.o
 #
 windows/menus/menus.o: windows/menus/menus.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) windows/menus/menus.o windows/menus/menus.c 

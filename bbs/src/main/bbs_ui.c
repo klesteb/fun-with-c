@@ -19,6 +19,7 @@
 #include "colors.h"
 #include "window.h"
 #include "component.h"
+#include "misc/misc.h"
 #include "windows/alert.h"
 #include "windows/menus/bar.h"
 #include "windows/menus/menus.h"
@@ -41,6 +42,80 @@ int print_result(void *data, int size, error_trace_t *errors) {
         check_return(stat, workbench);
 
         stat = workbench_refresh(workbench);
+        check_return(stat, workbench);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int bbs_clear_message(error_trace_t *errors) {
+
+    int stat = OK;
+    events_t *event = NULL;
+    int width = getmaxy(stdscr);
+
+    when_error_in {
+
+        errno = 0;
+        event = calloc(1, sizeof(events_t));
+        if (event == NULL) cause_error(errno);
+
+        event->type = EVENT_K_MESSAGE;
+        event->data = (void *)spaces(width);
+
+        stat = workbench_inject_event(workbench, event);
+        check_return(stat, workbench);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int bbs_send_message(const char *message, error_trace_t *errors) {
+
+    int stat = OK;
+    events_t *event = NULL;
+
+    when_error_in {
+
+        errno = 0;
+        event = calloc(1, sizeof(events_t));
+        if (event == NULL) cause_error(errno);
+
+        event->type = EVENT_K_MESSAGE;
+
+        if (message != NULL) {
+
+            event->data = (void *)strndup(message, strlen(message));
+
+        } else {
+
+            event->data = (void *)strdup("no data provided");
+
+        }
+
+        stat = workbench_inject_event(workbench, event);
         check_return(stat, workbench);
 
         exit_when;
@@ -96,14 +171,14 @@ int bbs_mail_menu(error_trace_t *errors) {
             list_size = 9 * sizeof(menus_list_t);
 
             SET_MENU(list[0], "Goto", "goto a specific room", data1, strlen(data1), print_result);
-            SET_MENU(list[1], "Forward", "forward retrieval of message", data2, strlen(data2), print_result);
+            SET_MENU(list[1], "Forward", "forward retrieval of messages", data2, strlen(data2), print_result);
             SET_MENU(list[2], "New", "read new messages", data5, strlen(data5), print_result);
             SET_MENU(list[3], "Old", "read old messages", data6, strlen(data6), print_result);
             SET_MENU(list[4], "Write", "create a new message", data7, strlen(data7), print_result);
             SET_MENU(list[5], "Reverse", "reverse retrieval of messages", data4, strlen(data4), print_result);
             SET_MENU(list[6], "Aide", "aide options", data9, strlen(data9), print_result);
             SET_MENU(list[7], "Help", "help", data8, strlen(data8), print_result);
-            SET_MENU(list[8], "Logout", "logout of system", data9, strlen(data9), print_result);
+            SET_MENU(list[8], "Logout", "logout of system", NULL, 0, bbs_logout);
 
         } else {
 
@@ -113,13 +188,13 @@ int bbs_mail_menu(error_trace_t *errors) {
             list_size = 8 * sizeof(menus_list_t);
 
             SET_MENU(list[0], "Goto", "goto a specific room", data1, strlen(data1), print_result);
-            SET_MENU(list[1], "Forward", "forward retrieval of message", data2, strlen(data2), print_result);
+            SET_MENU(list[1], "Forward", "forward retrieval of messages", data2, strlen(data2), print_result);
             SET_MENU(list[2], "New", "read new messages", data5, strlen(data5), print_result);
             SET_MENU(list[3], "Old", "read old messages", data6, strlen(data6), print_result);
             SET_MENU(list[4], "Write", "create a new message", data7, strlen(data7), print_result);
             SET_MENU(list[5], "Reverse", "reverse retrieval of messages", data4, strlen(data4), print_result);
             SET_MENU(list[6], "Help", "help", data8, strlen(data8), print_result);
-            SET_MENU(list[7], "Logout", "logout of system", data9, strlen(data9), print_result);
+            SET_MENU(list[7], "Logout", "logout of system", NULL, 0, bbs_logout);
 
         }
 
@@ -136,7 +211,7 @@ int bbs_mail_menu(error_trace_t *errors) {
         check_return(stat, workbench);
 
         free(list);
-            
+
         exit_when;
 
     } use {
@@ -192,7 +267,7 @@ int bbs_main_menu(error_trace_t *errors) {
             SET_MENU(list[0], "Goto", "goto a specific room", NULL, 0, bbs_list_rooms);
             SET_MENU(list[1], "Enter", "enter the current room", data2, strlen(data2), print_result);
             SET_MENU(list[2], "Who", "who's online", data2, strlen(data2), print_result);
-            SET_MENU(list[3], "User", "user functions", data5, strlen(data5), print_result);
+            SET_MENU(list[3], "User", "user maintence", data5, strlen(data5), print_result);
             SET_MENU(list[4], "System", "system statistics", data6, strlen(data6), print_result);
             SET_MENU(list[5], "Aide", "aide options", data9, strlen(data9), print_result);
             SET_MENU(list[6], "Help", "show help", data8, strlen(data8), print_result);
@@ -208,7 +283,7 @@ int bbs_main_menu(error_trace_t *errors) {
             SET_MENU(list[0], "Goto", "goto a specific room", NULL, 0, bbs_list_rooms);
             SET_MENU(list[1], "Enter", "enter the current room", data2, strlen(data2), print_result);
             SET_MENU(list[2], "Who", "who's online", data2, strlen(data2), print_result);
-            SET_MENU(list[3], "User", "user functions", data5, strlen(data5), print_result);
+            SET_MENU(list[3], "User", "user maintence", data5, strlen(data5), print_result);
             SET_MENU(list[4], "System", "system statistics", data6, strlen(data6), print_result);
             SET_MENU(list[5], "Help", "show help", data8, strlen(data8), print_result);
             SET_MENU(list[6], "Logout", "logout of system", data9, strlen(data9), print_result);

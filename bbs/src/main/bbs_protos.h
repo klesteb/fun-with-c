@@ -19,13 +19,12 @@
 
 extern int bbs_init(error_trace_t *);
 extern int bbs_run(error_trace_t *);
-extern int bbs_logoff(error_trace_t *);
 
 /* bbs_access */
 
 extern int is_aide(room_base_t *, user_base_t *);
 extern int known_room(room_search_t *, user_base_t *);
-extern int allowed_in_room(room_base_t *, user_base_t *);
+extern int allowed_in_room(room_search_t *, user_base_t *);
 
 /* bbs_ipc */
 
@@ -41,6 +40,12 @@ extern int bbs_list_rooms(void *, int, error_trace_t *);
 
 extern int bbs_mail_menu(error_trace_t *);
 extern int bbs_main_menu(error_trace_t *);
+extern int bbs_clear_message(error_trace_t *);
+extern int bbs_send_message(const char *, error_trace_t *);
+
+/* bbs_logoff */
+
+extern int bbs_logoff(void *, int, error_trace_t *);
 
 #endif
 

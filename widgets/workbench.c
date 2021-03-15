@@ -725,6 +725,14 @@ int _workbench_add(workbench_t *self, window_t *window) {
         stat = top_panel(panel);
         check_status(stat, OK, E_INVOPS);
 
+        stat = window_draw(window);
+        check_return(stat, window);
+
+        update_panels();
+
+        stat = doupdate();
+        check_status(stat, OK, E_INVOPS);
+
         exit_when;
 
     } use {
@@ -914,11 +922,9 @@ int _workbench_remove(workbench_t *self, window_t *window) {
 
 }
 
-
 int _workbench_set_menu(workbench_t *self, menus_t *main) {
 
     int stat = OK;
-    PANEL *panel = NULL;
 
     when_error_in {
 

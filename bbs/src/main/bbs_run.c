@@ -15,6 +15,32 @@
 
 /*---------------------------------------------------------------------------*/
 
+int clear_message(void *data) {
+
+    int stat = OK;
+    error_trace_t errors;
+
+    when_error_in {
+
+        stat = bbs_clear_message(&errors);
+        check_status2(stat, OK, errors);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+        event_break(events);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int process_stdin(void *data) {
 
     int stat = OK;
@@ -113,6 +139,9 @@ int bbs_run(error_trace_t *errors) {
 
         stat = event_register_timer(events, TRUE, 10.0, monitor_nodes, NULL);
         check_return(stat, events);
+
+        /* stat = event_register_timer(events, TRUE, 10.0, clear_message, NULL); */
+        /* check_return(stat, events); */
 
         stat = event_loop(events);
         check_return(stat, events);

@@ -4,9 +4,11 @@
 
 #include "node.h"
 #include "when.h"
+#include "finds.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
+#include "que_util.h"
 #include "misc/misc.h"
 
 node_t *nodes;
@@ -16,12 +18,12 @@ errors_t *errs;
 int display(node_base_t *temp) {
 
     printf("---------------------------------\n");
-    printf("node    : %d\n", temp->nodenum);
+    printf("node    : %ld\n", temp->nodenum);
     printf("status  : %d\n", temp->status);
     printf("errors  : %d\n", temp->errors);
     printf("action  : %d\n", temp->action);
     printf("user    : %d\n", temp->useron);
-    printf("msgnum  : %d\n", temp->msgnum);
+    printf("msgnum  : %ld\n", temp->msgnum);
     printf("misc    : %d\n", temp->misc);
     printf("aux     : %d\n", temp->aux);
     printf("extaux  : %ld\n", temp->extaux);
@@ -82,11 +84,14 @@ void cleanup(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    int index = 0;
+    queue results;
     node_base_t temp;
-    ssize_t count = 0;
+    node_search_t *result = NULL;
 
     when_error_in {
+
+        stat = que_init(&results);
+        check_status(stat, OK, E_INVOPS);
 
         stat = setup();
         check_status(stat, OK, E_INVOPS);
@@ -94,15 +99,15 @@ int main(int argc, char **argv) {
         stat = node_open(nodes);
         check_return(stat, nodes);
 
-        stat = node_first(nodes, &temp, &count);
+        stat = node_search(nodes, NULL, 0, find_nodes_all, &results);
         check_return(stat, nodes);
 
-        while (count > 0) {
+        while (result = que_pop_head(&results)) {
+
+            stat = node_get(nodes, result->index, &temp);
+            check_return(stat, nodes);
 
             display(&temp);
-
-            stat = node_next(nodes, &temp, &count);
-            check_return(stat, nodes);
 
         }
 

@@ -11,16 +11,18 @@
 /*---------------------------------------------------------------------------*/
 
 #include <stdio.h>
+
+#include "bitops.h"
 #include "finds.h"
 
 int find_users_all(void *data, int len, user_base_t *user) {
 
-    int stat = FALSE;
+    int stat = TRUE;
 
-    if (!(user->flags & US_DELETED) &&
-        !(user->flags & US_INACTIVE)) {
+    if (bit_test(user->flags, US_DELETED) ||
+        bit_test(user->flags, US_INACTIVE)) {
 
-        stat = TRUE;
+        stat = FALSE;
 
     }
 
@@ -36,7 +38,7 @@ int find_user_by_name(void *data, int len, user_base_t *user) {
     memset(username, '\0', LEN_NAME+1);
     strncpy(username, (char *)data, LEN_NAME);
 
-    if (!(user->flags & US_INACTIVE)) {
+    if (! bit_test(user->flags, US_INACTIVE)) {
 
         if (strcmp(user->username, username) == 0) {
 

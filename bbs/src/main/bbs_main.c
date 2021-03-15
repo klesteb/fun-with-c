@@ -68,6 +68,30 @@ char *msgpath = "../../messages/";  /* where the messages are located      */
 
 /*-------------------------------------------------------------------------*/
 
+int bbs_logoff(error_trace_t *errors) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = user_put(users, user_index, &useron);
+        check_return(stat, users);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int bbs_init(error_trace_t *errors) {
     
     int stat = OK;
@@ -87,7 +111,7 @@ int bbs_init(error_trace_t *errors) {
         check_return(stat, nodes);
 
         /* load the node record */
-        
+
         stat = node_find(nodes, &xnode, sizeof(int), find_node_by_number, &qnode_index);
         check_return(stat, nodes);
 
@@ -103,7 +127,7 @@ int bbs_init(error_trace_t *errors) {
         }
 
         /* load the user record */
-        
+
         stat = user_find(users, username, strlen(username), find_user_by_name, &user_index);
         check_return(stat, users);
 
@@ -159,7 +183,6 @@ char *bbs_version(void) {
 int setup(error_trace_t *errors) {
 
     int stat = OK;
-    int lobby = LOBBY;
 
     when_error_in {
 
@@ -193,65 +216,6 @@ int setup(error_trace_t *errors) {
 
         nodes = node_create(datapath, nodenum, retries, xtimeout, dump);
         check_creation(nodes);
-
-        /* access the databases */
-
-        stat = room_open(rooms);
-        check_return(stat, rooms);
-
-        stat = user_open(users);
-        check_return(stat, users);
-
-        stat = node_open(nodes);
-        check_return(stat, nodes);
-
-        /* load the node record */
-        
-        stat = node_find(nodes, &xnode, sizeof(int), find_node_by_number, &qnode_index);
-        check_return(stat, nodes);
-
-        if (qnode_index > 0) {
-
-            stat = node_get(nodes, qnode_index, &qnode);
-            check_return(stat, nodes);
-
-        } else {
-
-            cause_error(E_UNKNODE);
-
-        }
-
-        /* load the user record */
-        
-        stat = user_find(users, username, strlen(username), find_user_by_name, &user_index);
-        check_return(stat, users);
-
-        if (user_index > 0) {
-
-            stat = user_get(users, user_index, &useron);
-            check_return(stat, users);
-
-        } else {
-
-            cause_error(E_UNKUSER);
-
-        }
-
-        /* load the lobby */
-
-        stat = room_find(rooms, &lobby, sizeof(int), find_room_by_number, &qroom_index);
-        check_return(stat, rooms);
-
-        if (qroom_index > 0) {
-
-            stat = room_get(rooms, qroom_index, &qroom);
-            check_return(stat, rooms);
-
-        } else {
-
-            cause_error(E_UNKROOM);
-
-        }
 
         exit_when;
 

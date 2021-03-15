@@ -527,6 +527,7 @@ int _window_event(widget_t *widget, events_t *event) {
 
                 stat = component_event(component, event);
                 check_return(stat, component);
+                break;
 
             }
 

@@ -28,7 +28,7 @@ typedef struct _menus_data_s {
     char *mark;
     int row;
     int col;
-    int (*callback)(const char *);
+    int (*callback)(const char *, error_trace_t *);
 } menus_data_t;
 
 typedef struct _userptr_data_s {

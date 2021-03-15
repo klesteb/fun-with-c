@@ -823,8 +823,6 @@ int _user_open(user_t *self) {
             ondisk.flags = (US_SYSOP | US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
             memset(&ondisk.username, '\0', 26);
             strcpy(ondisk.username, "sysop");
-            memset(&ondisk.password, '\0', 26);
-            strcpy(ondisk.password, "sysop");
 
             stat = files_tell(self->userdb, &position);
             check_return(stat, self->userdb);
@@ -845,8 +843,6 @@ int _user_open(user_t *self) {
             ondisk.flags = (US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
             memset(&ondisk.username, '\0', 26);
             strcpy(ondisk.username, "qwknet");
-            memset(&ondisk.password, '\0', 26);
-            strcpy(ondisk.password, "qwknet");
 
             stat = files_tell(self->userdb, &position);
             check_return(stat, self->userdb);
@@ -867,8 +863,6 @@ int _user_open(user_t *self) {
             ondisk.axlevel = AX_NORM;
             memset(&ondisk.username, '\0', 26);
             strcpy(ondisk.username, "guest");
-            memset(&ondisk.password, '\0', 26);
-            strcpy(ondisk.password, "guest");
 
             stat = files_tell(self->userdb, &position);
             check_return(stat, self->userdb);
@@ -1468,11 +1462,7 @@ int _user_search(user_t *self, void *data, int len, int (*compare)(void *, int, 
 
                 errno = 0;
                 result = calloc(1, sizeof(user_search_t));
-                if (result == NULL) {
-
-                    cause_error(errno);
-
-                }
+                if (result == NULL) cause_error(errno);
 
                 strncpy(result->username, ondisk.username, LEN_NAME);
                 result->index = self->index;
@@ -1620,7 +1610,6 @@ int _user_extend(user_t *self, int amount) {
 int _user_normalize(user_t *self, user_base_t *ondisk, user_base_t *user) {
 
     strcpy((*user).username, ondisk->username);
-    strcpy((*user).password, ondisk->password);
     (*user).axlevel = ondisk->axlevel;
     (*user).qwk = ondisk->qwk;
     (*user).flags = ondisk->flags;
@@ -1643,7 +1632,6 @@ int _user_normalize(user_t *self, user_base_t *ondisk, user_base_t *user) {
 int _user_build(user_t *self, user_base_t *ondisk, user_base_t *user) {
 
     strcpy((*user).username, ondisk->username);
-    strcpy((*user).password, ondisk->password);
     (*user).axlevel = ondisk->axlevel;
     (*user).qwk = ondisk->qwk;
     (*user).flags = ondisk->flags;

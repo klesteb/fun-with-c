@@ -25,11 +25,11 @@ int known_room(room_search_t *result, user_base_t *user) {
 
         stat = TRUE;
 
-    } else if (!(result->flags & RM_PERFONLY)) {
+    } else if (bit_test(result->flags, RM_PREFONLY)) {
 
         stat = TRUE;
 
-    } else if (!(result->flags & RM_PRIVATE)) {
+    } else if (! bit_test(result->flags, RM_PRIVATE)) {
 
         stat = TRUE;
 
@@ -47,25 +47,25 @@ int known_room(room_search_t *result, user_base_t *user) {
 
 }
 
-int allowed_in_room(room_base_t *room, user_base_t *user) {
+int allowed_in_room(room_search_t *result, user_base_t *user) {
 
     int stat = FALSE;
 
-    if (room->flags & RM_INUSE) {
+    if (bit_test(result->flags, RM_INUSE)) {
 
-        if ((room->roomnum == MAILROOM) || (room->roomnum == LOBBY)) {
-
-            stat = TRUE;
-
-        } else if (!(room->flags & RM_PRIVATE)) {
+        if ((result->roomnum == MAILROOM) || (result->roomnum == LOBBY)) {
 
             stat = TRUE;
 
-        } else if (!(room->flags & RM_PERFONLY)) {
+        } else if (! bit_test(result->flags, RM_PRIVATE)) {
 
             stat = TRUE;
 
-        } else if (room->aide == user->eternal) {
+        } else if (bit_test(result->flags, RM_PREFONLY)) {
+
+            stat = TRUE;
+
+        } else if (result->aide == user->eternal) {
 
             stat = TRUE;
 
@@ -85,7 +85,7 @@ int is_aide(room_base_t *room, user_base_t *user) {
 
     int stat = FALSE;
 
-    if (room->flags & RM_INUSE) {
+    if (bit_test(room->flags, RM_INUSE)) {
 
         if (room->aide == user->eternal) {
 

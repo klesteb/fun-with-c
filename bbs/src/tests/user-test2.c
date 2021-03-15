@@ -4,6 +4,7 @@
 
 #include "user.h"
 #include "when.h"
+#include "finds.h"
 #include "files.h"
 #include "errors.h"
 #include "tracer.h"
@@ -13,21 +14,6 @@ user_t *users;
 tracer_t *dump;
 errors_t *errs;
 
-int find_users(void *data, int len, user_base_t *user) {
-
-    int stat = FALSE;
-
-    if (!(user->flags & US_DELETED) &&
-        !(user->flags & US_INACTIVE)) {
-
-        stat = TRUE;
-
-    }
-
-    return stat;
-
-}
-    
 int display(user_base_t *user) {
 
     printf("---------------------------\n");
@@ -104,8 +90,10 @@ int main(int argc, char **argv) {
         stat = user_open(users);
         check_return(stat, users);
 
-        stat = user_search(users, NULL, 0, find_users, &results);
+        stat = user_search(users, NULL, 0, find_users_all, &results);
         check_return(stat, users);
+
+        printf("\nfound %d users\n", que_size(&results));
 
         while ((result = que_pop_head(&results))) {
 

@@ -25,6 +25,7 @@
 #include "event.h"
 #include "finds.h"
 #include "files.h"
+#include "bitops.h"
 #include "errors.h"
 #include "tracer.h"
 #include "window.h"

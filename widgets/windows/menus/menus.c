@@ -390,6 +390,7 @@ int _menus_show_description(menus_t *self) {
 
     int stat = ERR;
     ITEM *item = NULL;
+    error_trace_t errors;
     const char *description = NULL;
     menus_data_t *data = self->data;
 
@@ -401,8 +402,8 @@ int _menus_show_description(menus_t *self) {
 
                 if (data->callback != NULL) {
 
-                    stat = (*data->callback)(description);
-                    check_status(stat, OK, E_INVOPS);
+                    stat = (*data->callback)(description, &errors);
+                    check_status2(stat, OK, errors);
 
                 }
 

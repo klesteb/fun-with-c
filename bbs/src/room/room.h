@@ -29,7 +29,7 @@
 #define RM_INUSE     (1L<<0)    /* room is in use                  */
 #define RM_PUBLIC    (1L<<1)    /* room is public                  */
 #define RM_PRIVATE   (1L<<2)    /* room is private                 */
-#define RM_PERFONLY  (1L<<3)    /* room is perference only         */
+#define RM_PREFONLY  (1L<<3)    /* room is preference only         */
 #define RM_PERMROOM  (1L<<4)    /* room is permament               */
 #define RM_NETWORK   (1L<<5)    /* room is network shared          */
 #define RM_READONLY  (1L<<6)    /* Restrict posting to aides? No   */

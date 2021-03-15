@@ -1595,17 +1595,14 @@ int _room_search(room_t *self, void *data, int len, int (*compare)(void *, int, 
 
                 errno = 0;
                 result = calloc(1, sizeof(room_search_t));
-                if (result == NULL) {
-
-                    cause_error(errno);
-
-                }
+                if (result == NULL) cause_error(errno);
 
                 result->index = self->index;
                 result->aide  = ondisk.aide;
                 result->flags = ondisk.flags;
                 result->roomnum = ondisk.roomnum;
                 strcpy(result->name, ondisk.name);
+                strcpy(result->description, ondisk.description);
 
                 stat = que_push_head(results, result);
                 check_status(stat, QUE_OK, E_NOQUEUE);
@@ -1737,6 +1734,9 @@ int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
 
         memset((*room).path, '\0', 256);
         strncpy((*room).path, ondisk->path, 255);
+
+        memset((*room).description, '\0', 64);
+        strncpy((*room).description, ondisk->description, 63);
 
         stat = _detach_handler(self);
         check_return(stat, self);

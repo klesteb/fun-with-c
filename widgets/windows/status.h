@@ -10,29 +10,16 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _MENUS_LIST_H
-#define _MENUS_LIST_H
+#ifndef _STATUS_H
+#define _STATUS_H
 
-#include "data_types.h"
-#include "error_trace.h"
+#include "window.h"
 
-typedef struct _menus_list_s {
-    char *label;
-    char *description;
-    void *data;
-    int data_size;
-    int (*callback)(void *, int, error_trace_t *);
-} menus_list_t;
+/*----------------------------------------------------------------*/
+/* klass interface                                                */
+/*----------------------------------------------------------------*/
 
-/* macro to easily set up the structure */
-
-#define SET_MENU(x,a,b,c,d,e) {\
-    (x).label=strdup((a));\
-    (x).description=strdup((b));\
-    (x).data=(c);\
-    (x).data_size=(d);\
-    (x).callback=(e);\
-}
+extern window_t *status(char *, int, char *, ...);
 
 #endif
 

@@ -15,11 +15,14 @@
 
 /*---------------------------------------------------------------------------*/
 
-int bbs_logoff(error_trace_t *errors) {
+int bbs_logoff(void *data, int len, error_trace_t *errors) {
 
     int stat = OK;
 
     when_error_in {
+
+        stat = user_put(users, user_index, &useron);
+        check_return(stat, users);
 
         exit_when;
 

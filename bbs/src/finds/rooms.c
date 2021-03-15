@@ -11,13 +11,15 @@
 /*---------------------------------------------------------------------------*/
 
 #include <stdio.h>
+
 #include "finds.h"
+#include "bitops.h"
 
 int find_rooms_all(void *data, int len, room_base_t *room) {
 
     int stat = FALSE;
 
-    if (room->flags & RM_INUSE) {
+    if (bit_test(room->flags, RM_INUSE)) {
 
         stat= TRUE;
 
@@ -65,7 +67,7 @@ int find_rooms_messages(void *data, int len, room_base_t *room) {
 
     int stat = FALSE;
 
-    if (room->flags & RM_MESSAGES) {
+    if (bit_test(room->flags, RM_MESSAGES)) {
 
         stat = TRUE;
 
@@ -79,7 +81,7 @@ int find_rooms_networked(void *data, int len, room_base_t *room) {
 
     int stat = FALSE;
 
-    if (room->flags & RM_NETWORK) {
+    if (bit_test(room->flags, RM_NETWORK)) {
 
         stat = TRUE;
 

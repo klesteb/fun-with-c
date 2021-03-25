@@ -55,7 +55,5 @@ extern room_base_t qroom;
 extern user_base_t useron;
 extern node_base_t qnode;
 
-extern window_t *available_rooms;
-
 #endif
 

@@ -13,6 +13,7 @@
 #include "bbs_common.h"
 #include "bbs_protos.h"
 
+#include "jam.h"
 #include "event.h"
 #include "windows/menus/box.h"
 
@@ -65,6 +66,8 @@ static int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *)
 int bbs_load_room(void *data, int len, error_trace_t *errors) {
 
     int stat = OK;
+    jam_t *jam = NULL;
+    error_trace_t error;
 
     when_error_in {
 
@@ -73,13 +76,19 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
         stat = room_get(rooms, qroom_index, &qroom);
         check_return(stat, rooms);
 
-        if (qroom.flags & RM_MESSAGES) {
+        if (bit_test(qroom.flags, RM_MESSAGES)) {
 
-        } else if (qroom.flags & RM_BULLETIN) {
+            stat = room_handler(rooms, &qroom, (void **)&jam);
+            check_return(stat, rooms);
 
-        } else if (qroom.flags & RM_DIRECTORY) {
+            stat = bbs_msgs_menu(jam, &qroom, &error);
+            check_status2(stat, OK, error);
 
-        } else if (qroom.flags & RM_SUBSYS) {
+        } else if (bit_test(qroom.flags, RM_BULLETIN)) {
+
+        } else if (bit_test(qroom.flags, RM_DIRECTORY)) {
+
+        } else if (bit_test(qroom.flags, RM_SUBSYS)) {
 
         }
 

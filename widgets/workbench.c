@@ -1188,7 +1188,7 @@ int _workbench_read_stdin(workbench_t *self) {
 
             events_t *event = calloc(1, sizeof(events_t));
 
-            if ((ch == KEY_RESIZE) || (ch == CTRL('w'))) {
+            if ((ch == KEY_RESIZE) || (ch == CTRL('w') || (ch == CTRL('l')))) {
 
                 stat = self->_erase(self);
                 check_return(stat, self);

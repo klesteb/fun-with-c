@@ -38,7 +38,7 @@ OBJS = widget.o colors.o window.o component.o components/label.o \
        windows/alert.o windows/status.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-             test10 test11 test12 test13 test14 test15
+             test10 test11 test12 test13 test14 test15 test16
 #
 debug:
 #
@@ -69,6 +69,7 @@ clean:
 	rm -f test13
 	rm -f test14
 	rm -f test15
+	rm -f test16
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -129,6 +130,10 @@ test14: test14.o
 test15: test15.o
 	$(CC) $(CFLAGS) test15.c
 	$(LINK) $(LOPTS) test15 test15.o $(OLBS) -lpanel  -lncurses -lmenu
+#
+test16: test16.o
+	$(CC) $(CFLAGS) test16.c
+	$(LINK) $(LOPTS) test16 test16.o $(OLBS) -lpanel  -lncurses -lmenu
 #
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c

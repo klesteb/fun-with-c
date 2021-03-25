@@ -65,6 +65,7 @@ int nodenum = 32;                   /* max number of nodes                 */
 int usernum = 256;                  /* max number of users                 */
 char *datapath = "../../data/";     /* where the data files are located    */
 char *msgpath = "../../messages/";  /* where the messages are located      */
+char *textpath = "../../text/";     /* where the text files are located    */
 
 /*-------------------------------------------------------------------------*/
 

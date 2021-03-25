@@ -15,7 +15,7 @@
 
 /*---------------------------------------------------------------------------*/
 
-int clear_message(void *data) {
+static int clear_message(void *data) {
 
     int stat = OK;
     error_trace_t errors;
@@ -41,7 +41,7 @@ int clear_message(void *data) {
 
 }
 
-int process_stdin(void *data) {
+static int dispatch(void *data) {
 
     int stat = OK;
     int again = FALSE;
@@ -51,13 +51,6 @@ int process_stdin(void *data) {
         stat = workbench_dispatch(workbench, &again);
         check_return(stat, workbench);
 
-        if (again) {
-
-            stat = event_register_worker(events, FALSE, process_stdin, NULL);
-            check_return(stat, events);
-
-        }
-
         exit_when;
 
     } use {
@@ -74,7 +67,7 @@ int process_stdin(void *data) {
 
 }
 
-int read_stdin(void *data) {
+static int read_stdin(void *data) {
 
     int stat = OK;
 
@@ -83,9 +76,6 @@ int read_stdin(void *data) {
         stat = workbench_capture(workbench);
         check_return(stat, workbench);
 
-        stat = event_register_worker(events, FALSE, process_stdin, NULL);
-        check_return(stat, events);
-
         exit_when;
 
     } use {
@@ -102,7 +92,7 @@ int read_stdin(void *data) {
 
 }
 
-int monitor_nodes(void *data) {
+static int monitor_nodes(void *data) {
 
     int stat = OK;
     error_trace_t error;
@@ -138,6 +128,9 @@ int bbs_run(error_trace_t *errors) {
         check_return(stat, events);
 
         stat = event_register_timer(events, TRUE, 10.0, monitor_nodes, NULL);
+        check_return(stat, events);
+
+        stat = event_register_timer(events, TRUE, 0.1, dispatch, NULL);
         check_return(stat, events);
 
         /* stat = event_register_timer(events, TRUE, 10.0, clear_message, NULL); */

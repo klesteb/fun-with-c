@@ -88,6 +88,7 @@ int _bar_menu_event(widget_t *widget, events_t *event) {
             if (event->type == EVENT_K_KEYBOARD) {
 
                 KEVENT *kevent = (KEVENT *)event->data;
+fprintf(stderr, "_bar_menu_event() - keycode %d, window %p\n", kevent->keycode, window);
 
                 switch(kevent->keycode) {
                     case KEY_LEFT: {

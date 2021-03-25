@@ -13,6 +13,7 @@
 #ifndef _BBS_PROTOS_H
 #define _BBS_PROTOS_H
 
+#include "jam.h"
 #include "error_trace.h"
 
 /* bbs_main */
@@ -23,6 +24,7 @@ extern int bbs_run(error_trace_t *);
 /* bbs_access */
 
 extern int is_aide(room_base_t *, user_base_t *);
+extern int is_sysop(room_base_t *, user_base_t *);
 extern int known_room(room_search_t *, user_base_t *);
 extern int allowed_in_room(room_search_t *, user_base_t *);
 
@@ -38,14 +40,22 @@ extern int bbs_list_rooms(void *, int, error_trace_t *);
 
 /* bbs_ui */
 
-extern int bbs_mail_menu(error_trace_t *);
 extern int bbs_main_menu(error_trace_t *);
 extern int bbs_clear_message(error_trace_t *);
 extern int bbs_send_message(const char *, error_trace_t *);
+extern int bbs_create_window(char *, int, int, int, int, window_t **, error_trace_t *);
 
 /* bbs_logoff */
 
-extern int bbs_logoff(void *, int, error_trace_t *);
+extern int bbs_logout(void *, int, error_trace_t *);
+
+/* bbs_aide */
+
+extern int bbs_aide_menu(error_trace_t *);
+
+/* bbs_msgs */
+
+extern int bbs_msgs_menu(jam_t *, room_base_t *, error_trace_t *);
 
 #endif
 

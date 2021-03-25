@@ -20,7 +20,7 @@
 /* interface                                                      */
 /*----------------------------------------------------------------*/
 
-extern menus_t *list_menu_create(int, int, int, int, menus_list_t *, int);
+extern menus_t *list_menu_create(int, int, int, int, int (*display)(const char *, error_trace_t *), menus_list_t *, int);
 
 #endif
 

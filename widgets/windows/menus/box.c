@@ -138,7 +138,7 @@ int _box_menu_event(widget_t *widget, events_t *event) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-menus_t *box_menu_create(char *title, int startx, int starty, int height, int width, int (*display)(const char *), menus_list_t *list, int list_size) {
+menus_t *box_menu_create(char *title, int startx, int starty, int height, int width, int (*display)(const char *, error_trace_t *), menus_list_t *list, int list_size) {
 
     item_list_t items[2];
     menus_t *self = NULL;

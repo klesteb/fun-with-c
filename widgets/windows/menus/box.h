@@ -15,12 +15,13 @@
 
 #include "menus.h"
 #include "menus_list.h"
+#include "error_trace.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern menus_t *box_menu_create(char *, int, int, int, int, int (*display)(const char *), menus_list_t *, int);
+extern menus_t *box_menu_create(char *, int, int, int, int, int (*display)(const char *, error_trace_t *), menus_list_t *, int);
 
 #endif
 

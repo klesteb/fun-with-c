@@ -7,6 +7,8 @@
 **
 **  based on a public domain snippet by Bob Stout 
 **  (from the snippets collection - www.snippets.org)
+** 
+**  value format = (1L<<1)
 */
 
 #define LBOOL(x) (!(!(x)))

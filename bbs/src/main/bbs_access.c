@@ -103,3 +103,21 @@ int is_aide(room_base_t *room, user_base_t *user) {
 
 }
 
+int is_sysop(room_base_t *room, user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (bit_test(room->flags, RM_INUSE)) {
+
+        if (user->axlevel >= AX_SYSOP) {
+
+            stat = TRUE;
+
+        }
+
+    }
+
+    return stat;
+
+}
+

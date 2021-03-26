@@ -27,10 +27,12 @@
 #include "windows/menus/menus.h"
 #include "windows/menus/menus_list.h"
 
+extern int print_result();
 
 
-int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
+int bbs_msgs_menu(jam_t *jam, error_trace_t *errors) {
 
+    int idx = 5;
     theme_t theme;
     int stat = OK;
     int width = 0;
@@ -40,19 +42,11 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
     int starty = 0;
     error_trace_t error;
     window_t *win = NULL;
+    char *help = "messages.hlp";
 
-    /* int list_size = 0; */
+    int list_size = 0;
     /* menus_t *bmenu = NULL; */
-    /* menus_list_t *list = NULL; */
-    /* char *data1 = "this is data for test1"; */
-    /* char *data2 = "this is data for test2"; */
-    /* char *data3 = "this is data for test3"; */
-    /* char *data4 = "this is data for test4"; */
-    /* char *data5 = "this is data for test5"; */
-    /* char *data6 = "this is data for test6"; */
-    /* char *data7 = "this is data for test7"; */
-    /* char *data8 = "this is data for test8"; */
-    /* char *data9 = "this is data for test9"; */
+    menus_list_t *list = NULL;
 
     /* theme.attribute  = A_NORMAL; */
     /* theme.foreground = BROWN; */
@@ -61,67 +55,66 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
     when_error_in {
 
         memset(title, '\0', 40);
-        snprintf(title, 38, "Room: %s", room->name); 
+        snprintf(title, 38, "Room: %s", qroom.name); 
 
         width  = (getmaxx(stdscr) - 4);
         height = (getmaxy(stdscr) - 7);
         startx = (getbegx(stdscr) + 1);
         starty = (getbegy(stdscr) + 4);
 
-fprintf(stderr, "startx: %d, starty: %d, height: %d, width: %d\n", startx, starty, height, width);
+        errno = 0;
+        list = calloc(6, sizeof(menus_list_t));
+        if (list == NULL) cause_error(errno);
+
+        SET_MENU(list[0], "Forward", "forward retrieval of messages", NULL, 0, print_result);
+        SET_MENU(list[1], "New", "read new messages", NULL, 0, print_result);
+        SET_MENU(list[2], "Old", "read old messages", NULL, 0, print_result);
+        SET_MENU(list[3], "Write", "create a new message", NULL, 0, print_result);
+        SET_MENU(list[4], "Reverse", "reverse retrieval of messages", NULL, 0, print_result);
+
+fprintf(stderr, "index: %d\n", idx);
         
-    /*     if (is_aide(&qroom, &useron)) { */
+        if (is_aide(&qroom, &useron)) {
 
-    /*         errno = 0; */
-    /*         list = calloc(8, sizeof(menus_list_t)); */
-    /*         if (list == NULL) cause_error(errno); */
-    /*         list_size = 8 * sizeof(menus_list_t); */
+            errno = 0;
+            list = realloc(list, 5 * sizeof(menus_list_t));
+            if (list == NULL) cause_error(errno);
 
-    /*         SET_MENU(list[0], "Abort", "return to main menu", NULL, 0, bbs_main_menu); */
-    /*         SET_MENU(list[1], "Forward", "forward retrieval of messages", data2, strlen(data2), print_result); */
-    /*         SET_MENU(list[2], "New", "read new messages", data5, strlen(data5), print_result); */
-    /*         SET_MENU(list[3], "Old", "read old messages", data6, strlen(data6), print_result); */
-    /*         SET_MENU(list[4], "Write", "create a new message", data7, strlen(data7), print_result); */
-    /*         SET_MENU(list[5], "Reverse", "reverse retrieval of messages", data4, strlen(data4), print_result); */
-    /*         SET_MENU(list[6], "Aide", "aide options", NULL, 0, bbs_aide_menu); */
-    /*         SET_MENU(list[7], "Help", "help", data8, strlen(data8), print_result); */
+            idx++; SET_MENU(list[idx], "--Aide--", "aide functions", NULL, 0, NULL);
+            idx++; SET_MENU(list[idx], "Delete", "delete empty rooms", NULL, 0, print_result);
+            idx++; SET_MENU(list[idx], "Edit", "edit room", NULL, 0, print_result);
+            idx++; SET_MENU(list[idx], "Insert", "insert pulled messages", NULL, 0, print_result);
+            idx++; SET_MENU(list[idx], "Kill", "remove this room", NULL, 0, print_result);
 
-    /*     } else { */
+        }
+fprintf(stderr, "index: %d\n", idx);
 
-    /*         errno = 0; */
-    /*         list = calloc(7, sizeof(menus_list_t)); */
-    /*         if (list == NULL) cause_error(errno); */
-    /*         list_size = 7 * sizeof(menus_list_t); */
+        if (is_sysop(&qroom, &useron)) {
 
-    /*         SET_MENU(list[0], "Abort", "return to main menu", NULL, 0, bbs_main_menu); */
-    /*         SET_MENU(list[1], "Forward", "forward retrieval of messages", data2, strlen(data2), print_result); */
-    /*         SET_MENU(list[2], "New", "read new messages", data5, strlen(data5), print_result); */
-    /*         SET_MENU(list[3], "Old", "read old messages", data6, strlen(data6), print_result); */
-    /*         SET_MENU(list[4], "Write", "create a new message", data7, strlen(data7), print_result); */
-    /*         SET_MENU(list[5], "Reverse", "reverse retrieval of messages", data4, strlen(data4), print_result); */
-    /*         SET_MENU(list[6], "Help", "help", data8, strlen(data8), print_result); */
+            errno = 0;
+            list = realloc(list, 3 * sizeof(menus_list_t));
+            if (list == NULL) cause_error(errno);
 
-    /*     } */
+            idx++; SET_MENU(list[idx], "-Sysop-", "sysop functions", NULL, 0, NULL);
+            idx++; SET_MENU(list[idx], "Aide", "set/clear aide privileges", NULL, 0, print_result);
+            idx++; SET_MENU(list[idx], "Kill", "disable a user account", NULL, 0, print_result);
 
-    /*     bmenu = bar_menu_create(startx, starty, 2, width, list, list_size); */
-    /*     check_creation(bmenu); */
+        }
+fprintf(stderr, "index: %d\n", idx);
 
-    /*     stat = menus_set_theme(bmenu, &theme); */
-    /*     check_return(stat, bmenu); */
+        idx++; SET_MENU(list[idx], "Help", "Help with messages", help, strlen(help), print_result);
+        list_size = idx * sizeof(menus_list_t);
+fprintf(stderr, "index: %d\n", idx);
+fprintf(stderr, "list_size: %d\n", list_size);
 
-    /*     stat = workbench_set_menu(workbench, bmenu); */
-    /*     check_return(stat, workbench); */
-
-    /*     stat = workbench_refresh(workbench); */
-    /*     check_return(stat, workbench); */
-
-    /*     free(list); */
 
         stat = bbs_create_window(title, startx, starty, height, width, &win, &error);
         check_status2(stat, OK, error);
 
         stat = workbench_add(workbench, win);
         check_return(stat, workbench);
+
+    /*     free(list); */
 
         exit_when;
 

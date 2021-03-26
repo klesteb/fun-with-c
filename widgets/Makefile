@@ -26,16 +26,16 @@ OLBS = $(STATIC) ../libs/libtracer.a ../libs/libevent.a ../libs/liberrors.a ../l
 INCS = widget.h colors.h window.h component.h components/label.h \
        components/hline.h components/vline.h components/text.h \
        components/prompt.h components/textarea.h components/input.h \
-       components/bell.h windows/menus/menus.h windows/menus/bar.h \
-       windows/menus/box.h windows/menus/list.h workbench.h \
-       windows/alert.h windows/status.h
+       components/bell.h components/menus/menus.h components/menus/bar.h \
+       components/menus/box.h components/menus/list.h workbench.h \
+       windows/alert.h windows/status.h windows/bar_menu.h windows/box_menu.h
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
        components/prompt.o components/textarea.o components/input.o \
-       components/bell.o windows/menus/menus.o windows/menus/bar.o \
-       windows/menus/box.o windows/menus/list.o workbench.o \
-       windows/alert.o windows/status.o
+       components/bell.o components/menus/menus.o components/menus/bar.o \
+       components/menus/box.o components/menus/list.o workbench.o \
+       windows/alert.o windows/status.o windows/bar_menu.o windows/box_menu.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10 test11 test12 test13 test14 test15 test16
@@ -47,6 +47,8 @@ clean:
 	rm -f *~
 	rm -f components/*.o
 	rm -f components/*~
+	rm -f components/menus/*.o
+	rm -f components/menus/*~
 	rm -f windows/*.o
 	rm -f windows/*~
 	rm -f windows/menus/*.o
@@ -187,6 +189,22 @@ components/input.o: components/input.c $(INCS)
 	$(CC) $(CFLAGS) $(LOPTS) components/input.o components/input.c 
 	$(LIBR) $(STATIC) components/input.o
 #
+components/menus/menus.o: components/menus/menus.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/menus/menus.o components/menus/menus.c 
+	$(LIBR) $(STATIC) components/menus/menus.o
+#
+components/menus/box.o: components/menus/box.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/menus/box.o components/menus/box.c 
+	$(LIBR) $(STATIC) components/menus/box.o
+#
+components/menus/bar.o: components/menus/bar.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/menus/bar.o components/menus/bar.c 
+	$(LIBR) $(STATIC) components/menus/bar.o
+#
+components/menus/list.o: components/menus/list.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/menus/list.o components/menus/list.c 
+	$(LIBR) $(STATIC) components/menus/list.o
+#
 windows/alert.o: windows/alert.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) windows/alert.o windows/alert.c 
 	$(LIBR) $(STATIC) windows/alert.o
@@ -195,21 +213,13 @@ windows/status.o: windows/status.c $(INCS)
 	$(CC) $(CFLAGS) $(LOPTS) windows/status.o windows/status.c 
 	$(LIBR) $(STATIC) windows/status.o
 #
-windows/menus/menus.o: windows/menus/menus.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) windows/menus/menus.o windows/menus/menus.c 
-	$(LIBR) $(STATIC) windows/menus/menus.o
+windows/bar_menu.o: windows/bar_menu.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/bar_menu.o windows/bar_menu.c 
+	$(LIBR) $(STATIC) windows/bar_menu.o
 #
-windows/menus/box.o: windows/menus/box.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) windows/menus/box.o windows/menus/box.c 
-	$(LIBR) $(STATIC) windows/menus/box.o
-#
-windows/menus/bar.o: windows/menus/bar.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) windows/menus/bar.o windows/menus/bar.c 
-	$(LIBR) $(STATIC) windows/menus/bar.o
-#
-windows/menus/list.o: windows/menus/list.c $(INCS) 
-	$(CC) $(CFLAGS) $(LOPTS) windows/menus/list.o windows/menus/list.c 
-	$(LIBR) $(STATIC) windows/menus/list.o
+windows/box_menu.o: windows/box_menu.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/box_menu.o windows/box_menu.c 
+	$(LIBR) $(STATIC) windows/box_menu.o
 #
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3
@@ -228,11 +238,10 @@ shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/textarea.o components/textarea.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/input.o components/input.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/bell.o components/bell.c
-	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) windows/menus/menus.o windows/menus/menus.c
-	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) windows/menus/bar.o windows/menus/bar.c
-	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) windows/menus/box.o windows/menus/box.c
-	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) windows/menus/list.o windows/menus/list.c
-	$(LINK) $(SOPTS) $(SHARED) $(OBJS)
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/menus/menus.o components/menus/menus.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/menus/bar.o components/menus/bar.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/menus/box.o components/menus/box.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) components/menus/list.o components/menus/list.c
 #
 # eof
 #

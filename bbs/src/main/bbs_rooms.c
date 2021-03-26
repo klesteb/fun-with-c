@@ -81,7 +81,7 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
             stat = room_handler(rooms, &qroom, (void **)&jam);
             check_return(stat, rooms);
 
-            stat = bbs_msgs_menu(jam, &qroom, &error);
+            stat = bbs_msgs_menu(jam, &error);
             check_status2(stat, OK, error);
 
         } else if (bit_test(qroom.flags, RM_BULLETIN)) {

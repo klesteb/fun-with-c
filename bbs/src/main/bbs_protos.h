@@ -55,7 +55,7 @@ extern int bbs_aide_menu(error_trace_t *);
 
 /* bbs_msgs */
 
-extern int bbs_msgs_menu(jam_t *, room_base_t *, error_trace_t *);
+extern int bbs_msgs_menu(jam_t *, error_trace_t *);
 
 #endif
 

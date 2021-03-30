@@ -35,7 +35,7 @@ struct _component_s {
     int padding;
     int data_size;
     void *data;
-    window_t *window;
+    window_t *parent;
     WINDOW *area;
 };
 
@@ -63,9 +63,9 @@ extern int component_compare(component_t *, component_t *);
 #define component_draw(self) widget_draw(WIDGET(self))
 #define component_erase(self) widget_erase(WIDGET(self))
 #define component_refresh(self) widget_refresh(WIDGET(self))
-#define component_event(self, event) widget_event(WIDGET(self), event);
+#define component_event(self, event) widget_event(WIDGET(self), event)
 #define component_add(self, thing) widget_add(WIDGET(self), (void *)thing)
-#define component_override(self, items); widget_override(WIDGET(self), items)
+#define component_override(self, items) widget_override(WIDGET(self), items)
 #define component_get_theme(self, theme) widget_get_theme(WIDGET(self), theme)
 #define component_set_theme(self, theme) widget_set_theme(WIDGET(self), theme)
 #define component_get_coordinates(self, coordinates) widget_get_coordinates(WIDGET(self), coordinates)

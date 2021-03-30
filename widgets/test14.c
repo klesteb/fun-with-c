@@ -9,10 +9,9 @@
 #include "workbench.h"
 #include "windows/alert.h"
 #include "errors_ncurses.h"
-#include "windows/menus/bar.h"
-#include "windows/menus/box.h"
-#include "windows/menus/menus.h"
-#include "windows/menus/menus_list.h"
+#include "windows/bar_menu.h"
+#include "windows/box_menu.h"
+#include "components/menus/menus.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -82,8 +81,8 @@ int build_menu2(void *data, int size, error_trace_t *errors) {
     int startx = 0;
     int starty = 0;
     theme_t theme;
-    menus_t *bmenu = NULL;
     menus_list_t list[9];
+    window_t *bmenu = NULL;
     char *data1 = "this is data for test1";
     char *data2 = "this is data for test2";
     char *data3 = "this is data for test3";
@@ -104,21 +103,20 @@ int build_menu2(void *data, int size, error_trace_t *errors) {
         starty = getbegy(stdscr);
         width  = getmaxx(stdscr) - 2;
 
-        SET_MENU(list[0], "test 1", "this is test 1", data1, strlen(data1), print_result);
-        SET_MENU(list[1], "test 2", "this is test 2", data2, strlen(data2), print_result);
-        SET_MENU(list[2], "test 3", "this is test 3", data3, strlen(data3), print_result);
-        SET_MENU(list[3], "test 4", "this is test 4", data4, strlen(data4), print_result);
-        SET_MENU(list[4], "test 5", "this is test 5", data5, strlen(data5), print_result);
-        SET_MENU(list[5], "test 6", "this is test 6", data6, strlen(data6), print_result);
-        SET_MENU(list[6], "test 7", "this is test 7", data7, strlen(data7), print_result);
-        SET_MENU(list[7], "test 8", "this is test 8", data8, strlen(data8), print_result);
-        SET_MENU(list[8], "test 9", "this is test 9", data9, strlen(data9), print_result);
+        SET_MENU(list[0], "test 1", "this is test 1", MENUS_T_ITEM, data1, strlen(data1), print_result);
+        SET_MENU(list[1], "test 2", "this is test 2", MENUS_T_ITEM, data2, strlen(data2), print_result);
+        SET_MENU(list[2], "test 3", "this is test 3", MENUS_T_ITEM, data3, strlen(data3), print_result);
+        SET_MENU(list[3], "test 4", "this is test 4", MENUS_T_ITEM, data4, strlen(data4), print_result);
+        SET_MENU(list[4], "test 5", "this is test 5", MENUS_T_ITEM, data5, strlen(data5), print_result);
+        SET_MENU(list[5], "test 6", "this is test 6", MENUS_T_ITEM, data6, strlen(data6), print_result);
+        SET_MENU(list[6], "test 7", "this is test 7", MENUS_T_ITEM, data7, strlen(data7), print_result);
+        SET_MENU(list[7], "test 8", "this is test 8", MENUS_T_ITEM, data8, strlen(data8), print_result);
+        SET_MENU(list[8], "test 9", "this is test 9", MENUS_T_ITEM, data9, strlen(data9), print_result);
 
-        bmenu = bar_menu_create(startx, starty, 2, width, list, sizeof(list));
+        bmenu = bar_menu(startx, starty, 2, width, list, sizeof(list));
         check_creation(bmenu);
-fprintf(stderr, "build_menu2() - window %p\n", bmenu);
 
-        stat = menus_set_theme(bmenu, &theme);
+        stat = window_set_theme(bmenu, &theme);
         check_return(stat, bmenu);
 
         stat = workbench_set_menu(workbench, bmenu);
@@ -146,8 +144,8 @@ int build_menu(error_trace_t *errors) {
     int startx = 0;
     int starty = 0;
     theme_t theme;
-    menus_t *bmenu = NULL;
     menus_list_t list[9];
+    window_t *bmenu = NULL;
     char *data1 = "this is data for test1";
     char *data2 = "this is data for test2";
     char *data3 = "this is data for test3";
@@ -168,20 +166,20 @@ int build_menu(error_trace_t *errors) {
         starty = getbegy(stdscr);
         width  = getmaxx(stdscr) - 2;
 
-        SET_MENU(list[0], "test 1", "this is test 1", data1, strlen(data1), print_result);
-        SET_MENU(list[1], "test 2", "this is test 2", data2, strlen(data2), print_result);
-        SET_MENU(list[2], "test 3", "this is test 3", data3, strlen(data3), print_result);
-        SET_MENU(list[3], "test 4", "this is test 4", data4, strlen(data4), print_result);
-        SET_MENU(list[4], "test 5", "this is test 5", data5, strlen(data5), print_result);
-        SET_MENU(list[5], "test 6", "this is test 6", data6, strlen(data6), print_result);
-        SET_MENU(list[6], "test 7", "this is test 7", data7, strlen(data7), print_result);
-        SET_MENU(list[7], "test 8", "this is test 8", data8, strlen(data8), print_result);
-        SET_MENU(list[8], "menu 2", "this is menu 2", NULL, 0, build_menu2);
+        SET_MENU(list[0], "test 1", "this is test 1", MENUS_T_ITEM, data1, strlen(data1), print_result);
+        SET_MENU(list[1], "test 2", "this is test 2", MENUS_T_ITEM, data2, strlen(data2), print_result);
+        SET_MENU(list[2], "test 3", "this is test 3", MENUS_T_ITEM, data3, strlen(data3), print_result);
+        SET_MENU(list[3], "test 4", "this is test 4", MENUS_T_ITEM, data4, strlen(data4), print_result);
+        SET_MENU(list[4], "test 5", "this is test 5", MENUS_T_ITEM, data5, strlen(data5), print_result);
+        SET_MENU(list[5], "test 6", "this is test 6", MENUS_T_ITEM, data6, strlen(data6), print_result);
+        SET_MENU(list[6], "test 7", "this is test 7", MENUS_T_ITEM, data7, strlen(data7), print_result);
+        SET_MENU(list[7], "test 8", "this is test 8", MENUS_T_ITEM, data8, strlen(data8), print_result);
+        SET_MENU(list[8], "menu 2", "this is menu 2", MENUS_T_ITEM, NULL, 0, build_menu2);
 
-        bmenu = bar_menu_create(startx, starty, 2, width, list, sizeof(list));
+        bmenu = bar_menu(startx, starty, 2, width, list, sizeof(list));
         check_creation(bmenu);
 
-        stat = menus_set_theme(bmenu, &theme);
+        stat = window_set_theme(bmenu, &theme);
         check_return(stat, bmenu);
 
         stat = workbench_set_menu(workbench, bmenu);

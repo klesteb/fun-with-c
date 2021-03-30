@@ -227,6 +227,10 @@ int _component_ctor(object_t *object, item_list_t *items) {
 
     int tab = 0;
     int stat = ERR;
+    int startx = 0;
+    int starty = 0;
+    int height = 0;
+    int width  = 0;
     void *value = NULL;
     int value_size = 0;
     int padding = FALSE;
@@ -249,6 +253,11 @@ int _component_ctor(object_t *object, item_list_t *items) {
             WIDGET(object)->_erase = _component_erase;
             WIDGET(object)->_event = _component_event;
             WIDGET(object)->_remove = _component_remove;
+
+            startx = WIDGET(object)->coordinates->startx;
+            starty = WIDGET(object)->coordinates->starty;
+            height = WIDGET(object)->coordinates->height;
+            width  = WIDGET(object)->coordinates->width;
 
             /* capture our items */
 
@@ -301,11 +310,13 @@ int _component_ctor(object_t *object, item_list_t *items) {
             /* initialize internal variables here */
 
             self->tab = tab;
-            self->area = NULL;
             self->data = value;
-            self->window = window;
+            self->parent = window;
             self->padding = padding;
             self->data_size = value_size;
+
+            self->area = derwin(window->inner, height, width, startx, starty);
+            if (self->area == NULL) cause_error(E_INVOPS);
 
             exit_when;
 
@@ -327,10 +338,12 @@ int _component_dtor(object_t *object) {
 
     int stat = OK;
     widget_t *widget = WIDGET(object);
+    component_t *component = COMPONENT(object);
 
     /* free local resources here */
 
-    widget->_erase(widget);
+    werase(component->area);
+    delwin(component->area);
 
     /* walk the chain, freeing as we go */
 
@@ -350,7 +363,7 @@ int _component_compare(component_t *us, component_t *them) {
          (us->ctor == them->ctor) &&
          (us->dtor == them->dtor) &&
          (us->data == them->data) &&
-         (us->window == them->window) &&
+         (us->parent == them->parent) &&
          (us->padding == them->padding) &&
          (us->data_size == them->data_size))) {
         
@@ -385,12 +398,12 @@ int _component_erase(widget_t *widget) {
 
     when_error_in {
 
-        if (self->window != NULL) {
+        if (self->area != NULL) {
 
-            stat = wmove(self->window->inner, widget->coordinates->startx, widget->coordinates->starty);
+            stat = wmove(self->area, 0, 0);
             check_status(stat, OK, E_INVOPS);
 
-            stat = wclrtoeol(self->window->inner);
+            stat = wclrtoeol(self->area);
             check_status(stat, OK, E_INVOPS);
 
         }

@@ -49,16 +49,16 @@ int main(void) {
         stat = window_set_theme(window, &theme);
         check_return(stat, window);
 
-        hline = hline_create(window, 3, 1, 40);
+        hline = hline_create(window, 2, 0, 40);
         check_creation(hline);
 
-        vline = vline_create(window, 1, 20, 10);
+        stat = window_add(window, hline);
+        check_return(stat, window);
+
+        vline = vline_create(window, 0, 20, 10);
         check_creation(vline);
 
         stat = window_add(window, vline);
-        check_return(stat, window);
-
-        stat = window_add(window, hline);
         check_return(stat, window);
 
         stat = window_draw(window);

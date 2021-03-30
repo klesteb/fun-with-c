@@ -71,11 +71,11 @@ int main(void) {
         label = label_create(window, 1, 1, 32, TRUE, text, strlen(text));
         check_creation(label);
         
-        hline = hline_create(window, 3, 1, 36);
-        check_creation(hline);
-
         stat = window_add(window, label);
         check_return(stat, window);
+
+        hline = hline_create(window, 2, 1, 36);
+        check_creation(hline);
 
         stat = window_add(window, hline);
         check_return(stat, window);

@@ -54,6 +54,7 @@ int main(void) {
     int ch = 0;
     int stat = OK;
     theme_t theme;
+    int list_size = 0;
     window_t *bmenu = NULL;
     menus_list_t list[6];
     char *data1 = "this is data for test1";
@@ -71,6 +72,7 @@ int main(void) {
 
         setup();
 
+        list_size = 6 * sizeof(menus_list_t);
         SET_MENU(list[0], "test 1", "this is test 1", MENUS_T_ITEM, data1, strlen(data1), print_result);
         SET_MENU(list[1], "test 2", "this is test 2", MENUS_T_ITEM, data2, strlen(data2), print_result);
         SET_MENU(list[2], "test 3", "this is test 3", MENUS_T_ITEM, data3, strlen(data3), print_result);
@@ -78,7 +80,7 @@ int main(void) {
         SET_MENU(list[4], "test 5", "this is test 5", MENUS_T_ITEM, data5, strlen(data5), print_result);
         SET_MENU(list[5], "test 6", "this is test 6", MENUS_T_ITEM, data6, strlen(data6), print_result);
 
-        bmenu = box_menu("testing", 10, 4, 10, 40, print_description, list, sizeof(list));
+        bmenu = box_menu("testing", 10, 4, 10, 40, print_description, list, list_size);
         check_creation(bmenu);
 
         stat = window_set_theme(bmenu, &theme);

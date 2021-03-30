@@ -56,16 +56,16 @@ int _label_draw(widget_t *widget) {
         strcat(value, ":");
         memcpy(value, self->data, count);
 
-        stat = wattron(self->window->inner, widget->theme->attribute);
+        stat = wattron(self->area, widget->theme->attribute);
         check_status(stat, OK, E_INVOPS);
 
-        stat = wcoloron(self->window->inner, widget->theme->foreground, widget->theme->background);
+        stat = wcoloron(self->area, widget->theme->foreground, widget->theme->background);
         check_status(stat, OK, E_INVOPS);
 
-        stat = mvwaddstr(self->window->inner, widget->coordinates->startx, widget->coordinates->starty, value);
+        stat = mvwaddnstr(self->area, 0, 0, value, widget->coordinates->width - 1);
         check_status(stat, OK, E_INVOPS);
 
-        stat = wstandend(self->window->inner);
+        stat = wstandend(self->area);
         check_status(stat, OK, E_INVOPS);
 
         free(value);

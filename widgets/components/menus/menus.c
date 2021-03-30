@@ -69,32 +69,38 @@ int _menus_show_description(widget_t *widget) {
 
 }
 
-int _menus_data_create(component_t *menus, menus_list_t *list, int list_size, menus_data_t **data) {
+int _menus_data_create(component_t *menus, menus_list_t *list, int list_size) {
 
     int stat = OK;
+    int startx = 0;
+    int starty = 0;
+    int height = 0;
+    int width  = 0;
+    menus_data_t *data = NULL;
     userptr_data_t *userptr = NULL;
 
     when_error_in {
 
         errno = 0;
-        *data = (menus_data_t *)calloc(1, sizeof(menus_data_t));
-        if (*data == NULL) cause_error(errno);
+        data = calloc(1, sizeof(menus_data_t));
+        if (data == NULL) cause_error(errno);
 
         errno = 0;
-        (**data).items_count = (list_size / sizeof(menus_list_t));
-        (**data).items = calloc((**data).items_count + 1, sizeof(ITEM));
-        if ((**data).items == NULL) cause_error(errno);
+        data->items_count = (list_size / sizeof(menus_list_t));
+        data->items = calloc(data->items_count + 1, sizeof(ITEM));
+        if (data->items == NULL) cause_error(errno);
 
         int x;
-        for (x = 0; x < (**data).items_count; x++) {
+        for (x = 0; x < data->items_count; x++) {
 
+fprintf(stderr, "_menus_data_create() - x: %d\n", x);
             errno = 0;
-            (**data).items[x] = new_item(list[x].label, list[x].description);
-            if ((**data).items[x] == NULL) cause_error(errno);
+            data->items[x] = new_item(list[x].label, list[x].description);
+            if (data->items[x] == NULL) cause_error(errno);
 
             if (list[x].type == MENUS_T_SEPERATOR) {
 
-                stat = item_opts_off((**data).items[x], O_SELECTABLE);
+                stat = item_opts_off(data->items[x], O_SELECTABLE);
                 check_status(stat, E_OK, stat);
 
             }
@@ -107,25 +113,20 @@ int _menus_data_create(component_t *menus, menus_list_t *list, int list_size, me
             userptr->callback = list[x].callback;
             userptr->data_size = list[x].data_size;
 
-            set_item_userptr((**data).items[x], userptr);
+            set_item_userptr(data->items[x], userptr);
 
         }
 
-        (**data).items[x] = NULL;
-        (**data).show_description = _menus_show_description;
+        data->items[x] = NULL;
+        data->show_description = _menus_show_description;
 
-fprintf(stderr, "nlines: %d, ncols: %d, begin_y: %d, begin_x: %d\n",
-        getmaxx(menus->area),
-        getmaxy(menus->area),
-        getbegy(menus->area),
-        getbegx(menus->area));
-        
-        (**data).subwin = derwin(menus->area,
-                                 getmaxx(menus->area) - 1,
-                                 getmaxy(menus->area) - 1,
-                                 getbegy(menus->area) + 1,
-                                 getbegx(menus->area) + 1);
-        if ((**data).subwin == NULL) cause_error(E_INVOPS);
+        height = getmaxx(menus->area) - 1;
+        width  = getmaxy(menus->area) - 1;
+
+        data->subwin = derwin(menus->area, width, height, startx, starty);
+        if (data->subwin == NULL) cause_error(E_INVOPS);
+
+        menus->data = data;
 
         exit_when;
 
@@ -147,17 +148,24 @@ fprintf(stderr, "nlines: %d, ncols: %d, begin_y: %d, begin_x: %d\n",
 
 int _menus_dtor(object_t *object) {
 
-    int x;
     int stat = OK;
     component_t *self = COMPONENT(object);
     menus_data_t *data = COMPONENT(object)->data;
 
     /* free local resources here */
 
-    if (self->data != NULL) {
+    if (data != NULL) {
 
+        if (data->subwin != NULL) {
+
+            werase(data->subwin);
+            delwin(data->subwin);
+
+        }
+
+        int x;
         for (x = 0; x <= data->items_count; x++) {
-        
+
             void *junk = item_userptr(data->items[x]);
             if (junk != NULL) free(junk);
 
@@ -167,10 +175,17 @@ int _menus_dtor(object_t *object) {
 
     }
 
+    if (self->area) {
+
+        werase(self->area);
+        delwin(self->area);
+
+    }
+
     /* walk the chain, freeing as we go */
 
-    object_demote(object, widget_t);
-    widget_destroy(WIDGET(object));
+    object_demote(object, object_t);
+    object_destroy(object);
 
     return stat;
 
@@ -190,13 +205,13 @@ int _menus_draw(widget_t *widget) {
 
     when_error_in {
 
-        if (self->data != NULL) {
+        if (data != NULL) {
 
-            /* stat = wattrset(self->area, widget->theme->attribute); */
-            /* check_status(stat, OK, E_INVOPS); */
+            stat = wattrset(self->area, widget->theme->attribute);
+            check_status(stat, OK, E_INVOPS);
 
-            /* stat = wcolorset(self->area, widget->theme->foreground, widget->theme->background); */
-            /* check_status(stat, OK, E_INVOPS); */
+            stat = wcolorset(self->area, widget->theme->foreground, widget->theme->background);
+            check_status(stat, OK, E_INVOPS);
 
             stat = wbkgd(self->area, COLOR_PAIR(colornum(widget->theme->foreground, widget->theme->background)));
             check_status(stat, OK, E_INVOPS);
@@ -239,7 +254,7 @@ int _menus_draw(widget_t *widget) {
 
             }
 
-            stat = data->show_description(widget);
+            stat = (*data->show_description)(widget);
             check_return(stat, widget);
 
             stat = pos_menu_cursor(data->menu);
@@ -255,6 +270,8 @@ int _menus_draw(widget_t *widget) {
 
         stat = wnoutrefresh(self->area);
         check_status(stat, OK, E_INVOPS);
+
+        COMPONENT(widget)->data = data;
 
         exit_when;
 
@@ -289,10 +306,14 @@ int _menus_erase(widget_t *widget) {
                 stat = free_menu(data->menu);
                 check_status(stat, E_OK, stat);
 
+                data->menu = NULL;
+
             }
 
             stat = wnoutrefresh(self->area);
             check_status(stat, OK, E_INVOPS);
+
+            COMPONENT(widget)->data = data;
 
         }
 
@@ -330,8 +351,7 @@ component_t *menus_create(window_t *window, int startx, int starty, int height, 
 
     int stat = OK;
     int padding = FALSE;
-    item_list_t items[5];
-    menus_data_t *data = NULL;
+    item_list_t items[7];
     component_t *menus = NULL;
 
     when_error_in {
@@ -339,25 +359,19 @@ component_t *menus_create(window_t *window, int startx, int starty, int height, 
         menus = component_create(window, startx, starty, height, width, tab, padding, NULL, 0);
         check_creation(menus);
 
-        menus->area = derwin(window->inner, height, width, starty, startx);
-        if (menus->area == NULL) {
-
-            cause_error(E_INVOPS);
-
-        }
-
-        stat = _menus_data_create(menus, list, size, &data);
+        stat = _menus_data_create(menus, list, size);
         check_return(stat, menus);
 
-        menus->data = data;
+        SET_ITEM(items[0], WIDGET_M_ADD, _menus_add, 0, NULL);
+        SET_ITEM(items[1], WIDGET_M_DRAW, _menus_draw, 0, NULL);
+        SET_ITEM(items[2], WIDGET_M_EVENT, _menus_event, 0, NULL);
+        SET_ITEM(items[3], WIDGET_M_ERASE, _menus_erase, 0, NULL);
+        SET_ITEM(items[4], WIDGET_M_DESTROY, _menus_dtor, 0, NULL);
+        SET_ITEM(items[5], WIDGET_M_REMOVE, _menus_remove, 0, NULL);
+        SET_ITEM(items[6], 0, 0, 0, 0);
 
-        SET_ITEM(items[0], WIDGET_M_DRAW, _menus_draw, 0, NULL);
-        SET_ITEM(items[1], WIDGET_M_EVENT, _menus_event, 0, NULL);
-        SET_ITEM(items[2], WIDGET_M_ERASE, _menus_erase, 0, NULL);
-        SET_ITEM(items[3], WIDGET_M_DESTROY, _menus_dtor, 0, NULL);
-        SET_ITEM(items[4], 0, 0, 0, 0);
-
-        component_override(menus, items);
+        stat = component_override(menus, items);
+        check_return(stat, menus);
 
         exit_when;
 

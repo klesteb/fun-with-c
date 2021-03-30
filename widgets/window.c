@@ -102,7 +102,6 @@ int window_destroy(window_t *self) {
     } use {
 
         stat = ERR;
-
         object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
@@ -132,8 +131,63 @@ int window_compare(window_t *us, window_t *them) {
     } use {
 
         stat = ERR;
-
         object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int window_set_tab(window_t *self, int tab) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        self->tab = tab;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int window_get_tab(window_t *self, int *tab) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        *tab = self->tab;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
         clear_error();
 
     } end_when;
@@ -350,6 +404,8 @@ int _window_add(widget_t *widget, void *data) {
 
         stat = que_push_head(&widget->things, data);
         check_status(stat, QUE_OK, E_NOQUEUE);
+
+        self->tab = component->tab;
 
         if (component->tab > self->tabs) {
 

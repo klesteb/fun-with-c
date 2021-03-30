@@ -55,6 +55,8 @@ struct _window_s {
 extern window_t *window_create(char *, int, int, int, int, int);
 extern int window_destroy(window_t *);
 extern int window_compare(window_t *, window_t *);
+extern int window_set_tab(window_t *, int);
+extern int window_get_tab(window_t *, int *);
 
 #define window_draw(self) widget_draw(WIDGET(self))
 #define window_erase(self) widget_erase(WIDGET(self))

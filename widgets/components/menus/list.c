@@ -35,11 +35,12 @@ int _list_menu_event(widget_t *widget, events_t *event) {
     error_trace_t errors;
     userptr_data_t *userptr = NULL;
     component_t *self = COMPONENT(widget);
-    menus_data_t *data = COMPONENT(widget)->data;
 
     when_error_in {
 
         if (self->data != NULL) {
+
+            menus_data_t *data = (menus_data_t *)self->data;
 
             if (event->type == EVENT_K_KEYBOARD) {
 
@@ -113,12 +114,12 @@ int _list_menu_event(widget_t *widget, events_t *event) {
 
             }
 
+            stat = wnoutrefresh(self->area);
+            check_status(stat, OK, E_INVOPS);
+
+            COMPONENT(widget)->data = data;
+
         }
-
-        stat = wnoutrefresh(self->area);
-        check_status(stat, OK, E_INVOPS);
-
-        self->data = data;
 
         exit_when;
 
@@ -140,6 +141,7 @@ int _list_menu_event(widget_t *widget, events_t *event) {
 
 component_t *list_menu_create(window_t *window, int startx, int starty, int height, int width, int tab, int (*display)(const char *, error_trace_t *), menus_list_t *list, int list_size) {
 
+    int stat = OK;
     item_list_t items[2];
     component_t *self = NULL;
     menus_data_t *data = NULL;
@@ -160,7 +162,8 @@ component_t *list_menu_create(window_t *window, int startx, int starty, int heig
         SET_ITEM(items[0], WIDGET_M_EVENT, _list_menu_event, 0, NULL);
         SET_ITEM(items[1], 0, 0, 0, 0);
 
-        component_override(self, items);
+        stat = component_override(self, items);
+        check_return(stat, self);
 
         exit_when;
 

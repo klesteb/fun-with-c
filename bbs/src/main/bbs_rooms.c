@@ -15,7 +15,8 @@
 
 #include "jam.h"
 #include "event.h"
-#include "windows/menus/box.h"
+#include "windows/box_menu.h"
+#include "components/menus/menus.h"
 
 /*---------------------------------------------------------------------------*/
 
@@ -120,7 +121,7 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
     int list_size = 0;
     char *title = NULL;
     error_trace_t error;
-    menus_t *bmenu = NULL;
+    window_t *bmenu = NULL;
     menus_list_t *list = NULL;
     room_search_t *result = NULL;
 
@@ -166,17 +167,17 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
                 memcpy(index, &result->index, sizeof(int));
 
                 SET_MENU(list[x], result->name, result->description, 
-                         (void *)index, sizeof(int), bbs_load_room);
+                         MENUS_T_ITEM, (void *)index, sizeof(int), bbs_load_room);
 
                 x++;
                 free(result);
 
             }
 
-            bmenu = box_menu_create(title, startx, starty, height, width, bbs_send_message, list, list_size);
+            bmenu = box_menu(title, startx, starty, height, width, bbs_send_message, list, list_size);
             check_creation(bmenu);
 
-            stat = workbench_add(workbench, (window_t *)bmenu);
+            stat = workbench_add(workbench, bmenu);
             check_return(stat, workbench);
 
             free(list);

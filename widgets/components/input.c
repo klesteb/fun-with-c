@@ -82,20 +82,20 @@ int _input_draw(widget_t *widget) {
 
         if (data != NULL) {
 
-            stat = wattron(self->window->inner, widget->theme->attribute);
+            stat = wattron(self->area, widget->theme->attribute);
             check_status(stat, OK, E_INVOPS);
 
-            stat = wcoloron(self->window->inner, 
+            stat = wcoloron(self->area, 
                             widget->theme->foreground, widget->theme->background);
             check_status(stat, OK, E_INVOPS);
 
-            stat = wprintw(self->window->inner, "%s", data->bp);
+            stat = wprintw(self->area, "%s", data->bp);
             check_status(stat, OK, E_INVOPS);
 
-            stat = wstandend(self->window->inner);
+            stat = wstandend(self->area);
             check_status(stat, OK, E_INVOPS);
 
-            stat = wnoutrefresh(self->window->inner);
+            stat = wnoutrefresh(self->area);
             check_status(stat, OK, E_INVOPS);
 
         }
@@ -118,7 +118,7 @@ int _input_event(widget_t *widget, events_t *event) {
 
     int stat = OK;
     component_t *self = COMPONENT(widget);
-    input_data_t *data = self->data;
+    input_data_t *data = COMPONENT(widget)->data;
 
     when_error_in {
         
@@ -130,16 +130,16 @@ int _input_event(widget_t *widget, events_t *event) {
 
                 switch(key->keycode) {
                     case KEY_UP:
-                        COMPONENT(widget)->window->tab--;
-                        if (COMPONENT(widget)->window->tab < 0) {
-                            COMPONENT(widget)->window->tab = 1;
+                        self->parent->tab--;
+                        if (self->parent->tab < 0) {
+                            self->parent->tab = 1;
                         }
                         break;
                     case KEY_ENTER:
                     case KEY_DOWN:
-                        COMPONENT(widget)->window->tab++;
-                        if (COMPONENT(widget)->window->tab > COMPONENT(widget)->window->tabs) {
-                            COMPONENT(widget)->window->tab = 1;
+                        self->parent->tab++;
+                        if (self->parent->tab > self->parent->tabs) {
+                            self->parent->tab = 1;
                         }
                         break;
                     case KEY_LEFT:

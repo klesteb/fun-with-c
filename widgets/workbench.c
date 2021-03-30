@@ -54,7 +54,7 @@ int _workbench_remove(workbench_t *, window_t *);
 int _workbench_read_stdin(workbench_t *);
 int _workbench_init_terminal(workbench_t *);
 int _workbench_dispatch(workbench_t *, int *);
-int _workbench_set_menu(workbench_t *, menus_t *);
+int _workbench_set_menu(workbench_t *, window_t *);
 int _workbench_get_focus(workbench_t *, window_t *);
 int _workbench_set_focus(workbench_t *, window_t *);
 int _workbench_queue_event(workbench_t *, events_t *);
@@ -280,7 +280,7 @@ int workbench_remove(workbench_t *self, window_t *window) {
 
 }
 
-int workbench_set_menu(workbench_t *self, menus_t *main) {
+int workbench_set_menu(workbench_t *self, window_t *main) {
 
     int stat = OK;
 
@@ -922,7 +922,7 @@ int _workbench_remove(workbench_t *self, window_t *window) {
 
 }
 
-int _workbench_set_menu(workbench_t *self, menus_t *main) {
+int _workbench_set_menu(workbench_t *self, window_t *main) {
 
     int stat = OK;
 
@@ -930,12 +930,12 @@ int _workbench_set_menu(workbench_t *self, menus_t *main) {
 
         if (self->main != NULL) {
 
-            stat = self->_remove(self, (window_t *)self->main);
+            stat = self->_remove(self, self->main);
             check_return(stat, self);
 
         }
 
-        stat = self->_add(self, (window_t *)main);
+        stat = self->_add(self, main);
         check_return(stat, self);
 
         self->main = main;

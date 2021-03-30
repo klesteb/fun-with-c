@@ -21,10 +21,8 @@
 #include "component.h"
 #include "misc/misc.h"
 #include "windows/alert.h"
-#include "windows/menus/bar.h"
-#include "windows/menus/list.h"
-#include "windows/menus/menus.h"
-#include "windows/menus/menus_list.h"
+#include "windows/bar_menu.h"
+#include "components/menus/menus.h"
 
 int print_result(void *data, int size, error_trace_t *errors) {
 
@@ -80,6 +78,7 @@ int bbs_create_window(char *title, int startx, int starty, int height, int width
 
         row = height - 1;
         col = ((width - strlen(value)) / 2);
+        width = strlen(value) + 1;
         text = text_create(*win, row, col, width, value, strlen(value));
         check_creation(text);
 
@@ -188,7 +187,7 @@ int bbs_main_menu(error_trace_t *errors) {
     int starty = 0;
     int height = 2;
     int list_size = 0;
-    menus_t *bmenu = NULL;
+    window_t *bmenu = NULL;
     menus_list_t *list = NULL;
     char *data1 = "this is data for test1";
     char *data2 = "this is data for test2";
@@ -222,13 +221,13 @@ int bbs_main_menu(error_trace_t *errors) {
             if (list == NULL) cause_error(errno);
             list_size = 7 * sizeof(menus_list_t);
 
-            SET_MENU(list[0], "Goto", "goto a specific room", NULL, 0, bbs_list_rooms);
-            SET_MENU(list[1], "Who", "who's online", data2, strlen(data2), print_result);
-            SET_MENU(list[2], "User", "user maintence", data5, strlen(data5), print_result);
-            SET_MENU(list[3], "System", "system statistics", data6, strlen(data6), print_result);
-            SET_MENU(list[4], "Aide", "aide options", NULL, 0, print_result);
-            SET_MENU(list[5], "Help", "show help", data8, strlen(data8), print_result);
-            SET_MENU(list[6], "Logout", "logout of system", data9, strlen(data9), print_result);
+            SET_MENU(list[0], "Goto", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
+            SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
+            SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
+            SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);
+            SET_MENU(list[4], "Aide", "aide options", MENUS_T_ITEM, NULL, 0, print_result);
+            SET_MENU(list[5], "Help", "show help", MENUS_T_ITEM, data8, strlen(data8), print_result);
+            SET_MENU(list[6], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
 
         } else {
 
@@ -237,19 +236,19 @@ int bbs_main_menu(error_trace_t *errors) {
             if (list == NULL) cause_error(errno);
             list_size = 6 * sizeof(menus_list_t);
 
-            SET_MENU(list[0], "Goto", "goto a specific room", NULL, 0, bbs_list_rooms);
-            SET_MENU(list[1], "Who", "who's online", data2, strlen(data2), print_result);
-            SET_MENU(list[2], "User", "user maintence", data5, strlen(data5), print_result);
-            SET_MENU(list[3], "System", "system statistics", data6, strlen(data6), print_result);
-            SET_MENU(list[4], "Help", "show help", data8, strlen(data8), print_result);
-            SET_MENU(list[5], "Logout", "logout of system", data9, strlen(data9), print_result);
+            SET_MENU(list[0], "Goto", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
+            SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
+            SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
+            SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);
+            SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, data8, strlen(data8), print_result);
+            SET_MENU(list[5], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
 
         }
 
-        bmenu = bar_menu_create(startx, starty, height, width, list, list_size);
+        bmenu = bar_menu(startx, starty, height, width, list, list_size);
         check_creation(bmenu);
 
-        stat = menus_set_theme(bmenu, &theme);
+        stat = window_set_theme(bmenu, &theme);
         check_return(stat, bmenu);
 
         stat = workbench_set_menu(workbench, bmenu);

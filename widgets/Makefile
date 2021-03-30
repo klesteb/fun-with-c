@@ -28,14 +28,16 @@ INCS = widget.h colors.h window.h component.h components/label.h \
        components/prompt.h components/textarea.h components/input.h \
        components/bell.h components/menus/menus.h components/menus/bar.h \
        components/menus/box.h components/menus/list.h workbench.h \
-       windows/alert.h windows/status.h windows/bar_menu.h windows/box_menu.h
+       windows/alert.h windows/status.h windows/bar_menu.h \
+       windows/box_menu.h windows/list_menu.h 
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
        components/prompt.o components/textarea.o components/input.o \
        components/bell.o components/menus/menus.o components/menus/bar.o \
        components/menus/box.o components/menus/list.o workbench.o \
-       windows/alert.o windows/status.o windows/bar_menu.o windows/box_menu.o
+       windows/alert.o windows/status.o windows/bar_menu.o \
+       windows/box_menu.o windows/list_menu.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10 test11 test12 test13 test14 test15 test16
@@ -51,8 +53,6 @@ clean:
 	rm -f components/menus/*~
 	rm -f windows/*.o
 	rm -f windows/*~
-	rm -f windows/menus/*.o
-	rm -f windows/menus/*~
 	rm -f $(STATIC)
 	rm -f $(SHARED)
 	rm -f widgets.3
@@ -115,27 +115,27 @@ test10: test10.o
 #
 test11: test11.o
 	$(CC) $(CFLAGS) test11.c
-	$(LINK) $(LOPTS) test11 test11.o $(OLBS) -lncurses -lmenu
+	$(LINK) $(LOPTS) test11 test11.o $(OLBS) -lmenu -lncurses 
 #
 test12: test12.o
 	$(CC) $(CFLAGS) test12.c
-	$(LINK) $(LOPTS) test12 test12.o $(OLBS) -lncurses -lmenu
+	$(LINK) $(LOPTS) test12 test12.o $(OLBS) -lmenu -lncurses 
 #
 test13: test13.o
 	$(CC) $(CFLAGS) test13.c
-	$(LINK) $(LOPTS) test13 test13.o $(OLBS) -lpanel  -lncurses -lmenu
+	$(LINK) $(LOPTS) test13 test13.o $(OLBS) -lpanel -lmenu -lncurses 
 #
 test14: test14.o
 	$(CC) $(CFLAGS) test14.c
-	$(LINK) $(LOPTS) test14 test14.o $(OLBS) -lpanel  -lncurses -lmenu
+	$(LINK) $(LOPTS) test14 test14.o $(OLBS) -lpanel -lmenu -lncurses 
 #
 test15: test15.o
 	$(CC) $(CFLAGS) test15.c
-	$(LINK) $(LOPTS) test15 test15.o $(OLBS) -lpanel  -lncurses -lmenu
+	$(LINK) $(LOPTS) test15 test15.o $(OLBS) -lpanel -lmenu -lncurses 
 #
 test16: test16.o
 	$(CC) $(CFLAGS) test16.c
-	$(LINK) $(LOPTS) test16 test16.o $(OLBS) -lpanel  -lncurses -lmenu
+	$(LINK) $(LOPTS) test16 test16.o $(OLBS) -lpanel -lmenu -lncurses 
 #
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c
@@ -220,6 +220,10 @@ windows/bar_menu.o: windows/bar_menu.c $(INCS)
 windows/box_menu.o: windows/box_menu.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) windows/box_menu.o windows/box_menu.c 
 	$(LIBR) $(STATIC) windows/box_menu.o
+#
+windows/list_menu.o: windows/list_menu.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/list_menu.o windows/list_menu.c 
+	$(LIBR) $(STATIC) windows/list_menu.o
 #
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3

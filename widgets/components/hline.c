@@ -32,20 +32,17 @@ int _hline_draw(widget_t *widget) {
 
     when_error_in {
 
-        stat = wattron(self->window->inner, widget->theme->attribute);
+        stat = wattron(self->area, widget->theme->attribute);
         check_status(stat, OK, E_INVOPS);
     
-        stat = wcoloron(self->window->inner, 
+        stat = wcoloron(self->area, 
                         widget->theme->foreground, widget->theme->background);
         check_status(stat, OK, E_INVOPS);
     
-        stat = mvwhline(self->window->inner, 
-                        widget->coordinates->startx, 
-                        widget->coordinates->starty, 
-                        ACS_HLINE, widget->coordinates->width);
+        stat = mvwhline(self->area, 0, 0, ACS_HLINE, widget->coordinates->width);
         check_status(stat, OK, E_INVOPS);
 
-        stat = wstandend(self->window->inner);
+        stat = wstandend(self->area);
         check_status(stat, OK, E_INVOPS);
 
         exit_when;

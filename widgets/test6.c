@@ -65,6 +65,8 @@ int main(void) {
                junk2.height, junk2.width, junk2.startx, junk2.starty);
         refresh();
 
+        getch();
+
         char *text = "label";
         label = label_create(window, 1, 1, 32, TRUE, text, strlen(text));
         check_creation(label);

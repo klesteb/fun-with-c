@@ -67,31 +67,38 @@ static int list_rooms(queue *results, int (*filter)(void *, int , room_base_t *)
 int bbs_load_room(void *data, int len, error_trace_t *errors) {
 
     int stat = OK;
+    int room_index;
     jam_t *jam = NULL;
     error_trace_t error;
+    room_base_t *room = NULL;
 
     when_error_in {
 
-        memcpy(&qroom_index, data, len);
+        memcpy(&room_index, data, len);
 
-        stat = room_get(rooms, qroom_index, &qroom);
+        stat = room_get(rooms, room_index, &room);
         check_return(stat, rooms);
 
-        if (bit_test(qroom.flags, RM_MESSAGES)) {
+        if (bit_test(room->flags, RM_MESSAGES)) {
 
-            stat = room_handler(rooms, &qroom, (void **)&jam);
+            stat = room_handler(rooms, room, (void **)&jam);
             check_return(stat, rooms);
 
-            stat = bbs_msgs_menu(jam, &error);
+            stat = bbs_msgs_menu(jam, room, &error);
             check_status2(stat, OK, error);
 
-        } else if (bit_test(qroom.flags, RM_BULLETIN)) {
+            free(jam);
 
-        } else if (bit_test(qroom.flags, RM_DIRECTORY)) {
+        } else if (bit_test(room->flags, RM_BULLETIN)) {
 
-        } else if (bit_test(qroom.flags, RM_SUBSYS)) {
+        } else if (bit_test(room->flags, RM_DIRECTORY)) {
+
+        } else if (bit_test(room->flags, RM_SUBSYS)) {
 
         }
+
+        stat = room_free(rooms, room);
+        check_return(stat, room);
 
         exit_when;
 

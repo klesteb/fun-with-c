@@ -93,7 +93,6 @@ int _menus_data_create(component_t *menus, menus_list_t *list, int list_size) {
         int x;
         for (x = 0; x < data->items_count; x++) {
 
-fprintf(stderr, "_menus_data_create() - x: %d\n", x);
             errno = 0;
             data->items[x] = new_item(list[x].label, list[x].description);
             if (data->items[x] == NULL) cause_error(errno);

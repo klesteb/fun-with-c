@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     queue results;
     ssize_t size = 0;
     room_base_t temp1;
-    room_base_t temp2;
+    room_base_t *temp2;
     jam_t *jam = NULL;
     short conference = 10;
     room_search_t *result = NULL;
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
             stat = room_get(room, result->index, &temp2);
             check_return(stat, room);
 
-            stat = room_handler(room, &temp2, &jam);
+            stat = room_handler(room, temp2, &jam);
             check_return(stat, room);
 
             if (jam != NULL) {
@@ -137,7 +137,11 @@ int main(int argc, char **argv) {
 
             }
 
-            display(&temp2, size);
+            display(temp2, size);
+
+            stat = room_free(room, temp2);
+            check_return(stat, room);
+
             free(result);
 
         }

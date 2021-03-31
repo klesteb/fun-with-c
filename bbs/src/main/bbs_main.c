@@ -47,11 +47,9 @@ window_t *available_rooms = NULL;
 int xnode = 1;
 int sysop = FALSE;
 int user_index = 0;
-int qroom_index = 0;
 int qnode_index = 0;
 char *username = NULL;
 
-room_base_t qroom;
 user_base_t useron;
 node_base_t qnode;
 
@@ -140,22 +138,6 @@ int bbs_init(error_trace_t *errors) {
         } else {
 
             cause_error(E_UNKUSER);
-
-        }
-
-        /* load the lobby */
-
-        stat = room_find(rooms, &lobby, sizeof(int), find_room_by_number, &qroom_index);
-        check_return(stat, rooms);
-
-        if (qroom_index > 0) {
-
-            stat = room_get(rooms, qroom_index, &qroom);
-            check_return(stat, rooms);
-
-        } else {
-
-            cause_error(E_UNKROOM);
 
         }
 

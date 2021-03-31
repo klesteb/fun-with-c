@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     queue results;
-    room_base_t temp;
+    room_base_t *temp = NULL;
     room_search_t *result = NULL;
 
     when_error_in {
@@ -106,7 +106,10 @@ int main(int argc, char **argv) {
             stat = room_get(room, result->index, &temp);
             check_return(stat, room);
 
-            display(&temp);
+            display(temp);
+
+            stat = room_free(room, temp);
+            check_return(stat, room);
 
         }
 

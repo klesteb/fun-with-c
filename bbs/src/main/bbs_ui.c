@@ -21,7 +21,9 @@
 #include "component.h"
 #include "misc/misc.h"
 #include "windows/alert.h"
+#include "components/text.h"
 #include "windows/bar_menu.h"
+#include "components/hline.h"
 #include "components/menus/menus.h"
 
 int print_result(void *data, int size, error_trace_t *errors) {
@@ -205,45 +207,21 @@ int bbs_main_menu(error_trace_t *errors) {
 
     when_error_in {
 
-        /* startx = getbegx(stdscr); */
-        /* starty = getbegy(stdscr); */
-        /* height = getmaxy(stdscr) - 3; */
-        /* width  = 10; */
-
         startx = getbegx(stdscr);
         starty = getbegy(stdscr);
         width  = getmaxx(stdscr) - 2;
 
-        if (is_aide(&qroom, &useron)) {
+        errno = 0;
+        list = calloc(6, sizeof(menus_list_t));
+        if (list == NULL) cause_error(errno);
+        list_size = 6 * sizeof(menus_list_t);
 
-            errno = 0;
-            list = calloc(7, sizeof(menus_list_t));
-            if (list == NULL) cause_error(errno);
-            list_size = 7 * sizeof(menus_list_t);
-
-            SET_MENU(list[0], "Goto", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
-            SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
-            SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
-            SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);
-            SET_MENU(list[4], "Aide", "aide options", MENUS_T_ITEM, NULL, 0, print_result);
-            SET_MENU(list[5], "Help", "show help", MENUS_T_ITEM, data8, strlen(data8), print_result);
-            SET_MENU(list[6], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
-
-        } else {
-
-            errno = 0;
-            list = calloc(6, sizeof(menus_list_t));
-            if (list == NULL) cause_error(errno);
-            list_size = 6 * sizeof(menus_list_t);
-
-            SET_MENU(list[0], "Goto", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
-            SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
-            SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
-            SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);
-            SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, data8, strlen(data8), print_result);
-            SET_MENU(list[5], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
-
-        }
+        SET_MENU(list[0], "Goto", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
+        SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
+        SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
+        SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);
+        SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, data8, strlen(data8), print_result);
+        SET_MENU(list[5], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
 
         bmenu = bar_menu(startx, starty, height, width, list, list_size);
         check_creation(bmenu);

@@ -81,7 +81,7 @@ room - A ANSI C class to manage rooms
 
      int stat = OK;
      queue results;
-     room_base_t temp;
+     room_base_t *temp = NULL;
      room_search_t *result = NULL;
 
      when_error_in {
@@ -111,6 +111,7 @@ room - A ANSI C class to manage rooms
              printf("messages  : %d\n", (int)size);
 
              free(result);
+             room_free(room, temp);
 
          }
 
@@ -312,7 +313,7 @@ The room to delete.
 
 =back
 
-=head2 I<int room_get(room_t *self, int index, room_base_t *room)>
+=head2 I<int room_get(room_t *self, int index, room_base_t **room)>
 
 This method gets the indicated room.
 
@@ -328,7 +329,8 @@ The room to get.
 
 =item B<room>
 
-A pointer to a room_base_t type to write the data too.
+A pointer to a room_base_t type to write the data too. The data
+structure is internally allocated and needs to be freed with room_free().
 
 =back
 
@@ -345,6 +347,22 @@ A pointer to a room_t object.
 =item B<index>
 
 The room to update.
+
+=item B<room>
+
+A pointer to a room_base_t type.
+
+=back
+
+=head2 I<int room_free(room_t *self, room_base_t *room)>
+
+This method deallocates memory used by the room data structure.
+
+=over 4
+
+=item B<self>
+
+A pointer to a room_t object.
 
 =item B<room>
 

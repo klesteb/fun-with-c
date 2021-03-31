@@ -89,8 +89,8 @@ int main(int argc, char **argv) {
 
     int stat = OK;
     int index = 0;
-    room_base_t temp;
     short conference = 10;
+    room_base_t *temp = NULL;
 
     when_error_in {
 
@@ -108,25 +108,34 @@ int main(int argc, char **argv) {
             stat = room_get(room, index, &temp);
             check_return(stat, room);
 
-            display(&temp);
+            display(temp);
 
-            temp.flags = (RM_PUBLIC | RM_INUSE);
+            temp->flags = (RM_PUBLIC | RM_INUSE);
 
-            stat = room_put(room, index, &temp);
+            stat = room_put(room, index, temp);
+            check_return(stat, room);
+
+            stat = room_free(room, temp);
             check_return(stat, room);
 
             stat = room_get(room, index, &temp);
             check_return(stat, room);
 
-            display(&temp);
+            display(temp);
 
             stat = room_del(room, index);
             check_return(stat, room);
 
+            stat = room_free(room, temp);
+            check_return(stat, room);
+
             stat = room_get(room, index, &temp);
             check_return(stat, room);
 
-            display(&temp);
+            display(temp);
+
+            stat = room_free(room, temp);
+            check_return(stat, room);
 
         }
 

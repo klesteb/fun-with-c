@@ -42,8 +42,8 @@ int _room_lock(room_t *, off_t);
 int _room_extend(room_t *, int);
 int _room_add(room_t *, room_base_t *);
 int _room_get_sequence(room_t *, long *);
-int _room_get(room_t *, int, room_base_t *);
 int _room_put(room_t *, int, room_base_t *);
+int _room_get(room_t *, int, room_base_t **);
 int _room_read(room_t *, room_base_t *, ssize_t *);
 int _room_next(room_t *, room_base_t *, ssize_t *);
 int _room_prev(room_t *, room_base_t *, ssize_t *);
@@ -335,7 +335,7 @@ int room_del(room_t *self, int index) {
 
 }
 
-int room_get(room_t *self, int index, room_base_t *room) {
+int room_get(room_t *self, int index, room_base_t **room) {
 
     int stat = OK;
 
@@ -504,6 +504,34 @@ int room_handler(room_t *self, room_base_t *room, void **handle) {
     return stat;
 
 }
+
+int room_free(room_t *self, room_base_t *room) {
+    
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (room == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        free(room);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
@@ -1299,7 +1327,7 @@ int _room_del(room_t *self, int index) {
 
 }
 
-int _room_get(room_t *self, int index, room_base_t *room) {
+int _room_get(room_t *self, int index, room_base_t **room) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -1322,7 +1350,11 @@ int _room_get(room_t *self, int index, room_base_t *room) {
 
         if (count == sizeof(room_base_t)) {
 
-            stat = self->_build(self, &ondisk, room);
+            errno = 0;
+            *room = calloc(1, sizeof(room_base_t));
+            if (*room == NULL) cause_error(errno);
+
+            stat = self->_build(self, &ondisk, *room);
             check_return(stat, self);
 
         }

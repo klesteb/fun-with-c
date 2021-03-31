@@ -104,7 +104,7 @@ int _list_menu_event(widget_t *widget, events_t *event) {
                     }
                 }
 
-                stat = data->show_description(widget);
+                stat = (*data->show_description)(widget);
                 check_return(stat, widget);
 
                 stat = pos_menu_cursor(data->menu);

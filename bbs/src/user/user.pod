@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-user - A ANSI C class to manage the user database
+user - An ANSI C class to manage the user database
 
 =head1 SYNOPSIS
 
@@ -230,7 +230,7 @@ A pointer to the user_t object.
 
 =head2 I<int user_open(user_t *self)>
 
-This method allows access to the users. 
+This method allows access to the users database. 
 
 =over 4
 
@@ -242,7 +242,7 @@ A pointer to a user_t object.
 
 =head2 I<int user_close(user_t *self)>
 
-This method closes access to the users.
+This method closes access to the users database.
 
 =over 4
 
@@ -252,9 +252,9 @@ A pointer to a user_t object.
 
 =back
 
-=head2 I<int user_first(user_t *self, user_base_t *user, ssize_t *count)>
+=head2 I<int user_add(user_t *self, user_base_t *user)>
 
-This method will retrieve the first user.
+This method adds a user to the users database. 
 
 =over 4
 
@@ -264,37 +264,15 @@ A pointer to a user_t object.
 
 =item B<user>
 
-A pointer to a user_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
+A pointer to a user_base_t type to write to the database.
 
 =back
 
-=head2 I<int user_next(user_t *self, user_base_t *user, ssize_t *count)>
+=head2 I<int user_del(user_t *self, int index)>
 
-This method retrieves the next user.
-
-=over 4
-
-=item B<self>
-
-A pointer to a user_t object.
-
-=item B<user>
-
-A pointer to a user_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int user_prev(user_t *self, user_base_t *user, ssize_t *count)>
-
-This method retrieves the previous user.
+This method deletes a user from the users database. The record is not
+removed from the database. It is marked as "deleted". The record is
+not reused.
 
 =over 4
 
@@ -302,33 +280,9 @@ This method retrieves the previous user.
 
 A pointer to a user_t object.
 
-=item B<user>
+=item B<index>
 
-A pointer to a user_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
-
-=back
-
-=head2 I<int user_last(user_t *self, user_base_t *user, ssize_t *count)>
-
-This method retrieves the last user.
-
-=over 4
-
-=item B<self>
-
-A pointer to a user_t object.
-
-=item B<user>
-
-A pointer to a user_base_t type to write the data too.
-
-=item B<count>
-
-A pointer to write the number of bytes read. A 0 indicates end of file.
+The index to the users record within the database.
 
 =back
 
@@ -372,29 +326,9 @@ A pointer to a user_base_t type.
 
 =back
 
-=head2 I<int user_put_message(user_t *self, char *buffer, long *msgnum)>
+=head2 I<int user_find(user_t *self, void *data, int len,  int (*compare)(void *, int, user_base_t *), int *index)>
 
-This method sends a message to another user.
-
-=over 4
-
-=item B<self>
-
-A pointer to a user_t object.
-
-=item B<buffer>
-
-A pointer to the message.
-
-=item B<msgnum>
-
-A pointer to write the message number too.
-
-=back
-
-=head2 I<int user_get_message(user_t *self, long msgnum, char **buffer)>
-
-This method retrieves a message from another user.
+This method will return the first user that matches the comparison.
 
 =over 4
 
@@ -402,31 +336,53 @@ This method retrieves a message from another user.
 
 A pointer to a user_t object.
 
-=item B<msgnum>
+=item B<data>
 
-The message number to retrieve.
+A pointer to the data to use for comparison.
 
-=item B<buffer>
+=item B<len>
 
-A pointer to write the message too. This buffer will 
-need to be freed.
+The length of the data.
 
-=back
+=item B<compare>
 
-=head2 I<int user_index(user_t *self, int *index)>
-
-This method returns the current user index. This is usable when paging
-thru the user database.
-
-=over 4
-
-=item B<self>
-
-A pointer to a user_t object.
+A comparison function used to match the data to a user_base_t type.
+This should return TRUE on match, otherwise FALSE.
 
 =item B<index>
 
-A pointer to write the index number too.
+A pointer to write the index of the user that matches. A 0 is returned
+if nothing matches.
+
+=back
+
+=head2 I<int user_search(user_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), queue *results)>
+
+This method will return all the users that matches the comparison.
+
+=over 4
+
+=item B<self>
+
+A pointer to a user_t object.
+
+=item B<data>
+
+A pointer to the data to use for the comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a user_base_t type.
+This should return TRUE on match, otherwise FALSE.
+
+=item B<results>
+
+A pointer to write the list of user_search_t types. This list may be empty if 
+nothing matches.
 
 =back
 

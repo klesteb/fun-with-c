@@ -27,16 +27,16 @@ INCS = widget.h colors.h window.h component.h components/label.h \
        components/hline.h components/vline.h components/text.h \
        components/prompt.h components/textarea.h components/input.h \
        components/bell.h components/menus/menus.h components/menus/bar.h \
-       components/menus/box.h components/menus/list.h workbench.h \
-       windows/alert.h windows/status.h windows/bar_menu.h \
+       components/menus/box.h components/menus/list.h components/more.h \
+       workbench.h windows/alert.h windows/status.h windows/bar_menu.h \
        windows/box_menu.h windows/list_menu.h 
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
        components/prompt.o components/textarea.o components/input.o \
        components/bell.o components/menus/menus.o components/menus/bar.o \
-       components/menus/box.o components/menus/list.o workbench.o \
-       windows/alert.o windows/status.o windows/bar_menu.o \
+       components/menus/box.o components/menus/list.o components/more.o \
+       workbench.o windows/alert.o windows/status.o windows/bar_menu.o \
        windows/box_menu.o windows/list_menu.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
@@ -193,6 +193,10 @@ components/textarea.o: components/textarea.c $(INCS)
 components/input.o: components/input.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) components/input.o components/input.c 
 	$(LIBR) $(STATIC) components/input.o
+#
+components/more.o: components/more.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/more.o components/more.c 
+	$(LIBR) $(STATIC) components/more.o
 #
 components/menus/menus.o: components/menus/menus.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) components/menus/menus.o components/menus/menus.c 

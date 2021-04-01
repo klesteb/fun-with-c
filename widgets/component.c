@@ -318,6 +318,9 @@ int _component_ctor(object_t *object, item_list_t *items) {
             self->area = derwin(window->inner, height, width, startx, starty);
             if (self->area == NULL) cause_error(E_INVOPS);
 
+            stat = werase(self->area);
+            check_status(stat, OK, E_INVOPS);
+
             exit_when;
 
         } use {

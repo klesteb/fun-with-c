@@ -136,14 +136,6 @@ node-test3: node-test3.o
 	$(CC) $(CFLAGS) node-test3.c
 	$(LINK) $(LOPTS) node-test3 node-test3.o $(OLBS)
 #
-node-test4: node-test4.o
-	$(CC) $(CFLAGS) node-test4.c
-	$(LINK) $(LOPTS) node-test4 node-test4.o $(OLBS)
-#
-node-test5: node-test5.o
-	$(CC) $(CFLAGS) node-test5.c
-	$(LINK) $(LOPTS) node-test5 node-test5.o $(OLBS)
-#
 user-test1: user-test1.o
 	$(CC) $(CFLAGS) user-test1.c
 	$(LINK) $(LOPTS) user-test1 user-test1.o $(OLBS)

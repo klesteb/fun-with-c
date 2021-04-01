@@ -841,6 +841,8 @@ int _workbench_event(workbench_t *self, events_t *event) {
             stat = werase(self->messages);
             check_status(stat, OK, E_INVOPS);
 
+            curs_set(0);
+            
             stat = mvwaddstr(self->messages, 0, 0, message);
             check_status(stat, OK, E_INVOPS);
 

@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-room - A ANSI C class to manage rooms
+room - An ANSI C class to manage rooms
 
 =head1 SYNOPSIS
 
@@ -87,7 +87,7 @@ room - A ANSI C class to manage rooms
      when_error_in {
 
          stat = que_init(&results);
-         check_status(stat, QUE_ON, E_INVOPS);
+         check_status(stat, QUE_OK, E_INVOPS);
 
          stat = setup();
          check_status(stat, OK, E_INVOPS);

@@ -125,6 +125,9 @@ int _menus_data_create(component_t *menus, menus_list_t *list, int list_size) {
         data->subwin = derwin(menus->area, width, height, startx, starty);
         if (data->subwin == NULL) cause_error(E_INVOPS);
 
+        stat = werase(data->subwin);
+        check_status(stat, OK, E_INVOPS);
+
         menus->data = data;
 
         exit_when;

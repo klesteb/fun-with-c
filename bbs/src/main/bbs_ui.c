@@ -109,7 +109,7 @@ int bbs_clear_message(error_trace_t *errors) {
 
     int stat = OK;
     events_t *event = NULL;
-    int width = getmaxy(stdscr);
+    int width = getmaxx(stdscr) - 3;
 
     when_error_in {
 

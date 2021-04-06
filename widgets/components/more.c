@@ -31,11 +31,10 @@ require_klass(COMPONENT_KLASS);
 /*----------------------------------------------------------------*/
 
 typedef struct _more_data_s {
-    int rows;
-    int cols;
-    int last_line;
-    int current_pad_row;
-    int visible_pad_rows;
+    int vrow;
+    int vcol;
+    int vrows;
+    int vcols;
     WINDOW *pad;
 } more_data_t;
 
@@ -43,41 +42,84 @@ typedef struct _more_data_s {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-int _more_data_create(component_t *more, char *text, int text_size) {
+static int _more_data_display(component_t *self) {
 
-    queue lines;
     int stat = OK;
-    int vrows = 0;
+    int height = 0;
+    int width  = 0;
+    more_data_t *data = NULL;
+
+    when_error_in {
+
+        height = getmaxy(self->area) - 1;
+        width  = getmaxx(self->area) - 1;
+
+        if (self->data != NULL) {
+
+            data = (more_data_t *)self->data;
+
+            stat = copywin(data->pad, self->area, data->vrow, data->vcol, 
+                           0, 0, height, width, 0);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = wnoutrefresh(self->area);
+            check_status(stat, OK, E_INVOPS);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _more_data_create(component_t *more, queue *text) {
+
+    int x = 0;
+    int len = 0;
+    int stat = OK;
     int vcols = 0;
     char *line = NULL;
     more_data_t *data = NULL;
 
     when_error_in {
 
-        getmaxyx(more->area, vrows, vcols);
-
         errno = 0;
         data = calloc(1, sizeof(more_data_t));
         if (data == NULL) cause_error(errno);
 
-        stat = que_init(&lines);
-        check_status(stat, QUE_OK, E_INVOPS);
+        line = que_first(text);
 
-        stat = wordwrap(text, vcols, &lines);
-        check_status(stat, OK, E_INVOPS);
+        do {
 
-        data->rows = vrows;
-        data->cols = vcols;
-        data->current_pad_row = 0;
-        data->visible_pad_rows = vrows - 4;
-        data->last_line = que_size(&lines);
+            len = strlen(line);
+            if (len > vcols) vcols = len;
 
-        data->pad = newpad(data->last_line, vcols);
+        } while ((line = que_next(text)));
+
+        data->vrow = 0;
+        data->vcol = 0;
+        data->vcols = vcols;
+        data->vrows = que_size(text);
+
+        data->pad = newpad(data->vrows + 1, data->vcols + 1);
         if (data->pad == NULL) cause_error(E_INVOPS);
 
-        while ((line = que_pop_head(&lines))) {
+        while ((line = que_pop_head(text))) {
 
-            wprintw(data->pad, "%s", line);
+            stat = mvwaddstr(data->pad, x, 0, line);
+            /* stat = wprintw(data->pad, "%s", line); */
+            check_status(stat, OK, E_INVOPS);
+
+            x++;
             free(line);
 
         }
@@ -122,15 +164,6 @@ int _more_dtor(object_t *object) {
 
     }
 
-    if (self->area != NULL) {
-
-        werase(self->area);
-        delwin(self->area);
-
-        self->area = NULL;
-
-    }
-
     /* walk the chain, freeing as we go */
 
     object_demote(object, object_t);
@@ -149,19 +182,12 @@ int _more_add(widget_t *widget, void *data) {
 int _more_draw(widget_t *widget) {
 
     int stat = OK;
-    more_data_t *data = NULL;
     component_t *self = COMPONENT(widget);
 
     when_error_in {
 
-        if (self->data != NULL) {
-
-            data = (more_data_t *)self->data;
-
-            stat = prefresh(data->pad, data->current_pad_row, 0, 2, 0, data->rows - 3 , data->cols - 1);
-            check_status(stat, OK, E_INVOPS);
-
-        }
+        stat = _more_data_display(self);
+        check_return(stat, self);
 
         exit_when;
 
@@ -220,45 +246,66 @@ int _more_event(widget_t *widget, events_t *event) {
             if (event->type == EVENT_K_KEYBOARD) {
 
                 KEVENT *key = (KEVENT *)event->data;
-            
+
                 switch(key->keycode) {
-                    case KEY_NPAGE: // page down
-                        data->current_pad_row += data->visible_pad_rows;
-                        if (data->current_pad_row + data->visible_pad_rows > data->last_line) {
-                            data->current_pad_row = data->last_line - data->visible_pad_rows;
-                        }
+                    case KEY_NPAGE: { 
+                        int rows = getmaxy(self->area);
+                        data->vrow = ((data->vrow + rows) < (data->vrows - 1))
+                                   ? data->vrow + rows
+                                   : data->vrows - rows;
                         break;
-                    case KEY_PPAGE: // page up
-                        data->current_pad_row -= data->visible_pad_rows;
-                        if (data->current_pad_row < 0) {
-                            data->current_pad_row = 0;
-                        }
+                    }
+                    case KEY_PPAGE: {
+                        int rows = getmaxy(self->area);
+                        data->vrow = ((data->vrow - rows) > 0)
+                                   ? data->vrow - rows
+                                   : 0;
                         break;
-                    case KEY_UP:
-                        data->current_pad_row--;
-                        if (data->current_pad_row < 0) {
-                            data->current_pad_row = 0;
-                        }
+                    }
+                    case KEY_LEFT: {
+                        data->vcol = (data->vcol > 0) 
+                                   ? data->vcol - 1 
+                                   : 0;
                         break;
-                    case KEY_DOWN:
-                        data->current_pad_row++;
-                        if (data->current_pad_row + data->visible_pad_rows > data->last_line) {
-                            data->current_pad_row = data->last_line - data->visible_pad_rows;
-                        }
+                    }
+                    case KEY_RIGHT: {
+                        int cols = getmaxx(self->area);
+                        data->vcol = (data->vcol < (data->vcols - cols))
+                                    ? data->vcol + 1
+                                    : (data->vcols - cols) + 1;
                         break;
+                    }
+                    case KEY_UP: {
+                        data->vrow = (data->vrow > 0) 
+                                   ? data->vrow - 1 
+                                   : 0;
+                        break;
+                    }
+                    case KEY_DOWN: {
+                        int rows = getmaxy(self->area);
+                        data->vrow = (data->vrow < (data->vrows - rows))
+                                   ? data->vrow + 1
+                                   : data->vrows - rows;
+                        break;
+                    }
+                    case KEY_HOME: {
+                        data->vrow = 0;
+                        data->vcol = 0;
+                        break;
+                    }
+                    case KEY_END: {
+                        int rows = getmaxy(self->area);
+                        data->vcol = 0;
+                        data->vrow = data->vrows - rows;
+                        break;
+                    }
                 }
-                    
-                if (data->current_pad_row + data->visible_pad_rows > data->last_line) {
 
-                    data->current_pad_row = data->last_line - data->visible_pad_rows;
-
-                } else if (data->current_pad_row < 0) {
-
-                    data->current_pad_row = 0;
-
-                }
             }
-            
+
+            stat = _more_data_display(self);
+            check_return(stat, self);
+
             COMPONENT(widget)->data = data;
 
         }
@@ -287,7 +334,7 @@ int _more_remove(widget_t *widget, void *thing) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-component_t *more_create(window_t *window, int startx, int starty, int height, int width, int tab, char *text, int text_size) {
+component_t *more_create(window_t *window, int startx, int starty, int height, int width, int tab, queue *text) {
 
     int stat = OK;
     int padding = FALSE;
@@ -299,7 +346,7 @@ component_t *more_create(window_t *window, int startx, int starty, int height, i
         more = component_create(window, startx, starty, height, width, tab, padding, NULL, 0);
         check_creation(more);
 
-        stat = _more_data_create(more, text, text_size);
+        stat = _more_data_create(more, text);
         check_return(stat, more);
 
         SET_ITEM(items[0], WIDGET_M_ADD, _more_add, 0, NULL);

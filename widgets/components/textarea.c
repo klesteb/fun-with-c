@@ -271,13 +271,13 @@ component_t *textarea_create(window_t *window, int startx, int starty, int heigh
         if ((data = _data_create(textarea, width, value, size))) {
 
             textarea->data = data;
-            textarea->area = derwin(window->inner, height, width, starty, startx);
-            if (textarea->area == NULL) {
+            /* textarea->area = derwin(window->inner, height, width, starty, startx); */
+            /* if (textarea->area == NULL) { */
 
-                object_set_error1(textarea, E_INVOPS);
-                return textarea;
+            /*     object_set_error1(textarea, E_INVOPS); */
+            /*     return textarea; */
 
-            }
+            /* } */
 
             SET_ITEM(items[0], WIDGET_M_DRAW, _textarea_draw, 0, NULL);
             SET_ITEM(items[1], WIDGET_M_EVENT, _textarea_event, 0, NULL);

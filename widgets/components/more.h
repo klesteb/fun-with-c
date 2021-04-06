@@ -14,13 +14,14 @@
 #define _MORE_H
 
 #include "window.h"
+#include "que_util.h"
 #include "component.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern component_t *more_create(window_t *, int, int, int, int, int, char *value, int size);
+extern component_t *more_create(window_t *, int, int, int, int, int, queue *text);
 
 #endif
 

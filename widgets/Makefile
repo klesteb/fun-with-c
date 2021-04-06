@@ -40,7 +40,8 @@ OBJS = widget.o colors.o window.o component.o components/label.o \
        windows/box_menu.o windows/list_menu.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
-             test10 test11 test12 test13 test14 test15 test16 test17
+             test10 test11 test12 test13 test14 test15 test16 test17 \
+             test18
 #
 debug:
 #
@@ -141,6 +142,10 @@ test16: test16.o
 test17: test17.o
 	$(CC) $(CFLAGS) test17.c
 	$(LINK) $(LOPTS) test17 test17.o $(OLBS) -lpanel -lmenu -lncurses 
+#
+test18: test18.o
+	$(CC) $(CFLAGS) test18.c
+	$(LINK) $(LOPTS) test18 test18.o $(OLBS) -lpanel -lmenu -lncurses 
 #
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c

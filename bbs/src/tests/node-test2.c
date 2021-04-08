@@ -19,14 +19,8 @@ int display(node_base_t *temp) {
 
     printf("---------------------------------\n");
     printf("node    : %ld\n", temp->nodenum);
-    printf("status  : %d\n", temp->status);
-    printf("errors  : %d\n", temp->errors);
     printf("action  : %d\n", temp->action);
     printf("user    : %d\n", temp->useron);
-    printf("msgnum  : %ld\n", temp->msgnum);
-    printf("misc    : %d\n", temp->misc);
-    printf("aux     : %d\n", temp->aux);
-    printf("extaux  : %ld\n", temp->extaux);
     printf("revision: %d\n", temp->revision);
 
     return OK;
@@ -101,6 +95,8 @@ int main(int argc, char **argv) {
 
         stat = node_search(nodes, NULL, 0, find_nodes_all, &results);
         check_return(stat, nodes);
+
+        printf("Found %d nodes\n", que_size(&results));
 
         while (result = que_pop_head(&results)) {
 

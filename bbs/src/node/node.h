@@ -24,36 +24,6 @@
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-/* status value for node.status */
-
-#define NODE_WFC           1    /* Waiting for Call                      */
-#define NODE_LOGON         2    /* at logon prompt                       */
-#define NODE_NEWUSER       3    /* New user applying                     */
-#define NODE_INUSE         4    /* In Use                                */
-#define NODE_QUIET         5    /* In Use - quiet mode                   */
-#define NODE_OFFLINE       6    /* Offline                               */
-#define NODE_NETTING       7    /* Networking                            */
-#define NODE_EVENT_WAITING 8    /* Waiting for all nodes to be inactive  */
-#define NODE_EVENT_RUNNING 9    /* Running an external event             */
-#define NODE_EVENT_LIMBO   10   /* Allowing another node to run an event */
-
-/* bit values for node.misc */
-
-#define NODE_ANON   (1L<<0)     /* Anonymous User                        */
-#define NODE_LOCK   (1L<<1)     /* Locked for sysops only                */
-#define NODE_INTR   (1L<<2)     /* Interrupted - hang up                 */
-#define NODE_UMSG   (1L<<3)     /* Message is waiting                    */
-#define NODE_POFF   (1L<<4)     /* Page disabled                         */
-#define NODE_AOFF   (1L<<5)     /* Activity Alert disabled               */
-#define NODE_UDAT   (1L<<6)     /* User data has been updated            */
-#define NODE_RRUN   (1L<<7)     /* Re-run this node when log off         */
-#define NODE_EVENT  (1L<<8)     /* Must run node event after log off     */
-#define NODE_DOWN   (1L<<9)     /* Down this node after logoff           */
-#define NODE_RPCHT  (1L<<10)    /* Reset private chat                    */
-#define NODE_NMSG   (1L<<11)    /* Node message waiting                  */
-#define NODE_EXT    (1L<<12)    /* Extended info on node action          */
-#define NODE_WMSG   (1L<<13)    /* Wall message is waiting               */
-
 /* values for node.action */
 
 #define NODE_MAIN 1             /* Main Prompt                           */
@@ -81,30 +51,23 @@
 #define NODE_PCHT 23            /* In Private Chat                       */
 #define NODE_PAGE 24            /* Paging another node for Private Chat  */
 #define NODE_RFSD 25            /* Retrieving file from seq dev (aux=dev)*/
+#define NODE_OFFL 26            /* Node is offline                       */
 
 /*-------------------------------------------------------------*/
 /* data structures                                             */
 /*-------------------------------------------------------------*/
 
-typedef struct _node_base_s {   /* Node information kept in NODE.DAB */
-    uchar status;               /* Current Status of Node            */
-    uchar errors;               /* Number of Critical Errors         */
-    uchar action;               /* Action User is doing on Node      */
-    uchar pad1;                 /* Alignment padding                 */
-    ushort pad2;                /* Alignment padding                 */
+typedef struct _node_base_s {   /* Node information kept in node.dat */
+    uchar  action;              /* Action User is doing on Node      */
     ushort useron;              /* User on Node                      */
-    ushort misc;                /* Miscellaneous bits for node       */
-    ushort aux;                 /* Auxillary word for node           */
-    ulong  extaux;              /* Extended aux dword for node       */
-    long   msgnum;              /* Message number                    */
     long   nodenum;             /* Node number                       */
     int    revision;            /* Revision level of record          */
 } node_base_t;
 
 typedef struct _node_search_s {
-    long nodenum;               /* Node number                       */
     ushort useron;              /* User on Node                      */
-    int index;                  /* Index of the rd                   */
+    long   nodenum;             /* Node number                       */
+    int    index;               /* Index of record                   */
 } node_search_t;
 
 /*-------------------------------------------------------------*/

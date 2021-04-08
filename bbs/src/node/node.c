@@ -1321,7 +1321,8 @@ int _node_extend(node_t *self, int amount) {
             stat = self->_get_sequence(self, &sequence);
             check_return(stat, self);
 
-            node.status = NODE_OFFLINE;
+            node.useron = 0;
+            node.action = NODE_OFFL;
             node.nodenum = sequence;
             node.revision = revision;
 
@@ -1360,17 +1361,8 @@ int _node_extend(node_t *self, int amount) {
 
 int _node_normalize(node_t *self, node_base_t *ondisk, node_base_t *node) {
 
-    (*node).status = ondisk->status;
-    (*node).errors = ondisk->errors;
     (*node).action = ondisk->action;
-    (*node).pad1   = ondisk->pad1;  
-    (*node).pad2   = ondisk->pad2; 
     (*node).useron = ondisk->useron;
-    (*node).status = ondisk->status;
-    (*node).misc   = ondisk->misc;
-    (*node).aux    = ondisk->aux;
-    (*node).extaux = ondisk->extaux;
-    (*node).msgnum = ondisk->msgnum;
     (*node).nodenum = ondisk->nodenum;
     (*node).revision = ondisk->revision + 1;
 
@@ -1380,17 +1372,8 @@ int _node_normalize(node_t *self, node_base_t *ondisk, node_base_t *node) {
 
 int _node_build(node_t *self, node_base_t *ondisk, node_base_t *node) {
 
-    (*node).status = ondisk->status;
-    (*node).errors = ondisk->errors;
     (*node).action = ondisk->action;
-    (*node).pad1   = ondisk->pad1;  
-    (*node).pad2   = ondisk->pad2; 
     (*node).useron = ondisk->useron;
-    (*node).status = ondisk->status;
-    (*node).misc   = ondisk->misc;
-    (*node).aux    = ondisk->aux;
-    (*node).extaux = ondisk->extaux;
-    (*node).msgnum = ondisk->msgnum;
     (*node).nodenum = ondisk->nodenum;
     (*node).revision = ondisk->revision;
 

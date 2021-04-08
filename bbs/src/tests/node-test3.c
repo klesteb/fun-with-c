@@ -19,14 +19,8 @@ int display(node_base_t *temp) {
 
     printf("---------------------------------\n");
     printf("node    : %ld\n", temp->nodenum);
-    printf("status  : %d\n", temp->status);
-    printf("errors  : %d\n", temp->errors);
     printf("action  : %d\n", temp->action);
     printf("user    : %d\n", temp->useron);
-    printf("msgnum  : %ld\n", temp->msgnum);
-    printf("misc    : %d\n", temp->misc);
-    printf("aux     : %d\n", temp->aux);
-    printf("extaux  : %ld\n", temp->extaux);
     printf("revision: %d\n", temp->revision);
 
     return OK;
@@ -83,15 +77,12 @@ void cleanup(void) {
 
 int main(int argc, char **argv) {
 
+    int node = 1;
     int stat = OK;
-    queue results;
+    int index = 0;
     node_base_t temp;
-    node_search_t *result = NULL;
 
     when_error_in {
-
-        stat = que_init(&results);
-        check_status(stat, OK, E_INVOPS);
 
         stat = setup();
         check_status(stat, OK, E_INVOPS);
@@ -99,12 +90,12 @@ int main(int argc, char **argv) {
         stat = node_open(nodes);
         check_return(stat, nodes);
 
-        stat = node_search(nodes, NULL, 0, find_nodes_all, &results);
+        stat = node_find(nodes, &node, sizeof(node), find_node_by_number, &index);
         check_return(stat, nodes);
 
-        while (result = que_pop_tail(&results)) {
+        if (index > 0) {
 
-            stat = node_get(nodes, result->index, &temp);
+            stat = node_get(nodes, index, &temp);
             check_return(stat, nodes);
 
             display(&temp);

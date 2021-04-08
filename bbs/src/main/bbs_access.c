@@ -121,3 +121,45 @@ int is_sysop(room_base_t *room, user_base_t *user) {
 
 }
 
+int can_create_room(user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (user->axlevel >= makeroom) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
+int can_post_lobby(user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (user->axlevel >= lobbypost) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
+int can_edit_aide(user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (user->axlevel >= AX_SYSOP) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+

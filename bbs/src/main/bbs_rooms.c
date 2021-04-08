@@ -134,6 +134,9 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
 
     when_error_in {
 
+        /* stat = bbs_send_status(, &error); */
+        /* check_status2(stat, OK, error); */
+
         startx = ((getmaxx(stdscr) - width) / 2);
         starty = ((getmaxy(stdscr) - height) / 2);
 

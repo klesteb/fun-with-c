@@ -31,7 +31,7 @@ extern int allowed_in_room(room_search_t *, user_base_t *);
 /* bbs_ipc */
 
 extern int bbs_get_status(error_trace_t *);
-extern int bbs_send_status(int, int, error_trace_t *);
+extern int bbs_send_status(int, error_trace_t *);
 
 /* bbs_rooms */
 

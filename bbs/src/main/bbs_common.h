@@ -34,7 +34,7 @@
 #include "workbench.h"
 #include "bbs_error_codes.h"
 
-/* global items */
+/* global items ---------------------------------------------------------- */
 
 extern node_t *nodes;
 extern user_t *users;
@@ -46,14 +46,32 @@ extern workbench_t *workbench;
 
 extern int xnode;
 extern int sysop;
-extern int qroom_index;
 extern int user_index;
 extern int qnode_index;
 extern char *username;
 
-extern room_base_t qroom;
 extern user_base_t useron;
 extern node_base_t qnode;
+
+/* config items -----------------------------------------------------------*/
+
+extern int base;
+extern int xtimeout;
+extern int retries;
+extern int roomnum;
+extern int nodenum;
+extern int usernum;
+extern int creataide;
+extern int initax;
+extern int lobbypost;
+extern int makeroom;
+extern int networked;
+extern int validax;
+extern char *datapath;
+extern char *msgpath;
+extern char *textpath;
+extern char *networknode;
+extern char *humannode;
 
 #endif
 

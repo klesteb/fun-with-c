@@ -179,7 +179,6 @@ int bbs_send_message(const char *message, error_trace_t *errors) {
 
 }
 
-
 int bbs_main_menu(error_trace_t *errors) {
 
     theme_t theme;
@@ -189,6 +188,7 @@ int bbs_main_menu(error_trace_t *errors) {
     int starty = 0;
     int height = 2;
     int list_size = 0;
+    error_trace_t error;
     window_t *bmenu = NULL;
     menus_list_t *list = NULL;
     char *data1 = "this is data for test1";
@@ -207,6 +207,9 @@ int bbs_main_menu(error_trace_t *errors) {
 
     when_error_in {
 
+        stat = bbs_send_status(NODE_MAIN, &error);
+        check_status2(stat, OK, error);
+
         startx = getbegx(stdscr);
         starty = getbegy(stdscr);
         width  = getmaxx(stdscr) - 2;
@@ -216,7 +219,7 @@ int bbs_main_menu(error_trace_t *errors) {
         if (list == NULL) cause_error(errno);
         list_size = 6 * sizeof(menus_list_t);
 
-        SET_MENU(list[0], "Goto", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
+        SET_MENU(list[0], "Rooms", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
         SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
         SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
         SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);

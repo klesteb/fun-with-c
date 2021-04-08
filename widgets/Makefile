@@ -74,6 +74,7 @@ clean:
 	rm -f test15
 	rm -f test16
 	rm -f test17
+	rm -f test18
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c

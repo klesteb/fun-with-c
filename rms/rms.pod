@@ -1,0 +1,398 @@
+
+=pod
+
+=head1 NAME
+
+rms - An ANSI C class to manage datastores
+
+=head1 SYNOPSIS
+
+ #include "rms.h"
+ #include "error_trace.h"
+
+ typedef struct _stuff {
+
+ } stuff_t;
+
+ error_trace_t dump;
+
+ int main(void) {
+ 
+     int timeout = 10;
+     char *path = ".";
+     rms_t *db = NULL;
+     int retries = 30;
+     int records = 100;
+     char *name = "test";
+     int recsize = sizeof(stuff_t);
+
+     db = rms_create(path, name, records, recsize, retries, timeout, &dump);
+
+     stat = rms_open(db);
+     stat = rms_get(db, recno, &stuff);
+     stat = rms_put(db, recno, &stuff);
+     stat = rms_close(db);
+
+ }
+ 
+=head1 DESCRIPTION
+
+This class overlays a structured format on a file, thus creating a
+datastore. These files are a fixed size. They can be easily extended, but 
+contraction would require a custom utility.
+
+All access to the data is on a record basis. The current record number 
+can be retrieved. There is built in search and find functionality. Get,
+put, add and del access methods are provided. Record access is protected 
+with file locking. So multi-user access is safe.
+
+There is no indexing on the file, other then record number, all access is 
+linear. You can think of them as a BASIC relative file. Which are good 
+enough for small data sets.
+
+The datastore consists of these files:
+
+ <name>.dat    - the actual data
+ <name>.seq    - where the last record number is stored
+
+This library is a class. It is extensible and overridable. It also makes 
+use of the L<files(3)>, L<errors(3)> and L<tracer(3)> classes for error 
+handling and reporting. The following class methods must be overridden:
+
+=over 4
+
+=item _add
+
+This method is used to add a record to the datastore. 
+
+=item _build
+
+This method is used to transfer the on disk record to an in memory record.
+This allows you to modify the record. This is called during a get
+operation.
+
+=item _del
+
+This method is used to delete a record from the datastore. What
+"delete" means, can change between different implementaions.
+
+=item _extend
+
+This method is used to extend the size of the datastore. This allows
+for customization of the records before they are written out.
+
+=item _init
+
+This method allows for initializing the datastore after it is created.
+
+=item _normalize
+
+This method is used to normalize the data against what is residing on the
+disk. In a multi-user environment, the on disk record may change between
+reading and updating. This is called during a put operation.
+
+=back
+
+The files rms.c and rms.h define the class. 
+
+=over 4
+
+=item B<rms.h>
+
+This defines the interface to the class. 
+
+=item B<rms.c> 
+
+This implements the interface.
+
+=back
+
+=head1 METHODS
+
+=head2 I<rms_t *rms_create(char *path, char *name, int records, int recsize, int retries, int timeout, tracer_t *dump)>
+
+This method initializes the class. 
+
+=head2 I<int rms_destroy(rms_t *self)>
+
+This destroys the object. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the rms_t object.
+
+=back
+
+=head2 I<int rms_override(rms_t *self, item_list_t *items)>
+
+This method allows you to override methods. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the rms_t object.
+
+=item B<items>
+
+An array of item_list_t data types. The array is 0 terminated.
+
+=back
+
+=head2 I<int rms_compare(rms_t *this, rms_t *that)>
+
+This method allows you to compare one rms_t object to another. 
+
+=over 4
+
+=item B<this>
+
+A pointer to a rms_t object.
+
+=item B<that>
+
+A pointer to a rms_t object.
+
+=back
+
+=head2 I<char *rms_version(rms_t *self)>
+
+This method returns the version of the library. The version number
+follows the guidelines from L<semver.org|https://semver.org/>.
+
+=over 4
+
+=item B<self>
+
+A pointer to the rms_t object.
+
+=back
+
+=head2 I<int rms_open(rms_t *self)>
+
+This method allows access to the datastore. If the datastore does not
+exists, it will be created, extended to the correct size and be
+initialized. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=back
+
+=head2 I<int rms_close(rms_t *self)>
+
+This method closes access to the datastore.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=back
+
+=head2 I<int rms_add(rms_t *self, void *data)>
+
+This method adds a record to the datastore. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<user>
+
+A pointer to a record to write to the datastore.
+
+=back
+
+=head2 I<int rms_del(rms_t *self, int recnum)>
+
+This method "deletes" the record from the datastore. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<recnum>
+
+The record number of the record to "delete" from the datastore.
+
+=back
+
+=head2 I<int rms_get(rms_t *self, int recnum, void *record)>
+
+This method gets the record at recnum.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<recnum>
+
+The record number to get.
+
+=item B<record>
+
+A pointer to a record to write the data too.
+
+=back
+
+=head2 I<int rms_put(rms_t *self, int recnum, void *record)>
+
+This method updates a record.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<recnum>
+
+The record to update.
+
+=item B<record>
+
+A pointer to the updated record.
+
+=back
+
+=head2 I<int rms_find(rms_t *self, void *data, int len,  int (*compare)(void *, void *), int *recnum)>
+
+This method will return the record number of the first record that matches 
+the comparison.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<data>
+
+A pointer to the data to use for comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a record.
+This should return TRUE on match, otherwise FALSE.
+
+=item B<recnum>
+
+A pointer to write the record number of the record that matches. A 0 is 
+returned if nothing matches.
+
+=back
+
+=head2 I<int rms_search(rms_t *self, void *data, int len, int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *))>
+
+This method will call the capture callback for each record that matches the 
+compare callback.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<data>
+
+A pointer to the data to use for the comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a record. This should 
+return TRUE on match, otherwise FALSE.
+
+=item B<capture>
+
+A capture function to collect the matching records. 
+
+=back
+
+=head1 RETURNS
+
+The method rms_create() returns a pointer to a rms_t object. 
+All other methods return either OK on success or ERR on failure. The 
+extended error description can be returned with object_get_error().
+
+=head1 BUILDING
+
+The following assumes a GNU/GCC build environment.
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruft from the directory.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
+
+=back
+
+=head1 NOTES
+
+This class was written after writing discrete classes to access files that 
+were basically cut and paste programming. So why not consolidate and
+override and extend a base class. 
+
+And why call the class "rms", while I have spent many years programming on 
+DEC operating systems where RMS stood for "Record Management Services".
+So, just a play on words.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<object(3)>
+
+=item L<files(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

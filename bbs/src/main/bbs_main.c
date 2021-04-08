@@ -40,9 +40,7 @@ room_t *rooms = NULL;
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
 event_t *events = NULL;
-
 workbench_t *workbench = NULL;
-window_t *available_rooms = NULL;
 
 int xnode = 1;
 int sysop = FALSE;
@@ -53,7 +51,7 @@ char *username = NULL;
 user_base_t useron;
 node_base_t qnode;
 
-/* config items ---------------------------------------------------------- */
+/* config items -----------------------------------------------------------*/
 
 int base = 1;                       /* base message number                 */
 int xtimeout = 1;                   /* timeout for file locking            */
@@ -61,20 +59,32 @@ int retries = 30;                   /* retires for file locking            */
 int roomnum = 32;                   /* max number of rooms                 */
 int nodenum = 32;                   /* max number of nodes                 */
 int usernum = 256;                  /* max number of users                 */
+int networked = 0;                  /* this system belongs to a network    */
+int creataide = 0;                  /*                                     */
+int lobbypost = AX_AIDE;            /* AX level to be able to post in lobby */
+int makeroom = AX_AIDE;             /* AX level to be create a new room    */ 
+int initax = AX_NEW;                /* AX level for new users              */
+int validax = AX_NORM;              /* AX level for validated users        */
 char *datapath = "../../data/";     /* where the data files are located    */
 char *msgpath = "../../messages/";  /* where the messages are located      */
 char *textpath = "../../text/";     /* where the text files are located    */
+char *networknode = "mybbs";        /* network node name                   */
+char *humannode = "My BBS";         /* human readable node name            */
 
 /*-------------------------------------------------------------------------*/
 
 int bbs_logoff(error_trace_t *errors) {
 
     int stat = OK;
+    error_trace_t error;
 
     when_error_in {
 
         stat = user_put(users, user_index, &useron);
         check_return(stat, users);
+
+        stat = bbs_send_status(NODE_OFFL, &error);
+        check_status2(stat, OK, error);
 
         exit_when;
 

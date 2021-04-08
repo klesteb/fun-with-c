@@ -31,14 +31,15 @@
 #define RM_PRIVATE   (1L<<2)    /* room is private                 */
 #define RM_PREFONLY  (1L<<3)    /* room is preference only         */
 #define RM_PERMROOM  (1L<<4)    /* room is permament               */
-#define RM_NETWORK   (1L<<5)    /* room is network shared          */
-#define RM_READONLY  (1L<<6)    /* Restrict posting to aides? No   */
-#define RM_UPLOAD    (1L<<7)    /* Allowed to upload               */
-#define RM_DOWNLOAD  (1L<<8)    /* Allowed to download             */
-#define RM_MESSAGES  (1L<<9)    /* room has messages               */
-#define RM_BULLETIN  (1L<<10)   /* room has bulletins              */
-#define RM_DIRECTORY (1L<<11)   /* room has files                  */
-#define RM_SUBSYS    (1L<<12)   /* room has "doors"                */
+#define RM_FORGOTTEN (1L<<5)    /* room has been "forgotten"       */
+#define RM_NETWORK   (1L<<6)    /* room is network shared          */
+#define RM_READONLY  (1L<<7)    /* Restrict posting to aides? No   */
+#define RM_UPLOAD    (1L<<8)    /* Allowed to upload               */
+#define RM_DOWNLOAD  (1L<<9)    /* Allowed to download             */
+#define RM_MESSAGES  (1L<<10)   /* room has messages               */
+#define RM_BULLETIN  (1L<<11)   /* room has bulletins              */
+#define RM_DIRECTORY (1L<<12)   /* room has files                  */
+#define RM_SUBSYS    (1L<<13)   /* room has "doors"                */
 
 /*-------------------------------------------------------------*/
 /* data structures                                             */
@@ -66,6 +67,13 @@ typedef struct _room_search_s {
     int index;              /* the index for the room                    */
     short flags;            /* capability flags                          */
 } room_search_t;
+
+typedef struct _room_status_s {
+    long roomnum;           /* room number                               */
+    long usernum;           /* user number                               */
+    long status;            /* room status                               */
+    int revision;           /* the revision of this record               */
+} room_status_t;
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */
@@ -111,8 +119,9 @@ struct _room_s {
     int timeout;
     char *path;
     files_t *roomdb;
-    tracer_t *trace;
     files_t *sequence;
+    files_t *statusdb;
+    tracer_t *trace;
     void *handler;
 };
 

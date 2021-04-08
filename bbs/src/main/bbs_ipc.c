@@ -15,15 +15,14 @@
 
 /*---------------------------------------------------------------------------*/
 
-int bbs_send_status(int status, int action, error_trace_t *errors) {
+int bbs_send_status(int action, error_trace_t *errors) {
 
     int stat = OK;
 
     when_error_in {
 
-        qnode.status = status;
         qnode.action = action;
-        qnode.useron = useron.eternal;
+        qnode.useron = (action == NODE_OFFL) ? 0 : useron.eternal;
 
         stat = node_put(nodes, qnode_index, &qnode);
         check_return(stat, nodes);

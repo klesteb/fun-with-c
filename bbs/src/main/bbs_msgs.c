@@ -28,6 +28,10 @@
 
 extern int print_result();
 
+/* local items ---------------------------------------------------------- */
+
+
+/* ---------------------------------------------------------------------- */
 
 int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
 
@@ -136,7 +140,6 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
 
     } end_when;
 
-fprintf(stderr, "leaving bbs_msgs_menu() - stat: %d\n", stat);
     return stat;
 
 }

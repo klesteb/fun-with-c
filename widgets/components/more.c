@@ -83,7 +83,6 @@ static int _more_data_display(component_t *self) {
 
 static int _more_data_create(component_t *more, queue *text) {
 
-    int x = 0;
     int len = 0;
     int stat = OK;
     int vcols = 0;
@@ -113,10 +112,10 @@ static int _more_data_create(component_t *more, queue *text) {
         data->pad = newpad(data->vrows + 1, data->vcols + 1);
         if (data->pad == NULL) cause_error(E_INVOPS);
 
+        int x = 0;
         while ((line = que_pop_head(text))) {
 
             stat = mvwaddstr(data->pad, x, 0, line);
-            /* stat = wprintw(data->pad, "%s", line); */
             check_status(stat, OK, E_INVOPS);
 
             x++;

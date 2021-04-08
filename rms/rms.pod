@@ -8,33 +8,69 @@ rms - An ANSI C class to manage datastores
 =head1 SYNOPSIS
 
  #include "rms.h"
- #include "error_trace.h"
+ #include "when.h"
+ #include "stuff.h"
+ #include "item_list.h"
 
- typedef struct _stuff {
-
- } stuff_t;
-
- error_trace_t dump;
-
- int main(void) {
+ int _stuff_add(rms_t *self, void *record) {
  
-     int timeout = 10;
-     char *path = ".";
-     rms_t *db = NULL;
-     int retries = 30;
-     int records = 100;
-     char *name = "test";
-     int recsize = sizeof(stuff_t);
-
-     db = rms_create(path, name, records, recsize, retries, timeout, &dump);
-
-     stat = rms_open(db);
-     stat = rms_get(db, recno, &stuff);
-     stat = rms_put(db, recno, &stuff);
-     stat = rms_close(db);
-
  }
  
+ int _stuff_build(rms_t *self, void *ondisk, void *record) {
+ 
+ }
+ 
+ int _stuff_del(rms_t *self, int recnum) {
+ 
+ }
+ 
+ int _stuff_extend(rms_t *self, int amount) {
+ 
+ }
+ 
+ int _stuff_init(rms_t *self) {
+ 
+ }
+ 
+ int _stuff_normalize(rms_t *self, void *ondisk, void *record) {
+ 
+ }
+ 
+ rms_t *stuff_create(char *path, char *name, int records, int recsize, int retries, int timeout, tracer_t *dump) {
+ 
+     int stat = OK;
+     rms_t *self = NULL;
+     item_list_t items[6];
+     
+     when_error_in {
+     
+         self = rms_create(path, name, records, recsize, retries, timeout, dump);
+         check_return(self);
+         
+         SET_ITEM(items[0], RMS_M_ADD, _stuff_add, 0, NULL);
+         SET_ITEM(items[1], RMS_M_BUILD, _stuff_build, 0, NULL);
+         SET_ITEM(items[2], RMS_M_DEL, _stuff_del, 0, NULL):
+         SET_ITEM(items[3], RMS_M_EXTEND, _stuff_extend, 0, NULL);
+         SET_ITEM(items[4], RMS_M_INIT, _stuff_init, 0, NULL);
+         SET_ITEM(items[5], RMS_M_NORMALIZE, _stuff_normalize, 0, NULL);
+         SET_ITEM(items[6], 0, 0, 0, 0);
+
+         stat = rms_override(self, items);
+         check_return(stat, self);
+
+         exit_when;
+
+     } use {
+     
+         object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+         clear_error();
+         
+     }
+
+     return self;
+
+ }
+
 =head1 DESCRIPTION
 
 This class overlays a structured format on a file, thus creating a

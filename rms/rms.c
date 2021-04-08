@@ -965,6 +965,7 @@ int _rms_first(rms_t *self, void *data, ssize_t *count) {
         stat = ERR;
         process_error(self);
 
+        if (ondisk) free(ondisk);
         if (self->locked) self->_unlock(self);
 
     } end_when;
@@ -1151,12 +1152,12 @@ int _rms_last(rms_t *self, void *data, ssize_t *count) {
 
 }
 
-int _rms_get(rms_t *self, int record, void *data) {
+int _rms_get(rms_t *self, int recnum, void *record) {
 
     int stat = OK;
     ssize_t count = 0;
     void *ondisk = NULL;
-    off_t offset = RMS_OFFSET(record, self->recsize);
+    off_t offset = RMS_OFFSET(recnum, self->recsize);
 
     when_error_in {
 
@@ -1178,7 +1179,7 @@ int _rms_get(rms_t *self, int record, void *data) {
 
         }
 
-        stat = self->_build(self, ondisk, data);
+        stat = self->_build(self, ondisk, record);
         check_return(stat, self);
 
         free(ondisk);
@@ -1199,13 +1200,13 @@ int _rms_get(rms_t *self, int record, void *data) {
 
 }
 
-int _rms_put(rms_t *self, int record, void *data) {
+int _rms_put(rms_t *self, int recnum, void *record) {
 
     int stat = OK;
     ssize_t count = 0;
     void *ondisk = NULL;
     ssize_t recsize = self->recsize;
-    off_t offset = RMS_OFFSET(record, self->recsize);
+    off_t offset = RMS_OFFSET(recnum, self->recsize);
 
     when_error_in {
 
@@ -1228,13 +1229,13 @@ int _rms_put(rms_t *self, int record, void *data) {
 
         }
 
-        stat = self->_normalize(self, ondisk, data);
+        stat = self->_normalize(self, ondisk, record);
         check_return(stat, self);
 
         stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
         check_return(stat, self->rmsdb);
 
-        stat = self->_write(self, data, &count);
+        stat = self->_write(self, record, &count);
         check_return(stat, self);
 
         stat = self->_unlock(self);
@@ -1313,7 +1314,7 @@ int _rms_unlock(rms_t *self) {
 
 }
 
-int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), int *record) {
+int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), int *recnum) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -1321,7 +1322,7 @@ int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), 
 
     when_error_in {
 
-        *record = 0;
+        *recnum = 0;
 
         errno = 0;
         ondisk = calloc(1, self->recsize);
@@ -1334,7 +1335,7 @@ int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), 
 
             if (compare(data, ondisk)) {
 
-                *record = self->record;
+                *recnum = self->record;
                 break;
 
             }
@@ -1511,56 +1512,17 @@ int _rms_write(rms_t *self, void *data, ssize_t *count) {
 
 }
 
-int _rms_add(rms_t *self, void *data) {
+int _rms_add(rms_t *self, void *record) {
 
-    /* this may need to be overridden, default is to append */
-    /* and not go past the allocated file size.             */
+    /* this needs to be overridden */
 
-    int stat = OK;
-    ssize_t count = 0;
-    ssize_t position = 0;
-
-    when_error_in {
-
-        stat = files_seek(self->rmsdb, 0, SEEK_END);
-        check_return(stat, self->rmsdb);
-
-        stat = files_tell(self->rmsdb, &position);
-        check_return(stat, self->rmsdb);
-
-        self->record = RMS_RECORD(position, self->recsize);
-
-        if (self->record > self->records) {
-
-            cause_error(EIO);
-
-        }
-
-        stat = files_write(self->rmsdb, data, self->recsize, &count);
-        check_return(stat, self->rmsdb);
-
-        if (count != self->recsize) {
-
-            cause_error(EIO);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
+    return OK;
 
 }
 
-int _rms_init(rms_t *self) {
-    
-    /* this may need to be overridden, default is to do nothing */
+int _rms_build(rms_t *self, void *ondisk, void *data) {
+
+    /* this needs to be overridden */
 
     return OK;
 
@@ -1582,15 +1544,15 @@ int _rms_extend(rms_t *self, int amount) {
 
 }
 
-int _rms_normalize(rms_t *self, void *ondisk, void *data) {
-
-    /* this need to be overridden */
+int _rms_init(rms_t *self) {
+    
+    /* this may need to be overridden, default is to do nothing */
 
     return OK;
 
 }
 
-int _rms_build(rms_t *self, void *ondisk, void *data) {
+int _rms_normalize(rms_t *self, void *ondisk, void *data) {
 
     /* this needs to be overridden */
 

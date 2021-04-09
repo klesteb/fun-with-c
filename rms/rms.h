@@ -19,6 +19,13 @@
 #include "que_util.h"
 #include "item_list.h"
 
+/*----------------------------------------------------------------*/
+/* klass macros                                                   */
+/*----------------------------------------------------------------*/
+
+#define RMS_OFFSET(n, s)   ((((n) - 1) * (s)))
+#define RMS_RECORD(n, s)   (((n) / (s)) + 1)
+
 /*-------------------------------------------------------------*/
 /* klass defination                                            */
 /*-------------------------------------------------------------*/
@@ -53,7 +60,7 @@ struct _rms_s {
     int (*_write)(rms_t *, void *, ssize_t *);
     int (*_normalize)(rms_t *, void *, void *);
     int (*_find)(rms_t *, void *, int, int (*compare)(void *, void *), off_t *);
-    int (*_search)(rms_t *, void *, int, int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *));
+    int (*_search)(rms_t *, void *, int, int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *), queue *);
 
     int size;
     int record;
@@ -102,6 +109,7 @@ struct _rms_s {
 #define RMS_M_FIND       18
 #define RMS_M_SEARCH     19
 #define RMS_M_RECORD     20
+#define RMS_M_INIT       21
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -122,7 +130,7 @@ extern int rms_record(rms_t *, off_t *);
 extern int rms_get(rms_t *, off_t, void *);
 extern int rms_put(rms_t *, off_t, void *);
 extern int rms_find(rms_t *, void *, int,  int (*compare)(void *, void *), off_t *);
-extern int rms_search(rms_t *, void *, int,  int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *));
+extern int rms_search(rms_t *, void *, int,  int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *), queue *);
 
 #endif
 

@@ -13,12 +13,8 @@
 #ifndef _USER_H
 #define _USER_H
 
-#include "files.h"
+#include "rms.h"
 #include "tracer.h"
-#include "object.h"
-#include "que_util.h"
-#include "datatypes.h"
-#include "item_list.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
@@ -116,107 +112,30 @@ typedef struct _user_profile_s {
 
 typedef struct _user_search_s {
     char username[LEN_NAME+1];      /* Name for messages & mail         */
-    int index;                      /* index of user record             */
+    off_t record;                   /* index of user record             */
     off_t profile;                  /* pointer to the user profile      */
 } user_search_t;
-
-/*-------------------------------------------------------------*/
-/* klass defination                                            */
-/*-------------------------------------------------------------*/
-
-typedef struct _user_s user_t;
-
-struct _user_s {
-    object_t parent_klass;
-    int (*ctor)(object_t *, item_list_t *);
-    int (*dtor)(object_t *);
-    int (*_compare)(user_t *, user_t *);
-    int (*_override)(user_t *, item_list_t *);
-
-    int (*_open)(user_t *);
-    int (*_close)(user_t *);
-    int (*_unlock)(user_t *);
-    int (*_del)(user_t *, int);
-    int (*_extend)(user_t *, int);
-    int (*_lock)(user_t *, off_t);
-    int (*_add)(user_t *, user_base_t *);
-    int (*_get_sequence)(user_t *, long *);
-    int (*_get)(user_t *, int, user_base_t *);
-    int (*_put)(user_t *, int, user_base_t *);
-    int (*_next)(user_t *, user_base_t *, ssize_t *);
-    int (*_prev)(user_t *, user_base_t *, ssize_t *);
-    int (*_last)(user_t *, user_base_t *, ssize_t *);
-    int (*_read)(user_t *, user_base_t *, ssize_t *);
-    int (*_write)(user_t *, user_base_t *, ssize_t *);
-    int (*_first)(user_t *, user_base_t *, ssize_t *);
-    int (*_build)(user_t *, user_base_t *, user_base_t *);
-    int (*_normalize)(user_t *, user_base_t *, user_base_t *);
-    int (*_find)(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), int *);
-    int (*_search)(user_t *, void *, int, int (*compare)(void *, int, user_base_t *), queue *);
-
-    int index;
-    int users;
-    int locked;
-    int retries;
-    int timeout;
-    char *path;
-    files_t *userdb;
-    files_t *sequence;
-    files_t *profiles;
-    tracer_t *trace;
-};
-
-/*-------------------------------------------------------------*/
-/* klass constants                                             */
-/*-------------------------------------------------------------*/
-
-#define USER(x) ((user_t *)(x))
-
-#define USER_K_PATH    1
-#define USER_K_RETRIES 2
-#define USER_K_TIMEOUT 3
-#define USER_K_TRACE   4
-#define USER_K_USERS   5
-
-#define USER_M_DESTRUCTOR 1
-#define USER_M_OPEN       2
-#define USER_M_CLOSE      3
-#define USER_M_UNLOCK     4
-#define USER_M_LOCK       5
-#define USER_M_GET        6
-#define USER_M_PUT        7
-#define USER_M_NEXT       8
-#define USER_M_PREV       9
-#define USER_M_LAST       10
-#define USER_M_WRITE      11
-#define USER_M_FIRST      12
-#define USER_M_BUILD      13
-#define USER_M_EXTEND     14
-#define USER_M_ADD        15
-#define USER_M_DEL        16
-#define USER_M_NORMALIZE  17
-#define USER_M_FIND       18
-#define USER_M_SEARCH     19
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern user_t *user_create(char *, int, int, int, tracer_t *);
-extern int user_destroy(user_t *);
-extern int user_compare(user_t *, user_t *);
-extern int user_override(user_t *, item_list_t *);
-extern char *user_version(user_t *);
+extern rms_t *user_create(char *, int, int, int, tracer_t *);
+extern char *user_version(rms_t *);
 
-extern int user_open(user_t *);
-extern int user_close(user_t *);
-extern int user_del(user_t *, int);
-extern int user_extend(user_t *, int);
-extern int user_add(user_t *, user_base_t *);
-extern int user_get(user_t *, int, user_base_t *);
-extern int user_put(user_t *, int, user_base_t *);
-extern int user_find(user_t *, void *, int,  int (*compare)(void *, int, user_base_t *), int *);
-extern int user_search(user_t *, void *, int,  int (*compare)(void *, int, user_base_t *), queue *);
+#define user_destroy(self) rms_destroy(self)
+#define user_compare(self, other) rms_compare(self, other)
+#define user_override(self, items) rms_override(self, items)
+
+#define user_open(self) rms_open(self)
+#define user_close(self) rms_close(self);
+#define user_del(self, recnum) rms_del(self, recnum)
+#define user_extend(self, amount) rms_extend(self, amount)
+#define user_add(self, user) rms_add(user, (void *)user)
+#define user_get(self, recnum, user) rms_get(self, recnum, (void *)user)
+#define user_put(self, recnum, user) rms_put(self, recnum, (void *)user)
+#define user_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)
+#define user_search(self, data, len, compare, capture, results) rms_search(self, data, len, compare, capture, results)
 
 #endif
 

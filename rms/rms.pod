@@ -9,6 +9,7 @@ rms - An ANSI C class to manage datastores
 
  #include "rms.h"
  #include "when.h"
+ #include "files.h"
  #include "stuff.h"
  #include "tracer.h"
  #include "item_list.h"
@@ -66,7 +67,7 @@ rms - An ANSI C class to manage datastores
          object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
          clear_error();
          
-     }
+     } ens_when;
 
      return self;
 
@@ -352,7 +353,7 @@ returned if nothing matches.
 
 =back
 
-=head2 I<int rms_search(rms_t *self, void *data, int len, int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *))>
+=head2 I<int rms_search(rms_t *self, void *data, int len, int(*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *), queue *)>
 
 This method will call the capture callback for each record that matches the 
 compare callback.

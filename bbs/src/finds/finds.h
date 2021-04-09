@@ -23,8 +23,8 @@ extern int find_rooms_networked(void *, int, room_base_t *);
 extern int find_room_by_number(void *, int, room_base_t *);
 extern int find_room_by_conference(void *, int, room_base_t *);
 
-extern int find_users_all(void *, int, user_base_t *);
-extern int find_user_by_name(void *, int, user_base_t *);
+extern int find_users_all(void *, user_base_t *);
+extern int find_user_by_name(void *, user_base_t *);
 
 extern int find_nodes_all(void *, int, node_base_t *);
 extern int find_node_by_number(void *, int, node_base_t *);

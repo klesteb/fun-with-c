@@ -12,10 +12,10 @@ LIBS = ../../libs/
 OLIBS = ../../../libs/
 INCLUDE = -I.. -I../jam -I../qwk -I../room -I../node -I../user -I../finds
 STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
-         $(LIBS)libnode.a $(LIBS)libfinds.a $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
+         $(LIBS)libnode.a $(LIBS)libfinds.a $(OLIBS)librms.a $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
          $(OLIBS)libfiles.a $(OLIBS)libobjects.a $(OLIBS)libcclibs.a \
          $(OLIBS)libgpl.a
-CFLAGS = -Wall -c $(INCLUDE) -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+CFLAGS = -Wall -c $(INCLUDE) -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
 LFLAGS =
 LOPTS = -o 
 #

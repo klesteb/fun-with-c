@@ -15,7 +15,7 @@
 #include "bitops.h"
 #include "finds.h"
 
-int find_users_all(void *data, int len, user_base_t *user) {
+int find_users_all(void *data, user_base_t *user) {
 
     int stat = TRUE;
 
@@ -30,7 +30,7 @@ int find_users_all(void *data, int len, user_base_t *user) {
 
 }
 
-int find_user_by_name(void *data, int len, user_base_t *user) {
+int find_user_by_name(void *data, user_base_t *user) {
 
     int stat = FALSE;
     char username[LEN_NAME+1];

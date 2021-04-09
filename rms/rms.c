@@ -54,7 +54,7 @@ int _rms_write(rms_t *, void *, ssize_t *);
 int _rms_first(rms_t *, void *, ssize_t *);
 int _rms_normalize(rms_t *, void *, void *);
 int _rms_find(rms_t *, void *, int, int (*compare)(void *, void *), off_t *);
-int _rms_search(rms_t *, void *, int, int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *));
+int _rms_search(rms_t *, void *, int, int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *), queue *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -66,13 +66,6 @@ declare_klass(RMS_KLASS) {
     .ctor = _rms_ctor,
     .dtor = _rms_dtor,
 };
-
-/*----------------------------------------------------------------*/
-/* klass macros                                                   */
-/*----------------------------------------------------------------*/
-
-#define RMS_OFFSET(n, s)   ((((n) - 1) * (s)))
-#define RMS_RECORD(n, s)   (((n) / (s)) + 1)
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
@@ -439,7 +432,7 @@ int rms_find(rms_t *self, void *data, int len,  int (*compare)(void *, void *), 
 
 }
 
-int rms_search(rms_t *self, void *data, int len,  int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *)) {
+int rms_search(rms_t *self, void *data, int len,  int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *), queue *results) {
 
     int stat = OK;
 
@@ -451,7 +444,7 @@ int rms_search(rms_t *self, void *data, int len,  int (*compare)(void *, void *)
 
         }
 
-        stat = self->_search(self, data, len, compare, capture);
+        stat = self->_search(self, data, len, compare, capture, results);
         check_return(stat, self);
 
         exit_when;
@@ -753,6 +746,11 @@ int _rms_override(rms_t *self, item_list_t *items) {
                 }
                 case RMS_M_RECORD: {
                     self->_record = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case RMS_M_INIT: {
+                    self->_init = items[x].buffer_address;
                     stat = OK;
                     break;
                 }
@@ -1162,6 +1160,10 @@ int _rms_get(rms_t *self, off_t recnum, void *record) {
 
     when_error_in {
 
+        errno = 0;
+        ondisk = calloc(1, self->recsize);
+        if (ondisk == NULL) cause_error(errno);
+
         stat = files_seek(self->rmsdb, offset, SEEK_SET);
         check_return(stat, self->rmsdb);
 
@@ -1363,12 +1365,11 @@ int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), 
 
 }
 
-int _rms_search(rms_t *self, void *data, int len, int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *)) {
+int _rms_search(rms_t *self, void *data, int len, int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *results), queue *results) {
 
     int stat = OK;
     ssize_t count = 0;
     void *ondisk = NULL;
-    error_trace_t error;
 
     when_error_in {
 
@@ -1383,8 +1384,8 @@ int _rms_search(rms_t *self, void *data, int len, int (*compare)(void *, void *)
 
             if (compare(data, ondisk)) {
 
-                stat = capture(ondisk, &error);
-                check_status2(stat, OK, error)
+                stat = capture(self, ondisk, results);
+                check_return(stat, self);
 
             }
 

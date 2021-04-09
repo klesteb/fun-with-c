@@ -9,7 +9,7 @@
 #include "tracer.h"
 #include "misc/misc.h"
 
-user_t *users;
+rms_t *users;
 tracer_t *dump;
 errors_t *errs;
 

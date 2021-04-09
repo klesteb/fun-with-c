@@ -10,9 +10,44 @@
 #include "tracer.h"
 #include "misc/misc.h"
 
-user_t *users;
+rms_t *users;
 tracer_t *dump;
 errors_t *errs;
+
+int capture(rms_t *self, void *data, queue *results) {
+
+    int stat = OK;
+    user_base_t *ondisk = NULL;
+    user_search_t *result = NULL;
+
+    when_error_in {
+
+        ondisk = (user_base_t *)data;
+
+        errno = 0;
+        result = calloc(1, sizeof(user_search_t));
+        if (result == NULL) cause_error(errno);
+
+        strncpy(result->username, ondisk->username, LEN_NAME);
+        result->record = self->record;
+        result->profile = ondisk->profile;
+
+        stat = que_push_head(results, result);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+    
+    return stat;
+
+}
 
 int display(user_base_t *user) {
 
@@ -90,14 +125,14 @@ int main(int argc, char **argv) {
         stat = user_open(users);
         check_return(stat, users);
 
-        stat = user_search(users, NULL, 0, find_users_all, &results);
+        stat = user_search(users, NULL, 0, find_users_all, capture, &results);
         check_return(stat, users);
 
         printf("\nfound %d users\n", que_size(&results));
 
         while ((result = que_pop_head(&results))) {
 
-            stat = user_get(users, result->index, &ondisk);
+            stat = user_get(users, result->record, &ondisk);
             check_return(stat, users);
 
             display(&ondisk);

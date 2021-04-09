@@ -45,6 +45,7 @@ user - An ANSI C class to manage the user database
      int stat = OK;
      int timeout = 1;
      int retries = 30;
+     int records = 256;
      char *path = "../../data/";
 
      when_error_in {
@@ -55,7 +56,7 @@ user - An ANSI C class to manage the user database
          dump = tracer_create(errs);
          check_creation(dump);
 
-         users = user_create(path, 256, retries, timeout, dump);
+         users = user_create(path, records, retries, timeout, dump);
          check_creation(users);
 
          exit_when;
@@ -145,10 +146,9 @@ The database consists of these three files:
 
  users.dat    - the actual data
  users.seq    - where the last user number is stored
- profiles.dat - where the optional user profiles are stored
 
 This library is a class. It is extensible and overridable. It also makes 
-use of the L<errors(3)> and L<tracer(3)> classes for error handling and 
+use of the L<rms(3)>, L<errors(3)> and L<tracer(3)> classes for error handling and 
 reporting. 
 
 The files user.c and user.h define the class. 
@@ -326,7 +326,7 @@ A pointer to a user_base_t type.
 
 =back
 
-=head2 I<int user_find(user_t *self, void *data, int len,  int (*compare)(void *, int, user_base_t *), int *index)>
+=head2 I<int user_find(user_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), off_t *index)>
 
 This method will return the first user that matches the comparison.
 
@@ -356,7 +356,7 @@ if nothing matches.
 
 =back
 
-=head2 I<int user_search(user_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), queue *results)>
+=head2 I<int user_search(user_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), int (*capture)(user_base_t *, error_trace_t *))>
 
 This method will return all the users that matches the comparison.
 

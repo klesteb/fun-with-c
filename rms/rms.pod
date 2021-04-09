@@ -10,6 +10,7 @@ rms - An ANSI C class to manage datastores
  #include "rms.h"
  #include "when.h"
  #include "stuff.h"
+ #include "tracer.h"
  #include "item_list.h"
 
  int _stuff_add(rms_t *self, void *record) {
@@ -20,7 +21,7 @@ rms - An ANSI C class to manage datastores
  
  }
  
- int _stuff_del(rms_t *self, int recnum) {
+ int _stuff_del(rms_t *self, off_t recnum) {
  
  }
  
@@ -320,7 +321,7 @@ A pointer to the updated record.
 
 =back
 
-=head2 I<int rms_find(rms_t *self, void *data, int len,  int (*compare)(void *, void *), int *recnum)>
+=head2 I<int rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), off_t *recnum)>
 
 This method will return the record number of the first record that matches 
 the comparison.
@@ -428,6 +429,10 @@ So, just a play on words.
 =item L<object(3)>
 
 =item L<files(3)>
+
+=item L<tracer(3)>
+
+=item L<errors(3)>
 
 =back
 

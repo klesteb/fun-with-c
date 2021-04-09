@@ -37,13 +37,13 @@ int _rms_init(rms_t *);
 int _rms_open(rms_t *);
 int _rms_close(rms_t *);
 int _rms_unlock(rms_t *);
-int _rms_del(rms_t *, int);
+int _rms_del(rms_t *, off_t);
 int _rms_extend(rms_t *, int);
 int _rms_lock(rms_t *, off_t);
 int _rms_add(rms_t *, void *);
 int _rms_record(rms_t *, off_t *);
-int _rms_get(rms_t *, int, void *);
-int _rms_put(rms_t *, int, void *);
+int _rms_get(rms_t *, off_t, void *);
+int _rms_put(rms_t *, off_t, void *);
 int _rms_get_sequence(rms_t *, long *);
 int _rms_build(rms_t *, void *, void *);
 int _rms_next(rms_t *, void *, ssize_t *);
@@ -53,7 +53,7 @@ int _rms_read(rms_t *, void *, ssize_t *);
 int _rms_write(rms_t *, void *, ssize_t *);
 int _rms_first(rms_t *, void *, ssize_t *);
 int _rms_normalize(rms_t *, void *, void *);
-int _rms_find(rms_t *, void *, int, int (*compare)(void *, void *), int *);
+int _rms_find(rms_t *, void *, int, int (*compare)(void *, void *), off_t *);
 int _rms_search(rms_t *, void *, int, int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *));
 
 /*----------------------------------------------------------------*/
@@ -297,19 +297,19 @@ int rms_add(rms_t *self, void *data) {
 
 }
 
-int rms_del(rms_t *self, int record) {
+int rms_del(rms_t *self, off_t recnum) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || ((record < 0) && (record > self->records))) {
+        if ((self == NULL) || ((recnum < 0) && (recnum > self->records))) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_del(self, record);
+        stat = self->_del(self, recnum);
         check_return(stat, self);
 
         exit_when;
@@ -325,49 +325,20 @@ int rms_del(rms_t *self, int record) {
 
 }
 
-int rms_get(rms_t *self, int record, void *data) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self == NULL) || (data == NULL) ||
-            ((record < 0) && (record > self->records))) {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        stat = self->_get(self, record, data);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int rms_put(rms_t *self, int record, void *data) {
+int rms_get(rms_t *self, off_t recnum, void *data) {
 
     int stat = OK;
 
     when_error_in {
 
         if ((self == NULL) || (data == NULL) ||
-            ((record < 0) && (record > self->records))) {
+            ((recnum < 0) && (recnum > self->records))) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_put(self, record, data);
+        stat = self->_get(self, recnum, data);
         check_return(stat, self);
 
         exit_when;
@@ -383,19 +354,20 @@ int rms_put(rms_t *self, int record, void *data) {
 
 }
 
-int rms_record(rms_t *self, off_t *record) {
+int rms_put(rms_t *self, off_t recnum, void *data) {
 
     int stat = OK;
 
     when_error_in {
 
-        if ((self == NULL) || (record == NULL)) {
+        if ((self == NULL) || (data == NULL) ||
+            ((recnum < 0) && (recnum > self->records))) {
 
             cause_error(E_INVPARM);
 
         }
 
-        stat = self->_record(self, record);
+        stat = self->_put(self, recnum, data);
         check_return(stat, self);
 
         exit_when;
@@ -411,7 +383,35 @@ int rms_record(rms_t *self, off_t *record) {
 
 }
 
-int rms_find(rms_t *self, void *data, int len,  int (*compare)(void *, void *), int *record) {
+int rms_record(rms_t *self, off_t *recnum) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (recnum == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_record(self, recnum);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int rms_find(rms_t *self, void *data, int len,  int (*compare)(void *, void *), off_t *recnum) {
 
     int stat = OK;
 
@@ -423,7 +423,7 @@ int rms_find(rms_t *self, void *data, int len,  int (*compare)(void *, void *), 
 
         }
 
-        stat = self->_find(self, data, len, compare, record);
+        stat = self->_find(self, data, len, compare, recnum);
         check_return(stat, self);
 
         exit_when;
@@ -913,9 +913,10 @@ int _rms_close(rms_t *self) {
 
 }
 
-int _rms_record(rms_t *self, off_t *record) {
-    
-    *record = self->record;
+int _rms_record(rms_t *self, off_t *recnum) {
+
+    *recnum = self->record;
+
     return OK;
 
 }
@@ -1152,7 +1153,7 @@ int _rms_last(rms_t *self, void *data, ssize_t *count) {
 
 }
 
-int _rms_get(rms_t *self, int recnum, void *record) {
+int _rms_get(rms_t *self, off_t recnum, void *record) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -1200,7 +1201,7 @@ int _rms_get(rms_t *self, int recnum, void *record) {
 
 }
 
-int _rms_put(rms_t *self, int recnum, void *record) {
+int _rms_put(rms_t *self, off_t recnum, void *record) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -1314,7 +1315,7 @@ int _rms_unlock(rms_t *self) {
 
 }
 
-int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), int *recnum) {
+int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), off_t *recnum) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -1528,7 +1529,7 @@ int _rms_build(rms_t *self, void *ondisk, void *data) {
 
 }
                             
-int _rms_del(rms_t *self, int record) {
+int _rms_del(rms_t *self, off_t recnum) {
 
     /* this needs to be overriden */
 

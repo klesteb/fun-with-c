@@ -36,13 +36,13 @@ struct _rms_s {
     int (*_open)(rms_t *);
     int (*_close)(rms_t *);
     int (*_unlock)(rms_t *);
-    int (*_del)(rms_t *, int);
+    int (*_del)(rms_t *, off_t);
     int (*_add)(rms_t *, void *);
     int (*_extend)(rms_t *, int);
     int (*_lock)(rms_t *, off_t);
     int (*_record)(rms_t *, off_t *);
-    int (*_get)(rms_t *, int, void *);
-    int (*_put)(rms_t *, int, void *);
+    int (*_get)(rms_t *, off_t, void *);
+    int (*_put)(rms_t *, off_t, void *);
     int (*_get_sequence)(rms_t *, long *);
     int (*_build)(rms_t *, void *, void *);
     int (*_read)(rms_t *, void *, ssize_t *);
@@ -52,7 +52,7 @@ struct _rms_s {
     int (*_first)(rms_t *, void *, ssize_t *);
     int (*_write)(rms_t *, void *, ssize_t *);
     int (*_normalize)(rms_t *, void *, void *);
-    int (*_find)(rms_t *, void *, int, int (*compare)(void *, void *), int *);
+    int (*_find)(rms_t *, void *, int, int (*compare)(void *, void *), off_t *);
     int (*_search)(rms_t *, void *, int, int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *));
 
     int size;
@@ -115,13 +115,13 @@ extern char *rms_version(rms_t *);
 
 extern int rms_open(rms_t *);
 extern int rms_close(rms_t *);
-extern int rms_del(rms_t *, int);
+extern int rms_del(rms_t *, off_t);
 extern int rms_add(rms_t *, void *);
 extern int rms_extend(rms_t *, int);
 extern int rms_record(rms_t *, off_t *);
-extern int rms_get(rms_t *, int, void *);
-extern int rms_put(rms_t *, int, void *);
-extern int rms_find(rms_t *, void *, int,  int (*compare)(void *, void *), int *);
+extern int rms_get(rms_t *, off_t, void *);
+extern int rms_put(rms_t *, off_t, void *);
+extern int rms_find(rms_t *, void *, int,  int (*compare)(void *, void *), off_t *);
 extern int rms_search(rms_t *, void *, int,  int (*compare)(void *, void *), int (*capture)(void *, error_trace_t *));
 
 #endif

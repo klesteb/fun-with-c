@@ -40,12 +40,12 @@ rms - An ANSI C class to manage datastores
  
      int stat = OK;
      rms_t *self = NULL;
-     item_list_t items[6];
+     item_list_t items[7];
      
      when_error_in {
      
          self = rms_create(path, name, records, recsize, retries, timeout, dump);
-         check_return(self);
+         check_creation(self);
          
          SET_ITEM(items[0], RMS_M_ADD, _stuff_add, 0, NULL);
          SET_ITEM(items[1], RMS_M_BUILD, _stuff_build, 0, NULL);
@@ -232,7 +232,23 @@ A pointer to a rms_t object.
 
 =back
 
-=head2 I<int rms_add(rms_t *self, void *data)>
+=head2 I<int rms_record(rms_t *self, off_t *recnum)>
+
+This method retrieves the current record number.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<recnum>
+
+A pointer to a where to write the current record number.
+
+=back
+
+=head2 I<int rms_add(rms_t *self, void *record)>
 
 This method adds a record to the datastore. 
 
@@ -242,7 +258,7 @@ This method adds a record to the datastore.
 
 A pointer to a rms_t object.
 
-=item B<user>
+=item B<record>
 
 A pointer to a record to write to the datastore.
 

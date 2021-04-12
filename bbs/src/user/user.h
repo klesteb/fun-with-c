@@ -121,6 +121,7 @@ typedef struct _user_search_s {
 /*-------------------------------------------------------------*/
 
 extern rms_t *user_create(char *, int, int, int, tracer_t *);
+extern int user_capture(rms_t *, void *, queue *);
 extern char *user_version(rms_t *);
 
 #define user_destroy(self) rms_destroy(self)

@@ -390,6 +390,40 @@ int _user_put(rms_t *self, off_t recnum, user_base_t *user) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
+int user_capture(rms_t *self, void *data, queue *results) {
+
+    int stat = OK;
+    user_base_t *ondisk = NULL;
+    user_search_t *result = NULL;
+
+    when_error_in {
+
+        ondisk = (user_base_t *)data;
+
+        errno = 0;
+        result = calloc(1, sizeof(user_search_t));
+        if (result == NULL) cause_error(errno);
+
+        strncpy(result->username, ondisk->username, LEN_NAME);
+        result->record = self->record;
+        result->profile = ondisk->profile;
+
+        stat = que_push_head(results, result);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+    
+    return stat;
+
+}
+
 char *user_version(rms_t *self) {
 
     char *version = VERSION;
@@ -427,8 +461,7 @@ rms_t *user_create(char *path, int records, int retries, int timeout, tracer_t *
 
     } use {
 
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 

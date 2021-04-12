@@ -13,13 +13,10 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "rms.h"
 #include "node.h"
 #include "when.h"
 #include "files.h"
 #include "object.h"
-#include "tracer.h"
-#include "fnm_util.h"
 #include "error_codes.h"
 
 require_klass(RMS_KLASS);
@@ -168,6 +165,40 @@ int _node_put(rms_t *self, off_t record, node_base_t *node) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
+int node_capture(rms_t *self, void *data, queue *results) {
+
+    int stat = OK;
+    node_base_t *ondisk = NULL;
+    node_search_t *result = NULL;
+
+    when_error_in {
+
+        ondisk = (node_base_t *)data;
+
+        errno = 0;
+        result = calloc(1, sizeof(node_search_t));
+        if (result == NULL) cause_error(errno);
+
+        result->nodenum = ondisk->nodenum;
+        result->useron  = ondisk->useron;
+        result->record  = self->record;
+
+        stat = que_push_head(results, result);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 char *node_version(rms_t *self) {
 
     char *version = VERSION;
@@ -202,8 +233,7 @@ rms_t *node_create(char *path, int records, int retries, int timeout, tracer_t *
 
     } use {
 
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 

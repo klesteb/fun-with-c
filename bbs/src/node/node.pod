@@ -17,7 +17,7 @@ node - An ANSI C class to manage the node database
  #include "tracer.h"
  #include "misc/misc.h"
 
- node_t *nodes;
+ rms_t *nodes;
  tracer_t *dump;
  errors_t *errs;
 
@@ -91,7 +91,7 @@ node - An ANSI C class to manage the node database
          stat = node_open(nodes);
          check_return(stat, nodes);
 
-         stat = node_search(nodes, NULL, 0, find_all, &results);
+         stat = node_search(nodes, NULL, 0, find_all, node_capture, &results);
          check_return(stat, nodes);
 
          while ((result = que_pop_head(&results))) {
@@ -132,15 +132,17 @@ node - An ANSI C class to manage the node database
 
 =head1 DESCRIPTION
 
-This class implements the node database. This is used to keep track
-of what individual nodes are doing. This is a fixed size file. The
-number of nodes that are supported are defined when the database is
-initially created. You need to delete the database for any size
-changes to take effect.
+This class implements the node database. This is an extension of the rms
+class.
+
+This is used to keep track of what individual nodes are doing. The number 
+of nodes that are supported are defined when the database is initially 
+created. You need to delete the database for any size changes to take 
+effect.
 
 This library is a class. It is extensible and overridable. It also makes 
-use of the L<errors(3)> and L<tracer(3)> classes for error handling and 
-reporting. 
+use of the L<rms(3)>, L<errors(3)> and L<tracer(3)> classes for error 
+handling and reporting. 
 
 The files node.c and node.h define the class. 
 
@@ -158,11 +160,11 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<node_t *node_create(NULL)>
+=head2 I<rms_t *node_create(NULL)>
 
 This method initializes the class. 
 
-=head2 I<int node_destroy(node_t *self)>
+=head2 I<int node_destroy(rms_t *self)>
 
 This destroys the object. 
 
@@ -170,11 +172,11 @@ This destroys the object.
 
 =item B<self>
 
-A pointer to the node_t object.
+A pointer to the rms_t object.
 
 =back
 
-=head2 I<int node_override(node_t *self, item_list_t *items)>
+=head2 I<int node_override(rms_t *self, item_list_t *items)>
 
 This method allows you to override methods. 
 
@@ -182,7 +184,7 @@ This method allows you to override methods.
 
 =item B<self>
 
-A pointer to the node_t object.
+A pointer to the rms_t object.
 
 =item B<items>
 
@@ -190,23 +192,23 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int node_compare(node_t *this, node_t *that)>
+=head2 I<int node_compare(rms_t *this, rms_t *that)>
 
-This method allows you to compare one node_t object to another. 
+This method allows you to compare one rms_t object to another. 
 
 =over 4
 
 =item B<this>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =item B<that>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =back
 
-=head2 I<char *node_version(node_t *self)>
+=head2 I<char *node_version(rms_t *self)>
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -215,11 +217,11 @@ follows the guidelines from L<semver.org|https://semver.org/>.
 
 =item B<self>
 
-A pointer to the node_t object.
+A pointer to the rms_t object.
 
 =back
 
-=head2 I<int node_open(node_t *self)>
+=head2 I<int node_open(rms_t *self)>
 
 This method allows access to the nodes. 
 
@@ -227,11 +229,11 @@ This method allows access to the nodes.
 
 =item B<self>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =back
 
-=head2 I<int node_close(node_t *self)>
+=head2 I<int node_close(rms_t *self)>
 
 This method closes access to the nodes.
 
@@ -239,11 +241,11 @@ This method closes access to the nodes.
 
 =item B<self>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =back
 
-=head2 I<int node_get(node_t *self, int index, node_base_t *node)>
+=head2 I<int node_get(rms_t *self, int index, node_base_t *node)>
 
 This method gets the indicated node.
 
@@ -251,7 +253,7 @@ This method gets the indicated node.
 
 =item B<self>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =item B<index>
 
@@ -263,7 +265,7 @@ A pointer to a node_base_t type to write the data too.
 
 =back
 
-=head2 I<int node_put(node_t *self, int index, node_base_t *node)>
+=head2 I<int node_put(rms_t *self, int index, node_base_t *node)>
 
 This method updates a node.
 
@@ -271,7 +273,7 @@ This method updates a node.
 
 =item B<self>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =item B<index>
 
@@ -283,48 +285,7 @@ A pointer to a node_base_t type.
 
 =back
 
-=head2 I<int node_put_message(node_t *self, char *buffer, long *msgnum)>
-
-This method sends a message to another node.
-
-=over 4
-
-=item B<self>
-
-A pointer to a node_t object.
-
-=item B<buffer>
-
-A pointer to the message.
-
-=item B<msgnum>
-
-A pointer to write the message number too.
-
-=back
-
-=head2 I<int node_get_message(node_t *self, long msgnum, char **buffer)>
-
-This method retrieves a message from another node.
-
-=over 4
-
-=item B<self>
-
-A pointer to a node_t object.
-
-=item B<msgnum>
-
-The message number to retrieve.
-
-=item B<buffer>
-
-A pointer to write the message too. This buffer will 
-need to be freed.
-
-=back
-
-=head2 I<int node_find(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), int *index)>
+=head2 I<int node_find(rms_t *self, void *data, int len, int (*compare)(void *, node_base_t *), off_t *recnum)>
 
 This method will return the first node that matches the comparison.
 
@@ -332,7 +293,7 @@ This method will return the first node that matches the comparison.
 
 =item B<self>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =item B<data>
 
@@ -347,22 +308,22 @@ The length of the data.
 A comparison function used to match the data to a node_base_t type.
 This should return TRUE on match, otherwise FALSE.
 
-=item B<index>
+=item B<recnum>
 
-A pointer to write the index of the node that matches. A 0 is returned
+A pointer to write the record number of the node that matches. A 0 is returned
 if nothing matches.
 
 =back
 
-=head2 I<int node_search(node_t *self, void *data, int len, int (*compare)(void *, int, node_base_t *), queue *results)>
+=head2 I<int node_search(rms_t *self, void *data, int len, int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *), queue *)>
 
-This method will return all the nodes that matches the comparison.
+This method will return all the users that matches the comparison.
 
 =over 4
 
 =item B<self>
 
-A pointer to a node_t object.
+A pointer to a rms_t object.
 
 =item B<data>
 
@@ -377,6 +338,11 @@ The length of the data.
 A comparison function used to match the data to a node_base_t type.
 This should return TRUE on match, otherwise FALSE.
 
+=item B<capture> 
+
+A capture function that is used to retrieve the matching records. It
+should return OK on success or ERR if not.
+
 =item B<results>
 
 A pointer to write the list of node_search_t types. This list may be empty if 
@@ -384,9 +350,30 @@ nothing matches.
 
 =back
 
+=head2 I<int node_capture(rms_t *self, void *data, queue *results)>
+
+A default capture function. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item  B<data>
+
+A pointer to a node_base_t type.
+
+=item B<results>
+
+A queue to write the results too. These would consist of node_search_t
+types.
+
+=back
+
 =head1 RETURNS
 
-The method node_create() returns a pointer to a node_t object. 
+The method node_create() returns a pointer to a rms_t object. 
 All other methods return either OK on success or ERR on failure. The 
 extended error description can be returned with object_get_error().
 
@@ -419,6 +406,8 @@ Builds the module and provides a shared library.
 =over 4
 
 =item L<object(3)>
+
+=item L<rms(3)>
 
 =back
 

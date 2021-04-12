@@ -171,8 +171,10 @@ user - An ANSI C class to manage the user database
 
 =head1 DESCRIPTION
 
-This class implements the user database. It is an extension of the rms
-class. Records that are deleted are not removed from the database. They 
+This class implements the user database. This is an extension of the rms
+class.
+
+Records that are deleted are not removed from the database. They 
 are marked as deleted. They are not reused. This class doesn't deal with 
 authentication. It is used to keep track of the users system usage and 
 what authorizations they have within the bbs system.
@@ -361,7 +363,7 @@ A pointer to a user_base_t type.
 
 =back
 
-=head2 I<int user_find(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), off_t *index)>
+=head2 I<int user_find(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), off_t *recnum)>
 
 This method will return the first user that matches the comparison.
 
@@ -384,14 +386,14 @@ The length of the data.
 A comparison function used to match the data to a user_base_t type.
 This should return TRUE on match, otherwise FALSE.
 
-=item B<index>
+=item B<recnum>
 
-A pointer to write the index of the user that matches. A 0 is returned
+A pointer to write the record number of the user that matches. A 0 is returned
 if nothing matches.
 
 =back
 
-=head2 I<int user_search(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), int (*capture)(rms_t *, user_base_t *, queue *), queue *)>
+=head2 I<int user_search(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), int (*capture)(rms_t *, void *, queue *), queue *)>
 
 This method will return all the users that matches the comparison.
 
@@ -423,6 +425,27 @@ should return OK on success or ERR if not.
 
 A pointer to write the list of user_search_t types. This list may be empty if 
 nothing matches.
+
+=back
+
+=head2 I<int user_capture(rms_t *self, void *data, queue *results)>
+
+A default capture function. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item  B<data>
+
+A pointer to a user_base_t type.
+
+=item B<results>
+
+A queue to write the results too. These would consist of user_search_t
+types.
 
 =back
 

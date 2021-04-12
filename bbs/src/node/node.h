@@ -72,6 +72,7 @@ typedef struct _node_search_s {
 /*-------------------------------------------------------------*/
 
 extern rms_t *node_create(char *, int, int, int, tracer_t *);
+extern int node_capture(rms_t *, void *, queue *);
 extern char *node_version(rms_t *);
 
 #define node_destroy(self) rms_destroy(self)

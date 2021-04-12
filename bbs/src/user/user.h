@@ -131,7 +131,7 @@ extern char *user_version(rms_t *);
 #define user_close(self) rms_close(self);
 #define user_del(self, recnum) rms_del(self, recnum)
 #define user_extend(self, amount) rms_extend(self, amount)
-#define user_add(self, user) rms_add(user, (void *)user)
+#define user_add(self, user) rms_add(self, (void *)user)
 #define user_get(self, recnum, user) rms_get(self, recnum, (void *)user)
 #define user_put(self, recnum, user) rms_put(self, recnum, (void *)user)
 #define user_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)

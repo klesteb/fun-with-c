@@ -5,13 +5,12 @@
 #include "node.h"
 #include "when.h"
 #include "finds.h"
-#include "files.h"
 #include "errors.h"
 #include "tracer.h"
 #include "que_util.h"
 #include "misc/misc.h"
 
-node_t *nodes;
+rms_t *nodes;
 tracer_t *dump;
 errors_t *errs;
 
@@ -79,7 +78,7 @@ int main(int argc, char **argv) {
 
     int node = 1;
     int stat = OK;
-    int index = 0;
+    off_t record = 0;
     node_base_t temp;
 
     when_error_in {
@@ -90,12 +89,12 @@ int main(int argc, char **argv) {
         stat = node_open(nodes);
         check_return(stat, nodes);
 
-        stat = node_find(nodes, &node, sizeof(node), find_node_by_number, &index);
+        stat = node_find(nodes, &node, sizeof(node), find_node_by_number, &record);
         check_return(stat, nodes);
 
-        if (index > 0) {
+        if (record > 0) {
 
-            stat = node_get(nodes, index, &temp);
+            stat = node_get(nodes, record, &temp);
             check_return(stat, nodes);
 
             display(&temp);

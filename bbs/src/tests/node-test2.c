@@ -5,15 +5,49 @@
 #include "node.h"
 #include "when.h"
 #include "finds.h"
-#include "files.h"
 #include "errors.h"
 #include "tracer.h"
 #include "que_util.h"
 #include "misc/misc.h"
 
-node_t *nodes;
+rms_t *nodes;
 tracer_t *dump;
 errors_t *errs;
+
+int capture(rms_t *self, void *data, queue *results) {
+
+    int stat = OK;
+    node_base_t *ondisk = NULL;
+    node_search_t *result = NULL;
+
+    when_error_in {
+
+        ondisk = (node_base_t *)data;
+
+        errno = 0;
+        result = calloc(1, sizeof(node_search_t));
+        if (result == NULL) cause_error(errno);
+
+        result->nodenum = ondisk->nodenum;
+        result->useron  = ondisk->useron;
+        result->record  = self->record;
+
+        stat = que_push_head(results, result);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+    
+    return stat;
+
+}
 
 int display(node_base_t *temp) {
 
@@ -93,14 +127,14 @@ int main(int argc, char **argv) {
         stat = node_open(nodes);
         check_return(stat, nodes);
 
-        stat = node_search(nodes, NULL, 0, find_nodes_all, &results);
+        stat = node_search(nodes, NULL, 0, find_nodes_all, capture, &results);
         check_return(stat, nodes);
 
         printf("Found %d nodes\n", que_size(&results));
 
-        while (result = que_pop_head(&results)) {
+        while ((result = que_pop_head(&results))) {
 
-            stat = node_get(nodes, result->index, &temp);
+            stat = node_get(nodes, result->record, &temp);
             check_return(stat, nodes);
 
             display(&temp);

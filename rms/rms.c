@@ -1365,7 +1365,7 @@ int _rms_find(rms_t *self, void *data, int len, int (*compare)(void *, void *), 
 
 }
 
-int _rms_search(rms_t *self, void *data, int len, int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *results), queue *results) {
+int _rms_search(rms_t *self, void *data, int len, int (*compare)(void *, void *), int (*capture)(rms_t *, void *, queue *), queue *results) {
 
     int stat = OK;
     ssize_t count = 0;

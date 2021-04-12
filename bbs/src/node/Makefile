@@ -16,12 +16,12 @@ LIBR = ar rs
 LIBS = ../../libs/
 WORKING = $(shell pwd)
 STATIC = libnode.a
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I.. -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I.. -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 #
-OLBS = $(STATIC) ../../../libs/libtracer.a ../../../libs/liberrors.a ../../../libs/libfiles.a ../../../libs/libobjects.a ../../../libs/libcclibs.a ../../../libs/libgpl.a 
+OLBS = $(STATIC) ../../../libs/libtracer.a ../../../libs/liberrors.a ../../../libs/librms.a../../../libs/libfiles.a  ../../../libs/libobjects.a ../../../libs/libcclibs.a ../../../libs/libgpl.a 
 #
 INCS = node.h 
 #

@@ -13,12 +13,9 @@
 #ifndef _NODE_H
 #define _NODE_H
 
-#include "files.h"
+#include "rms.h"
 #include "tracer.h"
-#include "object.h"
-#include "que_util.h"
 #include "datatypes.h"
-#include "item_list.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
@@ -67,100 +64,29 @@ typedef struct _node_base_s {   /* Node information kept in node.dat */
 typedef struct _node_search_s {
     ushort useron;              /* User on Node                      */
     long   nodenum;             /* Node number                       */
-    int    index;               /* Index of record                   */
+    off_t  record;              /* Index of record                   */
 } node_search_t;
-
-/*-------------------------------------------------------------*/
-/* klass defination                                            */
-/*-------------------------------------------------------------*/
-
-typedef struct _node_s node_t;
-
-struct _node_s {
-    object_t parent_klass;
-    int (*ctor)(object_t *, item_list_t *);
-    int (*dtor)(object_t *);
-    int (*_compare)(node_t *, node_t *);
-    int (*_override)(node_t *, item_list_t *);
-
-    int (*_open)(node_t *);
-    int (*_close)(node_t *);
-    int (*_unlock)(node_t *);
-    int (*_lock)(node_t *, off_t);
-    int (*_extend)(node_t *, int);
-    int (*_get_sequence)(node_t *, long *);
-    int (*_get)(node_t *, int, node_base_t *);
-    int (*_put)(node_t *, int, node_base_t *);
-    int (*_next)(node_t *, node_base_t *, ssize_t *);
-    int (*_prev)(node_t *, node_base_t *, ssize_t *);
-    int (*_last)(node_t *, node_base_t *, ssize_t *);
-    int (*_read)(node_t *, node_base_t *, ssize_t *);
-    int (*_write)(node_t *, node_base_t *, ssize_t *);
-    int (*_first)(node_t *, node_base_t *, ssize_t *);
-    int (*_build)(node_t *, node_base_t *, node_base_t *);
-    int (*_normalize)(node_t *, node_base_t *, node_base_t *);
-    int (*_find)(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), int *);
-    int (*_search)(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), queue *);
-
-    int index;
-    int nodes;
-    int locked;
-    int retries;
-    int timeout;
-    char *path;
-    files_t *nodedb;
-    files_t *sequence;
-    tracer_t *trace;
-};
-
-/*-------------------------------------------------------------*/
-/* klass constants                                             */
-/*-------------------------------------------------------------*/
-
-#define NODE(x) ((node_t *)(x))
-
-#define NODE_K_PATH    1
-#define NODE_K_RETRIES 2
-#define NODE_K_TIMEOUT 3
-#define NODE_K_TRACE   4
-#define NODE_K_NODES   5
-
-#define NODE_M_DESTRUCTOR 1
-#define NODE_M_OPEN       2
-#define NODE_M_CLOSE      3
-#define NODE_M_UNLOCK     4
-#define NODE_M_LOCK       5
-#define NODE_M_GET        6
-#define NODE_M_PUT        7
-#define NODE_M_NEXT       8
-#define NODE_M_PREV       9
-#define NODE_M_LAST       10
-#define NODE_M_WRITE      11
-#define NODE_M_FIRST      12
-#define NODE_M_BUILD      13
-#define NODE_M_EXTEND     14
-#define NODE_M_NORMALIZE  15
-#define NODE_M_FIND       16
-#define NODE_M_SEARCH     17
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern node_t *node_create(char *, int, int, int, tracer_t *);
-extern int node_destroy(node_t *);
-extern int node_compare(node_t *, node_t *);
-extern int node_override(node_t *, item_list_t *);
-extern char *node_version(node_t *);
+extern rms_t *node_create(char *, int, int, int, tracer_t *);
+extern char *node_version(rms_t *);
 
-extern int node_open(node_t *);
-extern int node_close(node_t *);
-extern int node_extend(node_t *, int);
-extern int node_index(node_t *, int *);
-extern int node_get(node_t *, int, node_base_t *);
-extern int node_put(node_t *, int, node_base_t *);
-extern int node_find(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), int *);
-extern int node_search(node_t *, void *, int, int (*compare)(void *, int, node_base_t *), queue *);
+#define node_destroy(self) rms_destroy(self)
+#define node_compare(self, other) rms_compare(self, other)
+#define node_override(self, items) rms_override(self, items)
+
+#define node_open(self) rms_open(self)
+#define node_close(self) rms_close(self);
+#define node_del(self, recnum) rms_del(self, recnum)
+#define node_extend(self, amount) rms_extend(self, amount)
+#define node_add(self, node) rms_add(self, (void *)node)
+#define node_get(self, recnum, node) rms_get(self, recnum, (void *)node)
+#define node_put(self, recnum, node) rms_put(self, recnum, (void *)node)
+#define node_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)
+#define node_search(self, data, len, compare, capture, results) rms_search(self, data, len, compare, capture, results)
 
 #endif
 

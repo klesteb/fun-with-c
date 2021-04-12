@@ -9,7 +9,7 @@
 #include "tracer.h"
 #include "misc/misc.h"
 
-node_t *nodes;
+rms_t *nodes;
 tracer_t *dump;
 errors_t *errs;
 

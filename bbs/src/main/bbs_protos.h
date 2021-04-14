@@ -42,6 +42,7 @@ extern int bbs_list_rooms(void *, int, error_trace_t *);
 
 extern int bbs_main_menu(error_trace_t *);
 extern int bbs_clear_message(error_trace_t *);
+extern int bbs_help(void *, int, error_trace_t *);
 extern int bbs_send_message(const char *, error_trace_t *);
 extern int bbs_create_window(char *, int, int, int, int, window_t **, error_trace_t *);
 
@@ -56,6 +57,10 @@ extern int bbs_aide_menu(error_trace_t *);
 /* bbs_msgs */
 
 extern int bbs_msgs_menu(jam_t *, room_base_t *, error_trace_t *);
+
+/* bbs_utils */
+
+extern int bbs_load_file(char *, queue *, error_trace_t *);
 
 #endif
 

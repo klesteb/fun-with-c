@@ -140,6 +140,11 @@ of nodes that are supported are defined when the database is initially
 created. You need to delete the database for any size changes to take 
 effect.
 
+The database consists of these two files:
+
+ nodes.dat    - the actual data
+ nodes.seq    - where the last node number is stored
+
 This library is a class. It is extensible and overridable. It also makes 
 use of the L<rms(3)>, L<errors(3)> and L<tracer(3)> classes for error 
 handling and reporting. 

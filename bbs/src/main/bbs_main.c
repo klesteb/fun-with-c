@@ -34,8 +34,8 @@
 
 /* global items ---------------------------------------------------------- */
 
-node_t *nodes = NULL;
-user_t *users = NULL;
+rms_t *nodes = NULL;
+rms_t *users = NULL;
 room_t *rooms = NULL;
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
@@ -44,8 +44,8 @@ workbench_t *workbench = NULL;
 
 int xnode = 1;
 int sysop = FALSE;
-int user_index = 0;
-int qnode_index = 0;
+off_t user_index = 0;
+off_t qnode_index = 0;
 char *username = NULL;
 
 user_base_t useron;
@@ -104,7 +104,6 @@ int bbs_logoff(error_trace_t *errors) {
 int bbs_init(error_trace_t *errors) {
     
     int stat = OK;
-    int lobby = LOBBY;
 
     when_error_in {
 

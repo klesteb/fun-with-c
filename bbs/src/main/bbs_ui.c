@@ -18,10 +18,12 @@
 
 #include "colors.h"
 #include "window.h"
+#include "fnm_util.h"
 #include "component.h"
 #include "misc/misc.h"
 #include "windows/alert.h"
 #include "components/text.h"
+#include "components/more.h"
 #include "windows/bar_menu.h"
 #include "components/hline.h"
 #include "components/menus/menus.h"
@@ -60,6 +62,74 @@ int print_result(void *data, int size, error_trace_t *errors) {
 
 }
 
+int bbs_help(void *data, int size, error_trace_t *errors) {
+
+    int len = 0;
+    queue lines;
+    theme_t theme;
+    int stat = OK;
+    int width = 0;
+    char title[40];
+    int height = 0;
+    int startx = 0;
+    int starty = 0;
+    char file[256];
+    FileName fname;
+    error_trace_t error;
+    window_t *temp = NULL;
+    component_t *more = NULL;
+
+    when_error_in {
+
+        stat = que_init(&lines);
+        check_status(stat, QUE_OK, E_INVOPS);
+
+        memset(file, '\0', 256);
+        len = (size > 255) ? 255 : size;
+        strncpy(file, (char *)data, len);
+
+        fname = fnm_create(1, file, ".hlp", textpath, NULL);
+
+        stat = bbs_load_file(fnm_path(fname), &lines, &error);
+        check_status2(stat, OK, error);
+
+        memset(title, '\0', 40);
+        snprintf(title, 38, "Help: %s", file); 
+
+        width  = (getmaxx(stdscr) - 4);
+        height = (getmaxy(stdscr) - 7);
+        startx = (getbegx(stdscr) + 1);
+        starty = (getbegy(stdscr) + 4);
+
+        stat = bbs_create_window(title, startx, starty, height, width, &temp, &error);
+        check_status2(stat, OK, error);
+
+        more = more_create(temp, 1, 1, height - 4, width - 4, 1, &lines);
+        check_creation(more);
+
+        stat = window_add(temp, more);
+        check_return(stat, temp);
+
+        stat = workbench_add(workbench, temp);
+        check_return(stat, workbench);
+
+        fnm_destroy(fname);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+             
 int bbs_create_window(char *title, int startx, int starty, int height, int width, window_t **win, error_trace_t *errors) {
 
     int col = 0;
@@ -191,6 +261,8 @@ int bbs_main_menu(error_trace_t *errors) {
     error_trace_t error;
     window_t *bmenu = NULL;
     menus_list_t *list = NULL;
+    char *general = "general";
+
     char *data1 = "this is data for test1";
     char *data2 = "this is data for test2";
     char *data3 = "this is data for test3";
@@ -223,7 +295,7 @@ int bbs_main_menu(error_trace_t *errors) {
         SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
         SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
         SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);
-        SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, data8, strlen(data8), print_result);
+        SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, general, strlen(general), bbs_help);
         SET_MENU(list[5], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
 
         bmenu = bar_menu(startx, starty, height, width, list, list_size);

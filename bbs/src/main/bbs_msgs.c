@@ -105,7 +105,7 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
 
         }
 
-        idx++; SET_MENU(list[idx], "Help", "Help with messages", MENUS_T_ITEM, help, strlen(help), print_result);
+        idx++; SET_MENU(list[idx], "Help", "Help with messages", MENUS_T_ITEM, help, strlen(help), bbs_help);
         list_size = idx * sizeof(menus_list_t);
 
         stat = bbs_create_window(title, startx, starty, height, width, &win, &error);

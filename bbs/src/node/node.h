@@ -81,9 +81,7 @@ extern char *node_version(rms_t *);
 
 #define node_open(self) rms_open(self)
 #define node_close(self) rms_close(self);
-#define node_del(self, recnum) rms_del(self, recnum)
 #define node_extend(self, amount) rms_extend(self, amount)
-#define node_add(self, node) rms_add(self, (void *)node)
 #define node_get(self, recnum, node) rms_get(self, recnum, (void *)node)
 #define node_put(self, recnum, node) rms_put(self, recnum, (void *)node)
 #define node_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)

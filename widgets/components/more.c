@@ -85,6 +85,7 @@ static int _more_data_create(component_t *more, queue *text) {
 
     int len = 0;
     int stat = OK;
+    int vrows = 0;
     int vcols = 0;
     char *line = NULL;
     more_data_t *data = NULL;
@@ -94,6 +95,19 @@ static int _more_data_create(component_t *more, queue *text) {
         errno = 0;
         data = calloc(1, sizeof(more_data_t));
         if (data == NULL) cause_error(errno);
+
+        /* a pad needs to be at least the size of the window that    */
+        /* will diplay the contents, otherwise you get an ERR return */
+        /* code from copywin(). this is not documented.              */
+
+        vrows = getmaxy(more->area);
+        vcols = getmaxx(more->area);
+
+        if ((que_size(text) > vrows)) {
+
+            vrows = que_size(text);
+
+        }
 
         line = que_first(text);
 
@@ -107,7 +121,9 @@ static int _more_data_create(component_t *more, queue *text) {
         data->vrow = 0;
         data->vcol = 0;
         data->vcols = vcols;
-        data->vrows = que_size(text);
+        data->vrows = vrows;
+
+        /* done adjusting the pad size */
 
         data->pad = newpad(data->vrows + 1, data->vcols + 1);
         if (data->pad == NULL) cause_error(E_INVOPS);

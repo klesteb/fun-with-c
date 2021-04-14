@@ -36,8 +36,8 @@
 
 /* global items ---------------------------------------------------------- */
 
-extern node_t *nodes;
-extern user_t *users;
+extern rms_t *nodes;
+extern rms_t *users;
 extern room_t *rooms;
 extern tracer_t *dump;
 extern errors_t *errs;
@@ -46,8 +46,8 @@ extern workbench_t *workbench;
 
 extern int xnode;
 extern int sysop;
-extern int user_index;
-extern int qnode_index;
+extern off_t user_index;
+extern off_t qnode_index;
 extern char *username;
 
 extern user_base_t useron;

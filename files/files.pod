@@ -328,7 +328,7 @@ A pointer to a files_t object.
 
 =item B<buffer>
 
-A pointer to the buffer to write to the file.
+A pointer to the buffer read from the file.
 
 =item B<size>
 

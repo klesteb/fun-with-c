@@ -10,6 +10,7 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
+#include <stdio.h>
 #include <unistd.h>
 
 int xgetline(int fd, char *buffer, int len, int delim) {
@@ -30,7 +31,7 @@ int xgetline(int fd, char *buffer, int len, int delim) {
 
     } while (b != 0);
 
-    return(c - 1);
+    return (a > 0) ? c : a;
 
 }
 

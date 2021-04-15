@@ -7,9 +7,11 @@
 int main(int argc, char **argv) {
 
     int fd;
+    int count = 0;
     int size = 100;
     char buffer [101];
     char filename[256];
+    int working = TRUE;
 
     if (argc < 2) {
 
@@ -20,9 +22,12 @@ int main(int argc, char **argv) {
 
     strcpy(filename, argv[1]);
 
-    if ((fd = open(filename, O_RDONLY)) > 0) {
+    if ((fd = open(filename, O_RDONLY))) {
 
-        while (xgetline(fd, buffer, size, '\n')) {
+        while (working) {
+
+            count = xgetline(fd, buffer, size, '\n');
+            if (count < 1) working = FALSE;
 
             printf("%s\n", buffer);
 

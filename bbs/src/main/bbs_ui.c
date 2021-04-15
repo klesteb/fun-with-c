@@ -104,7 +104,7 @@ int bbs_help(void *data, int size, error_trace_t *errors) {
         stat = bbs_create_window(title, startx, starty, height, width, &temp, &error);
         check_status2(stat, OK, error);
 
-        more = more_create(temp, 1, 1, height - 4, width - 4, 1, &lines);
+        more = more_create(temp, 0, 0, height - 4, width - 4, 1, &lines);
         check_creation(more);
 
         stat = window_add(temp, more);

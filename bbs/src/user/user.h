@@ -81,7 +81,7 @@
 
 typedef struct _user_base_s {         
     char username[LEN_NAME+1];      /* Name for messages & mail         */
-    char axlevel;                   /* Access level                     */
+    char axlevel;                   /* See AX_ flags above              */
     unsigned qwk;                   /* See QWK_ flags above             */
     unsigned flags;                 /* See US_ flags above              */
     int screenwidth;                /* For formatting messages          */

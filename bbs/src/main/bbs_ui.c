@@ -62,6 +62,188 @@ int print_result(void *data, int size, error_trace_t *errors) {
 
 }
 
+int bbs_system(void *data, int size, error_trace_t *errors) {
+
+    int len = 0;
+    queue lines;
+    theme_t theme;
+    int stat = OK;
+    int width = 0;
+    char title[40];
+    int height = 0;
+    int startx = 0;
+    int starty = 0;
+    char *no = "no";
+    char *yes = "yes";
+    char *line = NULL;
+    error_trace_t error;
+    window_t *temp = NULL;
+    component_t *more = NULL;
+
+    when_error_in {
+
+        stat = que_init(&lines);
+        check_status(stat, QUE_OK, E_INVOPS);
+
+        line = spaces(80);
+        sprintf(line, "Version : %s\n", bbs_version());
+        stat = que_push_tail(&lines, line);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        line = spaces(80);
+        sprintf(line, "Serial #: %s\n", "123456");
+        stat = que_push_tail(&lines, line);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        line = spaces(80);
+        sprintf(line, "%s\n", " ");
+        stat = que_push_tail(&lines, line);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        line = spaces(80);
+        sprintf(line, "This systems's nodename is      : %s\n", networknode);
+        stat = que_push_tail(&lines, line);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        line = spaces(80);
+        sprintf(line, "This system's human name is     : %s\n", humannode);
+        stat = que_push_tail(&lines, line);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        line = spaces(80);
+        sprintf(line, "This system is networked        : %s\n", (networked) ? yes : no);
+        stat = que_push_tail(&lines, line);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        if (useron.axlevel >= AX_AIDE) {
+
+            line = spaces(80);
+            sprintf(line, "%s\n", " ");
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "The path to the bbs is          : %s\n", bbsdir);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "The path to the messages is     : %s\n", msgpath);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "The path to the datastore is    : %s\n", datapath);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "The path to the text files is   : %s\n", textpath);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "%s\n", " ");
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Minimum axlevel to create rooms : %d (%s)\n", makeroom, axdefs[makeroom]);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Minimum axlevel to post in lobby: %d (%s)\n", lobbypost, axdefs[lobbypost]);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Initial new user access level   : %d (%s)\n", initax, axdefs[initax]);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "%s\n", " ");
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Automatic room aide assignment  : %s\n", (creataide) ? yes : no);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Default user time limit         : %d (minutes)\n", timelim);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Users are required to register  : %s\n", (regiscall) ? yes : no);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "%s\n", " ");
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Maximum rooms in the system     : %d\n", roomnum);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Maximum nodes in system         : %d\n", nodenum);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Maximum users in the system     : %d\n", usernum);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "%s\n", " ");
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+        }
+
+        memset(title, '\0', 40);
+        snprintf(title, 38, "System Config"); 
+
+        width  = (getmaxx(stdscr) - 4);
+        height = (getmaxy(stdscr) - 7);
+        startx = (getbegx(stdscr) + 1);
+        starty = (getbegy(stdscr) + 4);
+
+        stat = bbs_create_window(title, startx, starty, height, width, &temp, &error);
+        check_status2(stat, OK, error);
+
+        more = more_create(temp, 1, 1, height - 3, width - 2, 1, &lines);
+        check_creation(more);
+
+        stat = window_add(temp, more);
+        check_return(stat, temp);
+
+        stat = workbench_add(workbench, temp);
+        check_return(stat, workbench);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int bbs_help(void *data, int size, error_trace_t *errors) {
 
     int len = 0;
@@ -104,7 +286,7 @@ int bbs_help(void *data, int size, error_trace_t *errors) {
         stat = bbs_create_window(title, startx, starty, height, width, &temp, &error);
         check_status2(stat, OK, error);
 
-        more = more_create(temp, 0, 0, height - 4, width - 4, 1, &lines);
+        more = more_create(temp, 1, 1, height - 3, width - 2, 1, &lines);
         check_creation(more);
 
         stat = window_add(temp, more);
@@ -129,7 +311,7 @@ int bbs_help(void *data, int size, error_trace_t *errors) {
     return stat;
 
 }
-             
+
 int bbs_create_window(char *title, int startx, int starty, int height, int width, window_t **win, error_trace_t *errors) {
 
     int col = 0;
@@ -258,10 +440,10 @@ int bbs_main_menu(error_trace_t *errors) {
     int starty = 0;
     int height = 2;
     int list_size = 0;
+    char *xmain = "main";
     error_trace_t error;
     window_t *bmenu = NULL;
     menus_list_t *list = NULL;
-    char *general = "general";
 
     char *data1 = "this is data for test1";
     char *data2 = "this is data for test2";
@@ -294,8 +476,8 @@ int bbs_main_menu(error_trace_t *errors) {
         SET_MENU(list[0], "Rooms", "goto a specific room", MENUS_T_ITEM, NULL, 0, bbs_list_rooms);
         SET_MENU(list[1], "Who", "who's online", MENUS_T_ITEM, data2, strlen(data2), print_result);
         SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
-        SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, data6, strlen(data6), print_result);
-        SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, general, strlen(general), bbs_help);
+        SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, NULL, 0, bbs_system);
+        SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, xmain, strlen(xmain), bbs_help);
         SET_MENU(list[5], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
 
         bmenu = bar_menu(startx, starty, height, width, list, list_size);

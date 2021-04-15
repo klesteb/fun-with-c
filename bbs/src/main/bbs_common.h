@@ -61,17 +61,21 @@ extern int retries;
 extern int roomnum;
 extern int nodenum;
 extern int usernum;
+extern int networked;
 extern int creataide;
-extern int initax;
 extern int lobbypost;
 extern int makeroom;
-extern int networked;
+extern int initax;
 extern int validax;
+extern int regiscall;
+extern int timelim;
+extern char *bbsdir;
 extern char *datapath;
 extern char *msgpath;
 extern char *textpath;
 extern char *networknode;
 extern char *humannode;
+extern char *axdefs[8];
 
 #endif
 

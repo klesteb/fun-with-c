@@ -18,6 +18,7 @@
 
 /* bbs_main */
 
+extern char *bbs_version(void);
 extern int bbs_init(error_trace_t *);
 extern int bbs_run(error_trace_t *);
 

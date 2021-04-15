@@ -60,16 +60,32 @@ int roomnum = 32;                   /* max number of rooms                 */
 int nodenum = 32;                   /* max number of nodes                 */
 int usernum = 256;                  /* max number of users                 */
 int networked = 0;                  /* this system belongs to a network    */
-int creataide = 0;                  /*                                     */
+int creataide = 0;                  /* automatic room aide assignments     */
 int lobbypost = AX_AIDE;            /* AX level to be able to post in lobby */
 int makeroom = AX_AIDE;             /* AX level to be create a new room    */ 
 int initax = AX_NEW;                /* AX level for new users              */
 int validax = AX_NORM;              /* AX level for validated users        */
+int regiscall = TRUE;               /* user must register on first call    */
+int timelim = 60;                   /* default time limit on system        */
+char *bbsdir = "/bbs/";             /* root directory of the bbs           */
 char *datapath = "../../data/";     /* where the data files are located    */
 char *msgpath = "../../messages/";  /* where the messages are located      */
 char *textpath = "../../text/";     /* where the text files are located    */
 char *networknode = "mybbs";        /* network node name                   */
 char *humannode = "My BBS";         /* human readable node name            */
+
+/* nemonics ---------------------------------------------------------------*/
+
+char *axdefs[8]= {
+    "Marked for deletion",
+    "New User",
+    "Read-Only User",
+    "Normal User",
+    "Subsystem User",
+    "Preferred User",
+    "Aide",
+    "Sysop"
+};
 
 /*-------------------------------------------------------------------------*/
 

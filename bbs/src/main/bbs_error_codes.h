@@ -20,6 +20,7 @@
 #define E_UNKUSER  9001
 #define E_UNKROOM  9002
 #define E_UNKNODE  9003
+#define E_UNKFILE  9004
 
 #endif
 

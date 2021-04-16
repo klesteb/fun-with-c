@@ -21,7 +21,7 @@ LOPTS = -o
 #
 OLBS = $(STATIC)
 #
-TARGETS = qwk-dump
+TARGETS = qwk-dump makekey
 #
 all: $(TARGETS)
 #
@@ -35,6 +35,10 @@ clean:
 qwk-dump: qwk-dump.o
 	$(CC) $(CFLAGS) qwk-dump.c
 	$(LINK) $(LOPTS) qwk-dump qwk-dump.o $(OLBS)
+#
+makekey: makekey.o
+	$(CC) $(CFLAGS) makekey.c
+	$(LINK) $(LOPTS) makekey makekey.o $(OLBS)
 #
 # eof
 #

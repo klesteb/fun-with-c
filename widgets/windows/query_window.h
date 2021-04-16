@@ -10,22 +10,16 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERRORS_BBS_H_
-#define _ERRORS_BBS_H_
+#ifndef _QUERY_H
+#define _QUERY_H
 
-#include "error_code.h"
-#include "bbs_error_codes.h"
+#include "window.h"
 
-/*-------------------------------------------------------------*/
-/* bbs error code definations                                  */
-/*-------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
+/* klass interface                                                */
+/*----------------------------------------------------------------*/
 
-error_code_t bbs_codes[] = {
-    { E_UNKUSER, "E_UNKUSER", "Unknown bbs user name" },
-    { E_UNKROOM, "E_UNKROOM", "Unknown bbs room" },
-    { E_UNKNODE, "E_UNKNODE", "Unknown bbs node" },
-    { E_UNKFILE, "E_UNKFILE", "Unknowm bbs file" }
-};
+extern window_t *query_window(char *, int (*callback)(int, error_trace_t *), char *, ...);
 
 #endif
 

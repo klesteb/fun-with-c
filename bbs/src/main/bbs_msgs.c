@@ -23,6 +23,7 @@
 #include "misc/misc.h"
 #include "windows/alert.h"
 #include "components/vline.h"
+#include "windows/base_window.h"
 #include "components/menus/list.h"
 #include "components/menus/menus.h"
 
@@ -108,8 +109,8 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
         idx++; SET_MENU(list[idx], "Help", "Help with messages", MENUS_T_ITEM, help, strlen(help), bbs_help);
         list_size = idx * sizeof(menus_list_t);
 
-        stat = bbs_create_window(title, startx, starty, height, width, &win, &error);
-        check_status2(stat, OK, error);
+        win = base_window(title, startx, starty, height, width);
+        check_creation(win);
 
         bmenu = list_menu_create(win, 0, 0, height - 3, 9, 1, bbs_send_message, list, list_size);
         check_creation(bmenu);

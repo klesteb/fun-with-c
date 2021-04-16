@@ -29,7 +29,8 @@ INCS = widget.h colors.h window.h component.h components/label.h \
        components/bell.h components/menus/menus.h components/menus/bar.h \
        components/menus/box.h components/menus/list.h components/more.h \
        workbench.h windows/alert.h windows/status.h windows/bar_menu.h \
-       windows/box_menu.h windows/list_menu.h 
+       windows/box_menu.h windows/list_menu.h windows/base_window.h \
+       windows/query_window.h
 #
 OBJS = widget.o colors.o window.o component.o components/label.o \
        components/hline.o components/vline.o components/text.o \
@@ -37,7 +38,8 @@ OBJS = widget.o colors.o window.o component.o components/label.o \
        components/bell.o components/menus/menus.o components/menus/bar.o \
        components/menus/box.o components/menus/list.o components/more.o \
        workbench.o windows/alert.o windows/status.o windows/bar_menu.o \
-       windows/box_menu.o windows/list_menu.o
+       windows/box_menu.o windows/list_menu.o windows/base_window.o \
+       windows/query_window.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10 test11 test12 test13 test14 test15 test16 test17 \
@@ -239,6 +241,14 @@ windows/box_menu.o: windows/box_menu.c $(INCS)
 windows/list_menu.o: windows/list_menu.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) windows/list_menu.o windows/list_menu.c 
 	$(LIBR) $(STATIC) windows/list_menu.o
+#
+windows/base_window.o: windows/base_window.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/base_window.o windows/base_window.c 
+	$(LIBR) $(STATIC) windows/base_window.o
+#
+windows/query_window.o: windows/query_window.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) windows/query_window.o windows/query_window.c 
+	$(LIBR) $(STATIC) windows/query_window.o
 #
 man:
 	pod2man -c " " -r "widget(3)" -s 3 widget.pod widget.3

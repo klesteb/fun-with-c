@@ -49,6 +49,7 @@ extern int bbs_create_window(char *, int, int, int, int, window_t **, error_trac
 
 /* bbs_logoff */
 
+extern int bbs_logoff(error_trace_t *);
 extern int bbs_logout(void *, int, error_trace_t *);
 
 /* bbs_aide */

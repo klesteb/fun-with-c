@@ -75,6 +75,7 @@ extern char *msgpath;
 extern char *textpath;
 extern char *networknode;
 extern char *humannode;
+extern char *serialnum;
 extern char *axdefs[8];
 
 #endif

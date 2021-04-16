@@ -26,6 +26,7 @@
 #include "components/more.h"
 #include "windows/bar_menu.h"
 #include "components/hline.h"
+#include "windows/base_window.h"
 #include "components/menus/menus.h"
 
 int print_result(void *data, int size, error_trace_t *errors) {
@@ -91,7 +92,7 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Serial #: %s\n", "123456");
+        sprintf(line, "Serial #: %s\n", serialnum);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -122,30 +123,36 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
-            line = spaces(80);
-            sprintf(line, "The path to the bbs is          : %s\n", bbsdir);
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
+            if (useron.axlevel > AX_AIDE) {
 
-            line = spaces(80);
-            sprintf(line, "The path to the messages is     : %s\n", msgpath);
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
+                /* aides don't need to know the paths used by the system */
 
-            line = spaces(80);
-            sprintf(line, "The path to the datastore is    : %s\n", datapath);
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
+                line = spaces(80);
+                sprintf(line, "The path to the bbs is          : %s\n", bbsdir);
+                stat = que_push_tail(&lines, line);
+                check_status(stat, QUE_OK, E_NOQUEUE);
 
-            line = spaces(80);
-            sprintf(line, "The path to the text files is   : %s\n", textpath);
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
+                line = spaces(80);
+                sprintf(line, "The path to the messages is     : %s\n", msgpath);
+                stat = que_push_tail(&lines, line);
+                check_status(stat, QUE_OK, E_NOQUEUE);
 
-            line = spaces(80);
-            sprintf(line, "%s\n", " ");
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
+                line = spaces(80);
+                sprintf(line, "The path to the datastore is    : %s\n", datapath);
+                stat = que_push_tail(&lines, line);
+                check_status(stat, QUE_OK, E_NOQUEUE);
+
+                line = spaces(80);
+                sprintf(line, "The path to the text files is   : %s\n", textpath);
+                stat = que_push_tail(&lines, line);
+                check_status(stat, QUE_OK, E_NOQUEUE);
+
+                line = spaces(80);
+                sprintf(line, "%s\n", " ");
+                stat = que_push_tail(&lines, line);
+                check_status(stat, QUE_OK, E_NOQUEUE);
+                
+            }
 
             line = spaces(80);
             sprintf(line, "Minimum axlevel to create rooms : %d (%s)\n", makeroom, axdefs[makeroom]);
@@ -217,8 +224,8 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
         startx = (getbegx(stdscr) + 1);
         starty = (getbegy(stdscr) + 4);
 
-        stat = bbs_create_window(title, startx, starty, height, width, &temp, &error);
-        check_status2(stat, OK, error);
+        temp = base_window(title, startx, starty, height, width);
+        check_creation(temp);
 
         more = more_create(temp, 1, 1, height - 3, width - 2, 1, &lines);
         check_creation(more);
@@ -283,8 +290,8 @@ int bbs_help(void *data, int size, error_trace_t *errors) {
         startx = (getbegx(stdscr) + 1);
         starty = (getbegy(stdscr) + 4);
 
-        stat = bbs_create_window(title, startx, starty, height, width, &temp, &error);
-        check_status2(stat, OK, error);
+        temp = base_window(title, startx, starty, height, width);
+        check_creation(temp);
 
         more = more_create(temp, 1, 1, height - 3, width - 2, 1, &lines);
         check_creation(more);
@@ -296,51 +303,6 @@ int bbs_help(void *data, int size, error_trace_t *errors) {
         check_return(stat, workbench);
 
         fnm_destroy(fname);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        copy_error(errors);
-        capture_trace(dump);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int bbs_create_window(char *title, int startx, int starty, int height, int width, window_t **win, error_trace_t *errors) {
-
-    int col = 0;
-    int row = 0;
-    int stat = OK;
-    component_t *text = NULL;
-    component_t *hline = NULL;
-    char *value = "F10=Main  F11=Cycle  F12=Quit";
-
-    when_error_in {
-
-        *win = window_create(title, startx, starty, height, width, TRUE);
-        check_creation(*win);
-
-        row = height - 2;
-        hline = hline_create(*win, row, col, width);
-        check_creation(hline);
-
-        row = height - 1;
-        col = ((width - strlen(value)) / 2);
-        width = strlen(value) + 1;
-        text = text_create(*win, row, col, width, value, strlen(value));
-        check_creation(text);
-
-        stat = window_add(*win, hline);
-        check_return(stat, *win);
-
-        stat = window_add(*win, text);
-        check_return(stat, *win);
 
         exit_when;
 
@@ -478,7 +440,7 @@ int bbs_main_menu(error_trace_t *errors) {
         SET_MENU(list[2], "User", "user maintence", MENUS_T_ITEM, data5, strlen(data5), print_result);
         SET_MENU(list[3], "System", "system statistics", MENUS_T_ITEM, NULL, 0, bbs_system);
         SET_MENU(list[4], "Help", "show help", MENUS_T_ITEM, xmain, strlen(xmain), bbs_help);
-        SET_MENU(list[5], "Logout", "logout of system", MENUS_T_ITEM, data9, strlen(data9), print_result);
+        SET_MENU(list[5], "Logout", "logout of system", MENUS_T_ITEM, NULL, 0, bbs_logout);
 
         bmenu = bar_menu(startx, starty, height, width, list, list_size);
         check_creation(bmenu);

@@ -30,6 +30,8 @@ int _hline_draw(widget_t *widget) {
     int stat = OK;
     component_t *self = COMPONENT(widget);
 
+fprintf(stderr, "entering _hline_draw()\n");
+
     when_error_in {
 
         stat = wattron(self->area, widget->theme->attribute);
@@ -55,6 +57,7 @@ int _hline_draw(widget_t *widget) {
 
     } end_when;
 
+fprintf(stderr, "leaving _hline_draw() - stat: %d\n", stat);
     return stat;
 
 }

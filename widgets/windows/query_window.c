@@ -19,39 +19,51 @@
 #include "object.h"
 #include "window.h"
 #include "item_list.h"
+#include "misc/misc.h"
 #include "error_codes.h"
-#include "components/text.h"
+#include "components/more.h"
+#include "components/yesno.h"
 #include "components/hline.h"
-#include "components/textarea.h"
+
+/*----------------------------------------------------------------*/
+/* klass overrides                                                */
+/*----------------------------------------------------------------*/
 
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-window_t *query_window(char *title, int (*callback)(int, error_trace_t *), char *fmt, ...) {
+window_t *query_window(char *title, char *label, int (*callback)(int, error_trace_t *), char *fmt, ...) {
 
     va_list ap;
+    queue lines;
     int col = 0;
     int row = 0;
     int stat = OK;
+    char buf[1024];
     int startx = 0;
     int starty = 0;
-    int height = 12;
+    int height = 6;
     int width  = 60;
-    char buf[1024];
     window_t *win = NULL;
-    component_t *text = NULL;
+    component_t *more = NULL;
+    component_t *yesno = NULL;
     component_t *hline = NULL;
-    component_t *textarea = NULL;
     char *value = "F7=Yes  F8=No";
 
     when_error_in {
 
+        stat = que_init(&lines);
+        check_status(stat, QUE_OK, E_INVOPS);
+
         memset(buf, '\0', 1024);
 
         va_start(ap, fmt);
-        vsprintf(buf, fmt, ap);
+        vsnprintf(buf, 1023, fmt, ap);
         va_end(ap);
+
+        stat = wordwrap(buf, 48, &lines);
+        check_status(stat, OK, E_INVOPS);
 
         startx = ((getmaxx(stdscr) - width) / 2);
         starty = ((getmaxy(stdscr) - height) / 2);
@@ -59,8 +71,8 @@ window_t *query_window(char *title, int (*callback)(int, error_trace_t *), char 
         win = window_create(title, startx, starty, height, width, TRUE);
         check_creation(win);
 
-        textarea = textarea_create(win, 1, 1, 10, 58, 1, buf, strlen(buf));
-        check_creation(win);
+        more = more_create(win, 1, 1, 3, 58, 1, &lines);
+        check_creation(more);
 
         row = height - 2;
         hline = hline_create(win, row, col, width);
@@ -69,16 +81,16 @@ window_t *query_window(char *title, int (*callback)(int, error_trace_t *), char 
         row = height - 1;
         col = ((width - strlen(value)) / 2);
         width = strlen(value) + 1;
-        text = text_create(win, row, col, width, value, strlen(value));
-        check_creation(text);
+        yesno = yesno_create(win, row, col, 1, width, 2, value, callback);
+        check_creation(yesno);
 
-        stat = window_add(win, textarea);
+        stat = window_add(win, more);
         check_return(stat, win);
 
         stat = window_add(win, hline);
         check_return(stat, win);
 
-        stat = window_add(win, text);
+        stat = window_add(win, yesno);
         check_return(stat, win);
 
         exit_when;

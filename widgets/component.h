@@ -59,6 +59,10 @@ struct _component_s {
 extern component_t *component_create(window_t *, int, int, int, int, int, int, void *, int);
 extern int component_destroy(component_t *);
 extern int component_compare(component_t *, component_t *); 
+extern int component_set_data(component_t *, void *);
+extern int component_get_data(component_t *, void *, int);
+extern int component_set_tab(component_t *, int);
+extern int component_get_tab(component_t *, int *);
 
 #define component_draw(self) widget_draw(WIDGET(self))
 #define component_erase(self) widget_erase(WIDGET(self))

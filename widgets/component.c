@@ -160,7 +160,7 @@ int component_set_data(component_t *self, void *data) {
 
         if ((self != NULL) && (data != NULL)) {
 
-            self->data = data;
+            (*self).data = data;
 
         } else {
 
@@ -197,6 +197,68 @@ int component_get_data(component_t *self, void *data, int size) {
                 cause_error(errno);
 
             }
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int component_set_tab(component_t *self, int tab) {
+
+    int stat = OK;
+
+    when_error {
+
+        if (self != NULL) {
+
+            self->tab = tab;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int component_get_tab(component_t *self, int *tab) {
+
+    int stat = OK;
+
+    when_error {
+
+        if ((self != NULL) && (tab != NULL)) {
+
+            *tab = self->tab;
 
         } else {
 
@@ -343,6 +405,7 @@ int _component_dtor(object_t *object) {
     widget_t *widget = WIDGET(object);
     component_t *component = COMPONENT(object);
 
+fprintf(stderr, "entering _component_dtor()\n");
     /* free local resources here */
 
     werase(component->area);
@@ -353,6 +416,7 @@ int _component_dtor(object_t *object) {
     object_demote(object, widget_t);
     widget_destroy(widget);
 
+fprintf(stderr, "leaving _component_dtor() - stat: %d\n", stat);
     return stat;
 
 }
@@ -399,6 +463,7 @@ int _component_erase(widget_t *widget) {
     int stat = OK;
     component_t *self = COMPONENT(widget);
 
+fprintf(stderr, "entering _component_erase()\n");
     when_error_in {
 
         if (self->area != NULL) {
@@ -421,6 +486,7 @@ int _component_erase(widget_t *widget) {
 
     } end_when;
 
+fprintf(stderr, "leaving _component_erase() - stat: %d\n", stat);
     return stat;
 
 }

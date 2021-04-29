@@ -55,7 +55,7 @@ window_t *status(char *title, int sound, char *fmt, ...) {
         memset(buf, '\0', 1024);
 
         va_start(ap, fmt);
-        vsprintf(buf, fmt, ap);
+        vsnprintf(buf, 1023, fmt, ap);
         va_end(ap);
 
         startx = ((getmaxx(stdscr) - width) / 2);

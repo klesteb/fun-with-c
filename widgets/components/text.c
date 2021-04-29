@@ -32,6 +32,7 @@ int _text_draw(widget_t *widget) {
     char *value = NULL;
     component_t *self = COMPONENT(widget);
 
+fprintf(stderr, "entering _text_draw()\n");
     when_error_in {
 
         errno = 0;
@@ -72,6 +73,7 @@ int _text_draw(widget_t *widget) {
 
     } end_when;
 
+fprintf(stderr, "leaving _text_draw() - stat: %d\n", stat);
     return stat;
 
 }

@@ -15,7 +15,7 @@
 
 #include "bbs_common.h"
 #include "bbs_protos.h"
-#include "windows/query.h"
+#include "windows/query_window.h"
 
 /* local items ---------------------------------------------------------- */
 
@@ -29,13 +29,17 @@ static int logout(int yesno, error_trace_t *errors) {
 
     when_error_in {
 
+fprintf(stderr, "enterng logout(): %d\n", yesno);
+
         if (yesno) {
 
+fprintf(stderr, "event_break()\n");
             stat = event_break(events);
             check_return(stat, events);
 
         } else {
 
+fprintf(stderr, "workbench_remove()\n");
             stat = workbench_remove(workbench, win);
             check_return(stat, workbench);
 
@@ -52,6 +56,7 @@ static int logout(int yesno, error_trace_t *errors) {
 
     } end_when;
 
+fprintf(stderr, "leaving logout() - stat: %d\n", stat);
     return stat;
 
 }
@@ -92,11 +97,11 @@ int bbs_logout(void *data, int size, error_trace_t *errors) {
 
     when_error_in {
 
-        win = query_window(title, value, logout);
+        win = query_window(title, logout, value);
         check_creation(win);
 
         stat = workbench_add(workbench, win);
-        check_restur(stat, workbench);
+        check_return(stat, workbench);
 
         exit_when;
 

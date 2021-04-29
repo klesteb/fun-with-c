@@ -23,11 +23,12 @@ SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC
 #
 OLBS = $(STATIC) ../libs/libtracer.a ../libs/libevent.a ../libs/liberrors.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 #
-INCS = widget.h colors.h window.h component.h components/label.h \
+INCS = keys.h widget.h colors.h window.h component.h components/label.h \
        components/hline.h components/vline.h components/text.h \
        components/prompt.h components/textarea.h components/input.h \
        components/bell.h components/menus/menus.h components/menus/bar.h \
        components/menus/box.h components/menus/list.h components/more.h \
+       components/yesno.h \
        workbench.h windows/alert.h windows/status.h windows/bar_menu.h \
        windows/box_menu.h windows/list_menu.h windows/base_window.h \
        windows/query_window.h
@@ -37,13 +38,14 @@ OBJS = widget.o colors.o window.o component.o components/label.o \
        components/prompt.o components/textarea.o components/input.o \
        components/bell.o components/menus/menus.o components/menus/bar.o \
        components/menus/box.o components/menus/list.o components/more.o \
+       components/yesno.o \
        workbench.o windows/alert.o windows/status.o windows/bar_menu.o \
        windows/box_menu.o windows/list_menu.o windows/base_window.o \
        windows/query_window.o
 #
 all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8 test9 \
              test10 test11 test12 test13 test14 test15 test16 test17 \
-             test18
+             test18 test19 test20
 #
 debug:
 #
@@ -77,6 +79,8 @@ clean:
 	rm -f test16
 	rm -f test17
 	rm -f test18
+	rm -f test19
+	rm -f test20
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
@@ -150,6 +154,14 @@ test18: test18.o
 	$(CC) $(CFLAGS) test18.c
 	$(LINK) $(LOPTS) test18 test18.o $(OLBS) -lpanel -lmenu -lncurses 
 #
+test19: test19.o
+	$(CC) $(CFLAGS) test19.c
+	$(LINK) $(LOPTS) test19 test19.o $(OLBS) -lpanel -lmenu -lncurses 
+#
+test20: test20.o
+	$(CC) $(CFLAGS) test20.c
+	$(LINK) $(LOPTS) test20 test20.o $(OLBS) -lpanel -lmenu -lncurses 
+#
 colors.o: colors.c $(INCS)
 	$(CC) $(CFLAGS) colors.c
 	$(LIBR) $(STATIC) colors.o
@@ -205,6 +217,10 @@ components/input.o: components/input.c $(INCS)
 components/more.o: components/more.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) components/more.o components/more.c 
 	$(LIBR) $(STATIC) components/more.o
+#
+components/yesno.o: components/yesno.c $(INCS) 
+	$(CC) $(CFLAGS) $(LOPTS) components/yesno.o components/yesno.c 
+	$(LIBR) $(STATIC) components/yesno.o
 #
 components/menus/menus.o: components/menus/menus.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) components/menus/menus.o components/menus/menus.c 

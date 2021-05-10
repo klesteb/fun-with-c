@@ -406,7 +406,7 @@ int _window_add(widget_t *widget, void *data) {
 fprintf(stderr, "entering _window_add()\n");
     when_error_in {
 
-        stat = que_push_head(&widget->things, data);
+        stat = que_push_head(&widget->things, component);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         self->tab = component->tab;

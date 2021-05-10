@@ -572,6 +572,7 @@ int _widget_ctor(object_t *object, item_list_t *items) {
             self->_add = widget_add;
             self->_draw = _widget_draw;
             self->_erase = _widget_erase;
+            self->_event = _widget_event;
             self->_remove = _widget_remove;
 
             /* initialize internal variables here */
@@ -630,7 +631,7 @@ int _widget_override(widget_t *self, item_list_t *items) {
                 (items[x].item_code == 0)) break;
 
             switch(items[x].item_code) {
-                case WIDGET_M_DESTRUCTOR: {
+                case WIDGET_M_DESTROY: {
                     self->dtor = items[x].buffer_address;
                     stat = OK;
                     break;

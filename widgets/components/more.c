@@ -163,6 +163,7 @@ int _more_dtor(object_t *object) {
 
     int stat = OK;
     more_data_t *data = NULL;
+    widget_t *widget = WIDGET(object);
     component_t *self = COMPONENT(object);
 
 fprintf(stderr, "entering _more_dtor()\n");
@@ -180,19 +181,23 @@ fprintf(stderr, "entering _more_dtor()\n");
 
     }
 
+    if (self->area) {
+
+        werase(self->area);
+        delwin(self->area);
+
+    }
+
     /* walk the chain, freeing as we go */
 
-    object_demote(object, object_t);
-    object_destroy(object);
+    object_demote(object, widget_t);
+    widget_destroy(widget);
+
+    /* object_demote(object, object_t); */
+    /* object_destroy(object); */
 
 fprintf(stderr, "leaving _more_dtor() - stat: %d\n", stat);
     return stat;
-
-}
-
-int _more_add(widget_t *widget, void *data) {
-
-    return OK;
 
 }
 
@@ -347,12 +352,6 @@ fprintf(stderr, "leaving _more_event() - stat: %d\n", stat);
 
 }
 
-int _more_remove(widget_t *widget, void *thing) {
-
-    return OK;
-
-}
-
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -361,7 +360,7 @@ component_t *more_create(window_t *window, int startx, int starty, int height, i
 
     int stat = OK;
     int padding = FALSE;
-    item_list_t items[7];
+    item_list_t items[5];
     component_t *more = NULL;
 
     when_error_in {
@@ -372,13 +371,11 @@ component_t *more_create(window_t *window, int startx, int starty, int height, i
         stat = _more_data_create(more, text);
         check_return(stat, more);
 
-        SET_ITEM(items[0], WIDGET_M_ADD, _more_add, 0, NULL);
-        SET_ITEM(items[1], WIDGET_M_DRAW, _more_draw, 0, NULL);
-        SET_ITEM(items[2], WIDGET_M_EVENT, _more_event, 0, NULL);
-        SET_ITEM(items[3], WIDGET_M_ERASE, _more_erase, 0, NULL);
-        SET_ITEM(items[4], WIDGET_M_DESTROY, _more_dtor, 0, NULL);
-        SET_ITEM(items[5], WIDGET_M_REMOVE, _more_remove, 0, NULL);
-        SET_ITEM(items[6], 0, 0, 0, 0);
+        SET_ITEM(items[0], WIDGET_M_DRAW, _more_draw, 0, NULL);
+        SET_ITEM(items[1], WIDGET_M_EVENT, _more_event, 0, NULL);
+        SET_ITEM(items[2], WIDGET_M_ERASE, _more_erase, 0, NULL);
+        SET_ITEM(items[3], WIDGET_M_DESTROY, _more_dtor, 0, NULL);
+        SET_ITEM(items[4], 0, 0, 0, 0);
 
         stat = component_override(more, items);
         check_return(stat, more);

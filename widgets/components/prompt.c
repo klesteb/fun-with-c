@@ -23,15 +23,15 @@
 require_klass(COMPONENT_KLASS);
 
 /*----------------------------------------------------------------*/
-/* klass overrides                                                */
+/* private methods                                                */
 /*----------------------------------------------------------------*/
 
-int _prompt_draw(widget_t *widget) {
+static int _prompt_data_create(component_t *self, char *text, int size) {
 
     int len = 0;
-    int stat = ERR;
+    int stat = OK;
     char *value = NULL;
-    component_t *self = COMPONENT(widget);
+    widget_t *widget = WIDGET(self);
 
     when_error_in {
 
@@ -42,28 +42,60 @@ int _prompt_draw(widget_t *widget) {
 
         }
 
-        len = (self->data_size < widget->coordinates->width - 1)
-            ? self->data_size
+        len = (size < widget->coordinates->width - 1)
+            ? size
             : widget->coordinates->width - 1;
 
         memset(value, ' ', widget->coordinates->width);
-        memcpy(value, (char *)self->data, len);
+        memcpy(value, (char *)text, len);
         strcat(value, ">");
 
-        stat = wattron(self->area, widget->theme->attribute);
-        check_status(stat, OK, E_INVOPS);
+        self->data = (void *)value;
 
-        stat = wcoloron(self->area, 
-                        widget->theme->foreground, widget->theme->background);
-        check_status(stat, OK, E_INVOPS);
+        exit_when;
+        
+    } use {
 
-        stat = mvwaddnstr(self->area, 0, 0, value, widget->coordinates->width - 1);
-        check_status(stat, OK, E_INVOPS);
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
 
-        stat = wstandend(self->area);
-        check_status(stat, OK, E_INVOPS);
+    } end_when;
 
-        free(value);
+    return stat;
+
+}
+
+/*----------------------------------------------------------------*/
+/* klass overrides                                                */
+/*----------------------------------------------------------------*/
+
+int _prompt_draw(widget_t *widget) {
+
+    int stat = ERR;
+    char *value = NULL;
+    component_t *self = COMPONENT(widget);
+
+    when_error_in {
+
+        if (self->data != NULL) {
+
+            value = (char *)self->data;
+
+            stat = wattron(self->area, widget->theme->attribute);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = wcoloron(self->area, 
+                            widget->theme->foreground, widget->theme->background);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = mvwaddnstr(self->area, 0, 0, value, widget->coordinates->width - 1);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = wstandend(self->area);
+            check_status(stat, OK, E_INVOPS);
+            
+        }
 
         exit_when;
 
@@ -83,22 +115,70 @@ int _prompt_draw(widget_t *widget) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
+int _prompt_dtor(object_t *object) {
+
+    int stat = OK;
+    component_t *self = COMPONENT(object);
+
+fprintf(stderr, "entering _prompt_dtor()\n");
+    /* free local resources here */
+
+    if (self->data != NULL) {
+
+        free(self->data);
+        self->data = NULL;
+
+    }
+
+    if (self->area) {
+
+        werase(self->area);
+        delwin(self->area);
+
+    }
+
+    /* walk the chain, freeing as we go */
+
+    object_demote(object, object_t);
+    object_destroy(object);
+
+fprintf(stderr, "leaving _prompt_dtor() - stat: %d\n", stat);
+    return stat;
+
+}
+
 component_t *prompt_create(window_t *window, int startx, int starty, int width, char *value, int size) {
 
     int tab = 0;
+    int stat = OK;
     int height = 1;
     int padding = FALSE;
-    item_list_t items[2];
+    item_list_t items[3];
     component_t *component = NULL;
 
-    if ((component = component_create(window, startx, starty, height, width, tab, padding, (void *)value, size))) {
+    when_error_in {
+
+        component = component_create(window, startx, starty, height, width, tab, padding, NULL, 0);
+        check_creation(component);
+
+        stat = _prompt_data_create(component, value, size);
+        check_return(stat, component);
 
         SET_ITEM(items[0], WIDGET_M_DRAW, _prompt_draw, 0, NULL);
-        SET_ITEM(items[1], 0, 0, 0, 0);
+        SET_ITEM(items[1], WIDGET_M_DESTROY, _prompt_dtor, 0, NULL);
+        SET_ITEM(items[2], 0, 0, 0, 0);
 
-        component_override(component, items);
+        stat = component_override(component, items);
+        check_return(stat, component);
 
-    }
+        exit_when;
+
+    } use {
+
+        object_set_error2(component, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return component;
 

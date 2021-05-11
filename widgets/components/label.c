@@ -56,7 +56,7 @@ static int _label_data_create(component_t *self, char *label, int size) {
         strcat(value, ":");
         memcpy(value, label, count);
 
-        self->data = (void *)label;
+        self->data = (void *)value;
 
         exit_when;
         
@@ -135,22 +135,14 @@ fprintf(stderr, "entering _label_dtor()\n");
 
     }
 
-fprintf(stderr, "free() _label_dtor()\n");
-    /* if (self->area) { */
+    if (self->area != NULL) {
 
-    /*     werase(self->area); */
-    /*     delwin(self->area); */
+        werase(self->area);
+        delwin(self->area);
 
-    /* } */
+    }
 
     /* walk the chain, freeing as we go */
-
-    /* object_demote(object, component_t); */
-    /* component_destroy(COMPONENT(object)); */
-
-fprintf(stderr, "demoted _label_dtor()\n");
-    /* object_demote(object, widget_t); */
-    /* widget_destroy(widget); */
 
     object_demote(object, object_t);
     object_destroy(object);
@@ -174,14 +166,14 @@ component_t *label_create(window_t *window, int startx, int starty, int width, i
         check_creation(label);
 
         stat = _label_data_create(label, value, size);
-        check_status(stat, OK, E_INVOPS);
+        check_return(stat, label);
 
         SET_ITEM(items[0], WIDGET_M_DRAW, _label_draw, 0, NULL);
         SET_ITEM(items[1], WIDGET_M_DESTROY, _label_dtor, 0, NULL);
         SET_ITEM(items[2], 0, 0, 0, 0);
 
         stat = component_override(label, items);
-        check_status(stat, OK, E_INVOPS);
+        check_return(stat, label);
 
         exit_when;
 

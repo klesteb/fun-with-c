@@ -78,6 +78,7 @@ window_t *query_window(char *title, char *label, int (*callback)(int, error_trac
         hline = hline_create(win, row, col, width);
         check_creation(hline);
 
+fprintf(stderr, "query_window() - callback = %p\n", callback);
         row = height - 1;
         col = ((width - strlen(value)) / 2);
         width = strlen(value) + 1;

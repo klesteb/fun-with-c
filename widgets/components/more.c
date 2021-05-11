@@ -163,7 +163,6 @@ int _more_dtor(object_t *object) {
 
     int stat = OK;
     more_data_t *data = NULL;
-    widget_t *widget = WIDGET(object);
     component_t *self = COMPONENT(object);
 
 fprintf(stderr, "entering _more_dtor()\n");
@@ -190,11 +189,8 @@ fprintf(stderr, "entering _more_dtor()\n");
 
     /* walk the chain, freeing as we go */
 
-    object_demote(object, widget_t);
-    widget_destroy(widget);
-
-    /* object_demote(object, object_t); */
-    /* object_destroy(object); */
+    object_demote(object, object_t);
+    object_destroy(object);
 
 fprintf(stderr, "leaving _more_dtor() - stat: %d\n", stat);
     return stat;

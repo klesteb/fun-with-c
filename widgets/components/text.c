@@ -22,6 +22,48 @@
 require_klass(COMPONENT_KLASS);
 
 /*----------------------------------------------------------------*/
+/* private methods                                                */
+/*----------------------------------------------------------------*/
+
+static int _text_data_create(component_t *self, char *text, int size) {
+
+    int len = 0;
+    int stat = OK;
+    char *value = NULL;
+    widget_t *widget = WIDGET(self);
+
+    when_error_in {
+
+        errno = 0;
+        if ((value = calloc(1, widget->coordinates->width)) == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        len = (size < (widget->coordinates->width - 1))
+            ? size
+            : widget->coordinates->width - 1;
+
+        memcpy(value, (char *)text, len);
+
+        self->data = (void *)value;
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+/*----------------------------------------------------------------*/
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
@@ -35,33 +77,25 @@ int _text_draw(widget_t *widget) {
 fprintf(stderr, "entering _text_draw()\n");
     when_error_in {
 
-        errno = 0;
-        if ((value = calloc(1, widget->coordinates->width)) == NULL) {
+        if (self->data != NULL) {
 
-            cause_error(errno);
+            value = (char *)self->data;
+            len = strlen(value);
+
+            stat = wattron(self->area, widget->theme->attribute);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = wcoloron(self->area, 
+                            widget->theme->foreground, widget->theme->background);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = mvwaddnstr(self->area, 0, 0, value, len);
+            check_status(stat, OK, E_INVOPS);
+
+            stat = wstandend(self->area);
+            check_status(stat, OK, E_INVOPS);
 
         }
-
-        len = (self->data_size < (widget->coordinates->width - 1))
-            ? self->data_size
-            : widget->coordinates->width - 1;
-
-        memcpy(value, (char *)self->data, len);
-
-        stat = wattron(self->area, widget->theme->attribute);
-        check_status(stat, OK, E_INVOPS);
-
-        stat = wcoloron(self->area, 
-                        widget->theme->foreground, widget->theme->background);
-        check_status(stat, OK, E_INVOPS);
-
-        stat = mvwaddnstr(self->area, 0, 0, value, len);
-        check_status(stat, OK, E_INVOPS);
-
-        stat = wstandend(self->area);
-        check_status(stat, OK, E_INVOPS);
-
-        free(value);
 
         exit_when;
 
@@ -78,6 +112,38 @@ fprintf(stderr, "leaving _text_draw() - stat: %d\n", stat);
 
 }
 
+int _text_dtor(object_t *object) {
+
+    int stat = OK;
+    component_t *self = COMPONENT(object);
+
+fprintf(stderr, "entering _text_dtor()\n");
+    /* free local resources here */
+
+    if (self->data != NULL) {
+
+        free(self->data);
+        self->data = NULL;
+
+    }
+
+    if (self->area) {
+
+        werase(self->area);
+        delwin(self->area);
+
+    }
+
+    /* walk the chain, freeing as we go */
+
+    object_demote(object, object_t);
+    object_destroy(object);
+
+fprintf(stderr, "leaving _text_dtor() - stat: %d\n", stat);
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -85,19 +151,35 @@ fprintf(stderr, "leaving _text_draw() - stat: %d\n", stat);
 component_t *text_create(window_t *window, int startx, int starty, int width, char *value, int size) {
 
     int tab = 0;
+    int stat = OK;
     int height = 1;
     int padding = FALSE;
-    item_list_t items[2];
+    item_list_t items[3];
     component_t *text = NULL;
 
-    if ((text = component_create(window, startx, starty, height, width, tab, padding, (void *)value, size))) {
+    when_error_in {
+
+        text = component_create(window, startx, starty, height, width, tab, padding, NULL, 0);
+        check_creation(text);
+
+        stat = _text_data_create(text, value, size);
+        check_return(stat, text);
 
         SET_ITEM(items[0], WIDGET_M_DRAW, _text_draw, 0, NULL);
-        SET_ITEM(items[1], 0, 0, 0, 0);
+        SET_ITEM(items[1], WIDGET_M_DESTROY, _text_dtor, 0, NULL);
+        SET_ITEM(items[2], 0, 0, 0, 0);
 
-        component_override(text, items);
+        stat = component_override(text, items);
+        check_return(stat, text);
 
-    }
+        exit_when;
+
+    } use {
+
+        object_set_error2(text, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
 
     return text;
 

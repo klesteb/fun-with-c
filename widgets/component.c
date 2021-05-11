@@ -408,19 +408,17 @@ int _component_dtor(object_t *object) {
 fprintf(stderr, "entering _component_dtor()\n");
     /* free local resources here */
 
-    if (component->area) {
+    /* if (component->area) { */
 
-        werase(component->area);
-        delwin(component->area);
+    /*     werase(component->area); */
+    /*     delwin(component->area); */
 
-        component->area = NULL;
+    /*     component->area = NULL; */
 
-    }
+    /* } */
 
-fprintf(stderr, "freed area _component_dtor()\n");
     /* walk the chain, freeing as we go */
 
-fprintf(stderr, "demoting _component_dtor()\n");
     object_demote(object, widget_t);
     widget_destroy(widget);
 

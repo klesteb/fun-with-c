@@ -92,6 +92,7 @@ extern int workbench_inject_event(workbench_t *, events_t *);
 extern int workbench_refresh(workbench_t *);
 extern int workbench_add(workbench_t *, window_t *);
 extern int workbench_remove(workbench_t *, window_t *);
+extern int workbench_remove_async(workbench_t *, window_t *);
 
 #endif
 

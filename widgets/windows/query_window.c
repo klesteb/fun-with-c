@@ -33,7 +33,7 @@
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-window_t *query_window(char *title, char *label, int (*callback)(int, error_trace_t *), char *fmt, ...) {
+window_t *query_window(char *title, int (*callback)(int, error_trace_t *), char *fmt, ...) {
 
     va_list ap;
     queue lines;
@@ -49,7 +49,7 @@ window_t *query_window(char *title, char *label, int (*callback)(int, error_trac
     component_t *more = NULL;
     component_t *yesno = NULL;
     component_t *hline = NULL;
-    char *value = "F7=Yes  F8=No";
+    char *label = "F7=Yes  F8=No";
 
     when_error_in {
 
@@ -78,11 +78,10 @@ window_t *query_window(char *title, char *label, int (*callback)(int, error_trac
         hline = hline_create(win, row, col, width);
         check_creation(hline);
 
-fprintf(stderr, "query_window() - callback = %p\n", callback);
         row = height - 1;
-        col = ((width - strlen(value)) / 2);
-        width = strlen(value) + 1;
-        yesno = yesno_create(win, row, col, 1, width, 2, value, callback);
+        col = ((width - strlen(label)) / 2);
+        width = strlen(label) + 1;
+        yesno = yesno_create(win, row, col, 1, width, 2, label, callback);
         check_creation(yesno);
 
         stat = window_add(win, more);

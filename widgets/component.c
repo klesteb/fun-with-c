@@ -405,7 +405,6 @@ int _component_dtor(object_t *object) {
     widget_t *widget = WIDGET(object);
     component_t *component = COMPONENT(object);
 
-fprintf(stderr, "entering _component_dtor()\n");
     /* free local resources here */
 
     /* if (component->area) { */
@@ -422,7 +421,6 @@ fprintf(stderr, "entering _component_dtor()\n");
     object_demote(object, widget_t);
     widget_destroy(widget);
 
-fprintf(stderr, "leaving _component_dtor() - stat: %d\n", stat);
     return stat;
 
 }
@@ -469,7 +467,6 @@ int _component_erase(widget_t *widget) {
     int stat = OK;
     component_t *self = COMPONENT(widget);
 
-fprintf(stderr, "entering _component_erase()\n");
     when_error_in {
 
         if (self->area != NULL) {
@@ -492,7 +489,6 @@ fprintf(stderr, "entering _component_erase()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _component_erase() - stat: %d\n", stat);
     return stat;
 
 }

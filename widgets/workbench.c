@@ -61,7 +61,11 @@ int _workbench_queue_event(workbench_t *, events_t *);
 /* private klass methods                                          */
 /*----------------------------------------------------------------*/
 
-static int _workbench_remove_all(object_t *);
+static int _workbench_queue_exit(workbench_t *);
+static int _workbench_remove_all(workbench_t *);
+static int _workbench_handle_f10(workbench_t *);
+static int _workbench_handle_f11(workbench_t *);
+static int _workbench_handle_f12(workbench_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -268,6 +272,43 @@ int workbench_remove(workbench_t *self, window_t *window) {
         }
 
         stat = self->_remove(self, window);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int workbench_remove_async(workbench_t *self, window_t *window) {
+
+    int stat = OK;
+    events_t *event = NULL;
+
+    when_error_in {
+
+        if ((self == NULL) || (window == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        errno = 0;
+        event = calloc(1, sizeof(events_t));
+        if (event == NULL) cause_error(errno);
+
+        event->type = EVENT_K_REMOVE;
+        event->data = (void *)window;
+
+        stat = self->_queue_event(self, event);
         check_return(stat, self);
 
         exit_when;
@@ -556,10 +597,11 @@ int _workbench_ctor(object_t *object, item_list_t *items) {
 int _workbench_dtor(object_t *object) {
 
     int stat = OK;
+    workbench_t *self = WORKBENCH(object);
 
     /* free local resources here */
 
-    _workbench_remove_all(object);
+    _workbench_remove_all(self);
 
     endwin();
 
@@ -815,9 +857,19 @@ int _workbench_event(workbench_t *self, events_t *event) {
     window_t *window = NULL;
 
 fprintf(stderr, "entering _workbench_event()\n");
+fprintf(stderr, "_workbench_event() - event: %d\n", event->type);
+
     when_error_in {
 
-        if (event->type == EVENT_K_MESSAGE) {
+        if (event->type == EVENT_K_EXIT) {
+fprintf(stderr, "_workbench_event() - EVENT_K_EXIT\n");
+
+            
+            self->dtor(OBJECT(self));
+            free(event);
+            raise(SIGTERM);
+
+        } else if (event->type == EVENT_K_MESSAGE) {
 fprintf(stderr, "_workbench_event() - EVENT_K_MESSAGE\n");
 
             length = strlen((char *)event->data) + 3;
@@ -836,6 +888,18 @@ fprintf(stderr, "_workbench_event() - EVENT_K_MESSAGE\n");
             stat = wnoutrefresh(self->messages);
             check_status(stat, OK, E_INVOPS);
 
+            free(event->data);
+            free(event);
+
+        } else if (event->type == EVENT_K_REMOVE) {
+fprintf(stderr, "_workbench_event() - EVENT_K_REMOVE\n");
+
+            window_t *window = (window_t *)event->data;
+            stat = self->_remove(self, window);
+            check_return(stat, self);
+
+            free(event);
+
         } else if (event->type == EVENT_K_KEYBOARD) {
 fprintf(stderr, "_workbench_event() - EVENT_K_KEYBOARD\n");
 
@@ -844,7 +908,7 @@ fprintf(stderr, "_workbench_event() - EVENT_K_KEYBOARD\n");
             if ((kevent->keycode == KEY_RESIZE) || 
                 (kevent->keycode == KEY_CTRL('w')) || 
                 (kevent->keycode == KEY_CTRL('l'))) {
-fprintf(stderr, "_workbench_event() - RESET\n");
+fprintf(stderr, "_workbench_event() - RESIZE\n");
 
                 stat = self->_erase(self);
                 check_return(stat, self);
@@ -852,110 +916,31 @@ fprintf(stderr, "_workbench_event() - RESET\n");
                 stat = self->_draw(self);
                 check_return(stat, self);
 
+                free(event);
+
             } else if (kevent->keycode == KEY_F(10)) {
 fprintf(stderr, "_workbench_event() - F10\n");
 
-                if (self->main != NULL) {
+                stat = _workbench_handle_f10(self);
+                check_return(stat, self);
 
-                    PANEL *panel = NULL;
-                    window_t *temp = NULL;
-
-                    for (panel = panel_above(NULL);
-                         panel != NULL;
-                         panel = panel_above(panel)) {
-
-                        temp = (window_t *)panel_userptr(panel);
-
-                        if ((window_compare((window_t *)self->main, temp)) == OK) {
-
-                            self->panel = panel;
-
-                            stat = top_panel(panel);
-                            check_status(stat, OK, E_INVOPS);
-
-                            stat = window_refresh(self->main);
-                            check_return(stat, self->main);
-
-                            break;
-
-                        }
-
-                    }
-
-                }
+                free(event);
 
             } else if (kevent->keycode == KEY_F(11)) {
 fprintf(stderr, "_workbench_event() - F11\n");
 
-                if ((self->panels > 0)) {
+                stat = _workbench_handle_f11(self);
+                check_return(stat, self);
 
-                    PANEL *current = NULL;
-                    window_t *window = NULL;
-
-                    if ((current = panel_above(NULL)) != NULL) {
-
-                        window = panel_userptr(current);
-                        self->panel = current;
-
-                        stat = top_panel(current);
-                        check_status(stat, OK, E_INVOPS);
-
-                        stat = window_refresh(window);
-                        check_return(stat, window);
-
-                    }
-
-                }
+                free(event);
 
             } else if (kevent->keycode == KEY_F(12)) {
 fprintf(stderr, "_workbench_event() - F12\n");
 
-                if ((self->panels > 1)) {
-fprintf(stderr, "_workbench_event() - panels > 1\n");
+                stat = _workbench_handle_f12(self);
+                check_return(stat, self);
 
-                    PANEL *current = NULL;
-                    window_t *window = NULL;
-
-                    window = panel_userptr(self->panel);
-
-                    if ((window_compare((window_t *)self->main, window)) == ERR) {
-
-                        stat = self->_remove(self, window);
-                        check_return(stat, self);
-
-                        if ((current = panel_below(NULL)) != NULL) {
-
-                            self->panel = current;
-
-                        } else {
-
-                            stat = _workbench_remove_all((OBJECT(self)));
-                            check_return(stat, self)
-                                                         
-                            update_panels();
-                            stat = doupdate();
-                            check_status(stat, OK, E_INVOPS);
-
-fprintf(stderr, "_workbench_event() - rasing SIGTERM\n");
-                            raise(SIGTERM);
-
-                        }
-
-                    }
-
-                } else {
-fprintf(stderr, "_workbench_event() - panels < 1\n");
-
-                    stat = _workbench_remove_all((OBJECT(self)));
-                    check_return(stat, self)
-                    update_panels();
-                    stat = doupdate();
-                    check_status(stat, OK, E_INVOPS);
-
-fprintf(stderr, "_workbench_event() - rasing SIGTERM\n");
-                    raise(SIGTERM);
-
-                }
+                free(event);
 
             } else {
 fprintf(stderr, "_workbench_event() - normal key\n");
@@ -987,7 +972,7 @@ fprintf(stderr, "_workbench_event() - normal key\n");
 
     } end_when;
     
-fprintf(stderr, "entering _workbench_event() - stat: %d\n", stat);
+fprintf(stderr, "leaving _workbench_event() - stat: %d\n", stat);
     return stat;
 
 }
@@ -1310,14 +1295,14 @@ int _workbench_read_stdin(workbench_t *self) {
 fprintf(stderr, "entering _workbench_read_stdin()\n");
     when_error_in {
 
-        if (que_empty(&self->events)) {
-
-            stat = que_init(&self->events);
-            check_status(stat, QUE_OK, E_INVOPS);
-
-        }
-
         if ((ch = getch()) != ERR) {
+
+            if (que_empty(&self->events)) {
+
+                stat = que_init(&self->events);
+                check_status(stat, QUE_OK, E_INVOPS);
+
+            }
 
             errno = 0;
             events_t *event = calloc(1, sizeof(events_t));
@@ -1334,7 +1319,7 @@ fprintf(stderr, "entering _workbench_read_stdin()\n");
 
             stat = self->_queue_event(self, event);
             check_status(stat, QUE_OK, E_NOQUEUE);
-            
+
         }
 
         exit_when;
@@ -1354,13 +1339,154 @@ fprintf(stderr, "leaving _workbench_read_stdin() - stat: %d\n", stat);
 
 /* private methods --------------------------------------------------------*/
 
-static int _workbench_remove_all(object_t *object) {
+static int _workbench_handle_f10(workbench_t *self) {
+
+    int stat = OK;
+    PANEL *panel = NULL;
+    window_t *temp = NULL;
+
+    when_error_in {
+
+        if (self->main != NULL) {
+
+            for (panel = panel_above(NULL);
+                 panel != NULL;
+                 panel = panel_above(panel)) {
+
+                temp = (window_t *)panel_userptr(panel);
+
+                if ((window_compare((window_t *)self->main, temp)) == OK) {
+
+                    self->panel = panel;
+
+                    stat = top_panel(panel);
+                    check_status(stat, OK, E_INVOPS);
+
+                    stat = window_refresh(self->main);
+                    check_return(stat, self->main);
+
+                    break;
+
+                }
+
+            }
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _workbench_handle_f11(workbench_t *self) {
+
+    int stat = OK;
+    PANEL *current = NULL;
+    window_t *window = NULL;
+
+    when_error_in {
+
+        if ((self->panels > 0)) {
+
+            if ((current = panel_above(NULL)) != NULL) {
+
+                window = panel_userptr(current);
+                self->panel = current;
+
+                stat = top_panel(current);
+                check_status(stat, OK, E_INVOPS);
+
+                stat = window_refresh(window);
+                check_return(stat, window);
+
+            }
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _workbench_handle_f12(workbench_t *self) {
+
+    int stat = OK;
+    PANEL *current = NULL;
+    window_t *window = NULL;
+
+    when_error_in {
+
+        if ((self->panels > 1)) {
+
+            window = panel_userptr(self->panel);
+
+            if ((window_compare((window_t *)self->main, window)) == ERR) {
+
+                stat = self->_remove(self, window);
+                check_return(stat, self);
+
+                update_panels();
+                stat = doupdate();
+                check_status(stat, OK, E_INVOPS);
+
+                if ((current = panel_below(NULL)) != NULL) {
+
+                    self->panel = current;
+
+                } else {
+
+                    stat = _workbench_queue_exit(self);
+                    check_return(stat, self);
+
+                }
+
+            }
+
+        } else {
+
+            stat = _workbench_queue_exit(self);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _workbench_remove_all(workbench_t *self) {
 
     int stat = OK;
     PANEL *panel = NULL;
     events_t *event = NULL;
     window_t *window = NULL;
-    workbench_t *self = WORKBENCH(object);
 
 fprintf(stderr, "entering _workbench_remove_all()\n");
     when_error_in {
@@ -1394,7 +1520,14 @@ fprintf(stderr, "entering _workbench_remove_all()\n");
         stat = werase(self->messages);
         check_status(stat, OK, E_INVOPS);
 
+        stat = wnoutrefresh(self->messages);
+        check_status(stat, OK, E_INVOPS);
+        
         stat = delwin(self->messages);
+        check_status(stat, OK, E_INVOPS);
+
+        update_panels();
+        stat = doupdate();
         check_status(stat, OK, E_INVOPS);
 
         exit_when;
@@ -1410,5 +1543,36 @@ fprintf(stderr, "entering _workbench_remove_all()\n");
 fprintf(stderr, "leaving _workbench_remove_all() - stat: %d\n", stat);
     return stat;
 
+}
+
+static int _workbench_queue_exit(workbench_t *self) {
+
+    int stat = OK;
+    events_t *event = NULL;
+
+    when_error_in {
+
+        errno = 0;
+        event = calloc(1, sizeof(events_t));
+        if (event == NULL) cause_error(errno);
+                    
+        event->type = EVENT_K_EXIT;
+        event->data = NULL;
+                    
+        stat = self->_queue_event(self, event);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+    
 }
 

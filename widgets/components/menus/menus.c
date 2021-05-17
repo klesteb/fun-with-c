@@ -177,10 +177,12 @@ int _menus_dtor(object_t *object) {
 
     }
 
-    if (self->area) {
+    if (self->area != NULL) {
 
         werase(self->area);
         delwin(self->area);
+
+        self->area = NULL;
 
     }
 

@@ -165,7 +165,6 @@ int _more_dtor(object_t *object) {
     more_data_t *data = NULL;
     component_t *self = COMPONENT(object);
 
-fprintf(stderr, "entering _more_dtor()\n");
     /* free local resources here */
 
     if (self->data != NULL) {
@@ -185,6 +184,8 @@ fprintf(stderr, "entering _more_dtor()\n");
         werase(self->area);
         delwin(self->area);
 
+        self->area = NULL;
+
     }
 
     /* walk the chain, freeing as we go */
@@ -192,7 +193,6 @@ fprintf(stderr, "entering _more_dtor()\n");
     object_demote(object, object_t);
     object_destroy(object);
 
-fprintf(stderr, "leaving _more_dtor() - stat: %d\n", stat);
     return stat;
 
 }
@@ -202,7 +202,6 @@ int _more_draw(widget_t *widget) {
     int stat = OK;
     component_t *self = COMPONENT(widget);
 
-fprintf(stderr, "entering _more_draw()\n");
     when_error_in {
 
         stat = _more_data_display(self);
@@ -218,7 +217,6 @@ fprintf(stderr, "entering _more_draw()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _more_draw() - stat: %d\n", stat);
     return stat;
 
 }
@@ -228,7 +226,6 @@ int _more_erase(widget_t *widget) {
     int stat = OK;
     component_t *self = COMPONENT(widget);
 
-fprintf(stderr, "entering _more_erase()\n");
     when_error_in {
 
         if (self->area) {
@@ -248,7 +245,6 @@ fprintf(stderr, "entering _more_erase()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _more_erase() - stat: %d\n", stat);
     return stat;
 
 }
@@ -259,7 +255,6 @@ int _more_event(widget_t *widget, events_t *event) {
     more_data_t *data = NULL;
     component_t *self = COMPONENT(widget);
 
-fprintf(stderr, "entering _more_event()\n");
     when_error_in {
 
         if (self->data != NULL) {
@@ -343,7 +338,6 @@ fprintf(stderr, "entering _more_event()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _more_event() - stat: %d\n", stat);
     return stat;
 
 }

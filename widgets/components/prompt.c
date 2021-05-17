@@ -120,7 +120,6 @@ int _prompt_dtor(object_t *object) {
     int stat = OK;
     component_t *self = COMPONENT(object);
 
-fprintf(stderr, "entering _prompt_dtor()\n");
     /* free local resources here */
 
     if (self->data != NULL) {
@@ -130,10 +129,12 @@ fprintf(stderr, "entering _prompt_dtor()\n");
 
     }
 
-    if (self->area) {
+    if (self->area != NULL) {
 
         werase(self->area);
         delwin(self->area);
+
+        self->area = NULL;
 
     }
 
@@ -142,7 +143,6 @@ fprintf(stderr, "entering _prompt_dtor()\n");
     object_demote(object, object_t);
     object_destroy(object);
 
-fprintf(stderr, "leaving _prompt_dtor() - stat: %d\n", stat);
     return stat;
 
 }

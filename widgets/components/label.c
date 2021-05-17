@@ -125,12 +125,12 @@ int _label_dtor(object_t *object) {
     int stat = OK;
     component_t *self = COMPONENT(object);
 
-fprintf(stderr, "entering _label_dtor()\n");
     /* free local resources here */
 
     if (self->data != NULL) {
 
         free(self->data);
+
         self->data = NULL;
 
     }
@@ -140,6 +140,8 @@ fprintf(stderr, "entering _label_dtor()\n");
         werase(self->area);
         delwin(self->area);
 
+        self->area = NULL;
+
     }
 
     /* walk the chain, freeing as we go */
@@ -147,7 +149,6 @@ fprintf(stderr, "entering _label_dtor()\n");
     object_demote(object, object_t);
     object_destroy(object);
 
-fprintf(stderr, "leaving _label_dtor() - stat: %d\n", stat);
     return stat;
 
 }

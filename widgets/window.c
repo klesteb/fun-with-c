@@ -319,7 +319,6 @@ int _window_dtor(object_t *object) {
     window_t *self = WINDOW(object);
     widget_t *widget = WIDGET(object);
 
-fprintf(stderr, "entering _window_dtor()\n");
     /* free local resources here */
 
     while ((component = que_pop_head(&widget->things))) {
@@ -349,7 +348,6 @@ fprintf(stderr, "entering _window_dtor()\n");
     object_demote(object, widget_t);
     widget_destroy(widget);
 
-fprintf(stderr, "leaving _window_dtor() - stat: %d\n", stat);
     return stat;
 
 }
@@ -403,7 +401,6 @@ int _window_add(widget_t *widget, void *data) {
     window_t *self = WINDOW(widget);
     component_t *component = (component_t *)data;
 
-fprintf(stderr, "entering _window_add()\n");
     when_error_in {
 
         stat = que_push_head(&widget->things, component);
@@ -428,7 +425,6 @@ fprintf(stderr, "entering _window_add()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _window_add() - stat: %d\n", stat);
     return stat;
 
 }
@@ -439,7 +435,6 @@ int _window_draw(widget_t *widget) {
     component_t *component = NULL;
     window_t *self = WINDOW(widget);
 
-fprintf(stderr, "entering _window_draw()\n");
     when_error_in {
 
         stat = wattrset(self->outer, widget->theme->attribute);
@@ -483,7 +478,6 @@ fprintf(stderr, "entering _window_draw()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _window_draw() - stat: %d\n", stat);
     return stat;
 
 }
@@ -494,7 +488,6 @@ int _window_erase(widget_t *widget) {
     component_t *component = NULL;
     window_t *self = WINDOW(widget);
 
-fprintf(stderr, "entering _window_erase()\n");
     when_error_in {
 
         for (component = que_first(&widget->things);
@@ -526,8 +519,6 @@ fprintf(stderr, "entering _window_erase()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _window_erase() - stat: %d\n", stat);
-
     return stat;
 
 }
@@ -538,7 +529,6 @@ int _window_remove(widget_t *widget, void *thing) {
     component_t *temp = NULL;
     component_t *component = (component_t *)thing;
 
-fprintf(stderr, "entering _window_remove()\n");
     when_error_in {
 
         for (temp = que_first(&widget->things);
@@ -573,7 +563,6 @@ fprintf(stderr, "entering _window_remove()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _window_remove() - stat: %d\n", stat);
     return stat;
 
 }
@@ -584,7 +573,6 @@ int _window_event(widget_t *widget, events_t *event) {
     component_t *component = NULL;
     window_t *self = WINDOW(widget);
 
-fprintf(stderr, "entering _window_event()\n");
     when_error_in {
 
         if (event->type == EVENT_K_KEYBOARD) {
@@ -602,17 +590,17 @@ fprintf(stderr, "entering _window_event()\n");
                     break;
             }
 
-        }
+            for (component = que_first(&widget->things);
+                 component != NULL;
+                 component = que_next(&widget->things)) {
 
-        for (component = que_first(&widget->things);
-             component != NULL;
-             component = que_next(&widget->things)) {
+                if (self->tab == component->tab) {
 
-            if (self->tab == component->tab) {
+                    stat = component_event(component, event);
+                    check_return(stat, component);
+                    break;
 
-                stat = component_event(component, event);
-                check_return(stat, component);
-                break;
+                }
 
             }
 
@@ -631,7 +619,6 @@ fprintf(stderr, "entering _window_event()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving _window_event() - stat: %d\n", stat);
     return stat;
 
 }

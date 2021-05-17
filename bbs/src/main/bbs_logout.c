@@ -40,7 +40,7 @@ fprintf(stderr, "event_break()\n");
         } else {
 
 fprintf(stderr, "workbench_remove()\n");
-            stat = workbench_remove(workbench, win);
+            stat = workbench_remove_async(workbench, win);
             check_return(stat, workbench);
 
         }

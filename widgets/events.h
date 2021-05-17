@@ -36,6 +36,7 @@ typedef struct _kevent_s {
 #define EVENT_K_MESSAGE  4
 #define EVENT_K_HELP     5
 #define EVENT_K_RUN      6
+#define EVENT_K_REMOVE   7
 
 #endif
 

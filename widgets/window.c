@@ -590,17 +590,17 @@ int _window_event(widget_t *widget, events_t *event) {
                     break;
             }
 
-            for (component = que_first(&widget->things);
-                 component != NULL;
-                 component = que_next(&widget->things)) {
+        }
 
-                if (self->tab == component->tab) {
+        for (component = que_first(&widget->things);
+             component != NULL;
+             component = que_next(&widget->things)) {
 
-                    stat = component_event(component, event);
-                    check_return(stat, component);
-                    break;
+            if (self->tab == component->tab) {
 
-                }
+                stat = component_event(component, event);
+                check_return(stat, component);
+                break;
 
             }
 

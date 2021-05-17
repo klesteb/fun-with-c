@@ -58,6 +58,8 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
     /* theme.foreground = BROWN; */
     /* theme.background = BLACK; */
 
+fprintf(stderr, "entering bbs_msgs_menu()\n");
+
     when_error_in {
 
         memset(title, '\0', 40);
@@ -67,7 +69,7 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
         height = (getmaxy(stdscr) - 7);
         startx = (getbegx(stdscr) + 1);
         starty = (getbegy(stdscr) + 4);
-
+        
         errno = 0;
         list = calloc(count, sizeof(menus_list_t));
         if (list == NULL) cause_error(errno);
@@ -141,6 +143,7 @@ int bbs_msgs_menu(jam_t *jam, room_base_t *room, error_trace_t *errors) {
 
     } end_when;
 
+fprintf(stderr, "leaving bbs_msgs_menu() - stat: %d\n", stat);
     return stat;
 
 }

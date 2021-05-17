@@ -854,19 +854,15 @@ int _workbench_event(workbench_t *self, events_t *event) {
     int stat = OK;
     int length = 0;
     char message[256];
-    window_t *window = NULL;
 
 fprintf(stderr, "entering _workbench_event()\n");
-fprintf(stderr, "_workbench_event() - event: %d\n", event->type);
 
     when_error_in {
 
         if (event->type == EVENT_K_EXIT) {
 fprintf(stderr, "_workbench_event() - EVENT_K_EXIT\n");
 
-            
             self->dtor(OBJECT(self));
-            free(event);
             raise(SIGTERM);
 
         } else if (event->type == EVENT_K_MESSAGE) {
@@ -888,17 +884,12 @@ fprintf(stderr, "_workbench_event() - EVENT_K_MESSAGE\n");
             stat = wnoutrefresh(self->messages);
             check_status(stat, OK, E_INVOPS);
 
-            free(event->data);
-            free(event);
-
         } else if (event->type == EVENT_K_REMOVE) {
 fprintf(stderr, "_workbench_event() - EVENT_K_REMOVE\n");
 
             window_t *window = (window_t *)event->data;
             stat = self->_remove(self, window);
             check_return(stat, self);
-
-            free(event);
 
         } else if (event->type == EVENT_K_KEYBOARD) {
 fprintf(stderr, "_workbench_event() - EVENT_K_KEYBOARD\n");
@@ -916,15 +907,11 @@ fprintf(stderr, "_workbench_event() - RESIZE\n");
                 stat = self->_draw(self);
                 check_return(stat, self);
 
-                free(event);
-
             } else if (kevent->keycode == KEY_F(10)) {
 fprintf(stderr, "_workbench_event() - F10\n");
 
                 stat = _workbench_handle_f10(self);
                 check_return(stat, self);
-
-                free(event);
 
             } else if (kevent->keycode == KEY_F(11)) {
 fprintf(stderr, "_workbench_event() - F11\n");
@@ -932,22 +919,18 @@ fprintf(stderr, "_workbench_event() - F11\n");
                 stat = _workbench_handle_f11(self);
                 check_return(stat, self);
 
-                free(event);
-
             } else if (kevent->keycode == KEY_F(12)) {
 fprintf(stderr, "_workbench_event() - F12\n");
 
                 stat = _workbench_handle_f12(self);
                 check_return(stat, self);
 
-                free(event);
-
             } else {
 fprintf(stderr, "_workbench_event() - normal key\n");
 
                 if (self->panel != NULL) {
 
-                    window = (window_t *)panel_userptr(self->panel);
+                    window_t *window = (window_t *)panel_userptr(self->panel);
                     stat = window_event(window, event);
                     check_return(stat, window);
 
@@ -1296,13 +1279,6 @@ fprintf(stderr, "entering _workbench_read_stdin()\n");
     when_error_in {
 
         if ((ch = getch()) != ERR) {
-
-            if (que_empty(&self->events)) {
-
-                stat = que_init(&self->events);
-                check_status(stat, QUE_OK, E_INVOPS);
-
-            }
 
             errno = 0;
             events_t *event = calloc(1, sizeof(events_t));

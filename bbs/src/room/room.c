@@ -946,8 +946,8 @@ int _room_open(room_t *self) {
 
         } else {
 
-            stat = files_open(self->statudb, create, mode);
-            check_return(stat, self->statudb);
+            stat = files_open(self->statusdb, create, mode);
+            check_return(stat, self->statusdb);
 
         }
 
@@ -1598,8 +1598,8 @@ int _room_get_status(room_t *self, long roomnum, long usernum, long *status) {
     off_t offset = 0;
     ssize_t count = 0;
     int locked = FALSE;
-    ssize_t position = 0;
     room_status_t ondisk;
+    int length = sizeof(room_status_t);
 
     when_error_in {
 
@@ -1616,7 +1616,7 @@ int _room_get_status(room_t *self, long roomnum, long usernum, long *status) {
 
         locked = TRUE;
 
-        stat = files_read(self->statusdb, &ondisk, sizeof(room_status_t), &count);
+        stat = files_read(self->statusdb, &ondisk, length, &count);
         check_return(stat, self->statusdb);
 
         stat = files_unlock(self->statusdb);
@@ -1626,7 +1626,7 @@ int _room_get_status(room_t *self, long roomnum, long usernum, long *status) {
 
         while (count > 0) {
 
-            if ((ondisk.roomnum == roomnum) && (ondisk.usernum == usernun)) {
+            if ((ondisk.roomnum == roomnum) && (ondisk.usernum == usernum)) {
 
                 *status = ondisk.status;
                 break;

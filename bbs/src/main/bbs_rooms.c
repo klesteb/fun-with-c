@@ -80,6 +80,7 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
         check_return(stat, rooms);
 
         if (bit_test(room->flags, RM_MESSAGES)) {
+fprintf(stderr, "bbs_load_room() - name: %s\n", room->name);            
 
             stat = room_handler(rooms, room, (void **)&jam);
             check_return(stat, rooms);

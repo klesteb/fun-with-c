@@ -6,6 +6,7 @@
 #include "when.h"
 #include "finds.h"
 #include "files.h"
+#include "bitops.h"
 #include "errors.h"
 #include "tracer.h"
 #include "que_util.h"
@@ -24,6 +25,22 @@ int display(room_base_t *room) {
     printf("path      : %s\n", room->path);
     printf("conference: %d\n", room->conference);
     printf("flags     : %d\n", room->flags);
+
+    if (bit_test(room->flags, RM_INUSE)) printf("  RM_INUSE\n");
+    if (bit_test(room->flags, RM_PUBLIC)) printf("  RM_PUBLIC\n");
+    if (bit_test(room->flags, RM_PRIVATE)) printf("  RM_PRIVATE\n");
+    if (bit_test(room->flags, RM_PREFONLY)) printf("  RM_PERFONLY\n");
+    if (bit_test(room->flags, RM_PERMROOM)) printf("  RM_PERMROOM\n");
+    if (bit_test(room->flags, RM_FORGOTTEN)) printf("  RM_FORGOTTEN\n");
+    if (bit_test(room->flags, RM_NETWORK)) printf("  RM_NETWORK\n");
+    if (bit_test(room->flags, RM_READONLY)) printf("  RM_READONLY\n");
+    if (bit_test(room->flags, RM_UPLOAD)) printf("  RM_UPLOAD\n");
+    if (bit_test(room->flags, RM_DOWNLOAD)) printf("  RM_DOWNLOAD\n");
+    if (bit_test(room->flags, RM_MESSAGES)) printf("  RM_MESSAGES\n");
+    if (bit_test(room->flags, RM_BULLETIN)) printf("  RM_BULLENTIN\n");
+    if (bit_test(room->flags, RM_DIRECTORY)) printf("  RM_DIRECTORY\n");
+    if (bit_test(room->flags, RM_SUBSYS)) printf("  RM_SUBSYS\n");
+    
     printf("revision  : %d\n", room->revision);
 
     return OK;

@@ -52,7 +52,7 @@ typedef struct _room_base_s {
     char path[256];         /* path to the resource                      */
     char description[64];   /* description                               */
     short conference;       /* the qwk conference number                 */
-    short flags;            /* capability flags                          */
+    ushort flags;           /* capability flags                          */
     int retries;            /* number of retires for file locking        */
     int timeout;            /* timeout in seconds, between retries       */
     int base;               /* the base message number                   */
@@ -65,7 +65,7 @@ typedef struct _room_search_s {
     long roomnum;           /* room number                               */
     long aide;              /* the rooms aide                            */
     int index;              /* the index for the room                    */
-    short flags;            /* capability flags                          */
+    ushort flags;           /* capability flags                          */
 } room_search_t;
 
 typedef struct _room_status_s {

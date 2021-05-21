@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
     when_error_in {
 
         stat = que_init(&results);
-        check_status(stat, OK, E_INVOPS);
+        check_status(stat, QUE_OK, E_INVOPS);
 
         stat = setup();
         check_status(stat, OK, E_INVOPS);

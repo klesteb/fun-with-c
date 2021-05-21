@@ -88,6 +88,9 @@ node - An ANSI C class to manage the node database
          stat = setup();
          check_status(stat, OK, E_INVOPS);
 
+         stat = que_init(&results);
+         check_status(stat, QUE_OK, E_INVOPS);
+
          stat = node_open(nodes);
          check_return(stat, nodes);
 
@@ -96,7 +99,7 @@ node - An ANSI C class to manage the node database
 
          while ((result = que_pop_head(&results))) {
 
-             stat = node_get(nodes, result->index, &temp);
+             stat = node_get(nodes, result->record, &temp);
              check_return(stat, nodes);
 
              printf("---------------------------------\n");

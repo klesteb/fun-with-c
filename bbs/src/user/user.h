@@ -84,8 +84,9 @@ typedef struct _user_base_s {
     char axlevel;                   /* See AX_ flags above              */
     unsigned qwk;                   /* See QWK_ flags above             */
     unsigned flags;                 /* See US_ flags above              */
-    int screenwidth;                /* For formatting messages          */
-    int screenlength;               /* Lines before MORE                */
+    char term[33];                  /* Terminal name                    */
+    int cols;                       /* Terminal columns                 */
+    int rows;                       /* Terminal rows                    */
     int timescalled;                /* Number of logins                 */
     int posted;                     /* Number of messages posted (ever) */
     long eternal;                   /* Eternal user number              */

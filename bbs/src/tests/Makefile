@@ -25,7 +25,7 @@ TARGETS = jam-test1 jam-test2 jam-test3 jam-test4 jam-test5 jam-test6 \
           jam-test7 jam-test8 qwk-test1 qwk-test2 qwk-test3 qwk-test4 \
           qwk-test5 room-test1 room-test2 room-test3 room-test4 room-test5 \
           room-test6 room-test7 test1 node-test1 node-test2 node-test3 \
-          user-test1 user-test2
+          node-test4 user-test1 user-test2
 #
 all: $(TARGETS)
 #
@@ -135,6 +135,10 @@ node-test2: node-test2.o
 node-test3: node-test3.o
 	$(CC) $(CFLAGS) node-test3.c
 	$(LINK) $(LOPTS) node-test3 node-test3.o $(OLBS)
+#
+node-test4: node-test4.o
+	$(CC) $(CFLAGS) node-test4.c
+	$(LINK) $(LOPTS) node-test4 node-test4.o $(OLBS)
 #
 user-test1: user-test1.o
 	$(CC) $(CFLAGS) user-test1.c

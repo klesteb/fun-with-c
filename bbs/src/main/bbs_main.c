@@ -258,10 +258,9 @@ int main(int argc, char **argv) {
     int stat = OK;
     extern int optind;
     extern char *optarg;
-    char *configs = NULL;
     error_trace_t errors;
     int rc = EXIT_SUCCESS;
-    char opts[] = "c:n:u:vsh?";
+    char opts[] = "n:u:vsh?";
 
     opterr = 0;
     username = strndup(getenv("LOGNAME"), LEN_NAME);
@@ -269,9 +268,6 @@ int main(int argc, char **argv) {
     while ((c = getopt(argc, argv, opts)) != -1) {
 
         switch(c) {
-            case 'c':
-                configs = strdup(optarg);
-                break;
             case 's':
                 sysop = TRUE;
                 free(username);
@@ -286,19 +282,19 @@ int main(int argc, char **argv) {
                 break;
             case 'h':
                 printf("\n");
-                printf("xa-bbs %s - linux port\n", bbs_version());
+                printf("xa-bbs v%s - linux port\n", bbs_version());
                 printf("\n");
-                printf("Usage: xa-bbs [-s] [-n <number>] [-c <filename>]\n");
+                printf("Usage: xa-bbs [-s | -u <user name>] [-n <number>]\n");
                 printf("\n");
                 printf("    -s - enable sysop options.\n");
                 printf("    -v - shows the version number.\n");
+                printf("    -u <user name> - use this user.\n");
                 printf("    -n <node> - node number of this instance.\n");
-                printf("    -c <filename> - use this configuration file.\n");
                 printf("\n");
                 goto fini;
                 break;
             case '?':
-                printf("Usage: xa-bbs [-s] [-n <number>] [-c <filename>]\n");
+                printf("Usage: xa-bbs [-s | -u <user name>] [-n <number>]\n");
                 goto fini;
                 break;
             case 'v':

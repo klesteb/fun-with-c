@@ -28,6 +28,7 @@ extern int find_user_by_name(void *, void *);
 
 extern int find_nodes_all(void *, void *);
 extern int find_node_by_number(void *, void *);
+extern int find_nodes_active(void *, void *);
 
 #endif
 

@@ -55,13 +55,14 @@
 /*-------------------------------------------------------------*/
 
 typedef struct _node_base_s {   /* Node information kept in node.dat */
-    uchar  action;              /* Action User is doing on Node      */
+    uchar  action;              /* What the User is doing on Node    */
     ushort useron;              /* User on Node                      */
     long   nodenum;             /* Node number                       */
     int    revision;            /* Revision level of record          */
 } node_base_t;
 
 typedef struct _node_search_s {
+    uchar  action;              /* What the User is doing on Node    */
     ushort useron;              /* User on Node                      */
     long   nodenum;             /* Node number                       */
     off_t  record;              /* Index of record                   */

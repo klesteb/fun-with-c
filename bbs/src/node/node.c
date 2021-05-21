@@ -180,6 +180,7 @@ int node_capture(rms_t *self, void *data, queue *results) {
         if (result == NULL) cause_error(errno);
 
         result->nodenum = ondisk->nodenum;
+        result->action  = ondisk->action;
         result->useron  = ondisk->useron;
         result->record  = self->record;
 

@@ -76,12 +76,14 @@ int _user_add(rms_t *self, user_base_t *user) {
 int _user_build(rms_t *self, user_base_t *ondisk, user_base_t *user) {
 
     strcpy((*user).username, ondisk->username);
+    strcpy((*user).term, ondisk->term);
     (*user).axlevel = ondisk->axlevel;
     (*user).qwk = ondisk->qwk;
     (*user).flags = ondisk->flags;
-    (*user).screenwidth = ondisk->screenwidth;
-    (*user).screenlength = ondisk->screenlength;
+    (*user).rows = ondisk->rows;
+    (*user).cols = ondisk->cols;
     (*user).timescalled = ondisk->timescalled;
+    (*user).timelimit = ondisk->timelimit;
     (*user).posted = ondisk->posted;
     (*user).eternal = ondisk->eternal;
     (*user).today = ondisk->today;
@@ -171,8 +173,12 @@ int _user_extend(rms_t *self, int amount) {
 
         /* defaults */
 
+        user.cols = 80;
+        user.rows = 24;
+        user.timelimit = 60;
         user.revision = revision;
         user.flags |= US_INACTIVE;
+        strcpy(user.term, "xterm");
         user.qwk = (QWK_FILES | QWK_ATTACH | QWK_EMAIL | QWK_DELMAIL);
 
         stat = files_seek(self->rmsdb, 0, SEEK_END);
@@ -225,13 +231,22 @@ int _user_init(rms_t *self) {
 
     when_error_in {
 
+        /* defaults */
+
+        ondisk.cols = 80;
+        ondisk.rows = 24;
+        ondisk.revision = 1;
+        memset(ondisk.term, '\0', 32);
+        strcpy(ondisk.term, "xterm");
+
+        /* start a the beginning */
+
         stat = files_seek(self->rmsdb, 0, SEEK_SET);
         check_return(stat, self->rmsdb);
 
         /* create sysop account */
 
         ondisk.eternal = 1;
-        ondisk.revision = 1;
         ondisk.axlevel = AX_SYSOP;
         ondisk.flags = (US_SYSOP | US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
         memset(&ondisk.username, '\0', 26);
@@ -272,6 +287,7 @@ int _user_init(rms_t *self) {
         /* guest account */
 
         ondisk.eternal = 3;
+        ondisk.timelimit = 60;
         ondisk.flags = US_PERM;
         ondisk.axlevel = AX_NORM;
         memset(&ondisk.username, '\0', 26);
@@ -307,12 +323,14 @@ int _user_init(rms_t *self) {
 int _user_normalize(rms_t *self, user_base_t *ondisk, user_base_t *user) {
 
     strcpy((*user).username, ondisk->username);
+    strcpy((*user).term, ondisk->term);
     (*user).axlevel = ondisk->axlevel;
     (*user).qwk = ondisk->qwk;
     (*user).flags = ondisk->flags;
-    (*user).screenwidth = ondisk->screenwidth;
-    (*user).screenlength = ondisk->screenlength;
+    (*user).rows = ondisk->rows;
+    (*user).cols = ondisk->cols;
     (*user).timescalled = ondisk->timescalled;
+    (*user).timelimit = ondisk->timelimit;
     (*user).posted = ondisk->posted;
     (*user).eternal = ondisk->eternal;
     (*user).today = ondisk->today;

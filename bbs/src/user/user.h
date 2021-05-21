@@ -31,6 +31,7 @@
 #define LEN_PHONE    31
 #define LEN_EMAIL    47
 #define LEN_DESC     1023
+#define LEN_TERM     31
 
 /* user.axlevel values */
 
@@ -84,7 +85,7 @@ typedef struct _user_base_s {
     char axlevel;                   /* See AX_ flags above              */
     unsigned qwk;                   /* See QWK_ flags above             */
     unsigned flags;                 /* See US_ flags above              */
-    char term[33];                  /* Terminal name                    */
+    char term[LEN_TERM+1];          /* Terminal name                    */
     int cols;                       /* Terminal columns                 */
     int rows;                       /* Terminal rows                    */
     int timescalled;                /* Number of logins                 */

@@ -116,6 +116,125 @@ The room to compare against.
 
 =back
 
+=head2 I<int find_index_all(ulong selector, jam_index_t *index)>
+
+Find the indexes that match the selector. In this case it returns all of
+the indexes.
+
+=over 4
+
+=item B<selector>
+
+The item to compare against.
+
+=item B<index>
+
+A pointer to a a jam_index_t index type.
+
+=back
+
+=head2 I<int find_index_by_user(ulong selector, jam_index_t *index)>
+
+Find the indexes that match the selector. In this case it matches the
+JAM crc32 value of the users name.
+
+=over 4
+
+=item B<selector>
+
+The item to compare against.
+
+=item B<index>
+
+A pointer to a a jam_index_t index type.
+
+=back
+
+=head2 I<int find_nodes_all(void *data1, void *data2)>
+
+Find the nodes the match the criteria. In this case it matches all of
+the nodes.
+
+=over 4
+
+=item B<data1>
+
+A NULL value.
+
+=item B<data2>
+
+A NULL value.
+
+=back
+
+=head2 I<int find_nodes_by_number(void *data1, void *data2)>
+
+Find the nodes the match the criteria. In this case it matches the
+node number.
+
+=over 4
+
+=item B<data1>
+
+A pointer to the node number.
+
+=item B<data2>
+
+A pointer to a node_base_t type.
+
+=back
+
+=head2 I<int find_nodes_active(void *data1, void *data2)>
+
+Find the nodes the match the criteria. In this case it matches nodes
+that are active.
+
+=over 4
+
+=item B<data1>
+
+A NULL value.
+
+=item B<data2>
+
+A pointer to a node_base_t type.
+
+=back
+
+=head2 I<int find_users_all(void *data1, void *data2)>
+
+Find the users the match the criteria. In this case it matches all of the
+users.
+
+=over 4
+
+=item B<data1>
+
+A NULL value.
+
+=item B<data2>
+
+A NULL pointer
+
+=back
+
+=head2 I<int find_user_by_name(void *data1, void *data2)>
+
+Find the users the match the criteria. In this case it matches a single
+user.
+
+=over 4
+
+=item B<data1>
+
+A pointer to a character string of the users name.
+
+=item B<data2>
+
+A pointer to a user_base_t type.
+
+=back
+
 =head1 RETURNS
 
 These functions return TRUE when a match is made, otherwise FALSE.
@@ -151,6 +270,10 @@ Builds the module and provides a shared library.
 =item L<msgs(3)>
 
 =item L<room(3)>
+
+=item L<user(3)>
+
+=item L<node(3)>
 
 =item L<object(3)>
 

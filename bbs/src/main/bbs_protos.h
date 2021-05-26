@@ -36,8 +36,7 @@ extern int bbs_send_status(int, error_trace_t *);
 
 /* bbs_rooms */
 
-extern int bbs_load_room(void *, int, error_trace_t *);
-extern int bbs_list_rooms(void *, int, error_trace_t *);
+extern int bbs_load_rooms(queue *, int (*filter)(void *, int , room_base_t *), error_trace_t *);
 
 /* bbs_ui */
 
@@ -46,6 +45,8 @@ extern int bbs_clear_message(error_trace_t *);
 extern int bbs_who(void *, int, error_trace_t *);
 extern int bbs_help(void *, int, error_trace_t *);
 extern int bbs_system(void *, int, error_trace_t *);
+extern int bbs_load_room(void *, int, error_trace_t *);
+extern int bbs_list_rooms(void *, int, error_trace_t *);
 extern int bbs_send_message(const char *, error_trace_t *);
 
 /* bbs_logoff */

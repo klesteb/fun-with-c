@@ -680,10 +680,6 @@ int _room_ctor(object_t *object, item_list_t *items) {
             self->sequence = files_create(seq, retries, timeout);
             check_creation(self->sequence);
 
-            strncpy(status, fnm_build(1, FnmPath, "room-status", ".dat", database, NULL), 255);
-            self->statusdb = files_create(status, retries, timeout);
-            check_creation(self->statusdb);
-
             exit_when;
 
         } use {
@@ -711,7 +707,6 @@ int _room_dtor(object_t *object) {
     free(self->path);
     files_close(self->roomdb);
     files_close(self->sequence);
-    files_close(self->statusdb);
 
     /* walk the chain, freeing as we go */
 
@@ -935,22 +930,6 @@ int _room_open(room_t *self) {
             }
 
         }
-
-        stat = files_exists(self->statusdb, &exists);
-        check_return(stat, self->statusdb);
-
-        if (exists) {
-
-            stat = files_open(self->statusdb, flags, 0);
-            check_return(stat, self->statusdb);
-
-        } else {
-
-            stat = files_open(self->statusdb, create, mode);
-            check_return(stat, self->statusdb);
-
-        }
-
 
         stat = files_exists(self->roomdb, &exists);
         check_return(stat, self->roomdb);
@@ -1585,77 +1564,6 @@ int _room_get_sequence(room_t *self, long *sequence) {
         process_error(self);
 
         if (locked) files_unlock(self->sequence);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _room_get_status(room_t *self, long roomnum, long usernum, long *status) {
-
-    int stat = OK;
-    off_t offset = 0;
-    ssize_t count = 0;
-    int locked = FALSE;
-    room_status_t ondisk;
-    int length = sizeof(room_status_t);
-
-    when_error_in {
-
-        *status = 0;
-
-        stat = files_seek(self->statusdb, 0, SEEK_SET);
-        check_return(stat, self->statusdb);
-
-        stat = files_tell(self->statusdb, &offset);
-        check_return(stat, self->statusdb);
-
-        stat = files_lock(self->statusdb, offset, length);
-        check_return(stat, self->roomdb);
-
-        locked = TRUE;
-
-        stat = files_read(self->statusdb, &ondisk, length, &count);
-        check_return(stat, self->statusdb);
-
-        stat = files_unlock(self->statusdb);
-        check_return(stat, self->statusdb);
-
-        locked = FALSE;
-
-        while (count > 0) {
-
-            if ((ondisk.roomnum == roomnum) && (ondisk.usernum == usernum)) {
-
-                *status = ondisk.status;
-                break;
-
-            }
-
-            stat = files_lock(self->statusdb, offset, length);
-            check_return(stat, self->roomdb);
-
-            locked = TRUE;
-
-            stat = files_read(self->statusdb, &ondisk, sizeof(room_status_t), &count);
-            check_return(stat, self->statusdb);
-
-            stat = files_unlock(self->statusdb);
-            check_return(stat, self->statusdb);
-
-            locked = FALSE;
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-        if (locked) files_unlock(self->statusdb);
 
     } end_when;
 

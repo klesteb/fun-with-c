@@ -71,7 +71,7 @@ typedef struct _room_search_s {
 typedef struct _room_status_s {
     long roomnum;           /* room number                               */
     long usernum;           /* user number                               */
-    long status;            /* room status                               */
+    ushort status;          /* room status                               */
     int revision;           /* the revision of this record               */
 } room_status_t;
 
@@ -120,7 +120,6 @@ struct _room_s {
     char *path;
     files_t *roomdb;
     files_t *sequence;
-    files_t *statusdb;
     tracer_t *trace;
     void *handler;
 };

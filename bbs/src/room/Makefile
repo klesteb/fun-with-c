@@ -16,16 +16,16 @@ LIBR = ar rs
 LIBS = ../../libs/
 WORKING = $(shell pwd)
 STATIC = libroom.a
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I.. -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I.. -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 #
-OLBS = $(STATIC) ../../../libs/libtracer.a ../../../libs/liberrors.a ../../../libs/libfiles.a ../../../libs/libobjects.a ../../../libs/libcclibs.a ../../../libs/libgpl.a 
+OLBS = $(STATIC) ../../../libs/libtracer.a ../../../libs/liberrors.a ../../../libs/librms.a ../../../libs/libfiles.a ../../../libs/libobjects.a ../../../libs/libcclibs.a ../../../libs/libgpl.a 
 #
-INCS = room.h handler.h msgs.h
+INCS = room.h handler.h msgs.h status.h
 #
-OBJS = room.o handler.o msgs.o
+OBJS = room.o handler.o msgs.o status.o
 #
 all: $(OBJS)
 #
@@ -39,6 +39,7 @@ clean:
 	rm -f room.3
 	rm -f msgs.3
 	rm -f handler.3
+	rm -f status.3
 #
 room.o: room.c $(INCS)
 	$(CC) $(CFLAGS) room.c
@@ -52,16 +53,22 @@ msgs.o: msgs.c $(INCS)
 	$(CC) $(CFLAGS) msgs.c
 	$(LIBR) $(LIBS)libroom.a msgs.o
 #
+status.o: status.c $(INCS)
+	$(CC) $(CFLAGS) status.c
+	$(LIBR) $(LIBS)libroom.a status.o
+#
 man:
 	pod2man -c " " -r "room(3)" -s 3 room.pod room.3
 	pod2man -c " " -r "msgs(3)" -s 3 msgs.pod msgs.3
 	pod2man -c " " -r "handler(3)" -s 3 handler.pod handler.3
+	pod2man -c " " -r "room status(3)" -s 3 status.pod status.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) room.o room.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) msgs.o msgs.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) handler.o handler.c
-	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) room.o msgs.o handler.o
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) status.o status.c
+	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) room.o msgs.o handler.o status.o
 #
 # eof
 #

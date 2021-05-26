@@ -99,12 +99,12 @@ int bbs_user(void *data, int size, error_trace_t *errors) {
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Rows              : %d\n", useron.rows);
+        sprintf(line, "Cols              : %d\n", useron.cols);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Cols              : %d\n", useron.cols);
+        sprintf(line, "Rows              : %d\n", useron.rows);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 

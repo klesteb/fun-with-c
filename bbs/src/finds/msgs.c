@@ -10,29 +10,26 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _FINDS_H
-#define _FINDS_H
+#include <stdio.h>
+#include "finds.h"
 
-#include "node.h"
-#include "user.h"
-#include "room.h"
-#include "jam.h"
+int find_index_all(ulong selector, jam_index_t *index) {
 
-extern int find_rooms_all(void *, int, room_base_t *);
-extern int find_rooms_messages(void *, int, room_base_t *);
-extern int find_rooms_networked(void *, int, room_base_t *);
-extern int find_room_by_number(void *, int, room_base_t *);
-extern int find_room_by_conference(void *, int, room_base_t *);
+    return TRUE;
 
-extern int find_users_all(void *, void *);
-extern int find_user_by_name(void *, void *);
+}
 
-extern int find_nodes_all(void *, void *);
-extern int find_node_by_number(void *, void *);
-extern int find_nodes_active(void *, void *);
+int find_index_by_user(ulong selector, jam_index_t *index) {
 
-extern int find_index_all(ulong, jam_index_t *);
-extern int find_index_by_user(ulong, jam_index_t *);
+    int stat = FALSE;
 
-#endif
+    if (selector == index->user_crc) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
 

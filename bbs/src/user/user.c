@@ -236,8 +236,8 @@ int _user_init(rms_t *self) {
         ondisk.cols = 80;
         ondisk.rows = 24;
         ondisk.revision = 1;
-        memset(ondisk.term, '\0', 32);
-        strcpy(ondisk.term, "xterm");
+        memset(ondisk.term, '\0', LEN_TERM+1);
+        strncpy(ondisk.term, "xterm", LEN_TERM);
 
         /* start a the beginning */
 
@@ -249,8 +249,8 @@ int _user_init(rms_t *self) {
         ondisk.eternal = 1;
         ondisk.axlevel = AX_SYSOP;
         ondisk.flags = (US_SYSOP | US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
-        memset(&ondisk.username, '\0', 26);
-        strcpy(ondisk.username, "sysop");
+        memset(&ondisk.username, '\0', LEN_NAME+1);
+        strncpy(ondisk.username, "sysop", LEN_NAME);
 
         stat = files_tell(self->rmsdb, &position);
         check_return(stat, self->rmsdb);
@@ -269,8 +269,8 @@ int _user_init(rms_t *self) {
         ondisk.eternal = 2;
         ondisk.axlevel = AX_NET;
         ondisk.flags = (US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
-        memset(&ondisk.username, '\0', 26);
-        strcpy(ondisk.username, "qwknet");
+        memset(&ondisk.username, '\0', LEN_NAME+1);
+        strncpy(ondisk.username, "qwknet", LEN_NAME);
 
         stat = files_tell(self->rmsdb, &position);
         check_return(stat, self->rmsdb);
@@ -290,8 +290,8 @@ int _user_init(rms_t *self) {
         ondisk.timelimit = 60;
         ondisk.flags = US_PERM;
         ondisk.axlevel = AX_NORM;
-        memset(&ondisk.username, '\0', 26);
-        strcpy(ondisk.username, "guest");
+        memset(&ondisk.username, '\0', LEN_NAME+1);
+        strncpy(ondisk.username, "guest", LEN_NAME);
 
         stat = files_tell(self->rmsdb, &position);
         check_return(stat, self->rmsdb);

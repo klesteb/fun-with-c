@@ -64,6 +64,7 @@ int _jam_write_index(jam_t *, jam_index_t *, ssize_t *);
 int _jam_append_index(jam_t *, jam_header_t *, jam_index_t *);
 int _jam_normalize_index(jam_t *, jam_index_t *, jam_index_t *);
 int _jam_update_index(jam_t *, ulong, jam_header_t *, jam_index_t *);
+int _jam_search_index(jam_t *, ulong, int (*compare)(ulong, jam_index_t *), queue *);
 
 int _jam_read_text(jam_t *, char **, int);
 int _jam_write_text(jam_t *, char *, int);
@@ -80,7 +81,7 @@ int _jam_add_message(jam_t *, jam_message_t *, queue *, char *);
 int _jam_append_message(jam_t *, jam_message_t *, queue *, ssize_t *);
 int _jam_get_message(jam_t *, ulong, jam_message_t *, queue *, char **);
 int _jam_normalize_message(jam_t *, jam_message_t *, queue *, jam_message_t *, queue *);
-int _jam_search_messages(jam_t *, ulong, int, int (*compare)(ulong, jam_message_t *), queue *);
+int _jam_search_messages(jam_t *, ulong, int (*compare)(ulong, jam_message_t *), queue *);
 
 int _jam_free_fields(jam_t *, queue *);
 int _jam_free_field(jam_t *, jam_field_t *);
@@ -700,7 +701,7 @@ int jam_put_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fi
 
 }
 
-int jam_search_messages(jam_t *self, ulong select, int index, int (*compare)(ulong, jam_message_t *), queue *results) {
+int jam_search_messages(jam_t *self, ulong select, int (*compare)(ulong, jam_message_t *), queue *results) {
 
     int stat = OK;
 
@@ -712,7 +713,35 @@ int jam_search_messages(jam_t *self, ulong select, int index, int (*compare)(ulo
 
         }
 
-        stat = self->_search_messages(self, select, index, compare, results);
+        stat = self->_search_messages(self, select, compare, results);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int jam_search_index(jam_t *self, ulong select, int (*compare)(ulong, jam_index_t *), queue *results) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (compare == NULL) || (results == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_search_index(self, select, compare, results);
         check_return(stat, self);
 
         exit_when;
@@ -841,6 +870,7 @@ int _jam_ctor(object_t *object, item_list_t *items) {
         self->_read_index      = _jam_read_index;
         self->_update_index    = _jam_update_index;
         self->_write_index     = _jam_write_index;
+        self->_search_index    = _jam_search_index;
 
         self->_del_lastread       = _jam_del_lastread;
         self->_add_lastread       = _jam_add_lastread;
@@ -1149,6 +1179,11 @@ int _jam_override(jam_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case JAM_M_SEARCH_INDEX: {
+                    self->_search_index = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -1184,6 +1219,7 @@ int _jam_compare(jam_t *self, jam_t *other) {
         (self->_read_index         == other->_read_index) &&
         (self->_update_index       == other->_update_index) &&
         (self->_write_index        == other->_write_index) &&
+        (self->_search_index       == other->_search_index) &&
         (self->_del_lastread       == other->_del_lastread) &&
         (self->_add_lastread       == other->_add_lastread) &&
         (self->_put_lastread       == other->_put_lastread) &&
@@ -2214,6 +2250,82 @@ int _jam_normalize_index(jam_t *self, jam_index_t *temp, jam_index_t *index) {
 
 }
 
+int _jam_search_index(jam_t *self, ulong selector, int (*compare)(ulong, jam_index_t *), queue *results) {
+
+    int stat = OK;
+    ssize_t msgs = 0;
+    jam_index_t index;
+    jam_search_t *search = NULL;
+
+    when_error_in {
+
+        /* lock the message base */
+
+        stat = self->_lock(self);
+        check_return(stat, self);
+
+        /* get the number of messages in the msgbase */
+
+        stat = self->_size(self, &msgs);
+        check_return(stat, self);
+
+        /* walk the index */
+
+        int x;
+        for (x = 0; x < msgs; x++) {
+
+            stat = self->_find_index(self, x, &index);
+            check_return(stat, self);
+
+            /* skip deleted messages */
+
+            if ((index.user_crc == JAM_NO_CRC) &&
+                (index.header_offset == JAM_NO_CRC)) {
+
+                continue;
+
+            }
+
+            if (compare(selector, &index)) {
+
+                errno = 0;
+                search = calloc(1, sizeof(jam_search_t));
+                if (search == NULL) {
+
+                    cause_error(errno);
+
+                }
+
+                search->msgnum = x;
+                search->offset = index.header_offset;
+
+                stat = que_push_tail(results, search);
+                check_status(stat, QUE_OK, E_NOQUEUE);
+
+            }
+
+        }
+
+        /* unlock the message base */
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* message routines                                               */
 /*----------------------------------------------------------------*/
@@ -2613,7 +2725,7 @@ int _jam_put_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *f
 
 }
 
-int _jam_search_messages(jam_t *self, ulong selector, int index_only, int (*compare)(ulong, jam_message_t *), queue *results) {
+int _jam_search_messages(jam_t *self, ulong selector, int (*compare)(ulong, jam_message_t *), queue *results) {
 
     queue fields;
     int stat = OK;
@@ -2651,59 +2763,32 @@ int _jam_search_messages(jam_t *self, ulong selector, int index_only, int (*comp
 
             }
 
-            /* if index_only is TRUE check only the index, otherwise  */
-            /* load the message header and compare the selctor to it. */
+            stat = que_init(&fields);
+            check_status(stat, QUE_OK, E_INVOPS);
 
-            if (index_only) {
+            stat = self->_find_message(self, index.header_offset, &message, &fields);
+            check_return(stat, self);
 
-                if (selector == index.user_crc) {
+            if (compare(selector, &message)) {
 
-                    errno = 0;
-                    search = calloc(1, sizeof(jam_search_t));
-                    if (search == NULL) {
+                errno = 0;
+                search = calloc(1, sizeof(jam_search_t));
+                if (search == NULL) {
 
-                        cause_error(errno);
-
-                    }
-
-                    search->msgnum = x;
-                    search->offset = index.header_offset;
-
-                    stat = que_push_tail(results, search);
-                    check_status(stat, QUE_OK, E_NOQUEUE);
+                    cause_error(errno);
 
                 }
 
-            } else {
+                search->msgnum = x;
+                search->offset = index.header_offset;
 
-                stat = que_init(&fields);
-                check_status(stat, QUE_OK, E_INVOPS);
-
-                stat = self->_find_message(self, index.header_offset, &message, &fields);
-                check_return(stat, self);
-
-                if (compare(selector, &message)) {
-
-                    errno = 0;
-                    search = calloc(1, sizeof(jam_search_t));
-                    if (search == NULL) {
-
-                        cause_error(errno);
-
-                    }
-
-                    search->msgnum = x;
-                    search->offset = index.header_offset;
-
-                    stat = que_push_tail(results, search);
-                    check_status(stat, QUE_OK, E_NOQUEUE);
-
-                }
-
-                stat = self->_free_fields(self, &fields);
-                check_return(stat, self);
+                stat = que_push_tail(results, search);
+                check_status(stat, QUE_OK, E_NOQUEUE);
 
             }
+
+            stat = self->_free_fields(self, &fields);
+            check_return(stat, self);
 
         }
 

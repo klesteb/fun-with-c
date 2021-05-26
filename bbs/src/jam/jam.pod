@@ -17,7 +17,7 @@ jam - A ANSI C class that implements the JAM message base
  
  tracer_t *dump;
  
- int compare(ulong selector, jam_message_t *message) {
+ int compare(ulong selector, jam_index_t *index) {
 
      return TRUE;
 
@@ -69,12 +69,12 @@ jam - A ANSI C class that implements the JAM message base
          stat = jam_open(jam);
          check_return(stat, jam);
 
-         stat = jam_crc32(jam, (uchar)sysop, strlen(sysop), &user_crc);
+         stat = jam_crc32(jam, (uchar *)sysop, strlen(sysop), &user_crc);
          check_return(stat, jam);
 
-         stat = jam_search_messages(jam, user_crc, TRUE, compare, &results);
+         stat = jam_search_index(jam, user_crc, compare, &results);
          check_return(stat, jam);
-         
+
          while ((search = que_pop_head(&results))) {
          
              stat = que_init(&fields);
@@ -138,7 +138,7 @@ multi-process system such as Linux.
 This library tries to minimize the impact of the locking system. It
 tries to acquire a lock, if not available, it waits a period of time
 and tries again, up to a predefined limit. Locks are only held for the
-limited time it needs to read and write data. All locks are aquired
+limited time it needs to read and write data. All locks are acquired
 and released by the library. This should minimize the locking system 
 problems.
 
@@ -440,6 +440,32 @@ The crc32 value for the user name.
 
 =back
 
+=head2 I<int jam_search_index(jam_t *self, ulong select, int (*compare)(ulong, jam_index_t *), queue *results)>
+
+This method searches the message base index, selecting indexes based on a
+search criteria. These are returned in the results list. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a jam_t object.
+
+=item B<select>
+
+The value to search on.
+
+=item B<compare>
+
+A comparison function. This function is passed the select item along
+with the index record. It should return TRUE/FALSE on match.
+
+=item B<results>
+
+A list of jam_search_t types that match the search criteria. 
+
+=back
+
 =head2 I<int jam_get_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fields, char **text)>
 
 This method returns a message from the message base.
@@ -532,7 +558,7 @@ A pointer to the sub fields associated with this message.
 
 =back
 
-=head2 I<int jam_search_messages(jam_t *self, ulong select, int index, int (*compare)(ulong, jam_message_t *), queue *results)>
+=head2 I<int jam_search_messages(jam_t *self, ulong select, int (*compare)(ulong, jam_message_t *), queue *results)>
 
 This method searches the message base, selecting messages based on a
 search criteria. These are returned in the results list. 
@@ -547,12 +573,7 @@ A pointer to a jam_t object.
 
 The value to search on.
 
-=item B<index>
-
-A Boolean on wither to just use the index or to also include the message body
-in the search.
-
-=item B<comapre>
+=item B<compare>
 
 A comparison function. This function is passed the select item along
 with the message body. It should return TRUE/FALSE on match.

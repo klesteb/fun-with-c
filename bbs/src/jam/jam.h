@@ -203,6 +203,7 @@ struct _jam_s {
     int (*_append_index)(jam_t *, jam_header_t *, jam_index_t *);
     int (*_normalize_index)(jam_t *, jam_index_t *, jam_index_t *);
     int (*_update_index)(jam_t *, ulong, jam_header_t *, jam_index_t *);
+    int (*_search_index)(jam_t *, ulong, int (*compare)(ulong, jam_index_t *), queue *);
 
     int (*_del_lastread)(jam_t *, ulong);
     int (*_add_lastread)(jam_t *, jam_lastread_t *);
@@ -230,7 +231,7 @@ struct _jam_s {
     int (*_append_message)(jam_t *, jam_message_t *, queue *, ssize_t *);
     int (*_get_message)(jam_t *, ulong, jam_message_t *, queue *, char **);
     int (*_normalize_message)(jam_t *, jam_message_t *, queue *, jam_message_t *, queue *);
-    int (*_search_messages)(jam_t *, ulong, int, int (*compare)(ulong, jam_message_t *), queue *);
+    int (*_search_messages)(jam_t *, ulong, int (*compare)(ulong, jam_message_t *), queue *);
 
     int (*_free_fields)(jam_t *, queue *);
     int (*_free_field)(jam_t *, jam_field_t *);
@@ -304,6 +305,7 @@ struct _jam_s {
 #define JAM_M_NEW_FIELD          41
 #define JAM_M_SEARCH_MESSAGES    42
 #define JAM_M_NORMALIZE_MESSAGE  43
+#define JAM_M_SEARCH_INDEX       44
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -326,6 +328,8 @@ extern int jam_add_lastread(jam_t *, ulong, ulong);
 extern int jam_get_lastread(jam_t *, ulong, jam_lastread_t *);
 extern int jam_put_lastread(jam_t *, ulong, jam_lastread_t *);
 
+extern int jam_search_index(jam_t *, ulong, int (*compare)(ulong, jam_index_t *), queue *);
+                            
 extern int jam_del_message(jam_t *, ulong);
 extern int jam_free_field(jam_t *, jam_field_t *);
 extern int jam_new_message(jam_t *, jam_message_t **);
@@ -333,7 +337,7 @@ extern int jam_new_field(jam_t *, ushort, char *, jam_field_t **);
 extern int jam_put_message(jam_t *, ulong, jam_message_t *, queue *);
 extern int jam_add_message(jam_t *, jam_message_t *, queue *, char *);
 extern int jam_get_message(jam_t *, ulong, jam_message_t *, queue *, char **);
-extern int jam_search_messages(jam_t *, ulong, int, int (*compare)(ulong, jam_message_t *), queue *);
+extern int jam_search_messages(jam_t *, ulong, int (*compare)(ulong, jam_message_t *), queue *);
 
 #endif
 

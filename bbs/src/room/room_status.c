@@ -15,15 +15,15 @@
 #include "rms.h"
 #include "when.h"
 #include "files.h"
-#include "status.h"
 #include "tracer.h"
 #include "item_list.h"
+#include "room_status.h"
 
 /*----------------------------------------------------------------*/
 /* klass overrides                                                */
 /*----------------------------------------------------------------*/
 
-int _status_add(rms_t *self, room_status_t *status) {
+int _room_status_add(rms_t *self, room_status_t *status) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -73,7 +73,7 @@ int _status_add(rms_t *self, room_status_t *status) {
 
 }
  
-int _status_build(rms_t *self, room_status_t *ondisk, room_status_t *status) {
+int _room_status_build(rms_t *self, room_status_t *ondisk, room_status_t *status) {
 
     (*status).roomnum = ondisk->roomnum;
     (*status).usernum = ondisk->usernum;
@@ -84,7 +84,7 @@ int _status_build(rms_t *self, room_status_t *ondisk, room_status_t *status) {
 
 }
  
-int _status_del(rms_t *self, off_t recnum) {
+int _room_status_del(rms_t *self, off_t recnum) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -144,7 +144,7 @@ int _status_del(rms_t *self, off_t recnum) {
  
 }
  
-int _status_extend(rms_t *self, int amount) {
+int _room_status_extend(rms_t *self, int amount) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -203,7 +203,7 @@ int _status_extend(rms_t *self, int amount) {
 
 }
 
-int _status_normalize(rms_t *self, room_status_t *ondisk, room_status_t *status) {
+int _room_status_normalize(rms_t *self, room_status_t *ondisk, room_status_t *status) {
 
     (*status).roomnum = ondisk->roomnum;
     (*status).usernum = ondisk->usernum;
@@ -214,7 +214,7 @@ int _status_normalize(rms_t *self, room_status_t *ondisk, room_status_t *status)
 
 }
 
-int _status_put(rms_t *self, off_t recnum, room_status_t *status) {
+int _room_status_put(rms_t *self, off_t recnum, room_status_t *status) {
 
     int stat = OK;
     ssize_t count = 0;
@@ -278,18 +278,18 @@ int _status_put(rms_t *self, off_t recnum, room_status_t *status) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-int status_capture(rms_t *self, void *data, queue *results) {
+int room_status_capture(rms_t *self, void *data, queue *results) {
 
     int stat = OK;
     room_status_t *ondisk = NULL;
-    status_search_t *result = NULL;
+    room_status_search_t *result = NULL;
 
     when_error_in {
 
         ondisk = (room_status_t *)data;
 
         errno = 0;
-        result = calloc(1, sizeof(status_search_t));
+        result = calloc(1, sizeof(room_status_search_t));
         if (result == NULL) cause_error(errno);
 
         result->roomnum = ondisk->roomnum;
@@ -312,7 +312,7 @@ int status_capture(rms_t *self, void *data, queue *results) {
 
 }
 
-char *status_version(rms_t *self) {
+char *room_status_version(rms_t *self) {
 
     char *version = VERSION;
 
@@ -320,7 +320,7 @@ char *status_version(rms_t *self) {
 
 }
 
-rms_t *status_create(char *path, int records, int retries, int timeout, tracer_t *dump) {
+rms_t *room_status_create(char *path, int records, int retries, int timeout, tracer_t *dump) {
 
     int stat = OK;
     rms_t *self = NULL;
@@ -333,12 +333,12 @@ rms_t *status_create(char *path, int records, int retries, int timeout, tracer_t
         self = rms_create(path, name, records, recsize, retries, timeout, dump);
         check_creation(self);
 
-        SET_ITEM(items[0], RMS_M_ADD, _status_add, 0, NULL);
-        SET_ITEM(items[1], RMS_M_BUILD, _status_build, 0, NULL);
-        SET_ITEM(items[2], RMS_M_DEL, _status_del, 0, NULL);
-        SET_ITEM(items[3], RMS_M_EXTEND, _status_extend, 0, NULL);
-        SET_ITEM(items[4], RMS_M_NORMALIZE, _status_normalize, 0, NULL);
-        SET_ITEM(items[5], RMS_M_PUT, _status_put, 0, NULL);
+        SET_ITEM(items[0], RMS_M_ADD, _room_status_add, 0, NULL);
+        SET_ITEM(items[1], RMS_M_BUILD, _room_status_build, 0, NULL);
+        SET_ITEM(items[2], RMS_M_DEL, _room_status_del, 0, NULL);
+        SET_ITEM(items[3], RMS_M_EXTEND, _room_status_extend, 0, NULL);
+        SET_ITEM(items[4], RMS_M_NORMALIZE, _room_status_normalize, 0, NULL);
+        SET_ITEM(items[5], RMS_M_PUT, _room_status_put, 0, NULL);
         SET_ITEM(items[6], 0, 0, 0, 0);
 
         stat = rms_override(self, items);

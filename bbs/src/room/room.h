@@ -68,13 +68,6 @@ typedef struct _room_search_s {
     ushort flags;           /* capability flags                          */
 } room_search_t;
 
-typedef struct _room_status_s {
-    long roomnum;           /* room number                               */
-    long usernum;           /* user number                               */
-    ushort status;          /* room status                               */
-    int revision;           /* the revision of this record               */
-} room_status_t;
-
 /*-------------------------------------------------------------*/
 /* klass defination                                            */
 /*-------------------------------------------------------------*/

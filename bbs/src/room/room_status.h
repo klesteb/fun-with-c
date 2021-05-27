@@ -31,38 +31,38 @@ typedef struct _room_status_s {
     int revision;           /* the revision of this record               */
 } room_status_t;
 
-typedef struct _status_search_s {
+typedef struct _room_status_search_s {
     long roomnum;           /* room number                               */
     long usernum;           /* user number                               */
     off_t record;           /* record number                             */
-} status_search_t;
+} room_status_search_t;
 
-typedef struct _status_find_s {
+typedef struct _room_status_find_s {
     long roomnum;           /* room number                               */
     long usernum;           /* user number                               */
-} status_find_t;
+} room_status_find_t;
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern rms_t *status_create(char *, int, int, int, tracer_t *);
-extern int status_capture(rms_t *, void *, queue *);
-extern char *status_version(rms_t *);
+extern rms_t *room_status_create(char *, int, int, int, tracer_t *);
+extern int room_status_capture(rms_t *, void *, queue *);
+extern char *room_status_version(rms_t *);
 
-#define status_destroy(self) rms_destroy(self)
-#define status_compare(self, other) rms_compare(self, other)
-#define status_override(self, items) rms_override(self, items)
+#define room_status_destroy(self) rms_destroy(self)
+#define room_status_compare(self, other) rms_compare(self, other)
+#define room_status_override(self, items) rms_override(self, items)
 
-#define status_open(self) rms_open(self)
-#define status_close(self) rms_close(self);
-#define status_del(self, recnum) rms_del(self, recnum)
-#define status_extend(self, amount) rms_extend(self, amount)
-#define status_add(self, user) rms_add(self, (void *)user)
-#define status_get(self, recnum, user) rms_get(self, recnum, (void *)user)
-#define status_put(self, recnum, user) rms_put(self, recnum, (void *)user)
-#define status_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)
-#define status_search(self, data, len, compare, capture, results) rms_search(self, data, len, compare, capture, results)
+#define room_status_open(self) rms_open(self)
+#define room_status_close(self) rms_close(self);
+#define room_status_del(self, recnum) rms_del(self, recnum)
+#define room_status_extend(self, amount) rms_extend(self, amount)
+#define room_status_add(self, user) rms_add(self, (void *)user)
+#define room_status_get(self, recnum, user) rms_get(self, recnum, (void *)user)
+#define room_status_put(self, recnum, user) rms_put(self, recnum, (void *)user)
+#define room_status_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)
+#define room_status_search(self, data, len, compare, capture, results) rms_search(self, data, len, compare, capture, results)
 
 #endif
 

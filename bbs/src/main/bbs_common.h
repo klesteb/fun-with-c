@@ -76,6 +76,7 @@ extern char *textpath;
 extern char *networknode;
 extern char *humannode;
 extern char *serialnum;
+extern int rstatnum;
 extern char *axdefs[8];
 
 #endif

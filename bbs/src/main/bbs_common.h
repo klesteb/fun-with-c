@@ -32,6 +32,7 @@
 #include "fnm_util.h"
 #include "misc/misc.h"
 #include "workbench.h"
+#include "room_status.h"
 #include "bbs_error_codes.h"
 
 /* global items ---------------------------------------------------------- */
@@ -39,6 +40,7 @@
 extern rms_t *nodes;
 extern rms_t *users;
 extern room_t *rooms;
+extern rms_t *rstatus;
 extern tracer_t *dump;
 extern errors_t *errs;
 extern event_t *events;

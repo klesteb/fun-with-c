@@ -21,6 +21,8 @@
 #define E_UNKROOM  9002
 #define E_UNKNODE  9003
 #define E_UNKFILE  9004
+#define E_NOTSYSOP 9005
+#define E_NOTAIDE  2006
 
 #endif
 

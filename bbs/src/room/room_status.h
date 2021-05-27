@@ -20,6 +20,10 @@
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
+#define RS_FORGET  (1L<<1)   /* forget this room                          */
+#define RS_REMOVED (1L<<2)   /* removed from this room                    */
+#define RS_INVITED (1L<<3)   /* invited into room                         */
+
 /*-------------------------------------------------------------*/
 /* data structures                                             */
 /*-------------------------------------------------------------*/

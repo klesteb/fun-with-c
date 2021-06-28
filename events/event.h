@@ -37,6 +37,11 @@ typedef struct _event_handler_s {
     NxIntervalId timer_id;
 } event_handler_t;
 
+typedef struct _exit_handler_s {
+    int (*callback)(void *);
+    void *data;
+} exit_handler_t;
+
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/
@@ -52,12 +57,14 @@ struct _event_s {
 
     int (*_loop)(event_t *);
     int (*_break)(event_t *);
+    int (*_at_exit)(event_t *, int (*callback)(void *), void *);
     int (*_register_input)(event_t *, int , int (*input)(void *), void *);
     int (*_register_worker)(event_t *, int , int (*input)(void *), void *);
     int (*_register_timer)(event_t *, int, double, int (*input)(void *), void *);
 
     int broken;
     queue handlers;
+    queue exit_handlers;
 };
 
 /*-------------------------------------------------------------*/
@@ -80,6 +87,7 @@ extern char *event_version(event_t *);
 
 extern int event_loop(event_t *);
 extern int event_break(event_t *);
+extern int event_at_exit(event_t *, int (*callback)(void *), void *);
 extern int event_register_input(event_t *, int, int (*input)(void *), void *);
 extern int event_register_worker(event_t *, int, int (*input)(void *), void *);
 extern int event_register_timer(event_t *, int, double, int (*input)(void *), void *);

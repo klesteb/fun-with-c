@@ -22,18 +22,14 @@
 #define SERIALNUM "119319218"       /* system serial number                */
 #define NETWORKED FALSE             /* this system belongs to a network    */
 
-#define BBSDIR   "../../"            /* root directory of the bbs           */
-#define DATAPATH "../../data/"            /* where the data files are located    */
-#define MSGPATH  "../../messages/"        /* where the messages are located      */
-#define TEXTPATH "../../text/"            /* where the text files are located    */
+#define BBSDIR   "../../"           /* root directory of the bbs           */
+#define DATAPATH "../../data/"      /* where the data files are located    */
+#define MSGPATH  "../../messages/"  /* where the messages are located      */
+#define TEXTPATH "../../text/"      /* where the text files are located    */
 
 #define MSGBASE 1                   /* base message number                 */
 #define TIMEOUT 1                   /* timeout for file locking            */
 #define RETRIES 30                  /* retires for file locking            */
-
-#define ROOMNUM 32                  /* max number of rooms                 */
-#define NODENUM 32                  /* max number of nodes                 */
-#define USERNUM 256                 /* max number of users                 */
 
 #define CREATAIDE FALSE             /* automatic room aide assignments     */
 #define LOBBYPOST AX_AIDE           /* AX level for posting in the lobby   */
@@ -42,6 +38,16 @@
 #define VALIDAX   AX_NORM           /* AX level for validated users        */
 #define REGISCALL TRUE              /* user must register on first call    */
 #define TIMELIM   60                /* default time limit on system        */
+
+/* change these at your peril. set them once, they effect the sizes of the */
+/* datastores. the bbs will create files on initial startup using these    */
+/* numbers. changing the datastore sizes must be done external to the      */
+/* bbs. once that is done. then these can be changed to reflect the new    */
+/* reality. this reality will cause a recompile.                           */ 
+
+#define ROOMNUM 32                  /* max number of rooms                 */
+#define NODENUM 32                  /* max number of nodes                 */
+#define USERNUM 256                 /* max number of users                 */
 
 #endif
 

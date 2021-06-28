@@ -10,6 +10,7 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
+#include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -53,6 +54,7 @@ int _event_override(event_t *, item_list_t *);
 
 int _event_loop(event_t *);
 int _event_break(event_t *);
+int _event_at_exit(event_t *, int (*callback)(void *), void *data);
 int _event_register_input(event_t *, int, int (*input)(void *), void *);
 int _event_register_worker(event_t *, int, int (*input)(void *), void *);
 int _event_register_timer(event_t *, int, double, int (*input)(void *), void *);
@@ -61,6 +63,7 @@ int _event_register_timer(event_t *, int, double, int (*input)(void *), void *);
 /* private klass methods                                          */
 /*----------------------------------------------------------------*/
 
+static int _event_free_all(event_t *);
 static int _init_self_pipe(event_t *);
 static int _read_pipe(NxAppContext, NxInputId, int, void *);
 static int _dispatch_timer(NxAppContext, NxIntervalId, void *);
@@ -360,6 +363,36 @@ int event_register_timer(event_t *self, int reque, double interval, int (*input)
 
 }
 
+int event_at_exit(event_t *self, int (*callback)(void *), void *data) {
+                  
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (callback == NULL) || (data == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_at_exit(self, callback, data);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -411,6 +444,7 @@ int _event_ctor(object_t *object, item_list_t *items) {
 
         self->_loop = _event_loop;
         self->_break = _event_break;
+        self->_at_exit = _event_at_exit;
         self->_register_input = _event_register_input;
         self->_register_timer = _event_register_timer;
         self->_register_worker = _event_register_worker;
@@ -429,6 +463,11 @@ int _event_ctor(object_t *object, item_list_t *items) {
             /* initialize the handlers queue */
 
             stat = que_init(&self->handlers);
+            check_status(stat, QUE_OK, E_INVOPS);
+
+            /* initialize the exit handlers queue */
+
+            stat = que_init(&self->exit_handlers);
             check_status(stat, QUE_OK, E_INVOPS);
 
             exit_when;
@@ -452,35 +491,28 @@ int _event_dtor(object_t *object) {
 
     int stat = OK;
     event_t *self = EVENT(object);
-    event_handler_t *handler = NULL;
+    exit_handler_t *handler = NULL;
 
+fprintf(stderr, "entering _event_dtor()\n");
+        
     /* free local resources here */
 
-    NxRemoveInput(NULL, pipe_id);
+    _event_free_all(self);
 
-    while ((handler = que_pop_head(&self->handlers))) {
-        
-        switch (handler->type) {
-            case EV_INPUT:
-                NxRemoveInput(NULL, handler->input_id);
-                break;
-            case EV_WORKER:
-                NxRemoveWorkProc(NULL, handler->worker_id);
-                break;
-            case EV_TIMER:
-                NxRemoveTimeOut(NULL, handler->timer_id);
-                break;
-        }
-        
+    while ((handler = que_pop_head(&self->exit_handlers))) {
+fprintf(stderr, "_event_dtor() - doing callback\n");
+
+        (*handler->callback)(handler->data);
         free(handler);
-        
+
     }
-    
+
     /* walk the chain, freeing as we go */
 
     object_demote(object, object_t);
     object_destroy(object);
 
+fprintf(stderr, "leaving _event_dtor()\n");
     return stat;
 
 }
@@ -522,6 +554,7 @@ int _event_compare(event_t *self, event_t *other) {
         (self->dtor == other->dtor) &&
         (self->_compare == other->_compare) &&
         (self->_override == other->_override) &&
+        (self->_at_exit == other->_at_exit) &&
         (self->_loop == other->_loop) &&
         (self->_register_input == other->_register_input) &&
         (self->_register_worker == other->_register_worker) &&
@@ -681,9 +714,67 @@ int _event_register_timer(event_t *self, int reque, double interval, int (*input
 
 int _event_break(event_t *self) {
 
-    event_handler_t *handler = NULL;
+    _event_free_all(self);
+    
+    self->broken = TRUE;
+    object_set_error1(self, E_INVOPS);
 
-    /* free local resources here */
+    return ERR;
+
+}
+
+int _event_at_exit(event_t *self, int (*callback)(void *), void *data) {
+
+    int stat = OK;
+    exit_handler_t *handler = NULL;
+
+    when_error_in {
+
+        errno = 0;
+        handler = calloc(1, sizeof(exit_handler_t));
+        if (handler == NULL) cause_error(errno);
+
+        handler->data = data;
+        handler->callback = callback;
+
+        stat = que_push_tail(&self->exit_handlers, handler);
+        check_status(stat, QUE_OK, E_INVOPS);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+    
+    return stat;
+    
+}
+
+int _event_loop(event_t *self) {
+
+    int stat = OK;
+
+    pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
+
+    stat = NxMainLoop(NULL);
+    if (self->broken) stat = ERR;
+
+    return stat;
+
+}
+
+/*----------------------------------------------------------------*/
+/* private methods                                                */
+/*----------------------------------------------------------------*/
+
+static int _event_free_all(event_t *self) {
+
+    event_handler_t *handler = NULL;
 
     NxRemoveInput(NULL, pipe_id);
 
@@ -705,29 +796,9 @@ int _event_break(event_t *self) {
 
     }
 
-    self->broken = TRUE;
-    object_set_error1(self, E_INVOPS);
-
-    return ERR;
+    return OK;
 
 }
-
-int _event_loop(event_t *self) {
-
-    int stat = OK;
-
-    pipe_id = NxAddInput(NULL, pfd[0], NxInputReadMask, _read_pipe, (void *)self);
-
-    stat = NxMainLoop(NULL);
-    if (self->broken) stat = ERR;
-
-    return stat;
-
-}
-
-/*----------------------------------------------------------------*/
-/* private methods                                                */
-/*----------------------------------------------------------------*/
 
 static int _dispatch_input(NxAppContext context, NxInputId id, int fd, void *data) {
 
@@ -841,6 +912,8 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
                 if ((sig == SIGINT) || (sig == SIGTERM)) {
 
+fprintf(stderr, "_read_pipe() - signaled\n");
+                    
                     /* preform cleanup */
 
                     stat = self->dtor((object_t *)self);

@@ -239,14 +239,14 @@ int _user_init(rms_t *self) {
         memset(ondisk.term, '\0', LEN_TERM+1);
         strncpy(ondisk.term, "xterm", LEN_TERM);
 
-        /* start a the beginning */
+        /* start at the beginning */
 
         stat = files_seek(self->rmsdb, 0, SEEK_SET);
         check_return(stat, self->rmsdb);
 
         /* create sysop account */
 
-        ondisk.eternal = 1;
+        ondisk.eternal = SYSOP;
         ondisk.axlevel = AX_SYSOP;
         ondisk.flags = (US_SYSOP | US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
         memset(&ondisk.username, '\0', LEN_NAME+1);
@@ -266,7 +266,7 @@ int _user_init(rms_t *self) {
 
         /* create network account */
 
-        ondisk.eternal = 2;
+        ondisk.eternal = QWKNET;
         ondisk.axlevel = AX_NET;
         ondisk.flags = (US_ROOMAIDE | US_PERM | US_SUBSYSTEM | US_NEEDVALID);
         memset(&ondisk.username, '\0', LEN_NAME+1);
@@ -286,7 +286,7 @@ int _user_init(rms_t *self) {
 
         /* guest account */
 
-        ondisk.eternal = 3;
+        ondisk.eternal = GUEST;
         ondisk.timelimit = 60;
         ondisk.flags = US_PERM;
         ondisk.axlevel = AX_NORM;

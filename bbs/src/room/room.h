@@ -16,11 +16,12 @@
 #include "files.h"
 #include "object.h"
 #include "tracer.h"
+#include "jam/jam.h"
 #include "que_util.h"
 #include "datatypes.h"
 #include "item_list.h"
 #include "error_code.h"
-#include "jam/jam.h"
+#include "room_common.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

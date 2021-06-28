@@ -603,7 +603,7 @@ int _workbench_dtor(object_t *object) {
 
     _workbench_remove_all(self);
 
-    endwin();
+    /* endwin(); */
 
     /* walk the chain, freeing as we go */
 
@@ -862,7 +862,6 @@ fprintf(stderr, "entering _workbench_event()\n");
         if (event->type == EVENT_K_EXIT) {
 fprintf(stderr, "_workbench_event() - EVENT_K_EXIT\n");
 
-            self->dtor(OBJECT(self));
             raise(SIGTERM);
 
         } else if (event->type == EVENT_K_MESSAGE) {
@@ -888,8 +887,12 @@ fprintf(stderr, "_workbench_event() - EVENT_K_MESSAGE\n");
 fprintf(stderr, "_workbench_event() - EVENT_K_REMOVE\n");
 
             window_t *window = (window_t *)event->data;
-            stat = self->_remove(self, window);
-            check_return(stat, self);
+            if (window != NULL) {
+
+                stat = self->_remove(self, window);
+                check_return(stat, self);
+
+            }
 
         } else if (event->type == EVENT_K_KEYBOARD) {
 fprintf(stderr, "_workbench_event() - EVENT_K_KEYBOARD\n");
@@ -1498,7 +1501,7 @@ fprintf(stderr, "entering _workbench_remove_all()\n");
 
         stat = wnoutrefresh(self->messages);
         check_status(stat, OK, E_INVOPS);
-        
+
         stat = delwin(self->messages);
         check_status(stat, OK, E_INVOPS);
 

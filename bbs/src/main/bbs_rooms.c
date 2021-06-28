@@ -23,7 +23,6 @@
 static int invite_into_room(room_base_t *room, user_base_t *user, error_trace_t *errors) {
 
     int stat = OK;
-    int stat = OK;
     off_t recnum = 0;
     room_status_t status;
     room_status_find_t find;
@@ -33,7 +32,7 @@ static int invite_into_room(room_base_t *room, user_base_t *user, error_trace_t 
         find.roomnum = room->roomnum;
         find.usernum = user->eternal;
 
-        stat = room_status_find(rstatus, &find, 0, compare, &recnum);
+        stat = room_status_find(rstatus, &find, 0, find_room_status, &recnum);
         check_return(stat, rstatus);
 
         if (recnum > 0) {
@@ -73,7 +72,7 @@ static int invite_into_room(room_base_t *room, user_base_t *user, error_trace_t 
     
 }
 
-static int remove_from_room(room_base_t *room, user_base_t *user, error_trace_t *errors);
+static int remove_from_room(room_base_t *room, user_base_t *user, error_trace_t *errors) {
 
     int stat = OK;
     off_t recnum = 0;
@@ -87,7 +86,7 @@ static int remove_from_room(room_base_t *room, user_base_t *user, error_trace_t 
             find.roomnum = room->roomnum;
             find.usernum = user->eternal;
 
-            stat = room_status_find(rstatus, &find, 0, compare, &recnum);
+            stat = room_status_find(rstatus, &find, 0, find_room_status, &recnum);
             check_return(stat, rstatus);
 
             if (recnum > 0) {
@@ -151,7 +150,7 @@ static int kill_room(room_base_t *room, user_base_t *user, error_trace_t *errors
             memset(room->name, '\0', 32);
             memset(room->description, '\0', 64);
 
-            stat = room_put(rooms, room->recnum, room);
+            stat = room_put(rooms, room->roomnum, room);
             check_return(stat, rooms);
 
             stat = que_init(&results);
@@ -160,7 +159,7 @@ static int kill_room(room_base_t *room, user_base_t *user, error_trace_t *errors
             find.roomnum = room->roomnum;
             find.usernum = 0;
 
-            stat = room_status_search(rstatus, &find, 0, compare, &results);
+            stat = room_status_search(rstatus, &find, 0, find_room_status_for_room, &results);
             check_return(stat, rstatus);
 
             while ((result = que_pop_head(&results))) {
@@ -176,7 +175,7 @@ static int kill_room(room_base_t *room, user_base_t *user, error_trace_t *errors
                 free(result);
 
             }
-            
+
         } else {
 
             cause_error(E_NOTAIDE);
@@ -212,7 +211,7 @@ static int forget_room(room_base_t *room, user_base_t *user, error_trace_t *erro
             find.roomnum = room->roomnum;
             find.usernum = user->eternal;
 
-            stat = room_status_find(rstatus, &find, 0, compare, &recnum);
+            stat = room_status_find(rstatus, &find, 0, find_room_status, &recnum);
             check_return(stat, rstatus);
 
             if (recnum > 0) {

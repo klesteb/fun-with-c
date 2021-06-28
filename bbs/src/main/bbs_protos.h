@@ -27,6 +27,9 @@ extern int bbs_run(error_trace_t *);
 extern int is_aide(room_base_t *, user_base_t *);
 extern int is_sysop(room_base_t *, user_base_t *);
 extern int known_room(room_search_t *, user_base_t *);
+extern int is_invited(room_search_t *, user_base_t *);
+extern int is_removed(room_search_t *, user_base_t *);
+extern int is_forgotten(room_search_t *, user_base_t *);
 extern int allowed_in_room(room_search_t *, user_base_t *);
 
 /* bbs_ipc */

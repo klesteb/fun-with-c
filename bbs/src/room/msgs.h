@@ -14,14 +14,11 @@
 #define _MSGS_H
 
 #include "handler.h"
+#include "room_common.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
 /*-------------------------------------------------------------*/
-
-#define LOBBY    1          /* lobby is always room 1          */
-#define MAILROOM 2          /* mail is always room 2           */
-#define AIDEROOM 3          /* aide is always room 3           */
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

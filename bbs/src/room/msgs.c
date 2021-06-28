@@ -49,7 +49,7 @@ int _msgs_init(handler_t *self) {
         check_return(stat, self->db);
 
         lobby.aide = 1;
-        lobby.roomnum = 1;
+        lobby.roomnum = LOBBY;
         lobby.base = self->base;
         lobby.conference = LOBBY;
         lobby.revision = revision;
@@ -73,7 +73,7 @@ int _msgs_init(handler_t *self) {
         check_return(stat, self);
 
         email.aide = 1;
-        email.roomnum = 2;
+        email.roomnum = MAILROOM;
         email.base = self->base;
         email.revision = revision;
         strcpy(email.name, "Mail");
@@ -97,7 +97,7 @@ int _msgs_init(handler_t *self) {
         check_return(stat, self);
 
         aide.aide = 1;
-        aide.roomnum = 3;
+        aide.roomnum = AIDEROOM;
         aide.base = self->base;
         aide.revision = revision;
         strcpy(aide.name, "Aide");

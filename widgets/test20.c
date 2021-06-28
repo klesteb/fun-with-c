@@ -235,7 +235,7 @@ int setup(error_trace_t *errors) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        /* create the workbench */
+        /* create the workbench, must be done before event processing */
 
         workbench = workbench_create(NULL);
         check_creation(workbench);
@@ -244,6 +244,9 @@ int setup(error_trace_t *errors) {
 
         events = event_create();
         check_creation(events);
+
+        stat = event_at_exit(events, workbench_destroy, (void *)workbench);
+        check_return(stat, events);
 
         exit_when;
 

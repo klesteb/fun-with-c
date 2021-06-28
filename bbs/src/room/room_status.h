@@ -15,6 +15,7 @@
 
 #include "rms.h"
 #include "tracer.h"
+#include "room_common.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
@@ -66,7 +67,7 @@ extern char *room_status_version(rms_t *);
 #define room_status_get(self, recnum, user) rms_get(self, recnum, (void *)user)
 #define room_status_put(self, recnum, user) rms_put(self, recnum, (void *)user)
 #define room_status_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)
-#define room_status_search(self, data, len, compare, capture, results) rms_search(self, data, len, compare, capture, results)
+#define room_status_search(self, data, len, compare, results) rms_search(self, data, len, compare, room_status_capture, results)
 
 #endif
 

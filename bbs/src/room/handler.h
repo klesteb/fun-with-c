@@ -18,6 +18,7 @@
 #include "tracer.h"
 #include "object.h"
 #include "item_list.h"
+#include "room_common.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */

@@ -91,3 +91,39 @@ int find_rooms_networked(void *data, int len, room_base_t *room) {
 
 }
 
+int find_room_status(void *data1, void *data2) {
+
+    int stat = FALSE;
+    room_status_t *status = (room_status_t *)data2;
+    room_status_find_t *find = (room_status_find_t *)data1;
+
+fprintf(stderr, "find_room_status() - find; roomnum: %d, usernum: %d\n", find->roomnum, find->usernum);
+fprintf(stderr, "find_room_status() - status; roomnum: %d, usernum: %d\n", status->roomnum, status->usernum);
+    
+    if ((find->roomnum == status->roomnum) &&
+        (find->usernum == status->usernum)) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
+int find_room_status_for_room(void *data1, void *data2) {
+
+    int stat = FALSE;
+    room_status_t *status = (room_status_t *)data2;
+    room_status_find_t *find = (room_status_find_t *)data1;
+
+    if (find->roomnum == status->roomnum) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+

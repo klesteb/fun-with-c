@@ -15,6 +15,7 @@
 #include "rms.h"
 #include "when.h"
 #include "files.h"
+#include "bitops.h"
 #include "tracer.h"
 #include "item_list.h"
 #include "room_status.h"
@@ -203,6 +204,40 @@ int _room_status_extend(rms_t *self, int amount) {
 
 }
 
+int _room_status_init(rms_t *self) {
+
+    int stat = OK;
+    room_status_t ondisk;
+
+    when_error_in {
+
+        /* defaults */
+
+        ondisk.roomnum = AIDEROOM;
+        ondisk.usernum = SYSOP;
+        ondisk.revision = 0;
+        bit_set(ondisk.flags, RS_INVITED);
+
+        /* store the record */
+
+        stat = self->_add(self, &ondisk);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int _room_status_normalize(rms_t *self, room_status_t *ondisk, room_status_t *status) {
 
     (*status).roomnum = ondisk->roomnum;
@@ -324,7 +359,7 @@ rms_t *room_status_create(char *path, int records, int retries, int timeout, tra
 
     int stat = OK;
     rms_t *self = NULL;
-    item_list_t items[7];
+    item_list_t items[8];
     char *name = "room-status";
     int recsize = sizeof(room_status_t);
 
@@ -337,9 +372,10 @@ rms_t *room_status_create(char *path, int records, int retries, int timeout, tra
         SET_ITEM(items[1], RMS_M_BUILD, _room_status_build, 0, NULL);
         SET_ITEM(items[2], RMS_M_DEL, _room_status_del, 0, NULL);
         SET_ITEM(items[3], RMS_M_EXTEND, _room_status_extend, 0, NULL);
-        SET_ITEM(items[4], RMS_M_NORMALIZE, _room_status_normalize, 0, NULL);
-        SET_ITEM(items[5], RMS_M_PUT, _room_status_put, 0, NULL);
-        SET_ITEM(items[6], 0, 0, 0, 0);
+        SET_ITEM(items[4], RMS_M_INIT, _room_status_init, 0, NULL);
+        SET_ITEM(items[5], RMS_M_NORMALIZE, _room_status_normalize, 0, NULL);
+        SET_ITEM(items[6], RMS_M_PUT, _room_status_put, 0, NULL);
+        SET_ITEM(items[7], 0, 0, 0, 0);
 
         stat = rms_override(self, items);
         check_return(stat, self);

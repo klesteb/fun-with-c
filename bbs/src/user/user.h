@@ -74,6 +74,14 @@
 #define QWK_VIA     (1L<<11)   /* Include "@VIA" seen-bys in msgs   */
 #define QWK_NOCTRL  (1L<<12)   /* No extraneous control files       */
 
+/* predefined users */
+
+#ifndef SYSOP                  /* please see room_common.h          */
+#define SYSOP  1               /* these must match                  */
+#define QWKNET 2
+#define GUEST  3
+#endif
+
 /*-------------------------------------------------------------*/
 /* data structures                                             */
 /*-------------------------------------------------------------*/

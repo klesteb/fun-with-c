@@ -24,8 +24,8 @@ error_code_t bbs_codes[] = {
     { E_UNKUSER,  "E_UNKUSER",  "Unknown bbs user name" },
     { E_UNKROOM,  "E_UNKROOM",  "Unknown bbs room" },
     { E_UNKNODE,  "E_UNKNODE",  "Unknown bbs node" },
-    { E_UNKFILE,  "E_UNKFILE",  "Unknowm bbs file" }
-    { E_NOTSYSOP, "E_NOTSYSOP", "User is not a sysop" }
+    { E_UNKFILE,  "E_UNKFILE",  "Unknowm bbs file" },
+    { E_NOTSYSOP, "E_NOTSYSOP", "User is not a sysop" },
     { E_NOTAIDE,  "E_NOTAIDE", " User is not an aide" }
 };
 

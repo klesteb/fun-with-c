@@ -993,11 +993,19 @@ fprintf(stderr, "entering _workbench_remove()\n");
 
                 if (self->panel == panel) {
 
-                    self->panel = panel_below(panel);
+                    if (self->panels > 0) {
+
+                        self->panel = panel_below(panel);
+
+                    } else {
+
+                        self->panel = NULL;
+
+                    }
 
                 }
 
-                /* remove panel */
+                /* remove the panel */
 
                 stat = del_panel(panel);
                 check_status(stat, OK, E_INVOPS);

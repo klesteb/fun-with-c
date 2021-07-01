@@ -47,11 +47,11 @@ struct _workbench_s {
     int (*_event)(workbench_t *, events_t *);
     int (*_remove)(workbench_t *, window_t *);
 
-    int panels;
-    window_t *main;
-    PANEL *panel;
-    WINDOW *messages;
-    queue events;
+    int panels;            /* number of panels */
+    window_t *main;        /* main menu        */
+    PANEL *panel;          /* current panel    */
+    WINDOW *messages;      /* for messages     */
+    queue events;          /* event queue      */
 };
 
 /*-------------------------------------------------------------*/

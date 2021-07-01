@@ -891,6 +891,7 @@ fprintf(stderr, "_workbench_event() - EVENT_K_REMOVE\n");
 
                 stat = self->_remove(self, window);
                 check_return(stat, self);
+                event->data = NULL;
 
             }
 
@@ -980,11 +981,23 @@ fprintf(stderr, "entering _workbench_remove()\n");
 
             if ((window_compare(window, temp)) == OK) {
 
+                /* maintain the total number of panels */
+
                 if (self->panels > 0) {
 
                     self->panels--;
 
                 }
+
+                /* maintain the current panel */
+
+                if (self->panel == panel) {
+
+                    self->panel = panel_below(panel);
+
+                }
+
+                /* remove panel */
 
                 stat = del_panel(panel);
                 check_status(stat, OK, E_INVOPS);
@@ -1224,6 +1237,7 @@ fprintf(stderr, "entering _workbench_dispatch()\n");
 
             }
 
+fprintf(stderr, "_workbench_dispatch() - post que_init()\n");
         }
 
         exit_when;

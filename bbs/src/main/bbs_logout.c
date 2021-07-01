@@ -26,6 +26,7 @@ window_t *win = NULL;
 static int logout(int yesno, error_trace_t *errors) {
 
     int stat = OK;
+    error_trace_t error;
 
     when_error_in {
 
@@ -34,6 +35,9 @@ fprintf(stderr, "enterng logout(): %d\n", yesno);
         if (yesno) {
 
 fprintf(stderr, "event_break()\n");
+            stat = bbs_logoff(&error);
+            check_status2(stat, OK, error);
+
             stat = event_break(events);
             check_return(stat, events);
 

@@ -914,10 +914,6 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
 fprintf(stderr, "_read_pipe() - signaled\n");
                     
-                    /* preform cleanup */
-
-                    stat = self->dtor((object_t *)self);
-
                     /* reinstall signal handlers */
 
                     errno = 0;
@@ -933,6 +929,10 @@ fprintf(stderr, "_read_pipe() - signaled\n");
                         cause_error(errno);
 
                     }
+
+                    /* preform cleanup */
+
+                    stat = self->dtor((object_t *)self);
 
                     /* re-raise the signal, normal signal handling  */
                     /* should now do it's own cleanup and cleanly   */

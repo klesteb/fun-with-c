@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <time.h>
 
 #include "bbs_common.h"
 #include "bbs_protos.h"
@@ -174,7 +175,7 @@ int bbs_user(void *data, int size, error_trace_t *errors) {
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Cols              : %d\n", useron.cols);
+        sprintf(line, "Columns           : %d\n", useron.cols);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -242,27 +243,29 @@ int bbs_user(void *data, int size, error_trace_t *errors) {
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Online Today      : %ld\n", useron.today);
+        sprintf(line, "Online Today      : %-6ld (minutes)\n", useron.today);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
         
         line = spaces(80);
-        sprintf(line, "Time Limit        : %ld\n", useron.timelimit);
+        sprintf(line, "Daily Time Limit  : %-6ld (minutes)\n", useron.timelimit);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Total Time Online : %ld\n", useron.online);
+        sprintf(line, "Total Time Online : %-6ld (minutes)\n", useron.online);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Last Call         : %ld\n", useron.lastcall);
+        struct tm *lc = localtime(&useron.lastcall);
+        sprintf(line, "Last Call         : %d-%02d-%02d %02d:%02d:%02d\n", lc->tm_year + 1900, lc->tm_mon + 1, lc->tm_mday, lc->tm_hour, lc->tm_min, lc->tm_sec);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "First Call        : %ld\n", useron.firstcall);
+        struct tm *fc = localtime(&useron.firstcall);
+        sprintf(line, "First Call        : %d-%02d-%02d %02d:%02d:%02d\n", fc->tm_year + 1900, fc->tm_mon + 1, fc->tm_mday, fc->tm_hour, fc->tm_min, fc->tm_sec);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 

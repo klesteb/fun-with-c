@@ -317,3 +317,33 @@ DATE sub_days(DATE jdate, int days) {
    
 }
 
+/**/
+
+DATE time_to_date(time_t xtime) {
+/*
+ * convert time_t to julian day.
+ */
+
+    struct tm *tm = localtime(&xtime);
+    int year = tm->tm_year + 1900;
+    int month = tm->tm_mon + 1;
+    int day = tm->tm_mday;
+
+    return julian_date(day, month, year);
+
+}
+
+/**/
+
+int date_compare(DATE a, DATE b) {
+/*
+ * compare 2 date's, using strcmp semantics.
+ */
+
+    if (a > b) return 1;
+    if (a < b) return -1;
+
+    return 0;
+
+}
+

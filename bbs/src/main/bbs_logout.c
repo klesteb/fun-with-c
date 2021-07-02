@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <time.h>
 
 #include "bbs_common.h"
 #include "bbs_protos.h"
@@ -68,9 +69,15 @@ fprintf(stderr, "leaving logout() - stat: %d\n", stat);
 int bbs_logoff(error_trace_t *errors) {
 
     int stat = OK;
+    int seconds = 0;
     error_trace_t error;
 
     when_error_in {
+
+        seconds = (time(NULL) - useron.lastcall);
+fprintf(stderr, "seconds: %d\n", seconds);
+
+        useron.today += (seconds / 60);
 
         stat = user_put(users, user_index, &useron);
         check_return(stat, users);

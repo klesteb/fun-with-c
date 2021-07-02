@@ -10,6 +10,7 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -27,6 +28,7 @@
 #include "fnm_util.h"
 #include "misc/misc.h"
 #include "workbench.h"
+#include "misc/dates.h"
 #include "bbs_config.h"
 #include "bbs_protos.h"
 #include "bbs_errors.h"
@@ -97,6 +99,7 @@ char *axdefs[8]= {
 int bbs_init(error_trace_t *errors) {
     
     int stat = OK;
+    time_t laston;
 
     when_error_in {
 
@@ -139,6 +142,32 @@ int bbs_init(error_trace_t *errors) {
 
             stat = user_get(users, user_index, &useron);
             check_return(stat, users);
+
+            useron.timescalled++;
+            laston = useron.lastcall;
+            useron.lastcall = time(NULL);
+
+            DATE a = time_to_date(laston);
+            DATE b = time_to_date(useron.lastcall);
+
+            if (date_compare(a, b) != 0) {
+
+                useron.online += useron.today;
+                useron.today = 0;
+
+            }
+
+            if (useron.firstcall == 0) {
+
+                useron.firstcall = time(NULL);
+
+            }
+
+            if (useron.today > useron.timelimit) {
+
+                cause_error(E_TIMELMT);
+
+            }
 
         } else {
 

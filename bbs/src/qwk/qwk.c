@@ -1640,7 +1640,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);
 
-        /* Line #11, maxinum number of conferences.                      */
+        /* Line #11, maxinum number of conferences, PLUS 1.              */
    
         memset(buff, '\0', BUFSIZ);
         stat = files_gets(self->control, buff, BUFSIZ, &count);
@@ -1648,7 +1648,7 @@ int _qwk_get_control(qwk_t *self, qwk_control_t *ctrl) {
         if (count == 0) cause_error(EIO);
    
         stripcr(buff);
-        (*ctrl).num_areas = atol(buff);
+        (*ctrl).num_areas = atol(buff) + 1;
 
         /* Allocate the memory and read in the Area numbers and names.   */
         /* These are locigal lines 12 and 13.                            */
@@ -1826,7 +1826,7 @@ int _qwk_put_control(qwk_t *self, qwk_control_t *ctrl) {
         /* Line #11, maxinum number of conferences, MINUS 1.             */
    
         memset(buff, '\0', 80);
-        snprintf(buff, 79, "%ld", ctrl->num_areas);
+        snprintf(buff, 79, "%ld", ctrl->num_areas - 1);
         stat = files_puts(self->control, buff, &count);
         check_return(stat, self->control);
         if (count == 0) cause_error(EIO);

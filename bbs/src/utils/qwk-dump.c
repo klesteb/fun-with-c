@@ -29,12 +29,103 @@ errors_t *errs;
 char path[256];
 char conference[80];
 
+int display_notice(void) {
+
+    int stat = OK;
+    char *notice = NULL;
+
+    when_error_in {
+
+        stat = qwk_get_notice(qwk, &notice);
+        check_return(stat, qwk);
+
+        printf("--------------------------------\n");
+        printf("notice: %s\n", notice);
+        printf("\n");
+
+        free(notice);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int display_control(void) {
+
+    int stat = OK;
+    struct tm *tm;
+    char output[19];
+    qwk_control_t control;
+    qwk_area_t *area = NULL;
+
+    when_error_in {
+
+        stat = qwk_get_control(qwk, &control);
+        check_return(stat, qwk);
+
+        memset(output, '\0', 19);
+        tm = localtime(&control.date_time);
+        sprintf(output, "%04d-%02d-%02d %02d:%02d:%02d",
+                1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+                tm->tm_hour, tm->tm_min, tm->tm_sec);
+
+        printf("\ncontrol.dat\n");
+        printf("--------------------------------\n");
+        printf("bbs name    : %s\n", control.bbs_name);
+        printf("city        : %s\n", control.city);
+        printf("state       : %s\n", control.state);
+        printf("phone       : %s\n", control.phone);
+        printf("sysop       : %s\n", control.sysop);
+        printf("serial num  : %s\n", control.serial_num);
+        printf("bbs id      : %s\n", control.bbs_id);
+        printf("username    : %s\n", control.username);
+        printf("hello file  : %s\n", control.hello_file);
+        printf("news file   : %s\n", control.news_file);
+        printf("goodbye file: %s\n", control.goodbye_file);
+        printf("num areas   : %ld\n", control.num_areas);
+        printf("date time   : %s\n", output);
+        printf("areas\n");
+
+        while ((area = que_pop_tail(&control.areas))) {
+
+            printf("  number: %03ld\n", area->area);
+            printf("  name  : %s\n", area->name);
+
+            free(area);
+
+        }
+
+        printf("\n");
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 int display_message(qwk_header_t *header, char *text) {
 
     struct tm *tm;
     int stat = OK;
-    char output[19];
     char zone[10];
+    char output[19];
 
     memset(zone, '\0', 10);
     memset(output, '\0', 19);
@@ -65,21 +156,62 @@ int display_message(qwk_header_t *header, char *text) {
 
 }
 
-int process_packet(void) {
+int process_area(char *area_num) {
 
     char *text;
     int stat = OK;
     qwk_ndx_t ndx;
-    char area_num[10];
     ssize_t count = 0;
     qwk_header_t header;
+
+    when_error_in {
+
+        stat = qwk_open_ndx(qwk, area_num);
+        check_return(stat, qwk);
+
+        stat = qwk_get_ndx(qwk, &ndx, &count);
+        check_return(stat, qwk);
+
+        while (count > 0) {
+
+            stat = qwk_get_message(qwk, ndx.index, &header, &text);
+            check_return(stat, qwk);
+
+            stat = display_message(&header, text);
+            check_status(stat, OK, E_INVOPS);
+
+            free(text);
+
+            stat = qwk_get_ndx(qwk, &ndx, &count);
+            check_return(stat, qwk);
+
+        }
+
+        stat = qwk_close_ndx(qwk);
+        check_return(stat, qwk);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int process_packet(void) {
+
+    int stat = OK;
+    char area_num[10];
     qwk_control_t control;
     qwk_area_t *area = NULL;
 
     when_error_in {
-
-        stat = qwk_open(qwk);
-        check_return(stat, qwk);
 
         stat = qwk_get_control(qwk, &control);
         check_return(stat, qwk);
@@ -91,36 +223,12 @@ int process_packet(void) {
 
             printf("Processing: %s\n", area->name);
 
-            stat = qwk_open_ndx(qwk, area_num);
-            check_return(stat, qwk);
-
-            stat = qwk_get_ndx(qwk, &ndx, &count);
-            check_return(stat, qwk);
-
-            while (count > 0) {
-
-                stat = qwk_get_message(qwk, ndx.index, &header, &text);
-                check_return(stat, qwk);
-
-                stat = display_message(&header, text);
-                check_status(stat, OK, E_INVOPS);
-
-                free(text);
-
-                stat = qwk_get_ndx(qwk, &ndx, &count);
-                check_return(stat, qwk);
-
-            }
-
-            stat = qwk_close_ndx(qwk);
-            check_return(stat, qwk);
+            stat = process_area(area_num);
+            check_status(stat, OK, E_INVOPS);
 
             free(area);
 
         }
-
-        stat = qwk_close(qwk);
-        check_return(stat, qwk);
 
         exit_when;
 
@@ -187,11 +295,14 @@ int main(int argc, char **argv) {
 
     int ch;
     int stat = OK;
+    char area_num[10];
     extern int  optind;
     extern char *optarg;
     int rc = EXIT_SUCCESS;
-    char *options = "a:d:Hh?";
-
+    int dump_notice = FALSE;
+    int dump_control = FALSE;
+    char *options = "a:d:cnHh?";
+    int dump_conference = FALSE;
 
     memset(path, '\0', 256);
     strcpy(path, ".");
@@ -200,13 +311,22 @@ int main(int argc, char **argv) {
 
         switch (ch) {
             case 'a':
-                memset(conference, '\0', 80);
-                strncpy(conference, optarg, 79);
+                memset(area_num, '\0', 10);
+                snprintf(area_num, 4, "%03ld", atol(optarg));
+                dump_conference = TRUE;
                 break;
 
             case 'd':
                 memset(path, '\0', 256);
                 strncpy(path, optarg, 255);
+                break;
+
+            case 'c':
+                dump_control = TRUE;
+                break;
+
+            case 'n':
+                dump_notice = TRUE;
                 break;
 
             case 'H':
@@ -216,13 +336,14 @@ int main(int argc, char **argv) {
                 printf("Usage: qwk-dump [-a <area>] [-d <directory>]\n");
                 printf("  -a - the area to use when dumping the messages.\n");
                 printf("  -d - the directory where the qwk packet is located.\n");
+                printf("  -c - dump the control file.\n");
                 printf("\n");
                 printf("  The default is to dump all messages in the current directory.\n");
                 printf("\n");
 
                 return EXIT_SUCCESS;
 
-        }            
+        }
 
     }
 
@@ -231,8 +352,33 @@ int main(int argc, char **argv) {
         stat = setup();
         check_status(stat, OK, E_INVOPS);
 
-        stat = process_packet();
-        check_status(stat, OK, E_INVOPS);
+        stat = qwk_open(qwk);
+        check_return(stat, qwk);
+
+        if (dump_control) {
+
+            stat = display_control();
+            check_status(stat, OK, E_INVOPS);
+
+        } else if (dump_conference) {
+
+            stat = process_area(area_num);
+            check_status(stat, OK, E_INVOPS);
+
+        } else if (dump_notice) {
+
+            stat = display_notice();
+            check_status(stat, OK, E_INVOPS);
+
+        } else {
+
+            stat = process_packet();
+            check_status(stat, OK, E_INVOPS);
+
+        }
+
+        stat = qwk_close(qwk);
+        check_return(stat, qwk);
 
         exit_when;
 

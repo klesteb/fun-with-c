@@ -7,7 +7,7 @@
 #
 CC = gcc 
 CFLAGS = -Wall -c -I.. -I../misc -I../../gpl
-OLBS = ../../libs/libcclibs.a
+OLBS = ../../libs/libcclibs.a ../../libs/libgpl.a
 LINK = gcc
 LFLAGS = -o
 LIBS = ../../libs/libcclibs.a

@@ -39,6 +39,7 @@ int display_notice(void) {
         stat = qwk_get_notice(qwk, &notice);
         check_return(stat, qwk);
 
+        printf("\nmessages.dat\n");
         printf("--------------------------------\n");
         printf("notice: %s\n", notice);
         printf("\n");
@@ -97,8 +98,7 @@ int display_control(void) {
 
         while ((area = que_pop_tail(&control.areas))) {
 
-            printf("  number: %03ld\n", area->area);
-            printf("  name  : %s\n", area->name);
+            printf("  number: %03ld, name: %s\n", area->area, area->name);
 
             free(area);
 
@@ -334,7 +334,7 @@ int main(int argc, char **argv) {
             case '?':
                 printf("\n");
                 printf("Usage: qwk-dump [-a <area>] [-d <directory>]\n");
-                printf("  -a - the area to use when dumping the messages.\n");
+                printf("  -a - the area to use when dumping messages.\n");
                 printf("  -d - the directory where the qwk packet is located.\n");
                 printf("  -c - dump the control file.\n");
                 printf("\n");

@@ -30,6 +30,8 @@
 
 #define QWK_BLOCK_SIZE  128
 
+/* message status byte, see qwk.doc for meaning */
+
 #define QWK_PUB_UNREAD  ' '
 #define QWK_PUB_READ    '-'
 #define QWK_PRIVATE     '*'

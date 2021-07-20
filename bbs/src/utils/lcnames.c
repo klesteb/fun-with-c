@@ -13,20 +13,72 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
-#include <time.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "errors.h"
 #include "tracer.h"
-#include "drs_util.h"
+#include "fnm_util.h"
 
 tracer_t *dump;
 errors_t *errs;
 
-char path[256];
+int process(char *path) {
 
-int process(void) {
+    int xstat = OK;
+    DIR *dp = NULL;
+    struct stat sb;
+    char newname[256];
+    char oldname[256];
+    struct dirent *ep = NULL;
 
-    
+    when_error_in {
+
+        memset(newname, '\0', 256);
+        memset(oldname, '\0', 256);
+
+        errno = 0;
+        dp = opendir(path);
+        if (dp == NULL) cause_error(errno);
+
+        while ((ep = readdir(dp))) {
+
+            if (strcmp(ep->d_name, ".") == 0) continue;
+            if (strcmp(ep->d_name, "..") == 0) continue;
+
+            strncpy(oldname, fnm_build(1, FnmPath, path, ep->d_name, NULL), 255);
+
+            errno = 0;
+            xstat = stat(oldname, &sb);
+            check_status(xstat, OK, errno);
+
+            if (S_ISREG(sb.st_mode)) {
+
+                strncpy(newname, fnm_build(1, FnmPath, path, strlwr(ep->d_name), NULL), 255);
+
+                errno = 0;
+                xstat = rename(oldname, newname);
+                check_status(xstat, OK, errno);
+
+            }
+
+        }
+
+        closedir(dp);
+
+        exit_when;
+
+    } use {
+
+        xstat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return xstat;
+
 }
 
 int dump_trace(char *buffer) {
@@ -48,7 +100,6 @@ int setup(void) {
 
         dump = tracer_create(errs);
         check_creation(dump);
-
 
         exit_when;
 
@@ -75,6 +126,7 @@ int main(int argc, char **argv) {
 
     int ch;
     int stat = OK;
+    char path[256];
     extern int  optind;
     extern char *optarg;
     int rc = EXIT_SUCCESS;
@@ -95,8 +147,10 @@ int main(int argc, char **argv) {
             case 'h':
             case '?':
                 printf("\n");
-                printf("Usage: lcname [-d <directory>]\n");
+                printf("Usage: lcnames [-d <directory>]\n");
                 printf("  -d - the directory to process.\n");
+                printf("\n");
+                printf("The default action is to lower case names in the current directory.\n");
                 printf("\n");
 
                 return EXIT_SUCCESS;
@@ -110,7 +164,7 @@ int main(int argc, char **argv) {
         stat = setup();
         check_status(stat, OK, E_INVOPS);
 
-        stat = process();
+        stat = process(path);
         check_status(stat, OK, E_INVOPS);
 
         exit_when;

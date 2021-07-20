@@ -44,9 +44,9 @@ makekey: makekey.o
 	$(CC) $(CFLAGS) makekey.c
 	$(LINK) $(LOPTS) makekey makekey.o $(OLBS)
 #
-lcname: lcname.o
-	$(CC) $(CFLAGS) lcname.c
-	$(LINK) $(LOPTS) lcname lcname.o $(OLBS)
+lcnames: lcnames.o
+	$(CC) $(CFLAGS) lcnames.c
+	$(LINK) $(LOPTS) lcnames lcnames.o $(OLBS)
 #
 # eof
 #

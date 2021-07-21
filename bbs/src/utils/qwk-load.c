@@ -97,13 +97,223 @@ int create_room(room_base_t **temp, qwk_area_t *area) {
 
 }
 
-int process_message(qwk_header_t *header, char *text) {
+int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
+    int len;
+    int offset;
+    queue fields;
     int stat = OK;
+    char buffer[256];
+    jam_field_t *field = NULL;
+    jam_field_t *field1 = NULL;
+    jam_field_t *field2 = NULL;
+    jam_field_t *field3 = NULL;
+    jam_field_t *field4 = NULL;
+    jam_field_t *field5 = NULL;
+    jam_field_t *field6 = NULL;
+    jam_field_t *field7 = NULL;
+    jam_field_t *field8 = NULL;
+    jam_message_t *message = NULL;
 
     when_error_in {
-        
-        
+
+        que_init(&fields);
+        check_status(stat, QUE_OK, E_INVOPS);
+
+        stat = jam_new_message(jam, &message);
+        check_return(stat, jam);
+
+        /* set various message fields */
+
+        message->msgnum = header->number;
+        message->reply_to = header->reply;
+        message->date_received = time(NULL);
+        message->date_written = header->date_time;
+
+        /* translate the qwk status into something usefull */
+
+        if ((header->status == QWK_PRIVATE) && 
+            (bit_test(temp->flags, RM_PRIVATE))) {
+
+            bit_set(message->attribute, MSG_PRIVATE);
+
+        }
+
+        if ((header->status == QWK_PRIVATE) || 
+            (header->status == QWK_PUB_READ) ||
+            (header->status == QWK_SYS_READ)) {
+
+            bit_set(message->attribute, MSG_READ);
+
+        }
+
+        /* search for qwke extensions */
+
+        /* message sender (From:) */
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "From:", 0))) {
+
+            len = instr(offset + 6, text, "\n");
+            strcpy(buffer, mid(text, offset + 6, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 6);
+
+        } else {
+
+            strcpy(buffer, header->from);
+
+        }
+
+        stat = jam_new_field(jam, JAMSFLD_SENDERNAME, buffer, &field1);
+        check_return(stat, jam);
+
+        stat = que_push_tail(&fields, field1);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        /* message receiver (To:) */
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "To:", 0))) {
+
+            len = instr(offset + 4, text, "\n");
+            strcpy(buffer, mid(text, offset + 4, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 4);
+
+        } else {
+
+            strcpy(buffer, header->to);
+
+        }
+
+        stat = jam_new_field(jam, JAMSFLD_RECVRNAME, buffer, &field2);
+        check_return(stat, jam);
+
+        stat = que_push_tail(&fields, field2);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        /* message subject (Subject:) */
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "Subject:", 0))) {
+
+            len = instr(offset + 9, text, "\n");
+            strcpy(buffer, mid(text, offset + 9, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 9);
+
+        } else {
+
+            strcpy(buffer, header->subject);
+
+        }
+
+        stat = jam_new_field(jam, JAMSFLD_SUBJECT, buffer, &field3);
+        check_return(stat, jam);
+
+        stat = que_push_tail(&fields, field3);
+        check_status(stat, QUE_OK, E_NOQUEUE);
+
+        /* search for syncronet qwk extensions */
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "@VIA:", 0))) {
+
+            len = instr(offset + 5, text, "\n");
+            strcpy(buffer, mid(text, offset + 5, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 6);
+
+            stat = jam_new_field(jam, JAMSFLD_OADDRESS, buffer, &field4);
+            check_return(stat, jam);
+
+            stat = que_push_tail(&fields, field4);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+        }
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "@TZ:", 0))) {
+
+            len = instr(offset + 4, text, "\n");
+            strcpy(buffer, mid(text, offset + 4, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 4);
+
+            stat = jam_new_field(jam, JAMSFLD_TZUTCINFO, buffer, &field5);
+            check_return(stat, jam);
+
+            stat = que_push_tail(&fields, field5);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+        }
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "@MSGID:", 0))) {
+
+            len = instr(offset + 7, text, "\n");
+            strcpy(buffer, mid(text, offset + 7, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 7);
+
+            stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
+            check_return(stat, jam);
+
+            stat = que_push_tail(&fields, field6);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+        }
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "@REPLY:", 0))) {
+
+            len = instr(offset + 7, text, "\n");
+            strcpy(buffer, mid(text, offset + 7, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 7);
+
+            stat = jam_new_field(jam, JAMSFLD_REPLYID, buffer, &field7);
+            check_return(stat, jam);
+
+            stat = que_push_tail(&fields, field7);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+        }
+
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "@REPLYTO:", 0))) {
+
+            len = instr(offset + 10, text, "\n");
+            strcpy(buffer, mid(text, offset + 10, len - 1));
+            memmove(&text[offset], &text[offset + len], len + 10);
+
+            stat = jam_new_field(jam, JAMSFLD_REPLYTO, buffer, &field8);
+            check_return(stat, jam);
+
+            stat = que_push_tail(&fields, field8);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+        }
+
+        /* set time and the local timezone */
+
+        /* memset(zone, '\0', 10); */
+        /* tm = localtime(&message->date_written); */
+        /* strftime(zone, 9, "%z", tm); */
+
+        /* stat = jam_new_field(jam, JAMSFLD_TZUTCINFO, zone, &field1); */
+        /* check_return(stat, jam); */
+
+        /* stat = que_push_tail(&fields, field2); */
+        /* check_status(stat, QUE_OK, E_INVOPS); */
+
+        /* add the message to the msgbase */
+
+        stat = jam_add_message(jam, message, &fields, text);
+        check_return(stat, jam);
+
+        free(message);
+        while ((field = que_pop_head(&fields))) {
+
+            stat = jam_free_field(jam, field);
+            check_return(stat, jam);
+
+        }
+
         exit_when;
 
     } use {
@@ -116,34 +326,9 @@ int process_message(qwk_header_t *header, char *text) {
 
     return stat;
 
-    /* memset(zone, '\0', 10); */
-    /* memset(output, '\0', 19); */
-    /* tm = localtime(&header->date_time); */
-    /* strftime(zone, 9, "%z", tm); */
-    /* sprintf(output, "%04d-%02d-%02d %02d:%02d:%02d%4s", */
-    /*         1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday, */
-    /*         tm->tm_hour, tm->tm_min, tm->tm_sec, zone); */
-
-    /* printf("--------------------------------\n"); */
-    /* printf("status    : %d\n", header->status); */
-    /* printf("number    : %ld\n", header->number); */
-    /* printf("date time : %s\n", output); */
-    /* printf("to        : %s\n", header->to); */
-    /* printf("from      : %s\n", header->from); */
-    /* printf("subject   : %s\n", header->subject); */
-    /* printf("password  : %s\n", header->password); */
-    /* printf("reply     : %ld\n", header->reply); */
-    /* printf("records   : %ld\n", header->records); */
-    /* printf("alive     : %d\n", header->alive); */
-    /* printf("conference: %d\n", header->conference); */
-    /* printf("seq num   : %d\n", header->seq_number); */
-    /* printf("net tag   : %s\n", header->net_tag); */
-    /* printf("\n"); */
-    /* printf("%s\n", text); */
-
 }
 
-int process_area(char *area_num) {
+int process_area(room_base_t *temp, char *area_num) {
 
     char *text;
     int stat = OK;
@@ -164,7 +349,7 @@ int process_area(char *area_num) {
             stat = qwk_get_message(qwk, ndx.index, &header, &text);
             check_return(stat, qwk);
 
-            stat = process_message(&header, text);
+            stat = process_message(temp, &header, text);
             check_status(stat, OK, E_INVOPS);
 
             free(text);
@@ -236,7 +421,7 @@ int process_packet(void) {
 
                 printf("processing: %s, %s\n", area_num, area->name);
 
-                stat = process_area(area_num);
+                stat = process_area(temp, area_num);
                 check_status(stat, OK, E_INVOPS);
 
             }

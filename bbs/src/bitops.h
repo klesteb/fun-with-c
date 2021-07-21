@@ -13,7 +13,7 @@
 
 #define LBOOL(x) (!(!(x)))
 
-#define bit_set(arg,value) ((arg) | (value))
+#define bit_set(arg,value) ((arg) |= (value))
 #define bit_clear(arg,value) ((arg) & ~(value))
 #define bit_test(arg,value) LBOOL((arg) & (value))
 #define bit_flip(arg,value) ((arg) ^ (value))

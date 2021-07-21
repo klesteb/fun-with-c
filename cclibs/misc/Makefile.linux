@@ -14,7 +14,7 @@ LFLAGS = -o
 LIBS = ../../libs/libcclibs.a
 LIBR = ar -r
 #
-OBJS = dates.o fmtasc.o left.o ltrim.o mid.o \
+OBJS = dates.o fmtasc.o left.o ltrim.o mid.o instr.o \
        pos.o right.o rtrim.o seg.o soundex.o spaces.o \
        stricmp.o string.o strlwr.o strnicmp.o strrev.o \
        strupr.o trim.o xmalloc.o xstrtok.o match.o \
@@ -56,6 +56,10 @@ mid.o: mid.c
 pos.o: pos.c
 	$(CC) $(CFLAGS) pos.c
 	$(LIBR) $(OLBS) pos.o
+#
+instr.o: instr.c
+	$(CC) $(CFLAGS) instr.c
+	$(LIBR) $(OLBS) instr.o
 #
 right.o: right.c
 	$(CC) $(CFLAGS) right.c

@@ -45,7 +45,7 @@
 /* bbs. once that is done. then these can be changed to reflect the new    */
 /* reality. this reality will cause a recompile.                           */ 
 
-#define ROOMNUM 32                  /* max number of rooms                 */
+#define ROOMNUM 256                 /* max number of rooms                 */
 #define NODENUM 32                  /* max number of nodes                 */
 #define USERNUM 256                 /* max number of users                 */
 

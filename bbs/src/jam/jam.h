@@ -94,6 +94,7 @@
 #define JAMSFLD_PATH2D      2002
 #define JAMSFLD_FLAGS       2003
 #define JAMSFLD_TZUTCINFO   2004
+#define JAMSFLD_REPLYTO     2005
 #define JAMSFLD_UNKNOWN     0xFFFF
 
 /*-------------------------------------------------------------*/

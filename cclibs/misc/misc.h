@@ -22,6 +22,7 @@ char *mid(const char *, int, int);
 char *seg(const char *, int, int);
 
 int pos(const char *, const char *, int);
+int instr(int, const char *, const char *);
 
 /*----------------------------------------------------------------------*/
 /* Misc string routines                                                 */

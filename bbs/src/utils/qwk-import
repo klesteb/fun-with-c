@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# File: qwk-import
+# Date: 2021-07-20
+# By  : Kevin L. Esteb
+#
+# Import a qwk packet into the message base.
+#
+rc=1
+lcnames="./lcnames"
+qwkload="./qwk-load"
+from=""
+too=""
+#
+while getopts d:s: option
+do
+    case "$option"
+    in
+        d) too=$OPTARG;;
+        s) from=$OPTARG;;
+        \?) echo "Usage: qwk-import -s <filename> -d <directory>"
+            echo "   -s - the source filename"
+            echo "   -d - the destination directory"
+            exit 1;;
+    esac;
+done;
+#
+rm -f $too/*
+#
+unzip -L $from -d $too
+if [ $? -eq 0 ]
+then
+    #
+    $lcnames -d $too
+    if [ $? -eq 0 ]
+    then
+        #
+        $qwkload -d $too
+        rc=$?
+    fi
+fi
+#
+exit $rc
+

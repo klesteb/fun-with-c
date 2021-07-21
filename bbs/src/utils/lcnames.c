@@ -20,6 +20,7 @@
 #include "errors.h"
 #include "tracer.h"
 #include "fnm_util.h"
+#include "misc/misc.h"
 
 tracer_t *dump;
 errors_t *errs;

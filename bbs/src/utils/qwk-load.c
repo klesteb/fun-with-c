@@ -25,6 +25,7 @@
 #include "bitops.h"
 #include "que_util.h"
 #include "fnm_util.h"
+#include "str_util.h"
 #include "misc/misc.h"
 #include "main/bbs_config.h"
 
@@ -125,7 +126,6 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         /* set various message fields */
 
-        message->msgnum = header->number;
         message->reply_to = header->reply;
         message->date_received = time(NULL);
         message->date_written = header->date_time;
@@ -152,11 +152,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         /* message sender (From:) */
 
         memset(buffer, '\0', 256);
-        if ((offset = pos(text, "From:", 0))) {
+        if ((offset = pos(text, "From: ", 0)) > 0) {
 
-            len = instr(offset + 6, text, "\n");
-            strcpy(buffer, mid(text, offset + 6, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 6);
+            len = xindex(text, 10, offset + 6);
+            strcpy(buffer, mid(text, offset + 6, len));
+            str_remove(len + 7, offset - 1, text);
 
         } else {
 
@@ -173,11 +173,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         /* message receiver (To:) */
 
         memset(buffer, '\0', 256);
-        if ((offset = pos(text, "To:", 0))) {
+        if ((offset = pos(text, "To: ", 0)) > 0) {
 
-            len = instr(offset + 4, text, "\n");
-            strcpy(buffer, mid(text, offset + 4, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 4);
+            len = xindex(text, 10, offset + 4);
+            strcpy(buffer, mid(text, offset + 4, len));
+            str_remove(len + 5, offset - 1, text);
 
         } else {
 
@@ -194,11 +194,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         /* message subject (Subject:) */
 
         memset(buffer, '\0', 256);
-        if ((offset = pos(text, "Subject:", 0))) {
+        if ((offset = pos(text, "Subject: ", 0)) > 0) {
 
-            len = instr(offset + 9, text, "\n");
-            strcpy(buffer, mid(text, offset + 9, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 9);
+            len = xindex(text, 10, offset + 9);
+            strcpy(buffer, mid(text, offset + 9, len));
+            str_remove(len + 10, offset - 1, text);
 
         } else {
 
@@ -212,14 +212,14 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         stat = que_push_tail(&fields, field3);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
-        /* search for syncronet qwk extensions */
+        /* search for synchronet qwk extensions */
 
         memset(buffer, '\0', 256);
-        if ((offset = pos(text, "@VIA:", 0))) {
+        if ((offset = pos(text, "@VIA: ", 0)) > 0) {
 
-            len = instr(offset + 5, text, "\n");
-            strcpy(buffer, mid(text, offset + 5, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 6);
+            len = xindex(text, 10, offset + 6);
+            strcpy(buffer, mid(text, offset + 6, len));
+            str_remove(len + 7, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_OADDRESS, buffer, &field4);
             check_return(stat, jam);
@@ -230,26 +230,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         }
 
         memset(buffer, '\0', 256);
-        if ((offset = pos(text, "@TZ:", 0))) {
+        if ((offset = pos(text, "@MSGID: ", 0)) > 0) {
 
-            len = instr(offset + 4, text, "\n");
-            strcpy(buffer, mid(text, offset + 4, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 4);
-
-            stat = jam_new_field(jam, JAMSFLD_TZUTCINFO, buffer, &field5);
-            check_return(stat, jam);
-
-            stat = que_push_tail(&fields, field5);
-            check_status(stat, QUE_OK, E_NOQUEUE);
-
-        }
-
-        memset(buffer, '\0', 256);
-        if ((offset = pos(text, "@MSGID:", 0))) {
-
-            len = instr(offset + 7, text, "\n");
-            strcpy(buffer, mid(text, offset + 7, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 7);
+            len = xindex(text, 10, offset + 8);
+            strcpy(buffer, mid(text, offset + 8, len));
+            str_remove(len + 9, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
             check_return(stat, jam);
@@ -260,11 +245,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         }
 
         memset(buffer, '\0', 256);
-        if ((offset = pos(text, "@REPLY:", 0))) {
+        if ((offset = pos(text, "@REPLY: ", 0)) > 0) {
 
-            len = instr(offset + 7, text, "\n");
-            strcpy(buffer, mid(text, offset + 7, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 7);
+            len = xindex(text, 10, offset + 8);
+            strcpy(buffer, mid(text, offset + 8, len));
+            str_remove(len + 9, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_REPLYID, buffer, &field7);
             check_return(stat, jam);
@@ -275,11 +260,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         }
 
         memset(buffer, '\0', 256);
-        if ((offset = pos(text, "@REPLYTO:", 0))) {
+        if ((offset = pos(text, "@REPLYTO: ", 0)) > 0) {
 
-            len = instr(offset + 10, text, "\n");
-            strcpy(buffer, mid(text, offset + 10, len - 1));
-            memmove(&text[offset], &text[offset + len], len + 10);
+            len = xindex(text, 10, offset + 10);
+            strcpy(buffer, mid(text, offset + 10, len));
+            str_remove(len + 11, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_REPLYTO, buffer, &field8);
             check_return(stat, jam);
@@ -289,11 +274,26 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         }
 
+        memset(buffer, '\0', 256);
+        if ((offset = pos(text, "@TZ: ", 0)) > 0) {
+
+            len = xindex(text, 10, offset + 5);
+            strcpy(buffer, mid(text, offset + 5, len));
+            str_remove(len + 6, offset - 1, text);
+
+            stat = jam_new_field(jam, JAMSFLD_TZUTCINFO, buffer, &field5);
+            check_return(stat, jam);
+
+            stat = que_push_tail(&fields, field5);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+        }
+
         /* set time and the local timezone */
 
         /* memset(zone, '\0', 10); */
         /* tm = localtime(&message->date_written); */
-        /* strftime(zone, 9, "%z", tm); */
+         /* strftime(zone, 9, "%z", tm); */
 
         /* stat = jam_new_field(jam, JAMSFLD_TZUTCINFO, zone, &field1); */
         /* check_return(stat, jam); */
@@ -306,7 +306,10 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         stat = jam_add_message(jam, message, &fields, text);
         check_return(stat, jam);
 
+        /* free resoures */
+
         free(message);
+
         while ((field = que_pop_head(&fields))) {
 
             stat = jam_free_field(jam, field);
@@ -516,9 +519,8 @@ int main(int argc, char **argv) {
     char *options = "d:Hh?";
 
     memset(qwk_path, '\0', 256);
-
     strcpy(qwk_path, ".");
-    
+
     while ((ch = getopt(argc, argv, options)) != EOF) {
 
         switch (ch) {

@@ -155,7 +155,7 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         if ((offset = pos(text, "From: ", 0)) > 0) {
 
             len = xindex(text, 10, offset + 6);
-            strcpy(buffer, mid(text, offset + 6, len));
+            strncpy(buffer, mid(text, offset + 6, len), 255);
             str_remove(len + 7, offset - 1, text);
 
         } else {
@@ -176,7 +176,7 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         if ((offset = pos(text, "To: ", 0)) > 0) {
 
             len = xindex(text, 10, offset + 4);
-            strcpy(buffer, mid(text, offset + 4, len));
+            strncpy(buffer, mid(text, offset + 4, len), 255);
             str_remove(len + 5, offset - 1, text);
 
         } else {
@@ -197,7 +197,7 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         if ((offset = pos(text, "Subject: ", 0)) > 0) {
 
             len = xindex(text, 10, offset + 9);
-            strcpy(buffer, mid(text, offset + 9, len));
+            strncpy(buffer, mid(text, offset + 9, len), 255);
             str_remove(len + 10, offset - 1, text);
 
         } else {
@@ -214,11 +214,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         /* search for synchronet qwk extensions */
 
-        memset(buffer, '\0', 256);
         if ((offset = pos(text, "@VIA: ", 0)) > 0) {
 
+            memset(buffer, '\0', 256);
             len = xindex(text, 10, offset + 6);
-            strcpy(buffer, mid(text, offset + 6, len));
+            strncpy(buffer, mid(text, offset + 6, len), 255);
             str_remove(len + 7, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_OADDRESS, buffer, &field4);
@@ -229,11 +229,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         }
 
-        memset(buffer, '\0', 256);
         if ((offset = pos(text, "@MSGID: ", 0)) > 0) {
 
+            memset(buffer, '\0', 256);
             len = xindex(text, 10, offset + 8);
-            strcpy(buffer, mid(text, offset + 8, len));
+            strncpy(buffer, mid(text, offset + 8, len), 255);
             str_remove(len + 9, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
@@ -244,11 +244,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         }
 
-        memset(buffer, '\0', 256);
         if ((offset = pos(text, "@REPLY: ", 0)) > 0) {
 
+            memset(buffer, '\0', 256);
             len = xindex(text, 10, offset + 8);
-            strcpy(buffer, mid(text, offset + 8, len));
+            strncpy(buffer, mid(text, offset + 8, len), 255);
             str_remove(len + 9, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_REPLYID, buffer, &field7);
@@ -259,11 +259,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         }
 
-        memset(buffer, '\0', 256);
         if ((offset = pos(text, "@REPLYTO: ", 0)) > 0) {
 
+            memset(buffer, '\0', 256);
             len = xindex(text, 10, offset + 10);
-            strcpy(buffer, mid(text, offset + 10, len));
+            strncpy(buffer, mid(text, offset + 10, len), 255);
             str_remove(len + 11, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_REPLYTO, buffer, &field8);
@@ -274,11 +274,11 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         }
 
-        memset(buffer, '\0', 256);
         if ((offset = pos(text, "@TZ: ", 0)) > 0) {
 
+            memset(buffer, '\0', 256);
             len = xindex(text, 10, offset + 5);
-            strcpy(buffer, mid(text, offset + 5, len));
+            strncpy(buffer, mid(text, offset + 5, len), 255);
             str_remove(len + 6, offset - 1, text);
 
             stat = jam_new_field(jam, JAMSFLD_TZUTCINFO, buffer, &field5);

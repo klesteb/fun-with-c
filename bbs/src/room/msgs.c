@@ -30,6 +30,7 @@ require_klass(HANDLER_KLASS);
 
 int _msgs_init(handler_t *self) {
 
+    int x = 0;
     int stat = OK;
     int revision = 1;
     room_base_t aide;
@@ -60,6 +61,12 @@ int _msgs_init(handler_t *self) {
         lobby.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
         strncpy(lobby.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
+        for (x = 0; x < USERNUM; x++) {
+
+            lobby.status[x] = 0;
+
+        }
+
         stat = files_tell(self->db, &position);
         check_return(stat, self->db);
 
@@ -84,6 +91,12 @@ int _msgs_init(handler_t *self) {
         email.flags = (RM_PERMROOM | RM_PRIVATE | RM_INUSE | RM_MESSAGES);
         strncpy(email.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
+        for (x = 0; x < USERNUM; x++) {
+
+            email.status[x] = 0;
+
+        }
+        
         stat = files_tell(self->db, &position);
         check_return(stat, self->db);
 
@@ -107,6 +120,12 @@ int _msgs_init(handler_t *self) {
         strcpy(aide.description, "Private aide messages");
         aide.flags = (RM_PERMROOM | RM_PRIVATE | RM_INUSE | RM_MESSAGES);
         strncpy(aide.path, fnm_build(1, FnmPath, self->path, NULL), 255);
+
+        for (x = 0; x < USERNUM; x++) {
+
+            aide.status[x] = 0;
+
+        }
 
         stat = files_tell(self->db, &position);
         check_return(stat, self->db);

@@ -123,30 +123,20 @@ int is_forgotten(room_search_t *result, user_base_t *user) {
 
     int stat = OK;
     int test = FALSE;
-    off_t recnum = 0;
-    room_status_t status;
-    room_status_find_t find;
-    int recsize = sizeof(room_status_find_t);
 
 fprintf(stderr, "entering is_forgetten()\n");
     when_error_in {
 
-        find.roomnum = result->roomnum;
-        find.usernum = user->eternal;
+        if ((user->eternal < 1) || (user->eternal > usernum)) {
 
-        stat = room_status_find(rstatus, &find, recsize, find_room_status, &recnum);
-        check_return(stat, rstatus);
+            cause_error(EOVERFLOW);
 
-        if (recnum > 0) {
+        }
 
-            stat = room_status_get(rstatus, recnum, &status);
-            check_return(stat, rstatus);
+        if (bit_test(result->status[user->eternal], RS_FORGET)) {
 
-            if (bit_test(status.flags, RS_FORGET)) {
-
-                test = TRUE;
-
-            }
+            test = TRUE;
+fprintf(stderr, "is_forgotten() - RS_FORGET\n");
 
         }
 
@@ -167,35 +157,20 @@ int is_removed(room_search_t *result, user_base_t *user) {
 
     int stat = OK;
     int test = FALSE;
-    off_t recnum = 0;
-    room_status_t status;
-    room_status_find_t find;
-    int recsize = sizeof(room_status_find_t);
 
 fprintf(stderr, "entering is_removed()\n");
     when_error_in {
 
-        find.roomnum = result->roomnum;
-        find.usernum = user->eternal;
-fprintf(stderr, "is_removed() - roomnum: %ld, usernum: %ld\n", result->roomnum, user->eternal);
+        if ((user->eternal < 1) || (user->eternal > USERNUM)) {
 
-        stat = room_status_find(rstatus, &find, recsize, find_room_status, &recnum);
-        check_return(stat, rstatus);
-fprintf(stderr, "is_removed() - after find, stat: %d\n", stat);
-fprintf(stderr, "is_removed() - after find, recnum: %ld\n", recnum);
+            cause_error(EOVERFLOW);
 
-        if (recnum > 0) {
-fprintf(stderr, "is_removed() - status found\n");
+        }
 
-            stat = room_status_get(rstatus, recnum, &status);
-            check_return(stat, rstatus);
+        if (bit_test(result->status[user->eternal], RS_REMOVED)) {
 
-            if (bit_test(status.flags, RS_REMOVED)) {
+            test = TRUE;
 fprintf(stderr, "is_removed() - RS_REMOVED\n");
-
-                test = TRUE;
-
-            }
 
         }
 
@@ -216,33 +191,20 @@ int is_invited(room_search_t *result, user_base_t *user) {
 
     int stat = OK;
     int test = FALSE;
-    off_t recnum = 0;
-    room_status_t status;
-    room_status_find_t find;
-    int recsize = sizeof(room_status_find_t);
 
 fprintf(stderr, "entering is_invited()\n");
     when_error_in {
 
-        find.roomnum = result->roomnum;
-        find.usernum = user->eternal;
-fprintf(stderr, "is_invited() - roomnum: %ld, usernum: %ld\n", result->roomnum, user->eternal);
+        if ((user->eternal < 1) || (user->eternal > USERNUM)) {
 
-        stat = room_status_find(rstatus, &find, recsize, find_room_status, &recnum);
-        check_return(stat, rstatus);
+            cause_error(EOVERFLOW);
 
-        if (recnum > 0) {
-fprintf(stderr, "is_invited() - status found\n");
+        }
 
-            stat = room_status_get(rstatus, recnum, &status);
-            check_return(stat, rstatus);
+        if (bit_test(result->status[user->eternal], RS_REMOVED)) {
 
-            if (bit_test(status.flags, RS_INVITED)) {
-fprintf(stderr, "is_removed() - RS_INVITED\n");
-
-                test = TRUE;
-
-            }
+            test = TRUE;
+fprintf(stderr, "is_invited() - RS_INVITED\n");
 
         }
 

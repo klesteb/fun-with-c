@@ -95,6 +95,7 @@ int display_control(void) {
         printf("num areas   : %ld\n", control.num_areas);
         printf("date time   : %s\n", output);
         printf("areas\n");
+        printf("--------------------------------\n");
 
         while ((area = que_pop_tail(&control.areas))) {
 
@@ -149,6 +150,7 @@ int display_message(qwk_header_t *header, char *text) {
     printf("conference: %d\n", header->conference);
     printf("seq num   : %d\n", header->seq_number);
     printf("net tag   : %s\n", header->net_tag);
+    printf("--------------------------------\n");
     printf("\n");
     printf("%s\n", text);
 
@@ -219,7 +221,7 @@ int process_packet(void) {
         while ((area = que_pop_tail(&control.areas))) {
 
             memset(area_num, '\0', 10);
-            snprintf(area_num, 4, "%03ld", area->area);
+            snprintf(area_num, 9, "%03ld", area->area);
 
             printf("Processing: %s\n", area->name);
 
@@ -312,7 +314,7 @@ int main(int argc, char **argv) {
         switch (ch) {
             case 'a':
                 memset(area_num, '\0', 10);
-                snprintf(area_num, 4, "%03ld", atol(optarg));
+                snprintf(area_num, 9, "%03ld", atol(optarg));
                 dump_conference = TRUE;
                 break;
 

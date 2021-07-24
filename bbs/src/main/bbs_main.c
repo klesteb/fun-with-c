@@ -32,7 +32,6 @@
 #include "bbs_config.h"
 #include "bbs_protos.h"
 #include "bbs_errors.h"
-#include "room_status.h"
 #include "errors_ncurses.h"
 #include "bbs_error_codes.h"
 
@@ -41,7 +40,6 @@
 rms_t *nodes = NULL;
 rms_t *users = NULL;
 room_t *rooms = NULL;
-rms_t *rstatus = NULL;
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
 event_t *events = NULL;
@@ -113,9 +111,6 @@ int bbs_init(error_trace_t *errors) {
 
         stat = node_open(nodes);
         check_return(stat, nodes);
-
-        stat = room_status_open(rstatus);
-        check_return(stat, rstatus);
 
         /* load the node record */
 
@@ -236,10 +231,6 @@ int setup(error_trace_t *errors) {
         rooms = room_create(fnm_directory(dpath), fnm_path(mpath), roomnum, retries, xtimeout, base, dump);
         check_creation(rooms);
 
-        rstatnum = roomnum * usernum;
-        rstatus = room_status_create(fnm_directory(dpath), rstatnum, retries, xtimeout, dump);
-        check_creation(rstatus);
-
         users = user_create(fnm_directory(dpath), usernum, retries, xtimeout, dump);
         check_creation(users);
 
@@ -268,9 +259,6 @@ int cleanup(void) {
 
     room_close(rooms);
     room_destroy(rooms);
-
-    room_status_close(rstatus);
-    room_status_destroy(rstatus);
 
     user_close(users);
     user_destroy(users);

@@ -69,7 +69,7 @@ int create_room(room_base_t **temp, qwk_area_t *area) {
     when_error_in {
 
         errno = 0;
-        *temp = calloc(1, sizeof(room_base_t));
+        *temp = (room_base_t *)calloc(1, sizeof(room_base_t));
         if (*temp == NULL) cause_error(errno);
 
         (**temp).aide = 1;
@@ -80,6 +80,13 @@ int create_room(room_base_t **temp, qwk_area_t *area) {
         strncpy((**temp).name, area->name, 31);
         (**temp).flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES | RM_NETWORK);
         strncpy((**temp).path, fnm_build(1, FnmPath, MSGPATH, NULL), 255);
+
+        int x = 0;
+        for(; x < USERNUM; x++) { 
+
+            (**temp).status[x] = 0;
+
+        }
 
         stat = room_add(room, *temp);
         check_return(stat, room);
@@ -411,6 +418,8 @@ int process_packet(void) {
 
                 stat = create_room(&temp, area);
                 check_status(stat, OK, E_INVOPS);
+
+                printf("creating room: %s\n", temp->name);
 
             }
 

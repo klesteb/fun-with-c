@@ -21,6 +21,7 @@
 #include "object.h"
 #include "fnm_util.h"
 #include "error_codes.h"
+#include "main/bbs_config.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -1638,6 +1639,13 @@ int _room_search(room_t *self, void *data, int len, int (*compare)(void *, int, 
                 strcpy(result->name, ondisk.name);
                 strcpy(result->description, ondisk.description);
 
+                int x = 0;
+                for (; x < USERNUM; x++) {
+
+                    result->status[x] = ondisk.status[x];
+
+                }
+
                 stat = que_push_head(results, result);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -1663,6 +1671,7 @@ int _room_search(room_t *self, void *data, int len, int (*compare)(void *, int, 
 
 int _room_extend(room_t *self, int amount) {
 
+    int x;
     int stat = OK;
     room_base_t room;
     int revision = 1;
@@ -1681,12 +1690,18 @@ int _room_extend(room_t *self, int amount) {
         room.revision = revision;
         room.retries = self->retries;
         room.timeout = self->timeout;
+
+        for (x = 0; x < USERNUM; x++) {
+
+            room.status[x] = 0;
+
+        }
+
         strncpy(room.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
         stat = files_seek(self->roomdb, 0, SEEK_END);
         check_return(stat, self->roomdb);
 
-        int x;
         for (x = 0; x < amount; x++) {
 
             stat = self->_get_sequence(self, &sequence);
@@ -1738,6 +1753,13 @@ int _room_normalize(room_t *self, room_base_t *ondisk, room_base_t *room) {
     (*room).revision = ondisk->revision + 1;
     (*room).conference = ondisk->conference;
 
+    int x = 0;
+    for (; x < USERNUM; x++) {
+
+        (*room).status[x] = ondisk->status[x];
+
+    }
+
     memset((*room).name, '\0', 32);
     strncpy((*room).name, ondisk->name, 31);
 
@@ -1762,6 +1784,13 @@ int _room_build(room_t *self, room_base_t *ondisk, room_base_t *room) {
         (*room).timeout = ondisk->timeout;
         (*room).revision = ondisk->revision;
         (*room).conference = ondisk->conference;
+
+        int x = 0;
+        for (; x < USERNUM; x++) {
+
+            (*room).status[x] = ondisk->status[x];
+
+        }
 
         memset((*room).name, '\0', 32);
         strncpy((*room).name, ondisk->name, 31);

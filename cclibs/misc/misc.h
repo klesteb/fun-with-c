@@ -23,7 +23,7 @@ char *seg(const char *, int, int);
 
 int pos(const char *, const char *, int);
 int xindex(const char *, const char, int);
-int instr(int, const char *, const char *);
+int xinstr(int, const char *, const char *);
 
 /*----------------------------------------------------------------------*/
 /* Misc string routines                                                 */

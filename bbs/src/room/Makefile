@@ -23,9 +23,9 @@ SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC
 #
 OLBS = $(STATIC) ../../../libs/libtracer.a ../../../libs/liberrors.a ../../../libs/librms.a ../../../libs/libfiles.a ../../../libs/libobjects.a ../../../libs/libcclibs.a ../../../libs/libgpl.a 
 #
-INCS = room.h handler.h msgs.h room_status.h
+INCS = room.h handler.h msgs.h 
 #
-OBJS = room.o handler.o msgs.o room_status.o
+OBJS = room.o handler.o msgs.o 
 #
 all: $(OBJS)
 #
@@ -39,7 +39,7 @@ clean:
 	rm -f room.3
 	rm -f msgs.3
 	rm -f handler.3
-	rm -f room_status.3
+#	rm -f room_status.3
 #
 room.o: room.c $(INCS)
 	$(CC) $(CFLAGS) room.c
@@ -53,15 +53,15 @@ msgs.o: msgs.c $(INCS)
 	$(CC) $(CFLAGS) msgs.c
 	$(LIBR) $(LIBS)libroom.a msgs.o
 #
-room_status.o: room_status.c $(INCS)
-	$(CC) $(CFLAGS) room_status.c
-	$(LIBR) $(LIBS)libroom.a room_status.o
+#room_status.o: room_status.c $(INCS)
+#	$(CC) $(CFLAGS) room_status.c
+#	$(LIBR) $(LIBS)libroom.a room_status.o
 #
 man:
 	pod2man -c " " -r "room(3)" -s 3 room.pod room.3
 	pod2man -c " " -r "msgs(3)" -s 3 msgs.pod msgs.3
 	pod2man -c " " -r "handler(3)" -s 3 handler.pod handler.3
-	pod2man -c " " -r "room status(3)" -s 3 room_status.pod room_status.3
+#	pod2man -c " " -r "room status(3)" -s 3 room_status.pod room_status.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) room.o room.c

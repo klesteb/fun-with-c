@@ -23,39 +23,19 @@
 static int invite_into_room(room_base_t *room, user_base_t *user, error_trace_t *errors) {
 
     int stat = OK;
-    off_t recnum = 0;
-    room_status_t status;
-    room_status_find_t find;
 
     when_error_in {
 
-        find.roomnum = room->roomnum;
-        find.usernum = user->eternal;
+        if ((user->eternal < 1) || (user->eternal > usernum)) {
 
-        stat = room_status_find(rstatus, &find, 0, find_room_status, &recnum);
-        check_return(stat, rstatus);
+            cause_error(EOVERFLOW);
 
-        if (recnum > 0) {
-
-            stat = room_status_get(rstatus, recnum, &status);
-            check_return(stat, rstatus);
-
-            bit_set(status.flags, RS_INVITED);
-
-            stat = room_status_put(rstatus, recnum, &status);
-            check_return(stat, rstatus);
-
-        } else {
-
-            status.roomnum = room->roomnum;
-            status.usernum = user->eternal;
-
-            bit_set(status.flags, RS_INVITED);
-
-            stat = room_status_add(rstatus, &status);
-            check_return(stat, rstatus);
-            
         }
+
+        bit_set(room->status[user->eternal], RS_INVITED);
+
+        stat = room_put(rooms, room->roomnum, room);
+        check_return(stat, rooms);
 
         exit_when;
 
@@ -75,41 +55,21 @@ static int invite_into_room(room_base_t *room, user_base_t *user, error_trace_t 
 static int remove_from_room(room_base_t *room, user_base_t *user, error_trace_t *errors) {
 
     int stat = OK;
-    off_t recnum = 0;
-    room_status_t status;
-    room_status_find_t find;
 
     when_error_in {
 
         if (is_aide(room, user)) {
 
-            find.roomnum = room->roomnum;
-            find.usernum = user->eternal;
+            if ((user->eternal < 1) || (user->eternal > usernum)) {
 
-            stat = room_status_find(rstatus, &find, 0, find_room_status, &recnum);
-            check_return(stat, rstatus);
-
-            if (recnum > 0) {
-
-                stat = room_status_get(rstatus, recnum, &status);
-                check_return(stat, rstatus);
-
-                bit_set(status.flags, RS_REMOVED);
-
-                stat = room_status_put(rstatus, recnum, &status);
-                check_return(stat, rstatus);
-
-            } else {
-
-                status.roomnum = room->roomnum;
-                status.usernum = user->eternal;
-
-                bit_set(status.flags, RS_REMOVED);
-
-                stat = room_status_add(rstatus, &status);
-                check_return(stat, rstatus);
+                cause_error(EOVERFLOW);
 
             }
+
+            bit_set(room->status[user->eternal], RS_REMOVED);
+
+            stat = room_put(rooms, room->roomnum, room);
+            check_return(stat, rooms);
 
         } else {
 
@@ -135,10 +95,6 @@ static int remove_from_room(room_base_t *room, user_base_t *user, error_trace_t 
 static int kill_room(room_base_t *room, user_base_t *user, error_trace_t *errors) {
 
     int stat = OK;
-    queue results;
-    room_status_t status;
-    room_status_find_t find;
-    room_status_search_t *result = NULL;
 
     when_error_in {
 
@@ -150,31 +106,15 @@ static int kill_room(room_base_t *room, user_base_t *user, error_trace_t *errors
             memset(room->name, '\0', 32);
             memset(room->description, '\0', 64);
 
-            stat = room_put(rooms, room->roomnum, room);
-            check_return(stat, rooms);
+            int x = 0;
+            for (; x < usernum; x++) {
 
-            stat = que_init(&results);
-            check_status(stat, QUE_OK, E_INVOPS);
-
-            find.roomnum = room->roomnum;
-            find.usernum = 0;
-
-            stat = room_status_search(rstatus, &find, 0, find_room_status_for_room, &results);
-            check_return(stat, rstatus);
-
-            while ((result = que_pop_head(&results))) {
-
-                stat = room_status_get(rstatus, result->record, &status);
-                check_return(stat, rstatus);
-
-                status.flags = 0;
-
-                stat = room_status_put(rstatus, result->record, &status);
-                check_return(stat, rstatus);
-
-                free(result);
+                room->status[x] = 0;
 
             }
+
+            stat = room_put(rooms, room->roomnum, room);
+            check_return(stat, rooms);
 
         } else {
 
@@ -200,41 +140,21 @@ static int kill_room(room_base_t *room, user_base_t *user, error_trace_t *errors
 static int forget_room(room_base_t *room, user_base_t *user, error_trace_t *errors) {
 
     int stat = OK;
-    off_t recnum = 0;
-    room_status_t status;
-    room_status_find_t find;
 
     when_error_in {
 
         if (is_sysop(room, user)) {
 
-            find.roomnum = room->roomnum;
-            find.usernum = user->eternal;
+            if ((user->eternal < 1) || (user->eternal > usernum)) {
 
-            stat = room_status_find(rstatus, &find, 0, find_room_status, &recnum);
-            check_return(stat, rstatus);
-
-            if (recnum > 0) {
-
-                stat = room_status_get(rstatus, recnum, &status);
-                check_return(stat, rstatus);
-
-                bit_set(status.flags, RS_FORGET);
-
-                stat = room_status_put(rstatus, recnum, &status);
-                check_return(stat, rstatus);
-
-            } else {
-
-                status.roomnum = room->roomnum;
-                status.usernum = user->eternal;
-
-                bit_set(status.flags, RS_FORGET);
-
-                stat = room_status_add(rstatus, &status);
-                check_return(stat, rstatus);
+                cause_error(EOVERFLOW);
 
             }
+
+            bit_set(room->status[user->eternal], RS_FORGET);
+
+            stat = room_put(rooms, room->roomnum, room);
+            check_return(stat, rooms);
 
         } else {
 

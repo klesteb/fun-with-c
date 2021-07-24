@@ -22,6 +22,7 @@
 #include "item_list.h"
 #include "error_code.h"
 #include "room_common.h"
+#include "main/bbs_config.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
@@ -42,6 +43,10 @@
 #define RM_DIRECTORY (1L<<12)   /* room has files                  */
 #define RM_SUBSYS    (1L<<13)   /* room has "doors"                */
 
+#define RS_FORGET    (1L<<1)    /* forget this room                */
+#define RS_REMOVED   (1L<<2)    /* removed from this room          */
+#define RS_INVITED   (1L<<3)    /* invited into room               */
+
 /*-------------------------------------------------------------*/
 /* data structures                                             */
 /*-------------------------------------------------------------*/
@@ -54,6 +59,7 @@ typedef struct _room_base_s {
     char description[64];   /* description                               */
     short conference;       /* the qwk conference number                 */
     ushort flags;           /* capability flags                          */
+    ushort status[USERNUM]; /* status flags, 1 per user                  */
     int retries;            /* number of retires for file locking        */
     int timeout;            /* timeout in seconds, between retries       */
     int base;               /* the base message number                   */
@@ -67,6 +73,7 @@ typedef struct _room_search_s {
     long aide;              /* the rooms aide                            */
     int index;              /* the index for the room                    */
     ushort flags;           /* capability flags                          */
+    ushort status[USERNUM]; /* status flags, 1 per user                  */
 } room_search_t;
 
 /*-------------------------------------------------------------*/

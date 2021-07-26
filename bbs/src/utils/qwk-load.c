@@ -78,6 +78,7 @@ int create_room(room_base_t **temp, qwk_area_t *area) {
         (**temp).retries = RETRIES;
         (**temp).conference = area->area;
         strncpy((**temp).name, area->name, 31);
+        strncpy((**temp).description, area->name, 63);
         (**temp).flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES | RM_NETWORK);
         strncpy((**temp).path, fnm_build(1, FnmPath, MSGPATH, NULL), 255);
 

@@ -57,7 +57,7 @@ int display(room_base_t *room) {
     int x = 0;
     for (; x < USERNUM; x++) {
 
-        printf("user number: %d\n", x);
+        printf("user number: %d\n", x + 1);
         if (bit_test(room->status[x], RS_FORGET)) printf("  RM_FORGET\n");
         if (bit_test(room->status[x], RS_REMOVED)) printf("  RM_REMOVED\n");
         if (bit_test(room->status[x], RS_INVITED)) printf("  RM_INVITED\n");

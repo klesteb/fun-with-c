@@ -133,7 +133,7 @@ fprintf(stderr, "entering is_forgetten()\n");
 
         }
 
-        if (bit_test(result->status[user->eternal], RS_FORGET)) {
+        if (bit_test(result->status[user->eternal - 1], RS_FORGET)) {
 
             test = TRUE;
 fprintf(stderr, "is_forgotten() - RS_FORGET\n");
@@ -167,7 +167,7 @@ fprintf(stderr, "entering is_removed()\n");
 
         }
 
-        if (bit_test(result->status[user->eternal], RS_REMOVED)) {
+        if (bit_test(result->status[user->eternal - 1], RS_REMOVED)) {
 
             test = TRUE;
 fprintf(stderr, "is_removed() - RS_REMOVED\n");
@@ -201,7 +201,7 @@ fprintf(stderr, "entering is_invited()\n");
 
         }
 
-        if (bit_test(result->status[user->eternal], RS_REMOVED)) {
+        if (bit_test(result->status[user->eternal - 1], RS_REMOVED)) {
 
             test = TRUE;
 fprintf(stderr, "is_invited() - RS_INVITED\n");

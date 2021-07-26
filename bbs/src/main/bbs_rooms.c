@@ -32,7 +32,9 @@ static int invite_into_room(room_base_t *room, user_base_t *user, error_trace_t 
 
         }
 
-        bit_set(room->status[user->eternal], RS_INVITED);
+        /* status is 0 based, eternal is 1s based */
+
+        bit_set(room->status[user->eternal - 1], RS_INVITED);
 
         stat = room_put(rooms, room->roomnum, room);
         check_return(stat, rooms);
@@ -66,7 +68,9 @@ static int remove_from_room(room_base_t *room, user_base_t *user, error_trace_t 
 
             }
 
-            bit_set(room->status[user->eternal], RS_REMOVED);
+            /* status is 0 based, eternal is 1s based */
+
+            bit_set(room->status[user->eternal - 1], RS_REMOVED);
 
             stat = room_put(rooms, room->roomnum, room);
             check_return(stat, rooms);
@@ -151,7 +155,9 @@ static int forget_room(room_base_t *room, user_base_t *user, error_trace_t *erro
 
             }
 
-            bit_set(room->status[user->eternal], RS_FORGET);
+            /* status is 0 based, eternal is 1s based */
+
+            bit_set(room->status[user->eternal - 1], RS_FORGET);
 
             stat = room_put(rooms, room->roomnum, room);
             check_return(stat, rooms);

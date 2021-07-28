@@ -21,7 +21,7 @@ LOPTS = -o
 #
 OLBS = $(STATIC)
 #
-TARGETS = qwk-dump makekey qwk-load lcnames room-dump
+TARGETS = qwk-dump makekey qwk-load lcnames room-dump room-create
 #
 all: $(TARGETS)
 #
@@ -51,6 +51,10 @@ lcnames: lcnames.o
 room-dump: room-dump.o
 	$(CC) $(CFLAGS) room-dump.c
 	$(LINK) $(LOPTS) room-dump room-dump.o $(OLBS)
+#
+room-create: room-create.o
+	$(CC) $(CFLAGS) room-create.c
+	$(LINK) $(LOPTS) room-create room-create.o $(OLBS)
 #
 # eof
 #

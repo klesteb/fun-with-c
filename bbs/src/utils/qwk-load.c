@@ -62,50 +62,6 @@ void display_control(qwk_control_t *control) {
 
 }
 
-int create_room(room_base_t **temp, qwk_area_t *area) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        errno = 0;
-        *temp = (room_base_t *)calloc(1, sizeof(room_base_t));
-        if (*temp == NULL) cause_error(errno);
-
-        (**temp).aide = 1;
-        (**temp).base = MSGBASE;
-        (**temp).timeout = TIMEOUT;
-        (**temp).retries = RETRIES;
-        (**temp).conference = area->area;
-        strncpy((**temp).name, area->name, 31);
-        strncpy((**temp).description, area->name, 63);
-        (**temp).flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES | RM_NETWORK);
-        strncpy((**temp).path, fnm_build(1, FnmPath, MSGPATH, NULL), 255);
-
-        int x = 0;
-        for(; x < USERNUM; x++) { 
-
-            (**temp).status[x] = 0;
-
-        }
-
-        stat = room_add(room, *temp);
-        check_return(stat, room);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        capture_trace(dump);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
 int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
     int len;
@@ -415,33 +371,30 @@ int process_packet(void) {
                 stat = room_get(room, index, &temp);
                 check_return(stat, room);
 
-            } else {
+                if (bit_test(temp->flags, RM_MESSAGES)) {
 
-                stat = create_room(&temp, area);
-                check_status(stat, OK, E_INVOPS);
+                    stat = room_handler(room, temp, (void **)&jam);
+                    check_return(stat, room);
 
-                printf("creating room: %s\n", temp->name);
+                    memset(area_num, '\0', 10);
+                    snprintf(area_num, 5, "%03ld", area->area);
 
-            }
+                    printf("processing: %s, %s\n", area_num, area->name);
 
-            if (bit_test(temp->flags, RM_MESSAGES)) {
+                    stat = process_area(temp, area_num);
+                    check_status(stat, OK, E_INVOPS);
 
-                stat = room_handler(room, temp, (void **)&jam);
+                }
+
+                free(area);
+                stat = room_free(room, temp);
                 check_return(stat, room);
 
-                memset(area_num, '\0', 10);
-                snprintf(area_num, 5, "%03ld", area->area);
+            } else {
 
-                printf("processing: %s, %s\n", area_num, area->name);
-
-                stat = process_area(temp, area_num);
-                check_status(stat, OK, E_INVOPS);
+                printf("not defined: \"%s\"\n", area->name);
 
             }
-
-            free(area);
-            stat = room_free(room, temp);
-            check_return(stat, room);
 
         }
 

@@ -31,12 +31,13 @@ errors_t *errs;
 int display(room_base_t *room) {
 
     printf("---------------------------------\n");
-    printf("room #    : %ld\n", room->roomnum);
-    printf("room aide : %ld\n", room->aide);
-    printf("name      : %s\n", room->name);
-    printf("path      : %s\n", room->path);
-    printf("conference: %d\n", room->conference);
-    printf("flags     : %d\n", room->flags);
+    printf("room #     : %ld\n", room->roomnum);
+    printf("room aide  : %ld\n", room->aide);
+    printf("name       : %s\n", room->name);
+    printf("description: %s\n", room->description);
+    printf("path       : %s\n", room->path);
+    printf("conference : %d\n", room->conference);
+    printf("flags      : %d\n", room->flags);
 
     if (bit_test(room->flags, RM_INUSE)) printf("  RM_INUSE\n");
     if (bit_test(room->flags, RM_PUBLIC)) printf("  RM_PUBLIC\n");

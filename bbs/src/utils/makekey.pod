@@ -1,0 +1,54 @@
+
+=pod
+
+=head1 NAME
+
+makekey - create a key from supplied text
+
+=head1 SYNOPSIS
+
+makekey [text]
+
+=head1 DESCRIPTION
+
+This program will create a "key". This is hash of the text that is
+supplied on the command line. This "key" is not reversible.
+
+=head1 OPTIONS AND ARGUMENTS
+
+=over 4
+
+=item B<text>
+
+A string of text, that is used to make a "key". 
+
+=back
+
+=head1 EXIT CODES
+
+ 0 - success
+ 1 - failure
+
+=head1 SEE ALSO
+
+=over 4
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

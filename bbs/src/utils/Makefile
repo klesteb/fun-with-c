@@ -13,7 +13,7 @@ OLIBS = ../../../libs/
 INCLUDE = -I.. -I../main -I../finds -I../user -I../jam -I../qwk -I../room -I../node
 STATIC = $(LIBS)libroom.a $(LIBS)libfinds.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
-         $(LIBS)librms.a $(OLIBS)libfiles.a $(OLIBS)libobjects.a \
+         $(OLIBS)librms.a $(OLIBS)libfiles.a $(OLIBS)libobjects.a \
          $(OLIBS)libcclibs.a $(OLIBS)libgpl.a
 CFLAGS = -Wall -c $(INCLUDE) -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
 LFLAGS =
@@ -31,6 +31,7 @@ clean:
 	rm -f *.o
 	rm -f *~
 	rm -f $(TARGETS)
+	rm -f *.3
 #
 qwk-dump: qwk-dump.o
 	$(CC) $(CFLAGS) qwk-dump.c
@@ -55,6 +56,14 @@ room-dump: room-dump.o
 room-create: room-create.o
 	$(CC) $(CFLAGS) room-create.c
 	$(LINK) $(LOPTS) room-create room-create.o $(OLBS)
+#
+man:
+	pod2man -c " " -r "lcnames(3)" -s 3 lcnames.pod lcnames.3
+	pod2man -c " " -r "makekey(3)" -s 3 makekey.pod makekey.3
+	pod2man -c " " -r "qwk-dump(3)" -s 3 qwk-dump.pod qwk-dump.3
+	pod2man -c " " -r "qwk-load(3)" -s 3 qwk-load.pod qwk-load.3
+	pod2man -c " " -r "room-create(3)" -s 3 room-create.pod room-create.3
+	pod2man -c " " -r "room-dump(3)" -s 3 room-dump.pod room-dump.3
 #
 # eof
 #

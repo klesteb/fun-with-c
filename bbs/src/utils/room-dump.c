@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "room.h"
 #include "when.h"
@@ -124,10 +125,31 @@ void cleanup(void) {
 
 int main(int argc, char **argv) {
 
+    int ch;
     int stat = OK;
     queue results;
+    extern int  optind;
+    extern char *optarg;
+    int rc = EXIT_SUCCESS;
+    char *options = "Hh?";
     room_base_t *temp = NULL;
     room_search_t *result = NULL;
+
+    while ((ch = getopt(argc, argv, options)) != EOF) {
+
+        switch (ch) {
+            case 'H':
+            case 'h':
+            case '?':
+                printf("\n");
+                printf("Usage: room-dump\n");
+                printf("\n");
+
+                return EXIT_SUCCESS;
+
+        }
+
+    }
 
     when_error_in {
 
@@ -162,6 +184,7 @@ int main(int argc, char **argv) {
 
     } use {
 
+        rc = EXIT_FAILURE;
         capture_trace(dump);
         tracer_dump(dump, dump_trace);
         clear_error();
@@ -170,7 +193,7 @@ int main(int argc, char **argv) {
 
     cleanup();
 
-    return 0;
+    return rc;
 
 }
 

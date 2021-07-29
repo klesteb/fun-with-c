@@ -1,0 +1,79 @@
+
+=pod
+
+=head1 NAME
+
+room-create - configure rooms from a config file
+
+=head1 SYNOPSIS
+
+room-create [-?|-h|-H] 
+
+=head1 DESCRIPTION
+
+This program is used read a configuration file and configure rooms 
+within xa-bbs. This dosen't extend the room datastore, and it can't be 
+used to modify previously configured rooms. All output goes to stdout, 
+errors go to stderr.
+
+=head1 OPTIONS AND ARGUMENTS
+
+=over 4
+
+=item B<-?|h|H>
+
+Output simple help text.
+
+=item B<-f <file>>
+
+The file that holds the configuration settings.
+
+=back
+
+=head1 CONFIGURATION
+
+The configuration has the following format:
+
+    #                       - line separator
+    2001                    - conference number
+    General                 - name
+    DOVE-Net General        - description
+    true                    - wither it is networked (true/false)
+    
+You may have as many of these as needed. If you overflow the room
+datastore a suitable error is returned. 
+
+=head1 EXIT CODES
+
+ 0 - success
+ 1 - failure
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<qwk-import|qwk-import>
+
+=item L<qwk-load|qwk-load>
+
+=item L<qwk-dump|qwk-dump>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

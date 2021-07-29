@@ -1,0 +1,77 @@
+
+=pod
+
+=head1 NAME
+
+qwk-dump - dump a qwk packet
+
+=head1 SYNOPSIS
+
+qwk-dump [-?|-h|-H]
+
+=head1 DESCRIPTION
+
+This program is used to dump a qwk message packet. It dosen't unpack
+that packet before processing. All output goes to stdout, errors go 
+to stderr.
+
+=head1 OPTIONS AND ARGUMENTS
+
+=over 4
+
+=item B<-?|h|H>
+
+Output simple help text.
+
+=item B<-a <area>>
+
+Select the message area to dump. The default is to dump all messages
+areas.
+
+=item B<-d <directory>>
+
+The directory that the files reside in. This needs to be terminated
+with a trailing "/". The default, is the current directory.
+
+=item B<-c>
+
+Just dump the control.dat file.
+
+=item B<-n>
+
+Just print the notice.
+
+=back
+
+=head1 EXIT CODES
+
+ 0 - success
+ 1 - failure
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<qwk-import|qwk-import>
+
+=item L<qwk-load|qwk-load>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

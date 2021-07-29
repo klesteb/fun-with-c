@@ -253,6 +253,7 @@ int bbs_old_msgs(void *data, int size, error_trace_t *errors) {
         stat = load_old_msgs(jam, &useron, &results);
         check_return(stat, jam);
 
+
         exit_when;
 
     } use {

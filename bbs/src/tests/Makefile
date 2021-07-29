@@ -8,7 +8,7 @@
 #
 CC = gcc
 LINK = gcc
-LIBS = ../../libs/
+LIBS = ../libs/
 OLIBS = ../../../libs/
 INCLUDE = -I.. -I../jam -I../qwk -I../room -I../node -I../user -I../finds
 STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \

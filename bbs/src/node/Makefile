@@ -13,7 +13,7 @@ VERSION="$(MAJOR).$(MINOR).$(PATCH)"
 CC = gcc
 LINK = gcc
 LIBR = ar rs
-LIBS = ../../libs/
+LIBS = ../libs/
 WORKING = $(shell pwd)
 STATIC = libnode.a
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I.. -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl

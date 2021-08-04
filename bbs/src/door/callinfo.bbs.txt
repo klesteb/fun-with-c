@@ -1,0 +1,80 @@
+
+
+The CALLINFO.BBS information we have is incomplete, so Citadel might not 
+write this file completely correctly. This file is a text file, with each 
+field taking a line followed by a carriage return/line feed (ASCII 13 and 
+ASCII 10) combination. The information that Citadel writes is:
+
+---------------------------------------------------------------------------
+User's Name
+    The name of the currently logged in user, with all color codes removed.
+Speed
+    The number 0 for 2400 baud, 1 for 300 baud, 2 for 1200 baud, 3 for 9600 baud, or 5 for console or other speed.
+City
+    The last line of the user's mailing address that has data in it, or blank if no lines have data.
+Security Level
+    The number 5 for problem users, 30 for normal users, 80 for Aides, and 100 for Sysops.
+Time left
+    The time left in the user's accounts, in minutes. In an attempt to keep from overflowing other software's limits, no value larger than 546 minutes is written.
+ANSI Color
+    The word "COLOR" if the current user has ANSI color enabled or "MONO" if he does not.
+Password
+    The current user's password (but not initials).
+Userlog Number
+    The current user's slot in LOG.DAT. (Not that this means anything to Citadel.)
+Time used
+    The number of minutes this call has lasted. If there is no user logged in, the number 0.
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "01:23".
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "01:23 01/02/90".
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "ABCDEFGH".
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "0".
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "99".
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "0".
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "9999".
+Phone number
+    The current user's phone number.
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "01/01/90 02:34".
+Expert
+    The word "EXPERT" if helpful hints are turned off or "NOVICE" if they are on.
+File transfer protocol
+    The name of the user's default file transfer protocol, or a blank line if none is specified.
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "01/01/90".
+Times on
+    The number of times the current user has logged onto the system.
+Lines per screen
+    The number of lines per screen, or 0 if the current user has screen pause turned off.
+Last message read
+    The new message pointer for the current room.
+Total uploads
+    The total number of files the user has uploaded.
+Total downloads
+    The total number of files the user has downloaded.
+Excessively Stupid!!!
+    The text "8 { Databits }". (There are two spaces between the "8" and the "{".)
+User's location
+    The text "LOCAL if logged in on console, or "REMOTE" if logged in over the modem.
+Port
+    The text "COM" followed by the serial port number of the modem. (For example, "COM1" if the modem is on the first serial port.)
+Speed
+    The number 0 for 2400 baud, 1 for 300 baud, 2 for 1200 baud, 3 for 9600 baud, or 5 for other speed. No attention is paid to whether the user is on console or not.
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "FALSE".
+Another stupid thing
+    The text "Normal Connection".
+Unknown
+    Citadel writes nothing out. Our information lists this field as being "01/02/94 01:20".
+Task number
+    Citadel writes the number 0.
+Door number
+    Citadel writes the number 1.
+---------------------------------------------------------------------------
+

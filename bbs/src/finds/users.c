@@ -54,3 +54,25 @@ int find_user_by_name(void *data1, void *data2) {
 
 }
 
+int find_user_by_number(void *data1, void *data2) {
+
+    int usernum = 0;
+    int stat = FALSE;
+    user_base_t *user = (user_base_t *)data2;
+
+    memcpy(&usernum, (int *)data1, sizeof(int));
+
+    if (! bit_test(user->flags, US_INACTIVE)) {
+
+        if (user->eternal == usernum) {
+
+            stat = TRUE;
+
+        }
+
+    }
+
+    return stat;
+
+}
+

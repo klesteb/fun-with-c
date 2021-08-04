@@ -11,7 +11,7 @@ room-create [-?|-h|-H]
 
 =head1 DESCRIPTION
 
-This program is used read a configuration file and configure rooms 
+This program is used to read a configuration file and configure rooms 
 within xa-bbs. This dosen't extend the room datastore, and it can't be 
 used to modify previously configured rooms. All output goes to stdout, 
 errors go to stderr.

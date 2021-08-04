@@ -24,6 +24,12 @@ extern int bbs_run(error_trace_t *);
 
 /* bbs_access */
 
+extern int has_profile(user_base_t *);
+extern int can_edit_aide(user_base_t *);
+extern int can_post_lobby(user_base_t *);
+extern int can_create_room(user_base_t *);
+extern int is_twit(room_base_t *, user_base_t *);
+extern int is_norm(room_base_t *, user_base_t *);
 extern int is_aide(room_base_t *, user_base_t *);
 extern int is_sysop(room_base_t *, user_base_t *);
 extern int known_room(room_search_t *, user_base_t *);
@@ -55,10 +61,6 @@ extern int bbs_send_message(const char *, error_trace_t *);
 
 extern int bbs_logoff(error_trace_t *);
 extern int bbs_logout(void *, int, error_trace_t *);
-
-/* bbs_aide */
-
-extern int bbs_aide_menu(error_trace_t *);
 
 /* bbs_msgs */
 

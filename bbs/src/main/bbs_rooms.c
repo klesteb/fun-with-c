@@ -258,6 +258,7 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
 
         } else if (bit_test(room->flags, RM_SUBSYS)) {
 
+
         }
 
         stat = room_free(rooms, room);
@@ -312,6 +313,10 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
             case RM_BULLETIN:
             case RM_DIRECTORY:
             case RM_SUBSYS:
+                title = "Doors";
+                stat = load_rooms(&results, find_rooms_subsys, &error);
+                check_status2(stat, OK, error);
+                break;
             case RM_MESSAGES:
                 title = "Message Rooms";
                 stat = load_rooms(&results, find_rooms_messages, &error);

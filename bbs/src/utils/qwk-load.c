@@ -499,6 +499,8 @@ int main(int argc, char **argv) {
                 printf("Usage: qwk-load [-d <directory>]\n");
                 printf("  -d - the directory where the qwk packet is located.\n");
                 printf("\n");
+                printf("  The default is to load all messages in the current directory.\n");
+                printf("\n");
 
                 return EXIT_SUCCESS;
 

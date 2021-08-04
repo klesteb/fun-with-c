@@ -1,0 +1,33 @@
+
+[wc30rec.new, 92May]
+
+    With the release of v3.0 Wildcat! no longer creates CALLINFO.BBS. The 
+    decision to drop CALLINFO.BBS came about due to our desire to support 
+    the generic DOOR.SYS format used by RBBS/GAP & PCBOARD.
+
+    However, DOOR.SYS doesn't contain all the information necessary for 
+    Wildcat! v3.0. Therefore, we also create a file called USERINFO.DAT which 
+    gets created in the \WCWORK\NODEx (x = Node Number) directory. This is 
+    a standard text file.
+
+    Here is the format for our new USERINFO.DAT file: 
+
+   Jim Harrer       { Line  1 - Full Users Name }
+   LOCAL            { Line  2 - Connect Rate or LOCAL }
+   8                { Line  3 - Databits }
+   Y                { Line  4 - 'Y' or 'N' for Ansi Enabled }
+   Y                { Line  5 - 'Y' or 'N' for MNP Connection }
+   14:22 02/22/91   { Line  6 - Time and Date of Call }
+   14:28 02/22/91   { Line  7 - Time and Date entered door }
+   52               { Line  8 - Minutes remaining }
+   N                { Line  9 - Started with a CommandLine switch }
+   0                { Line 10 - Current Conference }
+   0                { Line 11 - Active Menu # (0=Main,1=Msg,2=File,3=Sysop)}
+   NEWUSER          { Line 12 - Security level name }
+   60               { Line 13 - Banked time.  (DLT - MaxLogOn) }
+   1                { Line 14 - Door number }
+   THEBOSS          { Line 15 - Alias Name, if they have one }
+   N                { Line 16 - 'Y' or 'N' did the caller hang-up in door }
+   0                { Line 17 - # of files downloaded }
+   0                { Line 18 = # of Kilobytes downloaded }
+

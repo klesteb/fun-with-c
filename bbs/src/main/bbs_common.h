@@ -73,10 +73,10 @@ extern char *bbsdir;
 extern char *datapath;
 extern char *msgpath;
 extern char *textpath;
+extern char *workpath;
 extern char *networknode;
 extern char *humannode;
 extern char *serialnum;
-extern int rstatnum;
 extern char *axdefs[8];
 
 #endif

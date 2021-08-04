@@ -74,10 +74,10 @@ char *bbsdir = BBSDIR;              /* root directory of the bbs           */
 char *datapath = DATAPATH;          /* where the data files are located    */
 char *msgpath = MSGPATH;            /* where the messages are located      */
 char *textpath = TEXTPATH;          /* where the text files are located    */
+char *workpath = WORKPATH;          /* work space                          */
 char *networknode = NODENAME;       /* network node name                   */
 char *humannode = HUMANNODE;        /* human readable node name            */
 char *serialnum = SERIALNUM;        /* system serial number                */
-int rstatnum = 0;                   /* max number of room status records   */
 
 /* nemonics ---------------------------------------------------------------*/
 

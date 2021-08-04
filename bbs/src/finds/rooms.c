@@ -91,3 +91,17 @@ int find_rooms_networked(void *data, int len, room_base_t *room) {
 
 }
 
+int find_rooms_subsys(void *data, int len, room_base_t *room) {
+
+    int stat = FALSE;
+
+    if (bit_test(room->flags, RM_SUBSYS)) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+

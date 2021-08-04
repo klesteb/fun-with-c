@@ -261,6 +261,42 @@ int is_sysop(room_base_t *room, user_base_t *user) {
 
 }
 
+int is_twit(room_base_t *room, user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (bit_test(room->flags, RM_INUSE)) {
+
+        if (user->axlevel == AX_TWIT) {
+
+            stat = TRUE;
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int is_norm(room_base_t *room, user_base_t *user) {
+
+    int stat = FALSE;
+
+    if (bit_test(room->flags, RM_INUSE)) {
+
+        if (user->axlevel == AX_NORM) {
+
+            stat = TRUE;
+
+        }
+
+    }
+
+    return stat;
+
+}
+
 int can_create_room(user_base_t *user) {
 
     int stat = FALSE;
@@ -294,6 +330,21 @@ int can_edit_aide(user_base_t *user) {
     int stat = FALSE;
 
     if (user->axlevel >= AX_SYSOP) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
+int has_profile(user_base_t *user) {
+
+    int stat = FALSE;
+
+    if ((bit_test(user->flags, US_PROFILE)) &&
+        (user->profile > 0)) {
 
         stat = TRUE;
 

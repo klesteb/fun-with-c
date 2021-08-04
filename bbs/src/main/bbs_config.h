@@ -26,6 +26,7 @@
 #define DATAPATH "../../data/"      /* where the data files are located    */
 #define MSGPATH  "../../messages/"  /* where the messages are located      */
 #define TEXTPATH "../../text/"      /* where the text files are located    */
+#define WORKPATH "../../work/"      /* work space                          */
 
 #define MSGBASE 1                   /* base message number                 */
 #define TIMEOUT 1                   /* timeout for file locking            */

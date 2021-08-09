@@ -59,7 +59,9 @@ extern char *workpath;
 extern char *networknode;
 extern char *humannode;
 extern char *serialnum;
+
 extern char *axdefs[8];
+extern error_code_t bbs_errors[7];
 
 /*-------------------------------------------------------------------------*/
 

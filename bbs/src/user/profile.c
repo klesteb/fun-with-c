@@ -77,7 +77,9 @@ int _profile_build(rms_t *self, profile_base_t *ondisk, profile_base_t *profile)
 
     (*profile).flags = ondisk->flags;
     strcpy((*profile).name, ondisk->name);
-    strcpy((*profile).addr, ondisk->addr);
+    strcpy((*profile).addr1, ondisk->addr1);
+    strcpy((*profile).addr2, ondisk->addr2);
+    strcpy((*profile).addr3, ondisk->addr3);
     strcpy((*profile).city, ondisk->city);
     strcpy((*profile).state, ondisk->state);
     strcpy((*profile).zip, ondisk->zip);
@@ -117,7 +119,9 @@ int _profile_del(rms_t *self, off_t recnum) {
 
         ondisk.flags |= PF_DELETED;
         memset(&ondisk.name, '\0', LEN_NAME+1);
-        memset(&ondisk.addr, '\0', LEN_ADDRESS+1);
+        memset(&ondisk.addr1, '\0', LEN_ADDRESS+1);
+        memset(&ondisk.addr2, '\0', LEN_ADDRESS+1);
+        memset(&ondisk.addr3, '\0', LEN_ADDRESS+1);
         memset(&ondisk.city, '\0', LEN_CITY+1);
         memset(&ondisk.state, '\0', LEN_STATE+1);
         memset(&ondisk.zip, '\0', LEN_ZIP+1);
@@ -214,7 +218,9 @@ int _profile_normalize(rms_t *self, profile_base_t *ondisk, profile_base_t *prof
 
     (*profile).flags = ondisk->flags;
     strcpy((*profile).name, ondisk->name);
-    strcpy((*profile).addr, ondisk->addr);
+    strcpy((*profile).addr1, ondisk->addr1);
+    strcpy((*profile).addr2, ondisk->addr2);
+    strcpy((*profile).addr3, ondisk->addr3);
     strcpy((*profile).city, ondisk->city);
     strcpy((*profile).state, ondisk->state);
     strcpy((*profile).zip, ondisk->zip);

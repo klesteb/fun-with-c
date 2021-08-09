@@ -13,20 +13,64 @@
 #include "bbs/src/main/bbs_common.h"
 #include "bbs/src/main/bbs_protos.h"
 
-extern int print_result();
-
 /* local items ---------------------------------------------------------- */
+
+static char *str_time_hm(time_t date) {
+
+	static char	ttime[9];
+	struct tm	*l_d;
+
+	l_d = localtime(&date);
+	snprintf(ttime, 9, "%02d:%02d", l_d->tm_hour, l_d->tm_min);
+
+	return ttime;
+
+}
+
+static char *str_time_hms(time_t date) {
+
+	static char	ttime[9];
+	struct tm	*l_d;
+
+	l_d = localtime(&date);
+	snprintf(ttime, 9, "%02d:%02d:%02d", l_d->tm_hour, l_d->tm_min, l_d->tm_sec);
+
+	return ttime;
+
+}
+
+static char *gdate(time_t tt, int Y2K) {
+
+    static char glc[15];
+    struct tm   *tm;
+
+    tm = localtime(&tt);
+    if (Y2K) {
+
+        snprintf(glc, 15, "%02d-%02d-%04d", tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
+
+    } else {
+
+        snprintf(glc, 15, "%02d-%02d-%02d", tm->tm_mon + 1, tm->tm_mday, tm->tm_year % 100);
+
+    }
+
+    return glc;
+
+}
 
 static int write_doorinfo_def(room_base_t *room, nodes_base_t *node, user_base_t *user) {
 
     int stat = OK;
     char temp2[37];
     int exists = 0;
+    char buffer[256];
     user_base_t sysop;
     char filename[256];
     char *temp3 = NULL;
     files_t *file = NULL;
     int sysopnum = SYSOP;
+    profile_base_t profile;
     int mode = (S_IRWXU | S_IRWXG);
     int create = (O_RDWR | O_CREAT);
 
@@ -78,7 +122,7 @@ static int write_doorinfo_def(room_base_t *room, nodes_base_t *node, user_base_t
             check_return(stat, file);
 
         } else {
-            
+
             stat = files_puts(file, temp2, strlen(temp2));
             check_return(stat, file);
 
@@ -89,20 +133,23 @@ static int write_doorinfo_def(room_base_t *room, nodes_base_t *node, user_base_t
 
         /* line 4 - com port, always COM0 */
 
-        char *comport = "COM0";
-        stat = files_puts(file, comport, strlen(comport));
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "COM0");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 5 - connection speed */
 
-        char *connection = "19200 BAUD,N,8,1";
-        stat = files_puts(file, connection, strlen(connection));
+        memset(buffer, '\0', 256)
+        strcpy(buffer, "19200 BAUD,N,8,1");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 6 - networked ?? */
 
-        char *networked = "0";
-        stat = files_puts(filem networked, strlen(networked));
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "0");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* lines 7,8 - users name */
@@ -132,61 +179,71 @@ static int write_doorinfo_def(room_base_t *room, nodes_base_t *node, user_base_t
 
         /* line 9 - location */
 
-        char *location = "unknown";
-        if (bit_test(user->flags, US_PROFILE)) {
+        memset(buffer, '\0', 256);
 
-            stat = files_puts(file, location, strlen(location));
+        if (has_profile(user)) {
+
+            stat = profile_get(profiles, user->profile, &profile);
+            check_return(stat, profiles);
+
+            snprintf(buffer, 31, "%s, %s", profile.city, profile.state);
+            stat = files_puts(file, buffer, strlen(buffer));
             check_return(stat, file);
 
         } else {
 
-            stat = files_puts(file, location, strlen(location));
+            strcpy(buffer, "unknown");
+
+            stat = files_puts(file, buffer, strlen(buffer));
             check_return(stat, file);
 
         }
 
         /* line 10 - emulation "0" if TTY, or "1" if ANSI. */
 
-        char *emulation = "1";
-        stat = files_puts(file, emulation, strlen(emulation));
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "1");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 11 - security level */
 
-        char level[5];
-        memset(level, '\0', 5);
-        strcpy(level, "5");
+        memset(buffer, '\0', 256);
 
         if (is_norm(room, user)) {
 
-            strcpy(level, "30");
+            strcpy(buffer, "30");
 
         } else if (is_aide(room, user)) {
 
-            strcpy(level, "80");
+            strcpy(buffer, "80");
 
         } else if (is_sysop(room, user)) {
 
-            strcpy(level, "100");
+            strcpy(buffer, "100");
+
+        } else {
+
+            strcpy(buffer, "5");
 
         }
 
-        stat = files_puts(file, level, strlen(level));
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 12 - time left */
 
-        char timeleft[8];
-        memset(timeleft, '\0', 8);
-        snprintf(timeleft, 7, (user->timelimit - timelim));
+        memset(buffer, '\0', 256);
+        snprintf(buffer, 7, "%d", (user->timelimit - timelim));
 
-        stat = files_puts(file, timeleft, strlen(timeleft));
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 13 - FOSSIL driver "-1" if external, "0" if internal */
 
-        char *fossil = "-1";
-        stat = files_puts(file, fossil, strlen(fossil));
+        memset(buffer, '\0', 256);
+        strcpy(bufger, "-1");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* all done */
@@ -213,13 +270,15 @@ static int write_doorinfo_def(room_base_t *room, nodes_base_t *node, user_base_t
 }
 
 static int write_door32_sys(room_base_t *room, nodes_base_t *node, user_base_t *user) {
-    
+
     int stat = OK;
     int exists = 0;
+    char buffer[256];
     user_base_t sysop;
     char filename[256];
     files_t *file = NULL;
     int sysopnum = SYSOP;
+    profile_base_t profile;
     int mode = (S_IRWXU | S_IRWXG);
     int create = (O_RDWR | O_CREAT);
 
@@ -228,6 +287,7 @@ static int write_door32_sys(room_base_t *room, nodes_base_t *node, user_base_t *
         stat = user_get(users, sysopnum, &sysop);
         check_return(stat, users);
 
+        memset(buffer, '\0', 256);
         memset(filename, '\0', 256);
         strncpy(filename, fnm_build(1, FnmPath, "door32", ".sys", node->nodenum, workpath, NULL), 255);
 
@@ -252,20 +312,22 @@ static int write_door32_sys(room_base_t *room, nodes_base_t *node, user_base_t *
 
         /* line 1 - com port, 0=local, 1=serial, 2=telnet */
 
-        char *comtype = "0";
-        stat = files_puts(file, comtype, strlen(comtype));
+        strcpy(buffer, "0");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 2 - com port, number or socket */
 
-        char *comport = "0";
-        stat = files_puts(file, comport, strlen(comport));
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "0");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 3 - effective baud rate */
 
-        char *baud = "0";
-        stat = files_puts(file, baud, strlen(baud));
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "0");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 4 - bbs name */
@@ -275,17 +337,29 @@ static int write_door32_sys(room_base_t *room, nodes_base_t *node, user_base_t *
 
         /* line 5 - user record */
 
-        char usernum[8];
-        memcpy(usernum, '\0', 8);
-        snprintf(usernum, 7, "%s", user->eternal);
+        memcpy(buffer, '\0', 256);
+        snprintf(buffer, 7, "%d", user->eternal);
 
-        stat = files_puts(file, usernum strlen(usernum));
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 6 - user name */
 
-        stat = files_puts(filem user->username, strlen(user->username));
-        check_return(stat, file);
+        if (has_profile(user)) {
+
+            stat = profile_get(profiles, user->profile, &profile);
+            check_return(stat, profiles);
+
+            stat = files_puts(file, profile.name, strlen(profile.name));
+            check_return(stat, file);
+
+        } else {
+
+            stat = files_puts(filem user->username, strlen(user->username));
+            check_return(stat, file);
+
+        }
+
 
         /* line 7 - user handle */
 
@@ -294,50 +368,51 @@ static int write_door32_sys(room_base_t *room, nodes_base_t *node, user_base_t *
 
         /* line 8 - security level */
 
-        char level[5];
-        memset(level, '\0', 5);
-        strcpy(level, "5");
+        memset(buffer, '\0', 256);
 
         if (is_norm(room, user)) {
 
-            strcpy(level, "30");
+            strcpy(buffer, "30");
 
         } else if (is_aide(room, user)) {
 
-            strcpy(level, "80");
+            strcpy(buffer, "80");
 
         } else if (is_sysop(room, user)) {
 
-            strcpy(level, "100");
+            strcpy(buffer, "100");
+
+        } else {
+
+            strcpy(buffer, "5");
 
         }
 
-        stat = files_puts(file, level, strlen(level));
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 9 - time left */
 
-        char timeleft[8];
-        memset(timeleft, '\0', 8);
-        snprintf(timeleft, 7, (user->timelimit - timelim));
+        memset(buffer, '\0', 256);
+        snprintf(buffer, 7, "%d", (user->timelimit - timelim));
 
-        stat = files_puts(file, timeleft, strlen(timeleft));
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 10 - graphics mode */
         /* 0 = Ascii, 1 = Ansi, 2 = Avatar, 3 = RIP, 4 = Max Graphics */
 
-        char *graphics = "1";
-        stat = files_puts(file, graphics, strlen(graphics));
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "1");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* line 11 - node number */
 
-        char nodenum[4];
-        memcpy(nodenum , '\0', 4);
-        snprintf(nodenum, 3, "%s", node->nodenum);
+        memcpy(buffer, '\0', 256);
+        snprintf(buffer, 3, "%d", node->nodenum);
 
-        stat = files_puts(file, nodenum, strlen(nodenum));
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /* all done */
@@ -367,10 +442,12 @@ static int write_door_sys(room_base_t *room, nodes_base_t *node, user_base_t *us
 
     int stat = OK;
     int exists = 0;
+    char buffer[256];
     user_base_t sysop;
     char filename[256];
     files_t *file = NULL;
     int sysopnum = SYSOP;
+    profile_base_t profile;
     int mode = (S_IRWXU | S_IRWXG);
     int create = (O_RDWR | O_CREAT);
 
@@ -378,6 +455,13 @@ static int write_door_sys(room_base_t *room, nodes_base_t *node, user_base_t *us
 
         stat = user_get(users, sysopnum, &sysop);
         check_return(stat, users);
+
+        if (has_profile(user)) {
+
+            stat = profile_get(profiles, user->profile, &profile);
+            check_return(stat, profiles);
+
+        }
 
         memset(filename, '\0', 256);
         strncpy(filename, fnm_build(1, FnmPath, "door", ".sys", node->nodenum, workpath, NULL), 255);
@@ -402,121 +486,366 @@ static int write_door_sys(room_base_t *room, nodes_base_t *node, user_base_t *us
         check_return(stat, file);
 
         /* line 1 - com port */
-        
-        char *comport = "COM0:";
-        stat = files_puts(file, comport, strlen(comport));
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "COM0:");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
-        
+
         /* line 2 - efective baud rate */
-        
-        char *baud = "0";
-        stat = files_puts(file, baud, strlen(baud));
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "0");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
-        
+
         /* line 3 - data bits */
-        
-        char *bits = "8";
-        stat = files_puts(file, bits, strlen(bits));
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "8");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
 
         /*line 4 - node number */
-        
-        char nodenum[8];
-        memset(nodenum, '\0', 8);
-        snprintf(nodenum, 7 "%s", node->nodenum);
-        
-        stat = files_puts(file, nodenum, strlen(nodenum)):
+
+        memset(buffer, '\0', 256);
+        snprintf(buffer, 3, "%d", node->nodenum);
+
+        stat = files_puts(file, buffer, strlen(buffer)):
         check_return(statm, file);
 
         /* line 5 - locked baud rate */
-        
-        stat = files_puts(file, baud, strlen(baud));
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "19200");
+        stat = files_puts(file, buffer, strlen(buffer));
         check_return(stat, file);
-        
+
         /* line 6 - screen snoop */
-        
+
         stat = files_puts(file, "Y", 1);
         check_return(stat, file);
-        
+
         /* line 7 - printer on */
-        
+
         stat = files_puts(file, "N", 1);
         check_return(stat, file);
-        
+
         /* line 8 - pager bell */
-        
+
         stat = files_puts(file, "Y", 1);
         check_return(stat, file);
-        
+
         /* line 9 - caller alarm */
-        
+
         stat = files_puts(file, "Y", 1);
         check_return(stat, file);
-        
+
         /* line 10, username */
-        
+
         stat = files_puts(files, user->username, strlen(user->username));
         check_return(stat, file);
-        
-        /* line 11, location */
-        
-        char *location = "unknown";
-        if (bit_test(user->flags, US_PROFILE)) {
 
-            stat = files_puts(file, location, strlen(location));
+        /* line 11, location */
+
+        memset(buffer, '\0', 256);
+
+        if (has_profile(user)) {
+
+            snprintf(buffer, 31, "%s, %s", profile.city, profile.state);
+            stat = files_puts(file, buffer, strlen(buffer));
             check_return(stat, file);
 
         } else {
 
-            stat = files_puts(file, location, strlen(location));
+            strcpy(buffer, "unknown");
+
+            stat = files_puts(file, buffer, strlen(buffer));
             check_return(stat, file);
 
         }
 
         /* line 12, voice phone */
-        
 
-    fprintf(fp, "%s\r\n", exitinfo.sVoicePhone);
-    fprintf(fp, "%s\r\n", exitinfo.sDataPhone);
-    fprintf(fp, "%s\r\n", exitinfo.Password);
-    fprintf(fp, "%d\r\n", exitinfo.Security.level);
-    fprintf(fp, "%d\r\n", exitinfo.iTotalCalls);
-    fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys));
-    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft * 60);    /* Seconds    */
-    fprintf(fp, "%d\r\n", exitinfo.iTimeLeft);    /* Minutes    */
-    fprintf(fp, "GR\r\n");        /* Graphics GR,RIP,NG */
-    fprintf(fp, "%d\r\n", rows);
-    fprintf(fp, "N\r\n");        /* User mode, always N    */
-    fprintf(fp, "\r\n");        /* Always blank        */
-    fprintf(fp, "\r\n");        /* Always blank        */
-    fprintf(fp, "%s\r\n", Rdate(exitinfo.sExpiryDate, Y2Kdoorsys));
-    fprintf(fp, "%d\r\n", grecno);    /* Users recordnumber    */
-    fprintf(fp, "%s\r\n", exitinfo.sProtocol);
-    fprintf(fp, "%d\r\n", exitinfo.Uploads);
-    fprintf(fp, "%d\r\n", exitinfo.Downloads);
-    fprintf(fp, "%d\r\n", LIMIT.DownK); /* FIXME: Download Kb today */
-    fprintf(fp, "%d\r\n", LIMIT.DownK);
-    fprintf(fp, "%s\r\n", Rdate(exitinfo.sDateOfBirth, Y2Kdoorsys));
-    fprintf(fp, "\r\n");        /* Path to userbase    */
-    fprintf(fp, "\r\n");        /* Path to messagebase    */
-    fprintf(fp, "%s\r\n", CFG.sysop_name);
-    fprintf(fp, "%s\r\n", exitinfo.sHandle);
-    fprintf(fp, "none\r\n");    /* Next event time    */
-    fprintf(fp, "Y\r\n");        /* Error free connect.    */
-    fprintf(fp, "N\r\n");        /* Always N        */
-    fprintf(fp, "Y\r\n");        /* Always Y        */
-    fprintf(fp, "7\r\n");        /* Default textcolor    */
-    fprintf(fp, "0\r\n");        /* Always 0        */
-    fprintf(fp, "%s\r\n", Gdate(exitinfo.tLastLoginDate, Y2Kdoorsys)); /* Last newfiles scan date */
-    fprintf(fp, "%s\r\n", StrTimeHM(t_start));  /* Time of this call    */
-    fprintf(fp, "%s\r\n", LastLoginTime);        /* Time of last call    */
-    fprintf(fp, "32768\r\n");    /* Always 32768        */
-    fprintf(fp, "%d\r\n", exitinfo.DownloadsToday);
-    fprintf(fp, "%d\r\n", exitinfo.UploadK);
-    fprintf(fp, "%d\r\n", exitinfo.DownloadK);
-    fprintf(fp, "%s\r\n", exitinfo.sComment);
-    fprintf(fp, "0\r\n");        /* Always 0        */
-    fprintf(fp, "%d\r\n\032", exitinfo.iPosted);
+        if (has_profile(user)) {
+
+            stat = files_put(file, profile.phone, strlen(profile.phone));
+            check_return(stat, file);
+
+        } else {
+
+            memset(buffer, '\0', 256);
+            strcpy(buffer, "(216) 867-5309");
+
+            stat = files_put(file, buffer, strlen(buffer));
+            check_return(stat, file);
+
+        }
+
+        /* line 13, data phone */
+
+        memset(buffer, '\0', 256);
+        strcpy(phone, "(216) 606-0842");
+
+        stat = files_put(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 14, password */
+
+        stat = files_put(file, "", 1);
+        check_return(stat, file);
+
+        /* line 15, security level */
+
+        memset(buffer, '\0', 256);
+
+        if (is_norm(room, user)) {
+
+            strcpy(level, "30");
+
+        } else if (is_aide(room, user)) {
+
+            strcpy(level, "80");
+
+        } else if (is_sysop(room, user)) {
+
+            strcpy(level, "100");
+
+        } else {
+
+            strcpy(buffer, "5");
+
+        }
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 16 - total calls */
+
+        memset(buffer, '\0', 256);
+        sprintf(buffer, "%d", user->timescalled);
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 17, last login date */
+
+        memset(buffer, '\0', 256);
+        sprintf(buffer, "%s", gdate(user->lastcall, TRUE));
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 18, time left in seconds */
+
+        memset(buffer, '\0', 256);
+        snprintf(buffer, 7, "%d", ((user->timelimit - timelim) * 60));
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 19, time left in minutes */
+
+        memset(buffer, '\0', 256);
+        snprintf(buffer, 7, "%d", (user->timelimit - timelim));
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 20, graphics GR, RIP, NG */
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "GR");
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 21, number of screen rows */
+
+        memset(buffer, '\0', 256);
+        snprintf(buffer, 3, "%d", (user->rows));
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 22, user mode, always N */
+
+        stat = files_puts(file, "N", 1);
+        check_return(stat, file);
+
+        /* line 23, always blank */
+
+        stat = files_puts(file, "", 1);
+        check_return(stat, file);
+
+        /* line 24, always blank */
+
+        stat = files_puts(file, "", 1);
+        check_return(stat, file);
+
+        /* line 25, expiration date */
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "12-31-1969");
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 26, user number */
+
+        memset(buffer, '\0', 256);
+        sprintf(buffer, "%d", user->eternal);
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 27, transfer protocol */
+
+        stat = files_puts(file, "", 1);
+        check_return(stat, file);
+
+        /* line 28, uploads */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 29, downloads */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 30, upload kbs today */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 31, download kbs today */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 32, date of birth */
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "12-31-1969");
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 33, path to userbase */
+
+        stat = files_puts(file, "", 1);
+        check_return(stat, file);
+
+        /* line 34, path to message base */
+
+        stat = files_puts(file, "", 1);
+        check_return(stat, file);
+
+        /* line 35, sysop name */
+
+        stat = files_puts(file, sysop.name, strlen(sysop.name));
+        check_return(stat, file);
+
+        /* line 36, user handle */
+
+        stat = files_puts(file, user->username, strlen(user->username));
+        check_return(stat, file);
+
+        /* line 37, next event time */
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "none");
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 38, error free connect */
+
+        stat = files_puts(file, "Y", 1);
+        check_return(stat, file);
+
+        /* line 39, always N */
+
+        stat = files_puts(file, "N", 1);
+        check_return(stat, file);
+
+        /* line 40, always Y */
+
+        stat = files_puts(file, "Y", 1);
+        check_return(stat, file);
+
+        /* line 41, default text colors */
+
+        stat = files_puts(file, "7", 1);
+        check_return(stat, file);
+
+        /* line 42, always 0 */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 43, last new files scan date */
+
+        memset(buffer, '\0', 256);
+        sprintf(buffer, "%s", gdate(user->lastcall, TRUE));
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 44, time of this call */
+
+        memset(buffer, '\0', 256);
+        sprintf(buffer, "%s", str_time_hm(user->lastcall, TRUE));
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 45, time of last call */
+
+        memset(buffer, '\0', 256);
+        sprintf(buffer, "%s", gdate(user->lastcall, TRUE));
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 46, always 32768 */
+
+        memset(buffer, '\0', 256);
+        strcpy(buffer, "32768");
+
+        stat = files_puts(file, buffer, strlen(buffer));
+        check_return(stat, file);
+
+        /* line 47, downloads today */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 48, uploads today */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 49, downloads to day */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 50, comment */
+
+        stat = files_puts(file, "", 1);
+        check_return(stat, file);
+
+        /* line 51, always 0 */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
+
+        /* line 52, number of messages posted */
+
+        stat = files_puts(file, "0", 1);
+        check_return(stat, file);
 
         /* all done */
 

@@ -41,7 +41,7 @@ DATE easter(int year);
 DATE today(void);
 DATE add_days(DATE jdate, int days);
 DATE sub_days(DATE jdate, int days);
-DATE time_date(time_t xtime);
+DATE time_to_date(time_t xtime);
 int  day_of_week(DATE jdate);
 int  day_of_year(DATE jdate);
 int  week_of_year(DATE jdate);

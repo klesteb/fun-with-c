@@ -33,7 +33,9 @@
 typedef struct _profile_base_s {
     ulong flags;                    /* See PF_ flags above              */
     char name[LEN_NAME+1];          /* user's real full name            */
-    char addr[LEN_ADDRESS+1];       /* user's address                   */
+    char addr1[LEN_ADDRESS+1];      /* user's address - line 1          */
+    char addr2[LEN_ADDRESS+1];      /* user's address - line 2          */
+    char addr3[LEN_ADDRESS+1];      /* user's address - line 3          */
     char city[LEN_CITY+1];          /* user's city                      */
     char state[LEN_STATE+1];        /* user's state                     */
     char zip[LEN_ZIP+1];            /* user's zip                       */

@@ -12,12 +12,14 @@
 
 #include <errno.h>
 
-#include "rms.h"
-#include "when.h"
-#include "user.h"
-#include "files.h"
-#include "tracer.h"
-#include "item_list.h"
+#include "rms/rms.h"
+#include "files/files.h"
+#include "include/when.h"
+#include "tracer/tracer.h"
+#include "include/item_list.h"
+
+#include "bbs/src/user/user.h"
+#include "bbs/src/user/user_common.h"
 
 /*----------------------------------------------------------------*/
 /* klass overrides                                                */

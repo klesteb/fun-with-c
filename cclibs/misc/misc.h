@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "que_util.h"
+#include "cclibs/que_util.h"
 
 /*----------------------------------------------------------------------*/
 /* DEC Basic - string handling routines                                 */

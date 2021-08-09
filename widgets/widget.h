@@ -13,12 +13,12 @@
 #ifndef _WIDGET_H
 #define _WIDGET_H
 
-#include "theme.h"
-#include "events.h"
-#include "object.h"
-#include "que_util.h"
-#include "item_list.h"
-#include "coordinates.h"
+#include "widgets/theme.h"
+#include "widgets/events.h"
+#include "objects/object.h"
+#include "cclibs/que_util.h"
+#include "include/item_list.h"
+#include "widgets/coordinates.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */

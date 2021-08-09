@@ -39,9 +39,10 @@
 #    include  <sys/time.h>      /* System time definitions.             */
 #    include  <sys/types.h>     /* System type definitions.             */
 #endif
-#include  "tv_util.h"           /* "timeval" manipulation functions.    */
-#include  "vperror.h"           /* VPERROR() definitions.               */
-#include  "nix_util.h"          /* Network I/O Handler definitions.     */
+
+#include  "gpl/tv_util.h"       /* "timeval" manipulation functions.    */
+#include  "gpl/vperror.h"       /* VPERROR() definitions.               */
+#include  "gpl/nix_util.h"      /* Network I/O Handler definitions.     */
 								
 /*----------------------------------------------------------------------*/
 /* I/O Source - contains information about an input/output source.      */

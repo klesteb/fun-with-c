@@ -24,10 +24,10 @@
     extern  "C" {
 #endif
 
-#include "ansi_setup.h"             /* ANSI or non-ANSI C?              */
-#include "tcp_util.h"               /* TCP/IP networking utilities.     */
-#include "lfn_util.h"
-#include "que_util.h"
+#include "gpl/ansi_setup.h"         /* ANSI or non-ANSI C?              */
+#include "gpl/tcp_util.h"           /* TCP/IP networking utilities.     */
+#include "gpl/lfn_util.h"
+#include "cclibs/que_util.h"
 
 /*----------------------------------------------------------------------*/
 /*    LPD Structures (Client View) and Definitions.                     */

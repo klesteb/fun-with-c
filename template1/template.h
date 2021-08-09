@@ -13,9 +13,9 @@
 #ifndef _TEMPLATE_H
 #define _TEMPLATE_H
 
-#include "object.h"
-#include "item_list.h"
-#include "template_klass.h"
+#include "objects/object.h"
+#include "include/item_list.h"
+#include "template1/template_klass.h"
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */

@@ -18,8 +18,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "object.h"
-#include "item_list.h"
+#include "objects/object.h"
+#include "include/item_list.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */

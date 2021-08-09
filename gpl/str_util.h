@@ -24,7 +24,7 @@
     extern  "C" {
 #endif
 
-#include "ansi_setup.h"                 /* ANSI or non-ANSI C?          */
+#include "gpl/ansi_setup.h"             /* ANSI or non-ANSI C?          */
 #include  <stddef.h>			        /* Standard C definitions.      */
 #if !defined(NO_STRCASECMP) || !defined(NO_STRDUP)
 #    include  <string.h>		        /* Standard C string functions. */

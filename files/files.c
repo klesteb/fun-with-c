@@ -17,11 +17,11 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "when.h"
-#include "files.h"
-#include "object.h"
-#include "error_codes.h"
-#include "misc/misc.h"
+#include "files/files.h"
+#include "include/when.h"
+#include "objects/object.h"
+#include "cclibs/misc/misc.h"
+#include "include/error_codes.h"
 
 require_klass(OBJECT_KLASS);
 

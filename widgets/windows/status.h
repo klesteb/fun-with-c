@@ -13,7 +13,7 @@
 #ifndef _STATUS_H
 #define _STATUS_H
 
-#include "window.h"
+#include "widgets/window.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

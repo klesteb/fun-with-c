@@ -12,13 +12,14 @@
 
 #include <stdio.h>
 
-#include "mbf.h"
-#include "qwk.h"
-#include "when.h"
-#include "object.h"
-#include "tracer.h"
-#include "error_codes.h"
-#include "misc/misc.h"
+#include "include/when.h"
+#include "tracer/tracer.h"
+#include "objects/object.h"
+#include "cclibs/misc/misc.h"
+#include "include/error_codes.h"
+
+#include "bbs/src/qwk/mbf.h"
+#include "bbs/src/qwk/qwk.h"
 
 require_klass(OBJECT_KLASS);
 

@@ -24,7 +24,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "cfg_util.h"
+#include "../cfg_util.h"
 
 #define CFGBUF 1024
 #define CFG_K_NEWFILE 1

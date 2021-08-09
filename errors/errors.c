@@ -14,10 +14,10 @@
 #include <string.h>
 #include <errno.h>
 
-#include "when.h"
-#include "object.h"
-#include "errors.h"
-#include "errors_priv.h"
+#include "include/when.h"
+#include "objects/object.h"
+#include "errors/errors.h"
+#include "errors/errors_priv.h"
 
 require_klass(OBJECT_KLASS);
 

@@ -1,6 +1,7 @@
 
 #include <stdio.h>
-#include "files.h"
+
+#include "files/files.h"
 
 int main(int argc, char **argv) {
 

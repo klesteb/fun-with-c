@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
-#include "when.h"
-#include "errors.h"
-#include "tracer.h"
-#include "misc/misc.h"
+#include "jam/jam.h"
+#include "include/when.h"
+#include "include/errors.h"
+#include "tracer/tracer.h"
+#include "cclibs/misc/misc.h"
 
 jam_t *jam;
 tracer_t *dump;

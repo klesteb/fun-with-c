@@ -28,14 +28,16 @@
 #include <stdio.h>                  /* Standard I/O definitions.        */
 #include <stdlib.h>                 /* Standard C Library definitions.  */
 #include <string.h>                 /* C Library string functions.      */
-#include "vperror.h"
-#include "tcp_util.h"               /* TCP/IP networking utilities.     */
-#include "lfn_util.h"               /* LFN network.                     */
-#include "que_util.h"               /* linked list utilities            */
-#include "pjl_util.h"               /* PJL definations.                 */
-#include "hash_util.h"
-#include "ansi_setup.h"
-#include "misc/misc.h"
+
+#include "gpl/vperror.h"
+#include "gpl/tcp_util.h"           /* TCP/IP networking utilities.     */
+#include "gpl/lfn_util.h"           /* LFN network.                     */
+#include "gpl/hash_util.h"
+#include "gpl/ansi_setup.h"
+
+#include "cclibs/que_util.h"        /* linked list utilities            */
+#include "cclibs/pjl_util.h"        /* PJL definations.                 */
+#include "cclibs/misc/misc.h"
 
 /*----------------------------------------------------------------------*/
 /* PJL Handle - contains information for the PJL routines.              */

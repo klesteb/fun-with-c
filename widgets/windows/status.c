@@ -12,15 +12,15 @@
 
 #include <ncurses.h>
 
-#include "when.h"
-#include "theme.h"
-#include "colors.h"
-#include "window.h"
-#include "component.h"
-#include "item_list.h"
-#include "error_codes.h"
-#include "components/bell.h"
-#include "components/text.h"
+#include "include/when.h"
+#include "widgets/theme.h"
+#include "widgets/colors.h"
+#include "widgets/window.h"
+#include "widgets/component.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
+#include "widgets/components/bell.h"
+#include "widgets/components/text.h"
 
 require_klass(WINDOW_KLASS);
 

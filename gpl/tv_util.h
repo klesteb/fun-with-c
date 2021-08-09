@@ -33,7 +33,7 @@
 #endif
 /* #include  <rpc/rpc.h> */             /* RPC/XDR definitions.         */
 
-#include  "ansi_setup.h"                /* ANSI or non-ANSI C?          */
+#include  "gpl/ansi_setup.h"            /* ANSI or non-ANSI C?          */
 
 /*----------------------------------------------------------------------*/
 /*    Structures and Definitions.                                       */

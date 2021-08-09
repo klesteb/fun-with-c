@@ -12,8 +12,8 @@
 
 #include <stdio.h>
 
-#include "bitops.h"
-#include "finds.h"
+#include "bbs/src/bitops.h"
+#include "bbs/src/finds/finds.h"
 
 int find_users_all(void *data1, void *data2) {
 

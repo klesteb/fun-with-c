@@ -2,15 +2,16 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "msgs.h"
-#include "room.h"
-#include "when.h"
-#include "finds.h"
-#include "files.h"
-#include "errors.h"
-#include "tracer.h"
-#include "fnm_util.h"
-#include "misc/misc.h"
+#include "files/files.h"
+#include "include/when.h"
+#include "gpl/fnm_util.h"
+#include "tracer/tracer.h"
+#include "errors/errors.h"
+#include "cclibs/misc/misc.h"
+
+#include "bbs/src/room/msgs.h"
+#include "bbs/src/room/room.h"
+#include "bbs/src/finds/finds.h"
 
 room_t *room;
 tracer_t *dump;

@@ -11,7 +11,8 @@
 /*---------------------------------------------------------------------------*/
 
 #include <stdio.h>
-#include "finds.h"
+
+#include "bbs/src/finds/finds.h"
 
 int find_index_all(ulong selector, jam_index_t *index) {
 

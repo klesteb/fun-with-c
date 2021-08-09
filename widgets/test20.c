@@ -1,15 +1,17 @@
 
 #include <ncurses.h>
 
-#include "when.h"
-#include "event.h"
-#include "colors.h"
-#include "errors.h"
-#include "tracer.h"
-#include "window.h"
-#include "workbench.h"
-#include "errors_ncurses.h"
-#include "windows/query_window.h"
+#include "include/when.h"
+#include "include/errors_ncurses.h"
+
+#include "events/event.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+
+#include "widgets/colors.h"
+#include "widgets/window.h"
+#include "widgets/workbench.h"
+#include "widgets/windows/query_window.h"
 
 /*---------------------------------------------------------------------------*/
 

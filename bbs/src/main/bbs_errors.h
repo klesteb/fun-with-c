@@ -10,11 +10,11 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERRORS_BBS_H_
-#define _ERRORS_BBS_H_
+#ifndef _BBS_ERRORS_H_
+#define _BBS_ERRORS_H_
 
-#include "error_code.h"
-#include "bbs_error_codes.h"
+#include "include/error_code.h"
+#include "bbs/src/main/bbs_error_codes.h"
 
 /*-------------------------------------------------------------*/
 /* bbs error code definations                                  */

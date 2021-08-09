@@ -1,7 +1,8 @@
 
 #include <stdio.h>
-#include "when.h"
-#include "files.h"
+
+#include "include/when.h"
+#include "files/files.h"
 
 int main(int argc, char **argv) {
 

@@ -13,9 +13,10 @@
 #ifndef _LIST_MENU_H
 #define _LIST_MENU_H
 
-#include "menus.h"
-#include "window.h"
-#include "error_trace.h"
+#include "include/error_trace.h"
+
+#include "widgets/window.h"
+#include "widgets/components/menus/menus.h"
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

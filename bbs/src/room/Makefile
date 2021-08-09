@@ -16,7 +16,8 @@ LIBR = ar rs
 LIBS = ../libs/
 WORKING = $(shell pwd)
 STATIC = libroom.a
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I.. -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+INCLUDE = -I ../../../
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c $(INCLUDE)
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
@@ -36,10 +37,7 @@ clean:
 	rm -f *~
 	rm -f $(LIBS)libroom.a
 	rm -f $(LIBS)libroom.so.*
-	rm -f room.3
-	rm -f msgs.3
-	rm -f handler.3
-#	rm -f room_status.3
+	rm -f *.3
 #
 room.o: room.c $(INCS)
 	$(CC) $(CFLAGS) room.c

@@ -53,11 +53,12 @@
 #endif
 
 #if CACHE_NAMES
-#    include  "hash_util.h"             /* Hash table definitions. */
+#    include  "gpl/hash_util.h"         /* Hash table definitions. */
 #endif
-#include  "str_util.h"                  /* String manipulation functions. */
-#include  "vperror.h"                   /* VPERROR() definitions. */
-#include  "net_util.h"                  /* Networking utilities. */
+
+#include  "gpl/str_util.h"              /* String manipulation functions. */
+#include  "gpl/vperror.h"               /* VPERROR() definitions. */
+#include  "gpl/net_util.h"              /* Networking utilities. */
 
 #endif
 

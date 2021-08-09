@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "room.h"
-#include "when.h"
-#include "files.h"
-#include "errors.h"
-#include "tracer.h"
-#include "misc/misc.h"
+#include "include/when.h"
+#include "files/files.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+#include "cclibs/misc/misc.h"
+#include "bbs/src/room/room.h"
 
 room_t *room;
 tracer_t *dump;

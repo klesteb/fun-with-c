@@ -1,16 +1,18 @@
 
 #include <ncurses.h>
 
-#include "when.h"
-#include "event.h"
-#include "colors.h"
-#include "errors.h"
-#include "tracer.h"
-#include "workbench.h"
-#include "misc/misc.h"
-#include "errors_ncurses.h"
-#include "components/more.h"
-#include "components/text.h"
+#include "include/when.h"
+#include "include/errors_ncurses.h"
+
+#include "events/event.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+
+#include "widgets/colors.h"
+#include "widgets/workbench.h"
+#include "cclibs/misc/misc.h"
+#include "widgets/components/more.h"
+#include "widgets/components/text.h"
 
 /*---------------------------------------------------------------------------*/
 

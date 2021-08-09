@@ -14,8 +14,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "que_util.h"
-#include "misc/misc.h"
+#include "cclibs/que_util.h"
+#include "cclibs/misc/misc.h"
 
 /*----------------------------------------------------------------*/
 

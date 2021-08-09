@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "node.h"
-#include "when.h"
-#include "finds.h"
-#include "errors.h"
-#include "tracer.h"
-#include "que_util.h"
-#include "misc/misc.h"
+#include "include/when.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+#include "cclibs/que_util.h"
+#include "cclibs/misc/misc.h"
+#include "bbs/src/node/node.h"
+#include "bbs/src/finds/finds.h"
 
 rms_t *nodes;
 tracer_t *dump;

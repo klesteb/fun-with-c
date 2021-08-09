@@ -13,17 +13,17 @@
 #include <ncurses.h>
 #include <errno.h>
 
-#include "when.h"
-#include "colors.h"
-#include "events.h"
-#include "object.h"
-#include "window.h"
-#include "item_list.h"
-#include "misc/misc.h"
-#include "error_codes.h"
-#include "components/more.h"
-#include "components/yesno.h"
-#include "components/hline.h"
+#include "include/when.h"
+#include "widgets/colors.h"
+#include "widgets/events.h"
+#include "objects/object.h"
+#include "widgets/window.h"
+#include "cclibs/misc/misc.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
+#include "widgets/components/more.h"
+#include "widgets/components/yesno.h"
+#include "widgets/components/hline.h"
 
 /*----------------------------------------------------------------*/
 /* klass overrides                                                */

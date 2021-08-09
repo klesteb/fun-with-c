@@ -106,7 +106,7 @@ static const char *batch_format(
     char *format = "[%s] %-5s - %s";
 
     snprintf(timestamp, sizeof(timestamp),  
-             "%04d-%02d-%02d %02d:%02d:%02d",
+             "%04d-%02d-%02d %02d:%02d:%02d.%02ld",
              tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
              tm->tm_hour, tm->tm_min, tm->tm_sec,
              event->evt_timestamp.tv_usec / 1000

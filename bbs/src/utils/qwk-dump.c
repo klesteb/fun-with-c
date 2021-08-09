@@ -14,13 +14,14 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "qwk.h"
-#include "when.h"
-#include "files.h"
-#include "errors.h"
-#include "tracer.h"
-#include "que_util.h"
-#include "misc/misc.h"
+#include "files/files.h"
+#include "include/when.h"
+#include "tracer/tracer.h"
+#include "include/errors.h"
+#include "cclibs/que_util.h"
+#include "cclibs/misc/misc.h"
+
+#include "bbs/src/qwk/qwk.h"
 
 qwk_t *qwk;
 tracer_t *dump;

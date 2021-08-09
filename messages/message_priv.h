@@ -13,8 +13,8 @@
 #ifndef _MESSAGE_PRIV_H_
 #define _MESSAGE_PRIV_H_
 
-#include "messages.h"
-#include "message_codes.h"
+#include "messages/message.h"
+#include "include/message_codes.h"
 
 /*-------------------------------------------------------------*/
 /* default message table                                       */

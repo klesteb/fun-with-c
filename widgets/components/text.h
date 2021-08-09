@@ -13,8 +13,8 @@
 #ifndef _TEXT_H
 #define _TEXT_H
 
-#include "window.h"
-#include "component.h"
+#include "widgets/window.h"
+#include "widgets/component.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

@@ -16,13 +16,13 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "when.h"
-#include "event.h"
-#include "object.h"
-#include "nix_util.h"
-#include "que_util.h"
-#include "item_list.h"
-#include "error_codes.h"
+#include "include/when.h"
+#include "events/event.h"
+#include "gpl/nix_util.h"
+#include "objects/object.h"
+#include "cclibs/que_util.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
 
 require_klass(OBJECT_KLASS);
 

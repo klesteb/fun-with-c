@@ -13,11 +13,12 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "when.h"
-#include "tracer.h"
-#include "errors.h"
-#include "object.h"
-#include "error_codes.h"
+#include "include/when.h"
+#include "include/error_codes.h"
+
+#include "tracer/tracer.h"
+#include "errors/errors.h"
+#include "objects/object.h"
 
 require_klass(OBJECT_KLASS);
 

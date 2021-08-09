@@ -13,7 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ansi_setup.h"
+
+#include "gpl/ansi_setup.h"
 
 /*-Prototypes-----------------------------------------------------------*/
 

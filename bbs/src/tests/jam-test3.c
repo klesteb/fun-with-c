@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
-#include "when.h"
-#include "errors.h"
-#include "tracer.h"
+#include "include/when.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+#include "bbs/src/jam/jam.h"
 
 tracer_t *dump;
 errors_t *errors;

@@ -13,25 +13,14 @@
 #ifndef _USER_H
 #define _USER_H
 
-#include "rms.h"
-#include "tracer.h"
+#include "rms/rms.h"
+#include "tracer/tracer.h"
+
+#include "bbs/src/user/user_common.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */
 /*-------------------------------------------------------------*/
-
-/* field lengths */
-
-#define LEN_NAME     31
-#define LEN_PASSWD   15
-#define LEN_ADDRESS  31
-#define LEN_CITY     31
-#define LEN_STATE    31
-#define LEN_ZIP      31
-#define LEN_PHONE    31
-#define LEN_EMAIL    47
-#define LEN_DESC     1023
-#define LEN_TERM     31
 
 /* user.axlevel values */
 
@@ -91,8 +80,8 @@
 typedef struct _user_base_s {         
     char username[LEN_NAME+1];      /* Name for messages & mail         */
     char axlevel;                   /* See AX_ flags above              */
-    unsigned qwk;                   /* See QWK_ flags above             */
-    unsigned flags;                 /* See US_ flags above              */
+    ulong qwk;                      /* See QWK_ flags above             */
+    ulong flags;                    /* See US_ flags above              */
     char term[LEN_TERM+1];          /* Terminal name                    */
     int cols;                       /* Terminal columns                 */
     int rows;                       /* Terminal rows                    */
@@ -107,18 +96,6 @@ typedef struct _user_base_s {
     time_t firstcall;               /* Time of first call               */
     int revision;                   /* Record revision                  */
 } user_base_t;
-
-typedef struct _user_profile_s {
-    char name[LEN_NAME+1];          /* user's real full name            */
-    char addr[LEN_ADDRESS+1];       /* user's address                   */
-    char city[LEN_CITY+1];          /* user's address                   */
-    char state[LEN_STATE+1];        /* user's address                   */
-    char zip[LEN_ZIP+1];            /* user's address                   */
-    char phone[LEN_PHONE+1];        /* user's phone number              */
-    char email[LEN_EMAIL+1];        /* user's email address             */
-    char description[LEN_DESC+1];   /* user description                 */
-    int revision;                   /* record revision                  */
-} user_profile_t;
 
 typedef struct _user_search_s {
     char username[LEN_NAME+1];      /* Name for messages & mail         */

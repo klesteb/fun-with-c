@@ -13,15 +13,17 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "msgs.h"
-#include "room.h"
-#include "when.h"
-#include "files.h"
-#include "handler.h"
-#include "object.h"
-#include "fnm_util.h"
-#include "error_codes.h"
-#include "main/bbs_config.h"
+#include "include/when.h"
+#include "include/error_codes.h"
+
+#include "files/files.h"
+#include "gpl/fnm_util.h"
+#include "objects/object.h"
+
+#include "bbs/src/room/msgs.h"
+#include "bbs/src/room/room.h"
+#include "bbs/src/room/handler.h"
+#include "bbs/src/main/bbs_config.h"
 
 require_klass(OBJECT_KLASS);
 

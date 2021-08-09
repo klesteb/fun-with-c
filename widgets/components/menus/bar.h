@@ -13,8 +13,8 @@
 #ifndef _BAR_MENU_H
 #define _BAR_MENU_H
 
-#include "window.h"
-#include "menus.h"
+#include "widgets/window.h"
+#include "widgets/components/menus/menus.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

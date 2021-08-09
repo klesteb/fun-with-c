@@ -24,9 +24,9 @@
     extern  "C" {
 #endif
 
-#include "ansi_setup.h"             /* ANSI or non-ANSI C?              */
-#include "nix_util.h"			    /* Network I/O Handler definitions. */
-#include "tcp_util.h"			    /* TCP/IP network utilities.        */
+#include "gpl/ansi_setup.h"         /* ANSI or non-ANSI C?              */
+#include "gpl/nix_util.h"			/* Network I/O Handler definitions. */
+#include "gpl/tcp_util.h"			/* TCP/IP network utilities.        */
 
 /*----------------------------------------------------------------------*/
 /*    Structures and Definitions.                                       */

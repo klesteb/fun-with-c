@@ -13,7 +13,7 @@
 #ifndef _ALERT_H
 #define _ALERT_H
 
-#include "window.h"
+#include "widgets/window.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

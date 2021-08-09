@@ -16,7 +16,8 @@ LIBR = ar rs
 WORKING = $(shell pwd)
 STATIC = ../libs/libobjects.a
 SHARED = libobjects.so.$(VERSION)
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../include -I../cclibs -I../gpl
+INCLUDE = -I ../
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c $(INCLUDE)
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 

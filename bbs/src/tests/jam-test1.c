@@ -1,7 +1,8 @@
 
 #include <stdio.h>
-#include "jam.h"
-#include "tracer.h"
+
+#include "tracer/tracer.h"
+#include "bbs/src/jam/jam.h"
 
 tracer_t *dump;
 

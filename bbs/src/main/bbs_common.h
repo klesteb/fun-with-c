@@ -13,26 +13,7 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-
-#include "msgs.h"
-#include "node.h"
-#include "room.h"
-#include "user.h"
-#include "when.h"
-#include "event.h"
-#include "finds.h"
-#include "files.h"
-#include "bitops.h"
-#include "errors.h"
-#include "tracer.h"
-#include "window.h"
-#include "fnm_util.h"
-#include "misc/misc.h"
-#include "workbench.h"
-#include "bbs_error_codes.h"
+#include "bbs/src/main/bbs_includes.h"
 
 /* global items ---------------------------------------------------------- */
 
@@ -41,6 +22,7 @@ extern rms_t *users;
 extern room_t *rooms;
 extern tracer_t *dump;
 extern errors_t *errs;
+extern rms_t *profiles;
 extern event_t *events;
 extern workbench_t *workbench;
 
@@ -78,6 +60,8 @@ extern char *networknode;
 extern char *humannode;
 extern char *serialnum;
 extern char *axdefs[8];
+
+/*-------------------------------------------------------------------------*/
 
 #endif
 

@@ -13,8 +13,8 @@
 #ifndef _TEMPLATE_H
 #define _TEMPLATE_H
 
-#include "object.h"
-#include "item_list.h"
+#include "objects/object.h"
+#include "include/item_list.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */

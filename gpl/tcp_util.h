@@ -24,8 +24,8 @@
     extern  "C" {
 #endif
 
-#include "ansi_setup.h"                 /* ANSI or non-ANSI C?          */
-#include "skt_util.h"                   /* Socket support functions.    */
+#include "gpl/ansi_setup.h"             /* ANSI or non-ANSI C?          */
+#include "gpl/skt_util.h"               /* Socket support functions.    */
 
 /*----------------------------------------------------------------------*/
 /*    Structures and Definitions.                                       */

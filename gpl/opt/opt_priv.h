@@ -31,10 +31,10 @@
 #ifdef VXWORKS
 #    include  <taskVarLib.h>            /* Task variable definitions.   */
 #endif
-#include  "get_util.h"                  /* "Get Next" functions.        */
-#include  "str_util.h"                  /* String manipulation functions. */
-#include  "vperror.h"                   /* VPERROR() definitions.       */
-#include  "opt_util.h"                  /* Option scanning definitions. */
+#include  "gpl/get_util.h"              /* "Get Next" functions.        */
+#include  "gpl/str_util.h"              /* String manipulation functions. */
+#include  "gpl/vperror.h"               /* VPERROR() definitions.       */
+#include  "gpl/opt_util.h"              /* Option scanning definitions. */
 
 /*----------------------------------------------------------------------*/
 /* OPT Scan Context - stores information about a command line scan.     */

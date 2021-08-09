@@ -23,9 +23,10 @@
 #include <math.h>                   /* Math library definitions.        */
 #include <stdio.h>                  /* Standard I/O definitions.        */
 #include <stdlib.h>                 /* Standard C Library definitions.  */
-#include "str_util.h"               /* String manipulation functions.   */
-#include "vperror.h"                /* VPERROR() definitions.           */
-#include "hash_util.h"              /* Hash table definitions.          */
+
+#include "gpl/str_util.h"           /* String manipulation functions.   */
+#include "gpl/vperror.h"            /* VPERROR() definitions.           */
+#include "gpl/hash_util.h"          /* Hash table definitions.          */
 
 /*----------------------------------------------------------------------*/
 /* Hash Table Data Structures.                                          */

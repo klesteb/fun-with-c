@@ -13,8 +13,8 @@
 #ifndef _LABEL_H
 #define _LABEL_H
 
-#include "window.h"
-#include "component.h"
+#include "widgets/window.h"
+#include "widgets/component.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

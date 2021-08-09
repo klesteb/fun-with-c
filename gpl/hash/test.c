@@ -14,8 +14,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "vperror.h"
-#include "hash_util.h"
+
+#include "gpl/vperror.h"
+#include "gpl/hash_util.h"
 
 extern  int  vperror_print ;            /* 0 = no print, !0 = print */
 

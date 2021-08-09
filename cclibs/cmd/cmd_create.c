@@ -159,7 +159,7 @@ static int command_register(
 
         if (hash_search(table, command, NULL)) {
 
-            stat = hash_delete(table, command) ;
+            stat = hash_delete(table, command, NULL);
 
         }
 

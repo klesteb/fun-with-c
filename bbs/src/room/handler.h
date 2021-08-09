@@ -13,12 +13,13 @@
 #ifndef _HANDLER_H
 #define _HANDLER_H
 
-#include "room.h"
-#include "files.h"
-#include "tracer.h"
-#include "object.h"
-#include "item_list.h"
-#include "room_common.h"
+#include "files/files.h"
+#include "tracer/tracer.h"
+#include "objects/object.h"
+#include "include/item_list.h"
+
+#include "bbs/src/room/room.h"
+#include "bbs/src/room/room_common.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */

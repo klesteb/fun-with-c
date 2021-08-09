@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#include "mbf.h"
+#include "bbs/src/qwk/mbf.h"
 
 int main(void) {
 

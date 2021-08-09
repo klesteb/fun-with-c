@@ -13,8 +13,8 @@
 #ifndef _MSGS_H
 #define _MSGS_H
 
-#include "handler.h"
-#include "room_common.h"
+#include "bbs/src/room/handler.h"
+#include "bbs/src/room/room_common.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

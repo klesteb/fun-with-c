@@ -13,11 +13,11 @@
 #include <string.h>
 #include <errno.h>
 
-#include "when.h"
-#include "colors.h"
-#include "widget.h"
-#include "misc/misc.h"
-#include "error_codes.h"
+#include "include/when.h"
+#include "widgets/colors.h"
+#include "widgets/widget.h"
+#include "cclibs/misc/misc.h"
+#include "include/error_codes.h"
 
 require_klass(OBJECT_KLASS);
 

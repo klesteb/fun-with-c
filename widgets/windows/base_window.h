@@ -13,7 +13,7 @@
 #ifndef _BASE_WINDOW_H
 #define _BASE_WINDOW_H
 
-#include "window.h"
+#include "widgets/window.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

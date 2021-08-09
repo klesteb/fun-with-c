@@ -15,19 +15,20 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "jam.h"
-#include "qwk.h"
-#include "room.h"
-#include "when.h"
-#include "finds.h"
-#include "errors.h"
-#include "tracer.h"
-#include "bitops.h"
-#include "que_util.h"
-#include "fnm_util.h"
-#include "str_util.h"
-#include "misc/misc.h"
-#include "main/bbs_config.h"
+#include "include/when.h"
+#include "gpl/fnm_util.h"
+#include "gpl/str_util.h"
+#include "tracer/tracer.h"
+#include "include/errors.h"
+#include "cclibs/que_util.h"
+#include "cclibs/misc/misc.h"
+
+#include "bbs/src/bitops.h"
+#include "bbs/src/jam/jam.h"
+#include "bbs/src/qwk/qwk.h"
+#include "bbs/src/room/room.h"
+#include "bbs/src/finds/finds.h"
+#include "bbs/src/main/bbs_config.h"
 
 qwk_t *qwk;
 jam_t *jam;

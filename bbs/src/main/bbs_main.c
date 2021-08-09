@@ -10,30 +10,12 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
+#include "include/errors_ncurses.h"
 
-#include "msgs.h"
-#include "node.h"
-#include "room.h"
-#include "user.h"
-#include "when.h"
-#include "event.h"
-#include "finds.h"
-#include "files.h"
-#include "errors.h"
-#include "tracer.h"
-#include "fnm_util.h"
-#include "misc/misc.h"
-#include "workbench.h"
-#include "misc/dates.h"
-#include "bbs_config.h"
-#include "bbs_protos.h"
-#include "bbs_errors.h"
-#include "errors_ncurses.h"
-#include "bbs_error_codes.h"
+#include "bbs/src/user/axdefs.h"
+#include "bbs/src/main/bbs_errors.h"
+#include "bbs/src/main/bbs_config.h"
+#include "bbs/src/main/bbs_includes.h"
 
 /* global items ---------------------------------------------------------- */
 
@@ -42,6 +24,7 @@ rms_t *users = NULL;
 room_t *rooms = NULL;
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
+rms_t *profiles = NULL;
 event_t *events = NULL;
 workbench_t *workbench = NULL;
 
@@ -79,19 +62,6 @@ char *networknode = NODENAME;       /* network node name                   */
 char *humannode = HUMANNODE;        /* human readable node name            */
 char *serialnum = SERIALNUM;        /* system serial number                */
 
-/* nemonics ---------------------------------------------------------------*/
-
-char *axdefs[8]= {
-    "Marked for deletion",
-    "New User",
-    "Read-Only User",
-    "Normal User",
-    "Subsystem User",
-    "Preferred User",
-    "Aide",
-    "Sysop"
-};
-
 /*-------------------------------------------------------------------------*/
 
 int bbs_init(error_trace_t *errors) {
@@ -108,6 +78,9 @@ int bbs_init(error_trace_t *errors) {
 
         stat = user_open(users);
         check_return(stat, users);
+
+        stat = profile_open(profiles);
+        check_return(stat, profiles);
 
         stat = node_open(nodes);
         check_return(stat, nodes);
@@ -234,6 +207,9 @@ int setup(error_trace_t *errors) {
         users = user_create(fnm_directory(dpath), usernum, retries, xtimeout, dump);
         check_creation(users);
 
+        profiles = profile_create(fnm_directory(dpath), usernum, retries, xtimeout, dump);
+        check_creation(profiles);
+
         nodes = node_create(fnm_directory(dpath), nodenum, retries, xtimeout, dump);
         check_creation(nodes);
 
@@ -262,6 +238,9 @@ int cleanup(void) {
 
     user_close(users);
     user_destroy(users);
+
+    profile_close(profiles);
+    profile_destroy(profiles);
 
     node_close(nodes);
     node_destroy(nodes);

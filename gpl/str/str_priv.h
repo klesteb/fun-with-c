@@ -16,9 +16,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#ifndef CMD_PRIV_H
-#define CMD_PRIV_H 1
-
+#ifndef STR_PRIV_H
+#define STR_PRIV_H 1
 
 #include  <ctype.h>            /* Standard character functions. */
 #include  <errno.h>            /* System error definitions. */
@@ -30,11 +29,11 @@
 #endif
 
 #ifdef VMS
-#include  "fnm_util.h"            /* for converting VMS directory syntax */
+#include  "gpl/fnm_util.h"        /* for converting VMS directory syntax */
 #endif
-#include  "get_util.h"            /* "Get Next" functions. */
-#include  "vperror.h"            /* VPERROR() definitions. */
-#include  "str_util.h"            /* String manipulation functions. */
+#include  "gpl/get_util.h"        /* "Get Next" functions. */
+#include  "gpl/vperror.h"         /* VPERROR() definitions. */
+#include  "gpl/str_util.h"        /* String manipulation functions. */
 
 
 #endif

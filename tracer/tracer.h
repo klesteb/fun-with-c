@@ -13,12 +13,13 @@
 #ifndef _TRACE_H
 #define _TRACE_H
 
-#include "when.h"
-#include "object.h"
-#include "errors.h"
-#include "que_util.h"
-#include "item_list.h"
-#include "error_trace.h"
+#include "include/when.h"
+#include "include/item_list.h"
+#include "include/error_trace.h"
+
+#include "errors/errors.h"
+#include "objects/object.h"
+#include "cclibs/que_util.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */

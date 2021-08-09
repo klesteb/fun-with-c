@@ -12,8 +12,8 @@
 
 #include <stdio.h>
 
-#include "finds.h"
-#include "bitops.h"
+#include "bbs/src/bitops.h"
+#include "bbs/src/finds/finds.h"
 
 int find_rooms_all(void *data, int len, room_base_t *room) {
 

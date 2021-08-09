@@ -13,13 +13,13 @@
 #include <string.h>
 #include <errno.h>
 
-#include "keys.h"
-#include "when.h"
-#include "colors.h"
-#include "window.h"
-#include "component.h"
-#include "misc/misc.h"
-#include "error_codes.h"
+#include "widgets/keys.h"
+#include "include/when.h"
+#include "widgets/colors.h"
+#include "widgets/window.h"
+#include "cclibs/misc/misc.h"
+#include "widgets/component.h"
+#include "include/error_codes.h"
 
 require_klass(WIDGET_KLASS);
 

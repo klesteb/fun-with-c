@@ -10,22 +10,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <errno.h>
-
-#include "bbs_common.h"
-#include "bbs_protos.h"
-
-#include "jam.h"
-#include "colors.h"
-#include "window.h"
-#include "component.h"
-#include "misc/misc.h"
-#include "windows/alert.h"
-#include "components/vline.h"
-#include "windows/base_window.h"
-#include "components/menus/list.h"
-#include "components/menus/menus.h"
+#include "bbs/src/main/bbs_common.h"
+#include "bbs/src/main/bbs_protos.h"
 
 extern int print_result();
 

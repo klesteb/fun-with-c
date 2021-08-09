@@ -13,10 +13,10 @@
 #ifndef _EVENT_H_
 #define _EVENT_H_
 
-#include "object.h"
-#include "nix_util.h"
-#include "que_util.h"
-#include "item_list.h"
+#include "gpl/nix_util.h"
+#include "objects/object.h"
+#include "cclibs/que_util.h"
+#include "include/item_list.h"
 
 /*----------------------------------------------------------------*/
 /* constants                                                      */

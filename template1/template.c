@@ -10,12 +10,12 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include "when.h"
-#include "object.h"
-#include "template.h"
-#include "item_list.h"
-#include "error_codes.h"
-#include "template_priv.h"
+#include "include/when.h"
+#include "objects/object.h"
+#include "template1/template.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
+#include "template1/template_priv.h"
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */

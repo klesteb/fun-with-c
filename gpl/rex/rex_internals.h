@@ -14,7 +14,7 @@
 #define  REX_INTERNALS_H  yes
 
 
-#include  "rex_util.h"		/* Regular expression utility definitions. */
+#include  "gpl/rex_util.h"	/* Regular expression utility definitions. */
 
 
 #ifndef P_

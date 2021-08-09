@@ -13,10 +13,10 @@
 #ifndef _ERRORS_H
 #define _ERRORS_H
 
-#include "object.h"
-#include "que_util.h"
-#include "error_code.h"
-#include "error_codes.h"
+#include "objects/object.h"
+#include "cclibs/que_util.h"
+#include "include/error_code.h"
+#include "include/error_codes.h"
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */

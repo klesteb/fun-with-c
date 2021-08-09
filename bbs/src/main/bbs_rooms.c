@@ -10,13 +10,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include "bbs_common.h"
-#include "bbs_protos.h"
-
-#include "jam.h"
-#include "event.h"
-#include "windows/box_menu.h"
-#include "components/menus/menus.h"
+#include "bbs/src/main/bbs_common.h"
+#include "bbs/src/main/bbs_protos.h"
 
 /*---------------------------------------------------------------------------*/
 

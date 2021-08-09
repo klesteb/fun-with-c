@@ -13,7 +13,7 @@
 #ifndef _QUERY_H
 #define _QUERY_H
 
-#include "window.h"
+#include "widgets/window.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

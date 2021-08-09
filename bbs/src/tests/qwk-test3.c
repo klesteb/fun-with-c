@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "qwk.h"
-#include "when.h"
-#include "errors.h"
-#include "tracer.h"
-#include "misc/misc.h"
+#include "include/when.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+#include "cclibs/misc/misc.h"
+#include "bbs/src/qwk/qwk.h"
 
 qwk_t *qwk;
 tracer_t *dump;

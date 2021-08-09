@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "node.h"
-#include "when.h"
-#include "files.h"
-#include "errors.h"
-#include "tracer.h"
-#include "misc/misc.h"
+#include "files/files.h"
+#include "include/when.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+#include "cclibs/misc/misc.h"
+#include "bbs/src/node/node.h"
 
 rms_t *nodes;
 tracer_t *dump;

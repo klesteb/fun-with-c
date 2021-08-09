@@ -19,16 +19,16 @@
 #include <signal.h>
 #include <locale.h>
 
-#include "keys.h"
-#include "when.h"
-#include "colors.h"
-#include "events.h"
-#include "object.h"
-#include "window.h"
-#include "nix_util.h"
-#include "que_util.h"
-#include "workbench.h"
-#include "error_codes.h"
+#include "widgets/keys.h"
+#include "include/when.h"
+#include "gpl/nix_util.h"
+#include "widgets/colors.h"
+#include "widgets/events.h"
+#include "objects/object.h"
+#include "widgets/window.h"
+#include "cclibs/que_util.h"
+#include "widgets/workbench.h"
+#include "include/error_codes.h"
 
 #define TIMEOUT 1.0
 

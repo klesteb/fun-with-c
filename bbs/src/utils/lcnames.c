@@ -17,10 +17,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "errors.h"
-#include "tracer.h"
-#include "fnm_util.h"
-#include "misc/misc.h"
+#include "include/errors.h"
+#include "tracer/tracer.h"
+#include "gpl/fnm_util.h"
+#include "cclibs/misc/misc.h"
 
 tracer_t *dump;
 errors_t *errs;

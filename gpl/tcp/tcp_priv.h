@@ -64,13 +64,13 @@
 
 #include  <netinet/in.h>                /* Internet IPC domain definitions. */
 
-#include  "meo_util.h"                  /* Memory operations. */
-#include  "net_util.h"                  /* Networking utilities. */
-#include  "skt_util.h"                  /* Socket support functions. */
-#include  "str_util.h"                  /* String manipulation functions. */
-#include  "tv_util.h"                   /* "timeval" manipulation functions. */
-#include  "vperror.h"                   /* VPERROR() definitions. */
-#include  "tcp_util.h"                  /* TCP/IP networking utilities. */
+#include  "gpl/meo_util.h"              /* Memory operations. */
+#include  "gpl/net_util.h"              /* Networking utilities. */
+#include  "gpl/skt_util.h"              /* Socket support functions. */
+#include  "gpl/str_util.h"              /* String manipulation functions. */
+#include  "gpl/tv_util.h"               /* "timeval" manipulation functions. */
+#include  "gpl/vperror.h"               /* VPERROR() definitions. */
+#include  "gpl/tcp_util.h"              /* TCP/IP networking utilities. */
 
                                         /* Delete an endpoint without
                                            overwriting the value of ERRNO. */

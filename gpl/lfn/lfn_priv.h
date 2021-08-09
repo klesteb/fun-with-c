@@ -31,13 +31,14 @@
 #include  <stdio.h>                     /* Standard I/O definitions. */
 #include  <stdlib.h>                    /* Standard C Library definitions. */
 #include  <string.h>                    /* C Library string functions. */
-#include  "opt_util.h"                  /* Option scanning definitions. */
-#include  "str_util.h"                  /* String manipulation functions. */
-#include  "tcp_util.h"                  /* TCP/IP networking utilities. */
-#include  "tv_util.h"                   /* "timeval" manipulation functions. */
-#include  "vperror.h"                   /* VPERROR() definitions. */
-#include  "lfn_util.h"                  /* LF-terminated network I/O. */
-#include  "meo_util.h"                  /* memory operations */
+
+#include  "gpl/opt_util.h"              /* Option scanning definitions. */
+#include  "gpl/str_util.h"              /* String manipulation functions. */
+#include  "gpl/tcp_util.h"              /* TCP/IP networking utilities. */
+#include  "gpl/tv_util.h"               /* "timeval" manipulation functions. */
+#include  "gpl/vperror.h"               /* VPERROR() definitions. */
+#include  "gpl/lfn_util.h"              /* LF-terminated network I/O. */
+#include  "gpl/meo_util.h"              /* memory operations */
 
 /*----------------------------------------------------------------------*/
 /* LFN Stream - contains information about a LF-terminated, data stream,*/

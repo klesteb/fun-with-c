@@ -14,7 +14,8 @@
 #define _ERRORS_NCURSES_H_
 
 #include <ncurses/eti.h>
-#include "error_code.h"
+
+#include "include/error_code.h"
 
 /*-------------------------------------------------------------*/
 /* ncurses error code definations                              */

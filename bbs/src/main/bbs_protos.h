@@ -13,8 +13,8 @@
 #ifndef _BBS_PROTOS_H
 #define _BBS_PROTOS_H
 
-#include "jam.h"
-#include "error_trace.h"
+#include "bbs/src/jam/jam.h"
+#include "include/error_trace.h"
 
 /* bbs_main */
 

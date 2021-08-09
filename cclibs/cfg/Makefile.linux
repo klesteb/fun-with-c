@@ -3,10 +3,11 @@
 # Date: 25-Nov-2005
 # By  : Kevin Esteb
 #
-# Makefile to build libcmd.olb.
+# Makefile to build libcfg.olb.
 #
 CC = gcc 
-CFLAGS = -Wall -c -I.. -I../misc -I../../gpl
+INCLUDE = -I ../../
+CFLAGS = -Wall -c $(INCLUDE)
 OLBS = ../../libs/libcclibs.a ../../libs/libgpl.a
 LINK = gcc
 LFLAGS = -o

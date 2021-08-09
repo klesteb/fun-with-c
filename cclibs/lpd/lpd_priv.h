@@ -26,10 +26,11 @@
 #include <stdio.h>                  /* Standard I/O definitions.        */
 #include <stdlib.h>                 /* Standard C Library definitions.  */
 #include <string.h>                 /* C Library string functions.      */
-#include "vperror.h"
-#include "tcp_util.h"               /* TCP/IP networking utilities.     */
-#include "lfn_util.h"               /* LFN network.                     */
-#include "lpd_util.h"               /* LPD definations.                 */
+
+#include "gpl/vperror.h"
+#include "gpl/tcp_util.h"           /* TCP/IP networking utilities.     */
+#include "gpl/lfn_util.h"           /* LFN network.                     */
+#include "cclibs/lpd_util.h"        /* LPD definations.                 */
 
 /*----------------------------------------------------------------------*/
 /* LPD Handle - contains information for the LPD routines.              */

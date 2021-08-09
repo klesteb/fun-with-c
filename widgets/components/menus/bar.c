@@ -14,15 +14,16 @@
 #include <menu.h>
 #include <errno.h>
 
-#include "when.h"
-#include "menus.h"
-#include "colors.h"
-#include "events.h"
-#include "component.h"
-#include "item_list.h"
-#include "menus_priv.h"
-#include "error_codes.h"
-#include "error_trace.h"
+#include "include/when.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
+#include "include/error_trace.h"
+
+#include "widgets/colors.h"
+#include "widgets/events.h"
+#include "widgets/component.h"
+#include "widgets/components/menus/menus.h"
+#include "widgets/components/menus/menus_priv.h"
 
 require_klass(COMPONENT_KLASS);
 

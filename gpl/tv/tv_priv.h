@@ -37,7 +37,7 @@
 #    include  <sys/time.h>              /* System time definitions.     */
 #endif
 
-#include  "tv_util.h"                   /* "timeval" manipulation functions. */
+#include  "gpl/tv_util.h"               /* "timeval" manipulation functions. */
 
 #endif
 

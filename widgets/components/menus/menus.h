@@ -13,8 +13,8 @@
 #ifndef _MENUS_H
 #define _MENUS_H
 
-#include "window.h"
-#include "component.h"
+#include "widgets/window.h"
+#include "widgets/component.h"
 
 /*----------------------------------------------------------------*/
 

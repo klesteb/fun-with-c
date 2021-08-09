@@ -16,7 +16,8 @@ LIBR = ar rs
 WORKING = $(shell pwd)
 STATIC = ../libs/liberrors.a
 SHARED = liberrors.so.$(VERSION)
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
+INCLUDE = -I ../
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c $(INCLUDE)
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 

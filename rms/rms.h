@@ -13,11 +13,11 @@
 #ifndef _RMS_H
 #define _RMS_H
 
-#include "files.h"
-#include "tracer.h"
-#include "object.h"
-#include "que_util.h"
-#include "item_list.h"
+#include "files/files.h"
+#include "tracer/tracer.h"
+#include "objects/object.h"
+#include "cclibs/que_util.h"
+#include "include/item_list.h"
 
 /*----------------------------------------------------------------*/
 /* klass macros                                                   */

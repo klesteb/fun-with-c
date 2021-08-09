@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <log4c.h>
 
-#include "object.h"
+#include "objects/object.h"
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */

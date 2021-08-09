@@ -6,7 +6,8 @@
 # Makefile to build logger.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
+INCLUDE = -I ../
+CFLAGS = -Wall -c $(INCLUDE)
 OLBS = ../libs/liblogger.a ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a -llog4c
 LINK = gcc
 LFLAGS = -o test

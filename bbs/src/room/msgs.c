@@ -13,14 +13,15 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "msgs.h"
-#include "room.h"
-#include "when.h"
-#include "object.h"
-#include "handler.h"
-#include "jam/jam.h"
-#include "fnm_util.h"
-#include "error_codes.h"
+#include "gpl/fnm_util.h"
+#include "include/when.h"
+#include "objects/object.h"
+#include "include/error_codes.h"
+
+#include "bbs/src/jam/jam.h"
+#include "bbs/src/room/msgs.h"
+#include "bbs/src/room/room.h"
+#include "bbs/src/room/handler.h"
 
 require_klass(HANDLER_KLASS);
 

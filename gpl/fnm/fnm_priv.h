@@ -55,9 +55,9 @@
 #endif
 #include  <sys/stat.h>                  /* File status definitions. */
 
-#include  "str_util.h"                  /* String manipulation functions. */
-#include  "vperror.h"                   /* VPERROR() definitions. */
-#include  "fnm_util.h"                  /* Filename utilities. */
+#include  "gpl/str_util.h"              /* String manipulation functions. */
+#include  "gpl/vperror.h"               /* VPERROR() definitions. */
+#include  "gpl/fnm_util.h"              /* Filename utilities. */
 
 /*----------------------------------------------------------------------*/
 /*  File Name - contains the fully-expanded file specification as well  */

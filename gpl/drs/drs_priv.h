@@ -48,10 +48,10 @@
 #    define  getcwd(path,size)  getwd (path)
 #endif
 
-#include  "rex_util.h"              /* Regular expression definitions.  */
-#include  "str_util.h"              /* String manipulation functions.   */
-#include  "vperror.h"               /* VPERROR() definitions.           */
-#include  "drs_util.h"              /* Directory scanning utilities.    */
+#include  "gpl/rex_util.h"          /* Regular expression definitions.  */
+#include  "gpl/str_util.h"          /* String manipulation functions.   */
+#include  "gpl/vperror.h"           /* VPERROR() definitions.           */
+#include  "gpl/drs_util.h"          /* Directory scanning utilities.    */
 
 /*----------------------------------------------------------------------*/
 /* Directory Scan - contains information about a directory scan.        */

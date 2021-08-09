@@ -15,13 +15,13 @@ CC = gcc
 LINK = gcc
 LIBS = ../libs/
 OLIBS = ../../../libs/
-INCLUDE = -I.. -I../jam -I../qwk -I../room -I../node -I../user -I../finds
+INCLUDE = -I.. -I ../../../includes -I../../../
 STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(LIBS)libfinds.a $(OLIBS)libevent.a $(OLIBS)librms.a \
          $(OLIBS)libtracer.a $(OLIBS)liberrors.a $(OLIBS)libfiles.a \
          $(OLIBS)libwidgets.a $(OLIBS)libobjects.a $(OLIBS)libcclibs.a \
          $(OLIBS)libgpl.a -lpanel -lmenu -lncurses
-CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) -I../../../widgets -I../../../events -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) 
 LFLAGS =
 LOPTS = -o 
 INCS = bbs_common.h bbs_config.h bbs_error_codes.h bbs_error.h bbs_protos.h

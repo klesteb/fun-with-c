@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
-#include "qwk.h"
-#include "when.h"
-#include "errors.h"
-#include "tracer.h"
-#include "misc/misc.h"
+#include "include/when.h"
+#include "tracer/tracer.h"
+#include "errors/errors.h"
+#include "cclibs/misc/misc.h"
+#include "bbs/src/jam/jam.h"
+#include "bbs/src/qwk/qwk.h"
 
 jam_t *jam;
 qwk_t *qwk;

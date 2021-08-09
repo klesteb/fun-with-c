@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "jam.h"
-#include "qwk.h"
-#include "when.h"
-#include "errors.h"
-#include "tracer.h"
-#include "misc/misc.h"
+#include "include/when.h"
+#include "tracer/tracer.h"
+#include "errors/errors.h"
+#include "cclibs/misc/misc.h"
+#include "bbs/src/jam/jam.h"
+#include "bbs/src/qwk/qwk.h"
 
 jam_t *jam;
 qwk_t *qwk;
@@ -181,7 +181,7 @@ int main(int argc, char **argv) {
         stat = qwk_open_ndx(qwk, "001");
         check_return(stat, qwk);
 
-        stat = jam_search_messages(jam, user_crc, TRUE, compare, &results);
+        stat = jam_search_messages(jam, user_crc, compare, &results);
         check_return(stat, jam);
 
         printf("username: %s\n", sysop);

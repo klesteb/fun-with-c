@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "event.h"
+#include "events/event.h"
 
 int main(int argc, char **argv) {
 

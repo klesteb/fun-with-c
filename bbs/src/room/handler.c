@@ -10,11 +10,12 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include "when.h"
-#include "files.h"
-#include "object.h"
-#include "handler.h"
-#include "error_codes.h"
+#include "files/files.h"
+#include "include/when.h"
+#include "objects/object.h"
+#include "include/error_codes.h"
+
+#include "bbs/src/room/handler.h"
 
 require_klass(OBJECT_KLASS);
 

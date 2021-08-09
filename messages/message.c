@@ -10,11 +10,13 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include "when.h"
-#include "object.h"
-#include "message.h"
-#include "error_codes.h"
-#include "message_priv.h"
+#include "include/when.h"
+#include "include/error_codes.h"
+
+#include "objects/object.h"
+
+#include "messages/message.h"
+#include "messages/message_priv.h"
 
 require_klass(OBJECT_KLASS);
 

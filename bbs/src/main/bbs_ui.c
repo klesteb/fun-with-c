@@ -10,26 +10,9 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <errno.h>
-#include <time.h>
+#include "bbs/src/main/bbs_common.h"
+#include "bbs/src/main/bbs_protos.h"
 
-#include "bbs_common.h"
-#include "bbs_protos.h"
-
-#include "colors.h"
-#include "window.h"
-#include "fnm_util.h"
-#include "component.h"
-#include "misc/misc.h"
-#include "windows/alert.h"
-#include "components/text.h"
-#include "components/more.h"
-#include "windows/bar_menu.h"
-#include "windows/box_menu.h"
-#include "components/hline.h"
-#include "windows/base_window.h"
-#include "components/menus/menus.h"
 
 int print_result(void *data, int size, error_trace_t *errors) {
 
@@ -504,12 +487,17 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
                 line = spaces(80);
-                sprintf(line, "The path to the datastore is    : %s\n", datapath);
+                sprintf(line, "The path to the datastores is   : %s\n", datapath);
                 stat = que_push_tail(&lines, line);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
                 line = spaces(80);
                 sprintf(line, "The path to the text files is   : %s\n", textpath);
+                stat = que_push_tail(&lines, line);
+                check_status(stat, QUE_OK, E_NOQUEUE);
+
+                line = spaces(80);
+                sprintf(line, "The path to the work area is    : %s\n", workpath);
                 stat = que_push_tail(&lines, line);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 

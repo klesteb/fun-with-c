@@ -45,9 +45,9 @@
 
 #include  <netinet/in.h>                /* Internet IPC domain definitions. */
 
-#include  "net_util.h"                  /* Networking utilities.        */
-#include  "vperror.h"                   /* VPERROR() definitions.       */
-#include  "skt_util.h"                  /* TCP/IP networking utilities. */
+#include  "gpl/net_util.h"              /* Networking utilities.        */
+#include  "gpl/vperror.h"               /* VPERROR() definitions.       */
+#include  "gpl/skt_util.h"              /* TCP/IP networking utilities. */
 
 #endif
 

@@ -58,8 +58,8 @@ int cmd_destroy(
 
     if (handle != NULL) {
 
-        hash_destroy(handle->table);
-        hash_destroy(handle->qualifiers);
+        hash_destroy(handle->table, NULL);
+        hash_destroy(handle->qualifiers, NULL);
 
         free(handle->buffer);
         free(handle);

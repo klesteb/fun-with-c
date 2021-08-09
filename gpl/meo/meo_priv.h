@@ -44,9 +44,10 @@
 #ifndef isascii
 #    define  isascii(c)  ((unsigned char) (c) <= 0177)
 #endif
-#include  "fnm_util.h"                  /* Filename utilities.          */
-#include  "vperror.h"                   /* VPERROR() definitions.       */
-#include  "meo_util.h"                  /* Memory operations.           */
+
+#include  "gpl/fnm_util.h"              /* Filename utilities.          */
+#include  "gpl/vperror.h"               /* VPERROR() definitions.       */
+#include  "gpl/meo_util.h"              /* Memory operations.           */
 
 #endif
 

@@ -51,9 +51,9 @@
 #    include  <sys/ioctl.h>     	/* I/O control definitions.         */
 #endif
 
-#include  "str_util.h"              /* String manipulation functions.   */
-#include  "vperror.h"               /* VPERROR() definitions.           */
-#include  "xqt_util.h"              /* Shell execution utilities.       */
+#include  "gpl/str_util.h"          /* String manipulation functions.   */
+#include  "gpl/vperror.h"           /* VPERROR() definitions.           */
+#include  "gpl/xqt_util.h"          /* Shell execution utilities.       */
 
 /*----------------------------------------------------------------------*/
 /* XQT Stream Descriptor - describes an established execution stream.   */

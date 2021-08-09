@@ -76,16 +76,17 @@ A. Measday     Port from TPOCC Release 7 to XSAR Pre-Release 1
 
 #define  _SVID_SOURCE  1
 
-#include  <ctype.h>			/* Character classification macros. */
-#include  <errno.h>			/* System error definitions. */
+#include  <ctype.h>			    /* Character classification macros. */
+#include  <errno.h>			    /* System error definitions. */
 #include  <limits.h>			/* Maximum/minimum value definitions. */
-#include  <stdio.h>			/* Standard I/O definitions. */
+#include  <stdio.h>			    /* Standard I/O definitions. */
 #include  <stdlib.h>			/* Standard C Library definitions. */
 #include  <string.h>			/* Standard C string functions. */
-#include  "str_util.h"			/* String manipulation functions. */
-#include  "vperror.h"			/* VPERROR() definitions. */
-#include  "rex_util.h"			/* Regular expression definitions. */
-#include  "rex_internals.h"		/* Internal definitions. */
+
+#include  "gpl/str_util.h"			/* String manipulation functions. */
+#include  "gpl/vperror.h"			/* VPERROR() definitions. */
+#include  "gpl/rex_util.h"			/* Regular expression definitions. */
+#include  "gpl/rex/rex_internals.h"		/* Internal definitions. */
 
 #define  NEW_STATE \
   { if (allocate_state ()) { \

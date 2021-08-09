@@ -13,8 +13,8 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
-#include "window.h"
-#include "component.h"
+#include "widgets/window.h"
+#include "widgets/component.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

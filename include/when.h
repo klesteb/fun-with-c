@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "object.h"
-#include "error_trace.h"
+#include "objects/object.h"
+#include "include/error_trace.h"
 
 /**
  * @file when.h

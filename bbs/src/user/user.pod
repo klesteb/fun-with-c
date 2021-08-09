@@ -204,7 +204,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<rms_t *user_create(NULL)>
+=head2 I<rms_t *user_create(char *path, int records, int retries, int timeout, tracer_t *dump)>
 
 This method initializes the class. 
 
@@ -486,6 +486,8 @@ Builds the module and provides a shared library.
 =item L<object(3)>
 
 =item L<rms(3)>
+
+=item L<profile(3)>
 
 =back
 

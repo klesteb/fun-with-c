@@ -14,15 +14,15 @@
 #include <menu.h>
 #include <errno.h>
 
-#include "when.h"
-#include "colors.h"
-#include "events.h"
-#include "object.h"
-#include "widget.h"
-#include "item_list.h"
-#include "error_codes.h"
-#include "error_trace.h"
-#include "components/menus/box.h"
+#include "include/when.h"
+#include "widgets/colors.h"
+#include "widgets/events.h"
+#include "objects/object.h"
+#include "widgets/widget.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
+#include "include/error_trace.h"
+#include "widgets/components/menus/box.h"
 
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */

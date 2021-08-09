@@ -23,8 +23,9 @@
 #include  <stdio.h>			        /* Standard I/O definitions.        */
 #include  <string.h>			    /* C Library string functions.      */
 #include  <errno.h>                 /* System error definitions.        */
-#include  "str_util.h"			    /* String manipulation functions.   */
-#include  "get_util.h"			    /* "Get Next" functions.            */
+
+#include  "gpl/str_util.h"          /* String manipulation functions.   */
+#include  "gpl/get_util.h"	        /* "Get Next" functions.            */
 
 #endif
 

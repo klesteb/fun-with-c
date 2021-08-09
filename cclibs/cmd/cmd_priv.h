@@ -26,10 +26,11 @@
 #include  <stdio.h>                 /* Standard I/O definitions.        */
 #include  <stdlib.h>                /* Standard C Library definitions.  */
 #include  <string.h>                /* C Library string functions.      */
-#include  "vperror.h"
-#include  "opt_util.h"              /* Option scanning definitions.     */
-#include  "hash_util.h"             /* Hash table definitions.          */
-#include  "cmd_util.h"              /* CMD definitions.                 */
+
+#include  "gpl/vperror.h"
+#include  "gpl/opt_util.h"          /* Option scanning definitions.     */
+#include  "gpl/hash_util.h"         /* Hash table definitions.          */
+#include  "cclibs/cmd_util.h"       /* CMD definitions.                 */
 
 /*----------------------------------------------------------------------*/
 /* CMD Handle - contains information for the CMD parsing routines.      */

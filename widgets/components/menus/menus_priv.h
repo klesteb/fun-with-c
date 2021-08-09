@@ -15,8 +15,9 @@
 
 #include <menu.h>
 
-#include "widget.h"
-#include "error_trace.h"
+#include "include/error_trace.h"
+
+#include "widgets/widget.h"
 
 /*----------------------------------------------------------------*/
 /* private data structure                                         */

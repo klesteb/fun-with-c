@@ -6,7 +6,7 @@
 # Makefile to build libpjl.a.
 #
 CC = gcc 
-CFLAGS = -Wall -c -I.. -I../misc -I../../gpl
+CFLAGS = -Wall -c -I ../../
 OLBS = libpjl.a ../../libs/libcclibs.a ../../libs/libgpl.a -lpcre
 LINK = gcc
 LFLAGS = -o

@@ -27,7 +27,7 @@
 #if !__STDC__ && defined(sun)
 #    define  memmove(dest,src,length)  bcopy(src,dest,length)
 #endif
-#include  "crlf_util.h"			    /* CR/LF utilities.                 */
+#include  "gpl/crlf_util.h"			    /* CR/LF utilities.                 */
 
 
 extern int crlf_util_debug;         /* Global debug switch (1/0 = yes/no).*/

@@ -14,15 +14,16 @@
 #include <time.h>
 #include <errno.h>
 
-#include "jam.h"
-#include "when.h"
-#include "files.h"
-#include "tracer.h"
-#include "object.h"
-#include "fnm_util.h"
-#include "que_util.h"
-#include "misc/misc.h"
-#include "error_codes.h"
+#include "files/files.h"
+#include "gpl/fnm_util.h"
+#include "include/when.h"
+#include "tracer/tracer.h"
+#include "objects/object.h"
+#include "cclibs/que_util.h"
+#include "cclibs/misc/misc.h"
+#include "include/error_codes.h"
+
+#include "bbs/src/jam/jam.h"
 
 require_klass(OBJECT_KLASS);
 

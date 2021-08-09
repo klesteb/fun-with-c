@@ -13,11 +13,12 @@
 #ifndef _MESSAGE_H
 #define _MESSAGE_H
 
-#include "object.h"
-#include "que_util.h"
-#include "item_list.h"
-#include "messages.h"
-#include "message_codes.h"
+#include "include/messages.h"
+#include "include/item_list.h"
+#include "include/message_codes.h"
+
+#include "objects/object.h"
+#include "cclibs/que_util.h"
 
 /*----------------------------------------------------------------*/
 /* klass defination                                               */

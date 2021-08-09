@@ -13,8 +13,8 @@
 #ifndef _TEXTAREA_H
 #define _TEXTAREA_H
 
-#include "window.h"
-#include "component.h"
+#include "widgets/window.h"
+#include "widgets/component.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

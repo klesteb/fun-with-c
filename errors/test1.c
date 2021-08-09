@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include "errors.h"
+#include "errors/errors.h"
 
 int main(void) {
 

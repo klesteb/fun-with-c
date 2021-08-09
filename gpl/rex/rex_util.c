@@ -166,10 +166,11 @@ Public Variables:
 #ifndef isascii
 #    define  isascii(c)  ((unsigned char) (c) <= 0177)
 #endif
-#include  "str_util.h"			/* String manipulation functions. */
-#include  "vperror.h"			/* VPERROR() definitions. */
-#include  "rex_util.h"			/* Regular expression definitions. */
-#include  "rex_internals.h"		/* Internal definitions. */
+
+#include  "gpl/str_util.h"			/* String manipulation functions. */
+#include  "gpl/vperror.h"			/* VPERROR() definitions. */
+#include  "gpl/rex_util.h"			/* Regular expression definitions. */
+#include  "gpl/rex/rex_internals.h"	/* Internal definitions. */
 
 
 /*******************************************************************************

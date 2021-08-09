@@ -22,11 +22,12 @@
 #include  <errno.h>             /* System error definitions.            */
 #include  <stdio.h>             /* Standard I/O definitions.            */
 #include  <stdlib.h>            /* Standard C library definitions.      */
-#include  "nix_util.h"          /* Network I/O Handler definitions.     */
-#include  "str_util.h"          /* String manipulation functions.       */
-#include  "tcp_util.h"          /* TCP/IP network utilities.            */
-#include  "vperror.h"           /* VPERROR() definitions.               */
-#include  "port_util.h"         /* Listening port utilities.            */
+
+#include  "gpl/nix_util.h"      /* Network I/O Handler definitions.     */
+#include  "gpl/str_util.h"      /* String manipulation functions.       */
+#include  "gpl/tcp_util.h"      /* TCP/IP network utilities.            */
+#include  "gpl/vperror.h"       /* VPERROR() definitions.               */
+#include  "gpl/port_util.h"     /* Listening port utilities.            */
 
 /*----------------------------------------------------------------------*/
 /* Listening Port - represents a network port at which a server listens */

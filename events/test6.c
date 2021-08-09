@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <signal.h>
 
-#include "when.h"
-#include "event.h"
+#include "include/when.h"
+#include "events/event.h"
 
 event_t *temp = NULL;
 

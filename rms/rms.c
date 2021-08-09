@@ -13,14 +13,14 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "rms.h"
-#include "when.h"
-#include "files.h"
-#include "object.h"
-#include "tracer.h"
-#include "fnm_util.h"
-#include "que_util.h"
-#include "error_codes.h"
+#include "rms/rms.h"
+#include "files/files.h"
+#include "include/when.h"
+#include "gpl/fnm_util.h"
+#include "objects/object.h"
+#include "tracer/tracer.h"
+#include "cclibs/que_util.h"
+#include "include/error_codes.h"
 
 require_klass(OBJECT_KLASS);
 

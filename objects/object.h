@@ -21,9 +21,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "status.h"
-#include "error_trace.h"
-#include "item_list.h"
+#include "include/status.h"
+#include "include/item_list.h"
+#include "include/error_trace.h"
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */

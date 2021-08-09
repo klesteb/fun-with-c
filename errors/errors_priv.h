@@ -13,8 +13,8 @@
 #ifndef _ERRORS_PRIV_H_
 #define _ERRORS_PRIV_H_
 
-#include "error_code.h"
-#include "error_codes.h"
+#include "include/error_code.h"
+#include "include/error_codes.h"
 
 /*-------------------------------------------------------------*/
 /* error code definations                                      */

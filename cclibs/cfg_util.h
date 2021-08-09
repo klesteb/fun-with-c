@@ -23,8 +23,8 @@
     extern  "C" {
 #endif
 
-#include "ansi_setup.h"                 /* ANSI or non-ANSI C?          */
-#include "que_util.h"
+#include "gpl/ansi_setup.h"             /* ANSI or non-ANSI C?          */
+#include "cclibs/que_util.h"
 
 /*----------------------------------------------------------------------*/
 /*    Structures and Definitions.                                       */

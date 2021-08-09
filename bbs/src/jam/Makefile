@@ -16,7 +16,8 @@ LIBR = ar rs
 LIBS = ../libs/
 WORKING = $(shell pwd)
 STATIC = libjam.a
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I.. -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+INCLUDE = -I ../../../
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c $(INCLUDE)
 LOPTS = -o 
 SOPTS = -shared -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
@@ -36,7 +37,7 @@ clean:
 	rm -f *~
 	rm -f $(LIBS)libjam.a
 	rm -f $(LIBS)libjam.so.*
-	rm -f jam.3
+	rm -f *.3
 #
 jam.o: jam.c $(INCS)
 	$(CC) $(CFLAGS) jam.c

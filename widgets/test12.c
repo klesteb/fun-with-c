@@ -1,11 +1,12 @@
 
 #include <ncurses.h>
 
-#include "when.h"
-#include "colors.h"
-#include "error_trace.h"
-#include "windows/bar_menu.h"
-#include "components/menus/menus.h"
+#include "include/when.h"
+#include "include/error_trace.h"
+
+#include "widgets/colors.h"
+#include "widgets/windows/bar_menu.h"
+#include "widgets/components/menus/menus.h"
 
 int print_result(void *data, int size, error_trace_t *errors) {
 

@@ -4,11 +4,11 @@
 #include <time.h>
 #include <string.h>
 
-#include "jam.h"
-#include "when.h"
-#include "errors.h"
-#include "tracer.h"
-#include "misc/misc.h"
+#include "include/when.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+#include "cclibs/misc/misc.h"
+#include "bbs/src/jam/jam.h"
 
 jam_t *jam;
 tracer_t *dump;

@@ -15,12 +15,12 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "when.h"
-#include "object.h"
-#include "logger.h"
-#include "logger_priv.h"
-#include "error_codes.h"
-#include "log4c_extensions.h"
+#include "include/when.h"
+#include "logger/logger.h"
+#include "objects/object.h"
+#include "logger/logger_priv.h"
+#include "include/error_codes.h"
+#include "logger/log4c_extensions.h"
 
 require_klass(OBJECT_KLASS);
 

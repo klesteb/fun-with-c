@@ -10,13 +10,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <errno.h>
-#include <time.h>
-
 #include "bbs_common.h"
 #include "bbs_protos.h"
-#include "windows/query_window.h"
 
 /* local items ---------------------------------------------------------- */
 

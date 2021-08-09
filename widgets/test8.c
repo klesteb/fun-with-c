@@ -1,12 +1,12 @@
 
 #include <ncurses.h>
 
-#include "when.h"
-#include "colors.h"
-#include "window.h"
-#include "item_list.h"
-#include "components/hline.h"
-#include "components/vline.h"
+#include "include/when.h"
+#include "widgets/colors.h"
+#include "widgets/window.h"
+#include "include/item_list.h"
+#include "widgets/components/hline.h"
+#include "widgets/components/vline.h"
 
 void setup(void) {
 

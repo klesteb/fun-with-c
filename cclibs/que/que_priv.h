@@ -24,7 +24,7 @@
 #include <stdlib.h> 
 #include <errno.h>
 
-#include "que_util.h"
+#include "cclibs/que_util.h"
 
 extern int que_util_debug;          /* Global debug switch (1/0 = yes/no).*/
 

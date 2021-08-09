@@ -13,10 +13,10 @@
 #ifndef _FINDS_H
 #define _FINDS_H
 
-#include "jam.h"
-#include "node.h"
-#include "room.h"
-#include "user.h"
+#include "bbs/src/jam/jam.h"
+#include "bbs/src/node/node.h"
+#include "bbs/src/room/room.h"
+#include "bbs/src/user/user.h"
 
 extern int find_rooms_all(void *, int, room_base_t *);
 extern int find_rooms_subsys(void *, int, room_base_t *);

@@ -15,11 +15,11 @@
 
 #include <panel.h>
 
-#include "events.h"
-#include "object.h"
-#include "window.h"
-#include "que_util.h"
-#include "item_list.h"
+#include "widgets/events.h"
+#include "objects/object.h"
+#include "widgets/window.h"
+#include "cclibs/que_util.h"
+#include "include/item_list.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */

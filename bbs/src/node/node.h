@@ -13,9 +13,10 @@
 #ifndef _NODE_H
 #define _NODE_H
 
-#include "rms.h"
-#include "tracer.h"
-#include "datatypes.h"
+#include "rms/rms.h"
+#include "tracer/tracer.h"
+
+#include "bbs/src/datatypes.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

@@ -13,15 +13,15 @@
 #include <ncurses.h>
 #include <errno.h>
 
-#include "when.h"
-#include "colors.h"
-#include "events.h"
-#include "object.h"
-#include "window.h"
-#include "item_list.h"
-#include "error_codes.h"
-#include "components/text.h"
-#include "components/hline.h"
+#include "include/when.h"
+#include "widgets/colors.h"
+#include "widgets/events.h"
+#include "objects/object.h"
+#include "widgets/window.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
+#include "widgets/components/text.h"
+#include "widgets/components/hline.h"
 
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */

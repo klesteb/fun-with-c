@@ -25,13 +25,13 @@ int cfg_read(char * filename, cfg_t *cfg_info );
 /* Linked lists - stacks - queue routines                               */
 /*----------------------------------------------------------------------*/
 
-#include "que_util.h"
+#include "cclibs/que_util.h"
 
 /*----------------------------------------------------------------------*/
 /* Pattern matching - Unix style regular expressions                    */
 /*----------------------------------------------------------------------*/
 
-#include "match.h"
+#include "cclibs/misc/match.h"
 
 /*----------------------------------------------------------------------*/
 /* DEC Basic - string handling routines                                 */

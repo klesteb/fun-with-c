@@ -12,12 +12,13 @@
 
 #include <ncurses.h>
 
-#include "when.h"
-#include "colors.h"
-#include "widget.h"
-#include "component.h"
-#include "item_list.h"
-#include "error_codes.h"
+#include "include/when.h"
+#include "include/item_list.h"
+#include "include/error_codes.h"
+
+#include "widgets/colors.h"
+#include "widgets/widget.h"
+#include "widgets/component.h"
 
 require_klass(COMPONENT_KLASS);
 

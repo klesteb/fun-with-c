@@ -10,10 +10,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-
-#include "bbs_common.h"
-#include "bbs_protos.h"
+#include "bbs/src/main/bbs_common.h"
+#include "bbs/src/main/bbs_protos.h"
 
 /*---------------------------------------------------------------------------*/
 

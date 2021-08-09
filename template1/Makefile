@@ -14,7 +14,8 @@ CC = gcc
 LINK = gcc 
 LIBR = ar rs
 WORKING = $(shell pwd)
-CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c -I../errors -I../tracer -I../include -I../cclibs -I../objects -I../gpl
+INCLUDE = -I ../
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c $(INCLUDE)
 LFLAGS = -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -o
 SHARED = -shared -o libtemplate.so

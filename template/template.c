@@ -10,10 +10,10 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include "when.h"
-#include "object.h"
-#include "template.h"
-#include "error_codes.h"
+#include "include/when.h"
+#include "objects/object.h"
+#include "template/template.h"
+#include "include/error_codes.h"
 
 require_klass(OBJECT_KLASS);
 

@@ -13,9 +13,10 @@
 #ifndef _MORE_H
 #define _MORE_H
 
-#include "window.h"
-#include "que_util.h"
-#include "component.h"
+#include "cclibs/que_util.h"
+
+#include "widgets/window.h"
+#include "widgets/component.h"
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */

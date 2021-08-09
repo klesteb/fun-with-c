@@ -10,12 +10,12 @@ CC = gcc
 LINK = gcc
 LIBS = ../libs/
 OLIBS = ../../../libs/
-INCLUDE = -I.. -I../main -I../finds -I../user -I../jam -I../qwk -I../room -I../node
+INCLUDE = -I ../../../
 STATIC = $(LIBS)libroom.a $(LIBS)libfinds.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
          $(OLIBS)librms.a $(OLIBS)libfiles.a $(OLIBS)libobjects.a \
          $(OLIBS)libcclibs.a $(OLIBS)libgpl.a
-CFLAGS = -Wall -c $(INCLUDE) -I../../../rms -I../../../files -I../../../errors -I../../../tracer -I../../../include -I../../../cclibs -I../../../objects -I../../../gpl
+CFLAGS = -Wall -c $(INCLUDE) 
 LFLAGS =
 LOPTS = -o 
 #

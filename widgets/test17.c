@@ -2,21 +2,23 @@
 #include <ncurses.h>
 #include <errno.h>
 
-#include "when.h"
-#include "event.h"
-#include "colors.h"
-#include "errors.h"
-#include "tracer.h"
-#include "workbench.h"
-#include "windows/alert.h"
-#include "errors_ncurses.h"
-#include "components/text.h"
-#include "windows/bar_menu.h"
-#include "windows/box_menu.h"
-#include "components/hline.h"
-#include "components/vline.h"
-#include "components/menus/list.h"
-#include "components/menus/menus.h"
+#include "include/when.h"
+#include "include/errors_ncurses.h"
+
+#include "events/event.h"
+#include "errors/errors.h"
+#include "tracer/tracer.h"
+
+#include "widgets/colors.h"
+#include "widgets/workbench.h"
+#include "widgets/windows/alert.h"
+#include "widgets/components/text.h"
+#include "widgets/windows/bar_menu.h"
+#include "widgets/windows/box_menu.h"
+#include "widgets/components/hline.h"
+#include "widgets/components/vline.h"
+#include "widgets/components/menus/list.h"
+#include "widgets/components/menus/menus.h"
 
 /*---------------------------------------------------------------------------*/
 

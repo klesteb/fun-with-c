@@ -13,10 +13,10 @@
 #include <ncurses.h>
 #include <errno.h>
 
-#include "when.h"
-#include "window.h"
-#include "component.h"
-#include "error_codes.h"
+#include "include/when.h"
+#include "widgets/window.h"
+#include "widgets/component.h"
+#include "include/error_codes.h"
 
 require_klass(WIDGET_KLASS);
 

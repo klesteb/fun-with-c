@@ -49,6 +49,7 @@
 #define ROOMNUM 256                 /* max number of rooms                 */
 #define NODENUM 32                  /* max number of nodes                 */
 #define USERNUM 256                 /* max number of users                 */
+#define DOORNUM 32                  /* max number of doors                 */
 
 #endif
 

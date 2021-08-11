@@ -39,6 +39,7 @@ typedef struct _door_base_s {
     char name[DOOR_NAME_LEN+1];         /* Name of door                 */
     char description[DOOR_DESC_LEN+1];  /* description of the door      */
     char command[DOOR_CMD_LEN+1];       /* command to run door          */
+    long doornum;                       /* Door number                  */
     ulong flags;                        /* See DF_ flags above          */
     int revision;                       /* Record revision              */
 } door_base_t;
@@ -61,7 +62,7 @@ extern char *door_version(rms_t *);
 #define door_override(self, items) rms_override(self, items)
 
 #define door_open(self) rms_open(self)
-#define door_close(self) rms_close(self);
+#define door_close(self) rms_close(self)
 #define door_del(self, recnum) rms_del(self, recnum)
 #define door_extend(self, amount) rms_extend(self, amount)
 #define door_add(self, door) rms_add(self, (void *)door)

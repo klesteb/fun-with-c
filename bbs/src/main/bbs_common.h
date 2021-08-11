@@ -43,6 +43,7 @@ extern int retries;
 extern int roomnum;
 extern int nodenum;
 extern int usernum;
+extern int doornum;
 extern int networked;
 extern int creataide;
 extern int lobbypost;

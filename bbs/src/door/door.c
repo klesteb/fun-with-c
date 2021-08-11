@@ -43,6 +43,7 @@ int _door_add(rms_t *self, door_base_t *door) {
             if (bit_test(ondisk.flags, DF_DELETED)) {
 
                 door->flags = 0;
+                door->doornum = self->record;
 
                 stat = self->_put(self, self->record, door);
                 check_return(stat, self);
@@ -81,6 +82,7 @@ int _door_build(rms_t *self, door_base_t *ondisk, door_base_t *door) {
     strncpy((*door).name, ondisk->name, DOOR_NAME_LEN);
     strncpy((*door).description, ondisk->description, DOOR_DESC_LEN);
     strncpy((*door).command, ondisk->command, DOOR_CMD_LEN);
+    (*door).doornum = ondisk->doornum;
     (*door).flags = ondisk->flags;
     (*door).revision = ondisk->revision;
 
@@ -151,6 +153,7 @@ int _door_extend(rms_t *self, int amount) {
     int stat = OK;
     door_base_t door;
     int revision = 1;
+    long sequence = 0;
     ssize_t count = 0;
     ssize_t position = 0;
 
@@ -168,6 +171,11 @@ int _door_extend(rms_t *self, int amount) {
 
         int x = 0;
         for (; x < amount; x++) {
+
+            stat = self->_get_sequence(self, &sequence);
+            check_return(stat, self);
+
+            door.doornum = sequence;
 
             stat = files_tell(self->rmsdb, &position);
             check_return(stat, self->rmsdb);
@@ -209,6 +217,7 @@ int _door_normalize(rms_t *self, door_base_t *ondisk, door_base_t *door) {
     strncpy((*door).name, ondisk->name, DOOR_NAME_LEN);
     strncpy((*door).description, ondisk->description, DOOR_DESC_LEN);
     strncpy((*door).command, ondisk->command, DOOR_CMD_LEN);
+    (*door).doornum = ondisk->doornum;
     (*door).flags = ondisk->flags;
     (*door).revision = ondisk->revision + 1;
 
@@ -326,7 +335,7 @@ rms_t *door_create(char *path, int records, int retries, int timeout, tracer_t *
     int stat = OK;
     rms_t *self = NULL;
     char *name = "doors";
-    item_list_t items[8];
+    item_list_t items[7];
     int recsize = sizeof(door_base_t);
 
     when_error_in {

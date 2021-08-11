@@ -1,0 +1,512 @@
+
+=pod
+
+=head1 NAME
+
+door - An ANSI C class to manage the door database
+
+=head1 SYNOPSIS
+
+ #include <stdio.h>
+ #include <errno.h>
+
+ #include "rms.h"
+ #include "door.h"
+ #include "when.h"
+ #include "finds.h"
+ #include "files.h"
+ #include "errors.h"
+ #include "tracer.h"
+ #include "misc/misc.h"
+
+ rms_t *doors;
+ tracer_t *dump;
+ errors_t *errs;
+
+ int display(door_base_t *door) {
+
+     printf("---------------------------\n");
+     printf("name       : %s\n", door->name);
+     printf("description: %s\n", door->description);
+     printf("command    : %s\n", door->command);
+     printf("flags: \n");
+
+     if (bit_test(door->flags, DF_DELETED)) printf("  deleted");
+     if (bit_test(door->flags, DF_DOORINFO)) printf("  create a doorinfo1.def drop file\n");
+     if (bit_test(door->flags, DF_DOORSYS)) printf("  create a door.sys drop file\n");
+     if (bit_test(door->flags, DF_DOOR32)) printf("  create a door32.sys drop file\n");
+
+     return OK;
+
+ }
+
+ int capture(rms_t *self, void *data, queue *results) {
+
+     int stat = OK;
+     door_base_t *ondisk = NULL;
+     door_search_t *result = NULL;
+
+     when_error_in {
+
+         ondisk = (door_base_t *)data;
+
+         errno = 0;
+         result = calloc(1, sizeof(door_search_t));
+         if (result == NULL) cause_error(errno);
+
+         strncpy(result->name, ondisk->name, DOOR_NAME_LEN);
+         result->record = self->record;
+
+         stat = que_push_head(results, result);
+         check_status(stat, QUE_OK, E_NOQUEUE);
+
+         exit_when;
+
+     } use {
+
+         stat = ERR;
+         capture_trace(dump);
+         clear_error();
+
+     } end_when;
+    
+     return stat;
+
+ }
+
+ int dump_trace(char *buffer) {
+
+     fprintf(stderr, "%s\n", buffer);
+
+     return OK;
+
+ }
+
+ int setup(void) {
+
+     int stat = OK;
+     int timeout = 1;
+     int retries = 30;
+     int records = 256;
+     char *path = "../../data/";
+
+     when_error_in {
+
+         errs = errors_create();
+         check_creation(errs);
+
+         dump = tracer_create(errs);
+         check_creation(dump);
+
+         doors = door_create(path, records, retries, timeout, dump);
+         check_creation(doors);
+
+         exit_when;
+
+     } use {
+
+         stat = ERR;
+         capture_trace(dump);
+         clear_error();
+
+     } end_when;
+
+     return stat;
+
+ }
+
+ void cleanup(void) {
+
+     door_destroy(doors);
+     tracer_destroy(dump);
+     errors_destroy(errs);
+
+ }
+
+ int main(int argc, char **argv) {
+
+     int stat = OK;
+     queue results;
+     door_base_t ondisk;
+     door_search_t *result = NULL;
+
+     when_error_in {
+
+         stat = que_init(&results);
+         check_status(stat, QUE_OK, E_INVOPS);
+
+         stat = setup();
+         check_status(stat, OK, E_INVOPS);
+
+         stat = door_open(doors);
+         check_return(stat, doors);
+
+         stat = door_search(doors, NULL, 0, find_doors_all, capture, &results);
+         check_return(stat, doors);
+
+         printf("\nfound %d doors\n", que_size(&results));
+
+         while ((result = que_pop_head(&results))) {
+
+             stat = door_get(doors, result->record, &ondisk);
+             check_return(stat, doors);
+
+             display(&ondisk);
+             free(result);
+
+         }
+
+         stat = door_close(doors);
+         check_return(stat, doors);
+
+         exit_when;
+
+     } use {
+
+         capture_trace(dump);
+         tracer_dump(dump, dump_trace);
+         clear_error();
+
+     } end_when;
+
+     cleanup();
+
+     return 0;
+
+ }
+
+=head1 DESCRIPTION
+
+This class implements the door database. This is an extension of the rms
+class.
+
+Records that are deleted are not removed from the database. They 
+are marked as deleted. They are reused. 
+
+The database consists of these two files:
+
+ doors.dat    - the actual data
+ doors.seq    - where the last door number is stored
+
+This library is a class. It is extensible and overridable. It also makes 
+use of the L<rms(3)>, L<errors(3)> and L<tracer(3)> classes for error handling and 
+reporting. 
+
+The files door.c and door.h define the class. 
+
+=over 4
+
+=item B<door.h>
+
+This defines the interface to the class. 
+
+=item B<door.c> 
+
+This implements the interface.
+
+=back
+
+=head1 METHODS
+
+=head2 I<rms_t *door_create(char *path, int records, int retries, int timeout, tracer_t *dump)>
+
+This method initializes the class. 
+
+=head2 I<int door_destroy(rms_t *self)>
+
+This destroys the object. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the rms_t object.
+
+=back
+
+=head2 I<int door_override(rms_t *self, item_list_t *items)>
+
+This method allows you to override methods. 
+
+=over 4
+
+=item B<self>
+
+A pointer to the rms_t object.
+
+=item B<items>
+
+An array of item_list_t data types. The array is 0 terminated.
+
+=back
+
+=head2 I<int door_compare(rms_t *this, rms_t *that)>
+
+This method allows you to compare one rms_t object to another. 
+
+=over 4
+
+=item B<this>
+
+A pointer to a rms_t object.
+
+=item B<that>
+
+A pointer to a rms_t object.
+
+=back
+
+=head2 I<char *door_version(rms_t *self)>
+
+This method returns the version of the library. The version number
+follows the guidelines from L<semver.org|https://semver.org/>.
+
+=over 4
+
+=item B<self>
+
+A pointer to the rms_t object.
+
+=back
+
+=head2 I<int door_open(rms_t *self)>
+
+This method allows access to the doors database. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=back
+
+=head2 I<int door_close(rms_t *self)>
+
+This method closes access to the doors database.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=back
+
+=head2 I<int door_add(rms_t *self, door_base_t *door)>
+
+This method adds a door to the doors database. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<door>
+
+A pointer to a door_base_t type to write to the database.
+
+=back
+
+=head2 I<int door_del(rms_t *self, int index)>
+
+This method deletes a door from the doors database. The record is not
+removed from the database. It is marked as "deleted". The record is
+not reused.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<index>
+
+The index to the doors record within the database.
+
+=back
+
+=head2 I<int door_get(rms_t *self, int index, door_base_t *door)>
+
+This method gets the indicated door.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<index>
+
+The door to get.
+
+=item B<door>
+
+A pointer to a door_base_t type to write the data too.
+
+=back
+
+=head2 I<int door_put(rms_t *self, int index, door_base_t *door)>
+
+This method updates a door.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<index>
+
+The door to update.
+
+=item B<door>
+
+A pointer to a door_base_t type.
+
+=back
+
+=head2 I<int door_find(rms_t *self, void *data, int len, int (*compare)(void *, int, door_base_t *), off_t *recnum)>
+
+This method will return the first door that matches the comparison.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<data>
+
+A pointer to the data to use for comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a door_base_t type.
+This should return TRUE on match, otherwise FALSE.
+
+=item B<recnum>
+
+A pointer to write the record number of the door that matches. A 0 is returned
+if nothing matches.
+
+=back
+
+=head2 I<int door_search(rms_t *self, void *data, int len, int (*compare)(void *, int, door_base_t *), int (*capture)(rms_t *, void *, queue *), queue *)>
+
+This method will return all the doors that matches the comparison.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item B<data>
+
+A pointer to the data to use for the comparison.
+
+=item B<len>
+
+The length of the data.
+
+=item B<compare>
+
+A comparison function used to match the data to a door_base_t type.
+This should return TRUE on match, otherwise FALSE.
+
+=item B<capture> 
+
+A capture function that is used to retrieve the matching records. It
+should return OK on success or ERR if not.
+
+=item B<results>
+
+A pointer to write the list of door_search_t types. This list may be empty if 
+nothing matches.
+
+=back
+
+=head2 I<int door_capture(rms_t *self, void *data, queue *results)>
+
+A default capture function. 
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=item  B<data>
+
+A pointer to a door_base_t type.
+
+=item B<results>
+
+A queue to write the results too. These would consist of door_search_t
+types.
+
+=back
+
+=head1 RETURNS
+
+The method door_create() returns a pointer to a rms_t object. 
+All other methods return either OK on success or ERR on failure. The 
+extended error description can be returned with object_get_error().
+
+=head1 BUILDING
+
+The following assumes a GNU/GCC build environment.
+
+=over 4
+
+=item make
+
+Builds the module and provides an object archive.
+
+=item make clean
+
+Removes cruft from the directory.
+
+=item make man
+
+Builds the man page.
+
+=item make shared
+
+Builds the module and provides a shared library.
+
+=back
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<object(3)>
+
+=item L<rms(3)>
+
+=back
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2021 by Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
+

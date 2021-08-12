@@ -51,6 +51,7 @@ struct _rms_s {
     int (*_get)(rms_t *, off_t, void *);
     int (*_put)(rms_t *, off_t, void *);
     int (*_get_sequence)(rms_t *, long *);
+    int (*_peek_sequence)(rms_t *, long *);
     int (*_build)(rms_t *, void *, void *);
     int (*_read)(rms_t *, void *, ssize_t *);
     int (*_next)(rms_t *, void *, ssize_t *);

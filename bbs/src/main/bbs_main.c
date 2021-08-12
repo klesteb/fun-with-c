@@ -21,7 +21,6 @@
 
 rms_t *nodes = NULL;
 rms_t *users = NULL;
-rms_t *doors = NULL;
 room_t *rooms = NULL;
 tracer_t *dump = NULL;
 errors_t *errs = NULL;
@@ -86,9 +85,6 @@ int bbs_init(error_trace_t *errors) {
 
         stat = node_open(nodes);
         check_return(stat, nodes);
-
-        stat = door_open(doors);
-        check_return(stat, doors);
 
         /* load the node record */
 
@@ -161,7 +157,7 @@ int bbs_init(error_trace_t *errors) {
 
     return stat;
 
-} 
+}
 
 char *bbs_version(void) {
 
@@ -217,9 +213,6 @@ int setup(error_trace_t *errors) {
 
         nodes = node_create(fnm_directory(dpath), nodenum, retries, xtimeout, dump);
         check_creation(nodes);
-
-        nodes = door_create(fnm_directory(dpath), doornum, retries, xtimeout, dump);
-        check_creation(doors);
 
         fnm_destroy(dpath);
         fnm_destroy(mpath);

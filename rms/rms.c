@@ -45,6 +45,7 @@ int _rms_record(rms_t *, off_t *);
 int _rms_get(rms_t *, off_t, void *);
 int _rms_put(rms_t *, off_t, void *);
 int _rms_get_sequence(rms_t *, long *);
+int _rms_peek_sequence(rms_t *, long *);
 int _rms_build(rms_t *, void *, void *);
 int _rms_next(rms_t *, void *, ssize_t *);
 int _rms_prev(rms_t *, void *, ssize_t *);
@@ -579,6 +580,7 @@ int _rms_ctor(object_t *object, item_list_t *items) {
         self->_unlock = _rms_unlock;
         self->_normalize = _rms_normalize;
         self->_get_sequence = _rms_get_sequence;
+        self->_peek_sequence = _rms_peek_sequence;
 
         /* initialize internal variables here */
 
@@ -794,6 +796,7 @@ int _rms_compare(rms_t *self, rms_t *other) {
         (self->_search == other->_search) &&
         (self->_normalize == other->_normalize) &&
         (self->_get_sequence == other->_get_sequence) &&
+        (self->_peek_sequence == other->_peek_sequence) &&
         (self->locked == other->locked) &&
         (self->rmsdb == other->rmsdb) &&
         (self->trace  == other->trace) &&
@@ -833,6 +836,11 @@ int _rms_open(rms_t *self) {
 
             stat = files_open(self->sequence, flags, 0);
             check_return(stat, self->sequence);
+
+            stat = self->_peek_sequence(self, &sequence);
+            check_return(stat, self);
+
+            self->records = sequence;
 
         } else {
 
@@ -1451,6 +1459,52 @@ int _rms_get_sequence(rms_t *self, long *sequence) {
             cause_error(EIO);
 
         }
+
+        stat = files_unlock(self->sequence);
+        check_return(stat, self->sequence);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (locked) files_unlock(self->sequence);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _rms_peek_sequence(rms_t *self, long *sequence) {
+
+    int stat = OK;
+    long buffer = 0;
+    ssize_t count = 0;
+    int locked = FALSE;
+
+    when_error_in {
+
+        stat = files_seek(self->sequence, 0, SEEK_SET);
+        check_return(stat, self->sequence);
+
+        stat = files_lock(self->sequence, 0, sizeof(long));
+        check_return(stat, self->sequence);
+
+        locked = TRUE;
+
+        stat = files_read(self->sequence, &buffer, sizeof(long), &count);
+        check_return(stat, self->sequence);
+
+        if (count != sizeof(long)) {
+
+            cause_error(EIO);
+
+        }
+
+        *sequence = buffer;
 
         stat = files_unlock(self->sequence);
         check_return(stat, self->sequence);

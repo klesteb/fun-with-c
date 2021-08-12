@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2021 by Kevin L. Esteb                       */
+/*                Copyright (c) 2019 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -13,63 +13,52 @@
 #ifndef _DOOR_H
 #define _DOOR_H
 
-#include "rms/rms.h"
-#include "tracer/tracer.h"
+#include "objects/object.h"
+#include "include/item_list.h"
 
 /*-------------------------------------------------------------*/
-/* constants                                                   */
+/* klass defination                                            */
 /*-------------------------------------------------------------*/
 
-#define DOOR_NAME_LEN 31
-#define DOOR_DESC_LEN 63
-#define DOOR_CMD_LEN  255
+typedef struct _door_s door_t;
 
-/* bits in flags */
+struct _door_s {
+    object_t parent_klass;
+    int (*ctor)(object_t *, item_list_t *);
+    int (*dtor)(object_t *);
+    int (*_compare)(door_t *, door_t *);
+    int (*_override)(door_t *, item_list_t *);
 
-#define DF_DELETED   (1L<<1)   /* door has been deleted             */
-#define DF_DOORINFO  (1L<<2)   /* create a doorinfo1.def drop file  */
-#define DF_DOORSYS   (1L<<3)   /* create a door.sys drop file       */
-#define DF_DOOR32    (1L<<4)   /* create a door32.sys drop files    */
+    int retries;
+    int timeout;
+    char *path;
+    files_t *control;
+    tracer_t *trace;
+};
 
 /*-------------------------------------------------------------*/
-/* data structures                                             */
+/* klass constants                                             */
 /*-------------------------------------------------------------*/
 
-typedef struct _door_base_s {         
-    char name[DOOR_NAME_LEN+1];         /* Name of door                 */
-    char description[DOOR_DESC_LEN+1];  /* description of the door      */
-    char command[DOOR_CMD_LEN+1];       /* command to run door          */
-    long doornum;                       /* Door number                  */
-    ulong flags;                        /* See DF_ flags above          */
-    int revision;                       /* Record revision              */
-} door_base_t;
+#define DOOR_K_PATH    1
+#define DOOR_K_TRACE   2
+#define DOOR_K_RETRIES 3
+#define DOOR_K_TIMEOUT 4
 
-typedef struct _door_search_s {
-    char name[DOOR_NAME_LEN+1];         /* Name of door                 */
-    off_t record;                       /* index of door record         */
-} door_search_t;
+#define DOOR(x) ((door_t *)(x))
+
+#define DOOR_M_DESTRUCTOR 1
+
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern rms_t *door_create(char *, int, int, int, tracer_t *);
-extern int door_capture(rms_t *, void *, queue *);
-extern char *door_version(rms_t *);
-
-#define door_destroy(self) rms_destroy(self)
-#define door_compare(self, other) rms_compare(self, other)
-#define door_override(self, items) rms_override(self, items)
-
-#define door_open(self) rms_open(self)
-#define door_close(self) rms_close(self)
-#define door_del(self, recnum) rms_del(self, recnum)
-#define door_extend(self, amount) rms_extend(self, amount)
-#define door_add(self, door) rms_add(self, (void *)door)
-#define door_get(self, recnum, door) rms_get(self, recnum, (void *)door)
-#define door_put(self, recnum, door) rms_put(self, recnum, (void *)door)
-#define door_find(self, data, len, compare, recnum) rms_find(self, data, len, compare, recnum)
-#define door_search(self, data, len, compare, capture, results) rms_search(self, data, len, compare, capture, results)
+extern door_t *door_create(item_list_t *);
+extern int door_destroy(door_t *);
+extern int door_compare(door_t *, door_t *);
+extern int door_override(door_t *, item_list_t *);
+extern char *door_version(doory_t *);
 
 #endif
 

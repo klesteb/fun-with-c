@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2021 by Kevin L. Esteb                       */
+/*                Copyright (c) 2019 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -10,263 +10,81 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <errno.h>
-
 #include "include/when.h"
-#include "include/item_list.h"
+#include "include/error_codes.h"
 
-#include "rms/rms.h"
-#include "files/files.h"
-#include "tracer/tracer.h"
+#include "objects/object.h"
 
-#include "bbs/src/bitops.h"
 #include "bbs/src/door/door.h"
+#include "bbs/src/main/bbs_config.h"
+
+require_klass(OBJECT_KLASS);
 
 /*----------------------------------------------------------------*/
-/* klass overrides                                                */
+/* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
-int _door_add(rms_t *self, door_base_t *door) {
+int _door_ctor(object_t *, item_list_t *);
+int _door_dtor(object_t *);
+
+int _door_compare(door_t *, door_t *);
+int _door_override(door_t *, item_list_t *);
+
+/*----------------------------------------------------------------*/
+/* klass declaration                                              */
+/*----------------------------------------------------------------*/
+
+declare_klass(DOOR_KLASS) {
+    .size = KLASS_SIZE(door_t),
+    .name = KLASS_NAME(door_t),
+    .ctor = _door_ctor,
+    .dtor = _door_dtor,
+};
+
+/*----------------------------------------------------------------*/
+/* klass interface                                                */
+/*----------------------------------------------------------------*/
+
+door_t *door_create(char *path, int retries, int timeout, tracer_t *dump) {
+
+    int stat = ERR;
+    door_t *self = NULL;
+    item_list_t items[5];
+
+    SET_ITEM(items[0], DOOR_K_PATH, path, strlen(path), NULL);
+    SET_ITEM(items[1], DOOR_K_RETRIES, &retries, sizeof(int), NULL);
+    SET_ITEM(items[2], DOOR_K_TIMEOUT, &timeout, sizeof(int), NULL);
+    SET_ITEM(items[3], DOOR_K_TRACE, dump, 0, NULL);
+    SET_ITEM(items[4], 0, 0, 0, 0);
+
+    self = (door_t *)object_create(DOOR_KLASS, items, &stat);
+
+    return self;
+
+}
+
+int door_destroy(door_t *self) {
 
     int stat = OK;
-    ssize_t count = 0;
-    door_base_t ondisk;
-    int created = FALSE;
 
-    when_error_in {
+    when_error {
 
-        stat = self->_first(self, &ondisk, &count);
-        check_return(stat, self);
+        if (self != NULL) {
 
-        while (count > 0) {
+            if (object_assert(self, door_t)) {
 
-            if (bit_test(ondisk.flags, DF_DELETED)) {
+                stat = self->dtor(OBJECT(self));
+                check_status(stat, OK, E_INVOPS);
 
-                door->flags = 0;
-                door->doornum = self->record;
+            } else {
 
-                stat = self->_put(self, self->record, door);
-                check_return(stat, self);
-
-                created = TRUE;
-                break;
+                cause_error(E_INVOBJ);
 
             }
-
-            stat = self->_next(self, &ondisk, &count);
-            check_return(stat, self);
-
-        }
-
-        if (! created) {
-
-            cause_error(EOVERFLOW);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
-
-}
- 
-int _door_build(rms_t *self, door_base_t *ondisk, door_base_t *door) {
-
-    strncpy((*door).name, ondisk->name, DOOR_NAME_LEN);
-    strncpy((*door).description, ondisk->description, DOOR_DESC_LEN);
-    strncpy((*door).command, ondisk->command, DOOR_CMD_LEN);
-    (*door).doornum = ondisk->doornum;
-    (*door).flags = ondisk->flags;
-    (*door).revision = ondisk->revision;
-
-    return OK;
-
-}
- 
-int _door_del(rms_t *self, off_t recnum) {
-
-    int stat = OK;
-    ssize_t count = 0;
-    door_base_t ondisk;
-    off_t recsize = self->recsize;
-    off_t offset = RMS_OFFSET(recnum, self->recsize);
-
-    when_error_in {
-
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
-
-        stat = self->_lock(self, offset);
-        check_return(stat, self);
-
-        stat = self->_read(self, &ondisk, &count);
-        check_return(stat, self);
-
-        if (count != self->recsize) {
-
-            cause_error(EIO);
-
-        }
-
-        ondisk.flags |= DF_DELETED;
-        ondisk.revision++;
-
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
-
-        stat = self->_write(self, &ondisk, &count);
-        check_return(stat, self);
-
-        if (count != self->recsize) {
-
-            cause_error(EIO);
-
-        }
-
-        stat = self->_unlock(self);
-        check_return(stat, self);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-        if (self->locked) self->_unlock(self);
-
-    } end_when;
-
-    return stat;
- 
-}
- 
-int _door_extend(rms_t *self, int amount) {
-
-    int stat = OK;
-    door_base_t door;
-    int revision = 1;
-    long sequence = 0;
-    ssize_t count = 0;
-    ssize_t position = 0;
-
-    when_error_in {
-
-        memset(&door, '\0', sizeof(door_base_t));
-
-        /* defaults */
-
-        door.revision = revision;
-        door.flags |= DF_DELETED;
-
-        stat = files_seek(self->rmsdb, 0, SEEK_END);
-        check_return(stat, self->rmsdb);
-
-        int x = 0;
-        for (; x < amount; x++) {
-
-            stat = self->_get_sequence(self, &sequence);
-            check_return(stat, self);
-
-            door.doornum = sequence;
-
-            stat = files_tell(self->rmsdb, &position);
-            check_return(stat, self->rmsdb);
-
-            stat = self->_lock(self, position);
-            check_return(stat, self);
-
-            stat = self->_write(self, &door, &count);
-            check_return(stat, self);
-
-            stat = self->_unlock(self);
-            check_return(stat, self);
-
-            if (count != self->recsize) {
-
-                cause_error(EIO);
-
-            }
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-        if (self->locked) self->_unlock(self);
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _door_normalize(rms_t *self, door_base_t *ondisk, door_base_t *door) {
-
-    strncpy((*door).name, ondisk->name, DOOR_NAME_LEN);
-    strncpy((*door).description, ondisk->description, DOOR_DESC_LEN);
-    strncpy((*door).command, ondisk->command, DOOR_CMD_LEN);
-    (*door).doornum = ondisk->doornum;
-    (*door).flags = ondisk->flags;
-    (*door).revision = ondisk->revision + 1;
-
-    return OK;
-
-}
-
-int _door_put(rms_t *self, off_t recnum, door_base_t *door) {
-
-    int stat = OK;
-    ssize_t count = 0;
-    door_base_t ondisk;
-    off_t recsize = self->recsize;
-    off_t offset = RMS_OFFSET(recnum, self->recsize);
-
-    when_error_in {
-
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
-
-        stat = self->_lock(self, offset);
-        check_return(stat, self);
-
-        stat = self->_read(self, &ondisk, &count);
-        check_return(stat, self);
-
-        if (ondisk.revision > door->revision) {
-
-            stat = self->_normalize(self, &ondisk, door);
-            check_return(stat, self);
 
         } else {
 
-            door->revision = ondisk.revision + 1;
-
-        }
-
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
-
-        stat = self->_write(self, door, &count);
-        check_return(stat, self);
-
-        stat = self->_unlock(self);
-        check_return(stat, self);
-
-        if (count != recsize) {
-
-            cause_error(EIO);
+            cause_error(E_INVPARM);
 
         }
 
@@ -275,9 +93,9 @@ int _door_put(rms_t *self, off_t recnum, door_base_t *door) {
     } use {
 
         stat = ERR;
-        process_error(self);
 
-        if (self->locked) self->_unlock(self);
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
 
     } end_when;
 
@@ -285,44 +103,79 @@ int _door_put(rms_t *self, off_t recnum, door_base_t *door) {
 
 }
 
-/*----------------------------------------------------------------*/
-/* klass implementation                                           */
-/*----------------------------------------------------------------*/
-
-int door_capture(rms_t *self, void *data, queue *results) {
+int door_override(door_t *self, item_list_t *items) {
 
     int stat = OK;
-    door_base_t *ondisk = NULL;
-    door_search_t *result = NULL;
 
-    when_error_in {
+    when_error {
+        
+        if (self != NULL) {
 
-        ondisk = (door_base_t *)data;
+            stat = self->_override(self, items);
+            check_status(stat, OK, E_INVOPS);
 
-        errno = 0;
-        result = calloc(1, sizeof(door_search_t));
-        if (result == NULL) cause_error(errno);
+        } else {
 
-        strncpy(result->name, ondisk->name, DOOR_NAME_LEN);
-        result->record = self->record;
+            cause_error(E_INVPARM);
 
-        stat = que_push_head(results, result);
-        check_status(stat, QUE_OK, E_NOQUEUE);
+        }
 
         exit_when;
 
     } use {
 
         stat = ERR;
-        process_error(self);
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
 
     } end_when;
-    
+
     return stat;
 
 }
 
-char *door_version(rms_t *self) {
+int door_compare(door_t *us, door_t *them) {
+
+    int stat = OK;
+
+    when_error {
+
+        if (us != NULL) {
+
+            if (object_assert(them, door_t)) {
+
+                stat = us->_compare(us, them);
+                check_status(stat, OK, E_NOTSAME);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+char *door_version(door_t *self) {
 
     char *version = VERSION;
 
@@ -330,39 +183,240 @@ char *door_version(rms_t *self) {
 
 }
 
-rms_t *door_create(char *path, int records, int retries, int timeout, tracer_t *dump) {
+/*----------------------------------------------------------------*/
+/* klass implementation                                           */
+/*----------------------------------------------------------------*/
+
+int _door_ctor(object_t *object, item_list_t *items) {
+
+    char path[256];
+    int stat = ERR;
+    door_t *self = NULL;
+
+    if (object != NULL) {
+
+        memset(path, '\0', 256);
+
+        /* capture our items */
+
+        if (items != NULL) {
+
+            int x = 0;
+            for (;; x++) {
+
+                if ((items[x].buffer_length == 0) &&
+                    (items[x].item_code == 0)) break;
+
+                switch(items[x].item_code) {
+                    case DOOR_K_PATH: {
+                        memcpy(path, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case DOOR_K_TIMEOUT: {
+                        memcpy(&timeout, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case DOOR_K_RETRIES: {
+                        memcpy(&retries, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case DOOR_K_TRACE: {
+                        dump = items[x].buffer_address; 
+                        break;
+                    }
+                }
+
+            }
+
+        }
+
+        /* initilize our base klass here */
+
+        object_set_error1(object, OK);
+
+        /* initialize our derived klass here */
+
+        self = DOOR(object);
+
+        /* assign our methods here */
+
+        self->ctor      = _door_ctor;
+        self->dtor      = _door_dtor;
+        self->_compare  = _door_compare;
+        self->_override = _door_override;
+
+        /* initialize internal variables here */
+
+        when_error_in {
+
+            self->trace = dump;
+            self->retries = retries;
+            self->timeout = timeout;
+            self->path = strdup(path);
+
+            strncpy(control, fnm_build(1, FnmPath, "door", ".ctl", path, NULL), 255);
+            self->control = files_create(control, retries, timeout);
+            check_creation(self->control);
+
+            exit_when;
+
+        } use {
+
+            stat = ERR;
+            process_error(self);
+
+        } end_when;
+
+    }
+
+    return stat;
+
+}
+
+int _door_dtor(object_t *object) {
 
     int stat = OK;
-    rms_t *self = NULL;
-    char *name = "doors";
-    item_list_t items[7];
-    int recsize = sizeof(door_base_t);
+    door_t *self = DOOR(object);
+
+    /* free local resources here */
+
+    free(self->path);
+
+    file_close(self->control);
+    file_destroy(self->control);
+
+    /* walk the chain, freeing as we go */
+
+    object_demote(object, object_t);
+    object_destroy(object);
+
+    return stat;
+
+}
+
+int _door_override(door_t *self, item_list_t *items) {
+
+    int stat = ERR;
+
+    if (items != NULL) {
+
+        int x;
+        for (x = 0;; x++) {
+
+            if ((items[x].buffer_length == 0) &&
+                (items[x].item_code == 0)) break;
+
+            switch(items[x].item_code) {
+                case DOOR_M_DESTRUCTOR: {
+                    self->dtor = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int _door_compare(door_t *this, door_t *that) {
+
+    int stat = ERR;
+
+    if ((object_compare(OBJECT(this), OBJECT(that)) == 0) &&
+        (this->ctor == that->ctor) &&
+        (this->dtor == that->dtor) &&
+        (this->_compare == that->_compare) &&
+        (this->_override == that->_override)) {
+
+        stat = OK;
+
+    }
+
+    return stat;
+
+}
+
+int _door_open(door_t *door) {
+    
+    int stat = OK;
+    int exists = 0;
+    int flags = O_RDWR;
 
     when_error_in {
 
-        self = rms_create(path, name, records, recsize, retries, timeout, dump);
-        check_creation(self);
+        stat = files_exists(self->control, &exists);
+        check_return(stat, self->control);
 
-        SET_ITEM(items[0], RMS_M_ADD, _door_add, 0, NULL);
-        SET_ITEM(items[1], RMS_M_BUILD, _door_build, 0, NULL);
-        SET_ITEM(items[2], RMS_M_DEL, _door_del, 0, NULL);
-        SET_ITEM(items[3], RMS_M_EXTEND, _door_extend, 0, NULL);
-        SET_ITEM(items[4], RMS_M_NORMALIZE, _door_normalize, 0, NULL);
-        SET_ITEM(items[5], RMS_M_PUT, _door_put, 0, NULL);
-        SET_ITEM(items[6], 0, 0, 0, 0);
+        if (exists) {
 
-        stat = rms_override(self, items);
-        check_return(stat, self);
+            stat = files_open(self->control, flags, 0);
+            check_return(stat, self->control);
+
+
+        }
 
         exit_when;
 
     } use {
 
+        stat = ERR;
         process_error(self);
 
     } end_when;
 
-    return self;
+    return stat;
+
+}
+
+int _door_close(door_t *door) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_close(self->control);
+        check_return(stat, self->control);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _door_run(door_t *door) {
+
+    int stat = OK;
+
+    when_error_in {
+
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
 
 }
 

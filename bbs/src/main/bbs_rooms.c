@@ -253,6 +253,9 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
 
         } else if (bit_test(room->flags, RM_SUBSYS)) {
 
+            stat = room_handler(rooms, room, (void **)&doors);
+            check_return(stat, rooms);
+
 
         }
 

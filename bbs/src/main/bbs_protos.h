@@ -14,6 +14,7 @@
 #define _BBS_PROTOS_H
 
 #include "bbs/src/jam/jam.h"
+#include "bbs/src/door/door.h"
 #include "include/error_trace.h"
 
 /* bbs_main */

@@ -22,6 +22,7 @@
 
 #include "bbs/src/room/msgs.h"
 #include "bbs/src/room/room.h"
+#include "bbs/src/room/doors.h"
 #include "bbs/src/room/handler.h"
 #include "bbs/src/main/bbs_config.h"
 
@@ -1921,6 +1922,9 @@ static int _attach_handler(room_t *self, room_base_t *room) {
                 
             } else if (room->flags & RM_SUBSYS) {
                 
+                handler = doors_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
+                check_creation(handler);
+
             }
 
         }

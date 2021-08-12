@@ -926,105 +926,16 @@ static int spawn(char *mandato) {
 
 }
 
-int bbs_subsys_menu(subsys_t *subsys, room_base_t *room, error_trace_t *errors) {
+int bbs_doors(door_t *doors, room_base_t *room, error_trace_t *errors) {
 
-    int idx = 0;
-    theme_t theme;
     int stat = OK;
-    int width = 0;
-    int count = 6;
-    char title[40];
-    int height = 0;
-    int startx = 0;
-    int starty = 0;
-    error_trace_t error;
-    window_t *win = NULL;
-    char *help = "subsys";
 
-    int list_size = 0;
-    component_t *vline = NULL;
-    component_t *bmenu = NULL;
-    menus_list_t *list = NULL;
-
-    /* theme.attribute  = A_NORMAL; */
-    /* theme.foreground = BROWN; */
-    /* theme.background = BLACK; */
-
-fprintf(stderr, "entering bbs_subsys_menu()\n");
+fprintf(stderr, "entering bbs_doors()\n");
 
     when_error_in {
 
-        old = FALSE;
-        forward = TRUE;
-
-        memset(title, '\0', 40);
-        snprintf(title, 38, "Sub System: %s", room->name); 
-
-        width  = (getmaxx(stdscr) - 4);
-        height = (getmaxy(stdscr) - 7);
-        startx = (getbegx(stdscr) + 1);
-        starty = (getbegy(stdscr) + 4);
-
-        errno = 0;
-        list = calloc(count, sizeof(menus_list_t));
-        if (list == NULL) cause_error(errno);
-
-        SET_MENU(list[idx], "Forward", "forward retrieval of messages", MENUS_T_ITEM, NULL, 0, set_forward);
-        idx++; SET_MENU(list[idx], "New", "read new messages", MENUS_T_ITEM, jam, sizeof(jam_t), bbs_new_msgs);
-        idx++; SET_MENU(list[idx], "Old", "read old messages", MENUS_T_ITEM, jam, sizeof(jam_t), bbs_old_msgs);
-        idx++; SET_MENU(list[idx], "Write", "create a new message", MENUS_T_ITEM, NULL, 0, print_result);
-        idx++; SET_MENU(list[idx], "Reverse", "reverse retrieval of messages", MENUS_T_ITEM, NULL, 0, set_reverse);
-        idx++; SET_MENU(list[idx], "Help", "help with messages", MENUS_T_ITEM, help, strlen(help), bbs_help);
-
-        if (is_aide(room, &useron)) {
-
-            errno = 0;
-            count += 4;
-            list = realloc(list, count * sizeof(menus_list_t));
-            if (list == NULL) cause_error(errno);
-
-            idx++; SET_MENU(list[idx], "-Aide--", "aide functions", MENUS_T_SEPERATOR, NULL, 0, NULL);
-            idx++; SET_MENU(list[idx], "Delete", "delete empty rooms", MENUS_T_ITEM, NULL, 0, print_result);
-            idx++; SET_MENU(list[idx], "Edit", "edit room", MENUS_T_ITEM, NULL, 0, print_result);
-            idx++; SET_MENU(list[idx], "Kill", "remove this room", MENUS_T_ITEM, NULL, 0, print_result);
-
-        }
-
-        if (is_sysop(room, &useron)) {
-
-            errno = 0;
-            count += 3;
-            list = realloc(list, count * sizeof(menus_list_t));
-            if (list == NULL) cause_error(errno);
-
-            idx++; SET_MENU(list[idx], "-Sysop-", "sysop functions", MENUS_T_SEPERATOR, NULL, 0, NULL);
-            idx++; SET_MENU(list[idx], "Aide", "set/clear aide privileges", MENUS_T_ITEM, NULL, 0, print_result);
-            idx++; SET_MENU(list[idx], "Disable", "disable a user account", MENUS_T_ITEM, NULL, 0, print_result);
-
-        }
-
-        list_size = ((idx + 1) * sizeof(menus_list_t));
-
-        win = base_window(title, startx, starty, height, width);
-        check_creation(win);
-
-        bmenu = list_menu_create(win, 0, 0, height - 2, 9, 1, bbs_send_message, list, list_size);
-        check_creation(bmenu);
-
-        vline = vline_create(win, 0, 9, height - 2);
-        check_creation(vline);
-
-        stat = window_add(win, bmenu);
-        check_return(stat, win);
-
-        stat = window_add(win, vline);
-        check_return(stat, win);
-
-        stat = window_set_tab(win, 1);
-        check_return(stat, win);
-
-        stat = workbench_add(workbench, win);
-        check_return(stat, workbench);
+        stat = door_run(doors);
+        check_return(stat, doors);
 
         exit_when;
 
@@ -1037,7 +948,7 @@ fprintf(stderr, "entering bbs_subsys_menu()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving bbs_subsys_menu() - stat: %d\n", stat);
+fprintf(stderr, "leaving bbs_doors() - stat: %d\n", stat);
     return stat;
 
 }

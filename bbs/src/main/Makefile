@@ -25,7 +25,8 @@ STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
 CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) 
 LFLAGS =
 LOPTS = -o 
-INCS = bbs_common.h bbs_config.h bbs_error_codes.h bbs_error.h bbs_protos.h
+INCS = bbs_common.h bbs_includes.h bbs_config.h bbs_error_codes.h \
+       bbs_errors.h  bbs_protos.h
 MODULES = bbs_main.o bbs_run.o bbs_access.o bbs_ipc.o bbs_logout.o \
           bbs_rooms.o bbs_ui.o bbs_msgs.o bbs_utils.o
 #
@@ -45,31 +46,31 @@ clean:
 xa-bbs: $(MODULES) 
 	$(LINK) $(LOPTS) xa-bbs $(MODULES) $(OLBS)
 #
-bbs_main.o: bbs_main.c 
+bbs_main.o: bbs_main.c $(INCS)
 	$(CC) $(CFLAGS) bbs_main.c
 #
-bbs_run.o: bbs_run.c 
+bbs_run.o: bbs_run.c $(INCS)
 	$(CC) $(CFLAGS) bbs_run.c
 #
-bbs_access.o: bbs_access.c 
+bbs_access.o: bbs_access.c $(INCS)
 	$(CC) $(CFLAGS) bbs_access.c
 #
-bbs_ui.o: bbs_ui.c 
+bbs_ui.o: bbs_ui.c $(INCS)
 	$(CC) $(CFLAGS) bbs_ui.c
 # 
-bbs_ipc.o: bbs_ipc.c 
+bbs_ipc.o: bbs_ipc.c $(INCS)
 	$(CC) $(CFLAGS) bbs_ipc.c
 #
-bbs_rooms.o: bbs_rooms.c 
+bbs_rooms.o: bbs_rooms.c $(INCS)
 	$(CC) $(CFLAGS) bbs_rooms.c
 #
-bbs_msgs.o: bbs_msgs.c 
+bbs_msgs.o: bbs_msgs.c $(INCS)
 	$(CC) $(CFLAGS) bbs_msgs.c
 #
-bbs_utils.o: bbs_utils.c 
+bbs_utils.o: bbs_utils.c $(INCS)
 	$(CC) $(CFLAGS) bbs_utils.c
 #
-bbs_logout.o: bbs_logout.c 
+bbs_logout.o: bbs_logout.c $(INCS)
 	$(CC) $(CFLAGS) bbs_logout.c
 #
 # eof

@@ -29,6 +29,12 @@
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
+#define ROOM_NAME_LEN 31
+#define ROOM_PATH_LEN 255
+#define ROOM_DESC_LEN 63
+
+/* flag bits */
+
 #define RM_INUSE     (1L<<0)    /* room is in use                  */
 #define RM_PUBLIC    (1L<<1)    /* room is public                  */
 #define RM_PRIVATE   (1L<<2)    /* room is private                 */
@@ -44,6 +50,8 @@
 #define RM_DIRECTORY (1L<<12)   /* room has files                  */
 #define RM_SUBSYS    (1L<<13)   /* room has "doors"                */
 
+/* status bits */
+
 #define RS_FORGET    (1L<<1)    /* forget this room                */
 #define RS_REMOVED   (1L<<2)    /* removed from this room          */
 #define RS_INVITED   (1L<<3)    /* invited into room               */
@@ -53,18 +61,18 @@
 /*-------------------------------------------------------------*/
 
 typedef struct _room_base_s {
-    long roomnum;           /* room number                               */
-    long aide;              /* the rooms aide                            */
-    char name[32];          /* name of the room                          */
-    char path[256];         /* path to the resource                      */
-    char description[64];   /* description                               */
-    short conference;       /* the qwk conference number                 */
-    ushort flags;           /* capability flags                          */
-    ushort status[USERNUM]; /* status flags, 1 per user                  */
-    int retries;            /* number of retires for file locking        */
-    int timeout;            /* timeout in seconds, between retries       */
-    int base;               /* the base message number                   */
-    int revision;           /* the revision of this record               */
+    long roomnum;                      /* room number                       */
+    long aide;                         /* the rooms aide                    */
+    char name[ROOM_NAME_LEN+1];        /* name of the room                  */
+    char path[ROOM_PATH_LEN+1];        /* path to the resource              */
+    char description[ROOM_DESC_LEN+1]; /* description                       */
+    short conference;                  /* the qwk conference number         */
+    ushort flags;                      /* capability flags                  */
+    ushort status[USERNUM];            /* status flags, 1 per user          */
+    int retries;                       /* number of retires for file locking */
+    int timeout;                       /* timeout in seconds, between retries*/
+    int base;                          /* the base message number           */
+    int revision;                      /* the revision of this record       */
 } room_base_t;
 
 typedef struct _room_search_s {

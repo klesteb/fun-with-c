@@ -69,6 +69,9 @@ extern int bbs_msgs_menu(jam_t *, room_base_t *, error_trace_t *);
 
 /* bbs_utils */
 
+extern char *gdate(time_t, int);
+extern char *str_time_hm(time_t);
+extern char *str_time_hms(time_t);
 extern int bbs_load_file(char *, queue *, error_trace_t *);
 
 #endif

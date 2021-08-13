@@ -51,22 +51,20 @@ msgs.o: msgs.c $(INCS)
 	$(CC) $(CFLAGS) msgs.c
 	$(LIBR) $(LIBS)libroom.a msgs.o
 #
-#room_status.o: room_status.c $(INCS)
-#	$(CC) $(CFLAGS) room_status.c
-#	$(LIBR) $(LIBS)libroom.a room_status.o
+doors.o: doors.c $(INCS)
+	$(CC) $(CFLAGS) doors.c
+	$(LIBR) $(LIBS)libroom.a doors.o
 #
 man:
 	pod2man -c " " -r "room(3)" -s 3 room.pod room.3
 	pod2man -c " " -r "msgs(3)" -s 3 msgs.pod msgs.3
 	pod2man -c " " -r "handler(3)" -s 3 handler.pod handler.3
-#	pod2man -c " " -r "room status(3)" -s 3 room_status.pod room_status.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) room.o room.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) msgs.o msgs.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) handler.o handler.c
-	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) room_status.o rom_status.c
-	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) room.o msgs.o handler.o room_status.o
+	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) room.o msgs.o handler.o 
 #
 # eof
 #

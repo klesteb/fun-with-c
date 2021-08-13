@@ -13,8 +13,15 @@
 #ifndef _DOOR_H
 #define _DOOR_H
 
+#include "files/files.h"
+#include "tracer/tracer.h"
 #include "objects/object.h"
 #include "include/item_list.h"
+
+#include "bbs/src/room/room.h"
+#include "bbs/src/node/node.h"
+#include "bbs/src/user/user.h"
+#include "bbs/src/user/profile.h"
 
 /*-------------------------------------------------------------*/
 /* klass defination                                            */
@@ -28,10 +35,16 @@ struct _door_s {
     int (*dtor)(object_t *);
     int (*_compare)(door_t *, door_t *);
     int (*_override)(door_t *, item_list_t *);
+    int (*_open)(door_t *);
+    int (*_close)(door_t *);
+    int (*_remove)(door_t *);
+    int (*_run)(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t *, profile_base_t *);
 
+    ulong flags;
     int retries;
     int timeout;
     char *path;
+    char *command;
     files_t *control;
     tracer_t *trace;
 };
@@ -39,6 +52,10 @@ struct _door_s {
 /*-------------------------------------------------------------*/
 /* klass constants                                             */
 /*-------------------------------------------------------------*/
+
+#define DF_DOOR32   (1L<<1)
+#define DF_DOORSYS  (1L<<2)
+#define DF_DOORINFO (1L<<3)
 
 #define DOOR_K_PATH    1
 #define DOOR_K_TRACE   2
@@ -49,16 +66,20 @@ struct _door_s {
 
 #define DOOR_M_DESTRUCTOR 1
 
-
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern door_t *door_create(item_list_t *);
+extern door_t *door_create(char *, int, int, tracer_t *);
 extern int door_destroy(door_t *);
 extern int door_compare(door_t *, door_t *);
 extern int door_override(door_t *, item_list_t *);
-extern char *door_version(doory_t *);
+extern char *door_version(door_t *);
+
+extern int door_open(door_t *);
+extern int door_close(door_t *);
+extern int door_remove(door_t *);
+extern int door_run(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t *, profile_base_t *);
 
 #endif
 

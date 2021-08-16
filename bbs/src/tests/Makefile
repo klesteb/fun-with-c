@@ -150,7 +150,7 @@ user-test2: user-test2.o
 #
 door-test1: door-test1.o
 	$(CC) $(CFLAGS) door-test1.c
-	$(LINK) $(LOPTS) door-test1 door-test1.o $(OLBS)
+	$(LINK) $(LOPTS) door-test1 door-test1.o  ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 # eof
 #

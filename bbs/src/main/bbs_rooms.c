@@ -21,7 +21,7 @@ static int invite_into_room(room_base_t *room, user_base_t *user, error_trace_t 
 
     when_error_in {
 
-        if ((user->eternal < 1) || (user->eternal > usernum)) {
+        if ((user->eternal < 1) || (user->eternal > USERNUM)) {
 
             cause_error(EOVERFLOW);
 
@@ -57,7 +57,7 @@ static int remove_from_room(room_base_t *room, user_base_t *user, error_trace_t 
 
         if (is_aide(room, user)) {
 
-            if ((user->eternal < 1) || (user->eternal > usernum)) {
+            if ((user->eternal < 1) || (user->eternal > USERNUM)) {
 
                 cause_error(EOVERFLOW);
 
@@ -106,7 +106,7 @@ static int kill_room(room_base_t *room, user_base_t *user, error_trace_t *errors
             memset(room->description, '\0', 64);
 
             int x = 0;
-            for (; x < usernum; x++) {
+            for (; x < USERNUM; x++) {
 
                 room->status[x] = 0;
 
@@ -144,7 +144,7 @@ static int forget_room(room_base_t *room, user_base_t *user, error_trace_t *erro
 
         if (is_sysop(room, user)) {
 
-            if ((user->eternal < 1) || (user->eternal > usernum)) {
+            if ((user->eternal < 1) || (user->eternal > USERNUM)) {
 
                 cause_error(EOVERFLOW);
 
@@ -228,6 +228,7 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
     int room_index;
     jam_t *jam = NULL;
     error_trace_t error;
+    door_t *doors = NULL;
     room_base_t *room = NULL;
 
     when_error_in {

@@ -125,7 +125,7 @@ int is_forgotten(room_search_t *result, user_base_t *user) {
 fprintf(stderr, "entering is_forgetten()\n");
     when_error_in {
 
-        if ((user->eternal < 1) || (user->eternal > usernum)) {
+        if ((user->eternal < 1) || (user->eternal > USERNUM)) {
 
             cause_error(EOVERFLOW);
 
@@ -299,7 +299,7 @@ int can_create_room(user_base_t *user) {
 
     int stat = FALSE;
 
-    if (user->axlevel >= makeroom) {
+    if (user->axlevel >= MAKEROOM) {
 
         stat = TRUE;
 
@@ -313,7 +313,7 @@ int can_post_lobby(user_base_t *user) {
 
     int stat = FALSE;
 
-    if (user->axlevel >= lobbypost) {
+    if (user->axlevel >= LOBBYPOST) {
 
         stat = TRUE;
 

@@ -296,8 +296,8 @@ int door_run(door_t *self, node_base_t *node, room_base_t *room, user_base_t *sy
 
     when_error {
 
-        if ((self == NULL) && (room == NULL) && 
-            (sysop == NULL) && (user == NULL)) {
+        if ((self == NULL) || (room == NULL) || (node == NULL) ||
+            (sysop == NULL) || (user == NULL)) {
 
             cause_error(E_INVPARM);
 
@@ -458,6 +458,16 @@ int _door_override(door_t *self, item_list_t *items) {
 
             switch(items[x].item_code) {
                 case DOOR_M_DESTRUCTOR: {
+                    self->dtor = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case DOOR_M_REMOVE: {
+                    self->dtor = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case DOOR_M_RUN: {
                     self->dtor = items[x].buffer_address;
                     stat = OK;
                     break;
@@ -695,7 +705,7 @@ static int _write_doorinfo_def(door_t *self,
         stat = files_open(file, create, mode);
         check_return(stat, file);
 
-        stat = files_set_eol(file, "\012\013");
+        stat = files_set_eol(file, "\r\n");
         check_return(stat, file);
 
         /* line 1 - system name */
@@ -897,7 +907,7 @@ static int _write_door32_sys(door_t *self,
         stat = files_open(file, create, mode);
         check_return(stat, file);
 
-        stat = files_set_eol(file, "\012\013");
+        stat = files_set_eol(file, "\r\n");
         check_return(stat, file);
 
         /* line 1 - com port, 0=local, 1=serial, 2=telnet */
@@ -1058,7 +1068,7 @@ static int _write_door_sys(door_t *self,
         stat = files_open(file, create, mode);
         check_return(stat, file);
 
-        stat = files_set_eol(file, "\012\013");
+        stat = files_set_eol(file, "\r\n");
         check_return(stat, file);
 
         /* line 1 - com port */
@@ -1447,56 +1457,34 @@ static int _write_door_sys(door_t *self,
 
 static int _spawn(door_t *self) {
 
-    int	  rc, status;
-    pid_t pid;
-    char  *argv[4];
+    int	rc = 0;
+    pid_t pid = 0;
+    char *argv[4];
+    int status = 0;
     extern char **environ;
 
     pid = fork();
-    if (pid == -1)
-        return 1;
     if (pid == 0) {
-        msleep(150);
+
+        sleep(1);
         argv[0] = (char *)"sh";
         argv[1] = (char *)"-c";
         argv[2] = self->command;
         argv[3] = 0;
         execve("/bin/sh", argv, environ);
-        exit(MBERR_EXEC_FAILED);
+        exit(EXIT_FAILURE);
+
+    } else {
+
+        do {
+            
+            rc = waitpid(pid, &status, 0);
+
+        } while (rc != pid);
+
     }
 
-    do {
-
-        rc = waitpid(pid, &status, 0);
-
-    } while (((rc > 0) && (rc != pid)) || ((rc == -1) && (errno == EINTR)));
-
-    switch(rc) {
-	    case -1:
-		    WriteError("$Waitpid returned %d, status %d,%d", rc,status>>8,status&0xff);
-		    return -1;
-	    case 0:
-		    return 0;
-	    default:
-		    if (WIFEXITED(status)) {
-		        rc = WEXITSTATUS(status);
-		        if (rc) {
-                    WriteError("Exec_nosuid: returned error %d", rc);
-                    return rc;
-                }
-            }
-        
-            if (WIFSIGNALED(status)) {
-                rc = WTERMSIG(status);
-                WriteError("Wait stopped on signal %d", rc);
-                return rc;
-            }
-		    if (rc)
-		        WriteError("Wait stopped unknown, rc=%d", rc);
-		    return rc;      
-	    }
-
-	return 0;
+	return WEXITSTATUS(status);
 
 }
 

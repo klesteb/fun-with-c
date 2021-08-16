@@ -20,6 +20,7 @@
 #include "gpl/fnm_util.h"
 #include "objects/object.h"
 
+#include "bbs/src/door/door.h"
 #include "bbs/src/room/msgs.h"
 #include "bbs/src/room/room.h"
 #include "bbs/src/room/doors.h"
@@ -1921,8 +1922,8 @@ static int _attach_handler(room_t *self, room_base_t *room) {
             } else if (room->flags & RM_DIRECTORY) {
                 
             } else if (room->flags & RM_SUBSYS) {
-                
-                handler = doors_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
+
+                handler = door_create(room->path, room->retries, room->timeout, self->trace);
                 check_creation(handler);
 
             }

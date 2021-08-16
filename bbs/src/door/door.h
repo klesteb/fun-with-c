@@ -65,6 +65,8 @@ struct _door_s {
 #define DOOR(x) ((door_t *)(x))
 
 #define DOOR_M_DESTRUCTOR 1
+#define DOOR_M_REMOVE     2
+#define DOOR_M_RUN        3
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */

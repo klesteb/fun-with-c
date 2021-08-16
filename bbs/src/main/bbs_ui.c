@@ -320,7 +320,7 @@ int bbs_who(void *data, int size, error_trace_t *errors) {
         check_return(stat, nodes);
 
         line = spaces(80);
-        sprintf(line, "Active Nodes: %d/%d\n", que_size(&results), nodenum);
+        sprintf(line, "Active Nodes: %d/%d\n", que_size(&results), NODENUM);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -369,7 +369,7 @@ int bbs_who(void *data, int size, error_trace_t *errors) {
             if (result->action == NODE_OFFL) strcpy(action, "Node Offline");
 
             line = spaces(80);
-            snprintf(line, 80, "  %-5d  %-31s  %-31s\n", result->record, user.username, action);
+            snprintf(line, 80, "  %-5d  %-31s  %-31s\n", (int)result->record, user.username, action);
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -414,7 +414,6 @@ int bbs_who(void *data, int size, error_trace_t *errors) {
 
 int bbs_system(void *data, int size, error_trace_t *errors) {
 
-    int len = 0;
     queue lines;
     theme_t theme;
     int stat = OK;
@@ -441,7 +440,7 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "Serial #: %s\n", serialnum);
+        sprintf(line, "Serial #: %s\n", SERIALNUM);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -451,17 +450,17 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "This systems's nodename is      : %s\n", networknode);
+        sprintf(line, "This systems's nodename is      : %s\n", NODENAME);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "This system's human name is     : %s\n", humannode);
+        sprintf(line, "This system's human name is     : %s\n", HUMANNODE);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
         line = spaces(80);
-        sprintf(line, "This system is networked        : %s\n", (networked) ? yes : no);
+        sprintf(line, "This system is networked        : %s\n", (NETWORKED) ? yes : no);
         stat = que_push_tail(&lines, line);
         check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -477,27 +476,27 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
                 /* aides don't need to know the paths used by the system */
 
                 line = spaces(80);
-                sprintf(line, "The path to the bbs is          : %s\n", bbsdir);
+                sprintf(line, "The path to the bbs is          : %s\n", BBSDIR);
                 stat = que_push_tail(&lines, line);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
                 line = spaces(80);
-                sprintf(line, "The path to the messages is     : %s\n", msgpath);
+                sprintf(line, "The path to the messages is     : %s\n", MSGPATH);
                 stat = que_push_tail(&lines, line);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
                 line = spaces(80);
-                sprintf(line, "The path to the datastores is   : %s\n", datapath);
+                sprintf(line, "The path to the datastores is   : %s\n", DATAPATH);
                 stat = que_push_tail(&lines, line);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
                 line = spaces(80);
-                sprintf(line, "The path to the text files is   : %s\n", textpath);
+                sprintf(line, "The path to the text files is   : %s\n", TEXTPATH);
                 stat = que_push_tail(&lines, line);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
                 line = spaces(80);
-                sprintf(line, "The path to the work area is    : %s\n", workpath);
+                sprintf(line, "The path to the work area is    : %s\n", WORKPATH);
                 stat = que_push_tail(&lines, line);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -509,37 +508,17 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
             }
 
             line = spaces(80);
-            sprintf(line, "Minimum axlevel to create rooms : %d (%s)\n", makeroom, axdefs[makeroom]);
+            sprintf(line, "Minimum axlevel to create rooms : %d (%s)\n", MAKEROOM, axdefs[MAKEROOM]);
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
             line = spaces(80);
-            sprintf(line, "Minimum axlevel to post in lobby: %d (%s)\n", lobbypost, axdefs[lobbypost]);
+            sprintf(line, "Minimum axlevel to post in lobby: %d (%s)\n", LOBBYPOST, axdefs[LOBBYPOST]);
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
             line = spaces(80);
-            sprintf(line, "Initial new user access level   : %d (%s)\n", initax, axdefs[initax]);
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
-
-            line = spaces(80);
-            sprintf(line, "%s\n", " ");
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
-
-            line = spaces(80);
-            sprintf(line, "Automatic room aide assignment  : %s\n", (creataide) ? yes : no);
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
-
-            line = spaces(80);
-            sprintf(line, "Default user time limit         : %d (minutes)\n", timelim);
-            stat = que_push_tail(&lines, line);
-            check_status(stat, QUE_OK, E_NOQUEUE);
-
-            line = spaces(80);
-            sprintf(line, "Users are required to register  : %s\n", (regiscall) ? yes : no);
+            sprintf(line, "Initial new user access level   : %d (%s)\n", INITAX, axdefs[INITAX]);
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -549,17 +528,37 @@ int bbs_system(void *data, int size, error_trace_t *errors) {
             check_status(stat, QUE_OK, E_NOQUEUE);
 
             line = spaces(80);
-            sprintf(line, "Maximum rooms in the system     : %d\n", roomnum);
+            sprintf(line, "Automatic room aide assignment  : %s\n", (CREATAIDE) ? yes : no);
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
             line = spaces(80);
-            sprintf(line, "Maximum nodes in system         : %d\n", nodenum);
+            sprintf(line, "Default user time limit         : %d (minutes)\n", TIMELIM);
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
             line = spaces(80);
-            sprintf(line, "Maximum users in the system     : %d\n", usernum);
+            sprintf(line, "Users are required to register  : %s\n", (REGISCALL) ? yes : no);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "%s\n", " ");
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Maximum rooms in the system     : %d\n", ROOMNUM);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Maximum nodes in system         : %d\n", NODENUM);
+            stat = que_push_tail(&lines, line);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            line = spaces(80);
+            sprintf(line, "Maximum users in the system     : %d\n", USERNUM);
             stat = que_push_tail(&lines, line);
             check_status(stat, QUE_OK, E_NOQUEUE);
 
@@ -631,7 +630,7 @@ int bbs_help(void *data, int size, error_trace_t *errors) {
         len = (size > 255) ? 255 : size;
         strncpy(file, (char *)data, len);
 
-        fname = fnm_create(1, file, ".hlp", textpath, NULL);
+        fname = fnm_create(1, file, ".hlp", TEXTPATH, NULL);
 
         stat = bbs_load_file(fnm_path(fname), &lines, &error);
         check_status2(stat, OK, error);

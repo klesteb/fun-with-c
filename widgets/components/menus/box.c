@@ -142,7 +142,10 @@ int _box_menu_event(widget_t *widget, events_t *event) {
 
 component_t *box_menu_create(window_t *window, int startx, int starty, int height, int width, int tab, int (*display)(const char *, error_trace_t *), menus_list_t *list, int list_size) {
 
+    int x;
     int stat = OK;
+    int count = 0;
+    int length = 0;
     item_list_t items[2];
     component_t *self = NULL;
     menus_data_t *data = NULL;
@@ -152,9 +155,22 @@ component_t *box_menu_create(window_t *window, int startx, int starty, int heigh
         self = menus_create(window, startx, starty, height, width, tab, list, list_size);
         check_creation(self);
 
+        /* find the longest label */
+
+        count = (list_size / sizeof(menus_list_t));
+        for (x = 0; x < count; x++) {
+
+            if (strlen(list[x].label) > length) {
+
+                length = strlen(list[x].label);
+
+            }
+
+        }
+
         data = self->data;
-        data->col = width / 10;
-        data->row = height - 3;
+        data->col = width / length;
+        data->row = height;
         data->mark = ">";
         data->callback = display;
         data->options = (O_ONEVALUE | O_ROWMAJOR | O_IGNORECASE | O_SHOWMATCH);

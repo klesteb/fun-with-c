@@ -287,7 +287,7 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
     int startx = 0;
     int starty = 0;
     int height = 12;
-    int width  = 60;
+    int width  = 70;
     int list_size = 0;
     char *title = NULL;
     error_trace_t error;

@@ -1466,6 +1466,8 @@ static int _spawn(door_t *self) {
     pid = fork();
     if (pid == 0) {
 
+        /* child process */
+
         sleep(1);
         argv[0] = (char *)"sh";
         argv[1] = (char *)"-c";
@@ -1475,6 +1477,8 @@ static int _spawn(door_t *self) {
         exit(EXIT_FAILURE);
 
     } else {
+
+        /* parent process, waiting for the child */
 
         do {
             

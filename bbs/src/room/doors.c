@@ -31,16 +31,25 @@ require_klass(HANDLER_KLASS);
 
 int _doors_attach(handler_t *self, room_base_t *room) {
 
+    char name[7];
     int stat = OK;
     door_t *doors = NULL;
 
     when_error_in {
 
-        doors = door_create(room->path, room->retries, room->timeout, room->base, self->trace);
+        memset(name, '\0', 7);
+        snprintf(name, 6, "%05d", (int)room->conference);
+
+fprintf(stderr, "_doors_attach() - path: %s\n", room->path);
+fprintf(stderr, "_doors_attach() - name: %s\n", name);
+
+        doors = door_create(room->path, name, room->retries, room->timeout, self->trace);
         check_creation(doors);
+fprintf(stderr, "_doors_attach() - after doors_create()\n");
 
         stat = door_open(doors);
         check_return(stat, doors);
+fprintf(stderr, "_doors_attach() - after doors_open()\n");
 
         (*self).handle = (void *)doors;
 
@@ -62,13 +71,19 @@ int _doors_detach(handler_t *self) {
     int stat = OK;
     door_t *doors = (door_t *)self->handle;
 
+fprintf(stderr, "_doors_detach()\n");
+
     when_error_in {
 
-        stat = door_close(doors);
-        check_return(stat, doors);
+        if (doors != NULL) {
 
-        stat = door_destroy(doors);
-        check_return(stat, doors);
+            stat = door_close(doors);
+            check_return(stat, doors);
+
+            stat = door_destroy(doors);
+            check_return(stat, doors);
+
+        }
 
         (*self).handle = NULL;
 
@@ -90,13 +105,19 @@ int _doors_remove(handler_t *self) {
     int stat = OK;
     door_t *doors = (door_t *)self->handle;
 
+fprintf(stderr, "_doors_remove()\n");
+
     when_error_in {
 
-        stat = door_remove(doors);
-        check_return(stat, doors);
+        if (doors != NULL) {
 
-        stat = door_destroy(doors);
-        check_return(stat, doors);
+            stat = door_remove(doors);
+            check_return(stat, doors);
+
+            stat = door_destroy(doors);
+            check_return(stat, doors);
+
+        }
 
         exit_when;
 
@@ -115,6 +136,8 @@ int _doors_handle(handler_t *self, void **handle) {
 
     int stat = OK;
     door_t *doors = (door_t *)self->handle;
+
+fprintf(stderr, "_doors_handle()\n");
 
     when_error_in {
 

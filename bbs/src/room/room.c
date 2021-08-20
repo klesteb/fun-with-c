@@ -20,7 +20,7 @@
 #include "gpl/fnm_util.h"
 #include "objects/object.h"
 
-#include "bbs/src/door/door.h"
+#include "bbs/src/bitops.h"
 #include "bbs/src/room/msgs.h"
 #include "bbs/src/room/room.h"
 #include "bbs/src/room/doors.h"
@@ -92,17 +92,16 @@ declare_klass(ROOM_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-room_t *room_create(char *dbpath, char *msgpath, int rooms, int retries, int timeout, int base, tracer_t *dump) {
+room_t *room_create(char *dbpath, int rooms, int retries, int timeout, int base, tracer_t *dump) {
 
     int stat = ERR;
     room_t *self = NULL;
     item_list_t items[7];
 
-    SET_ITEM(items[0], ROOM_K_MSGBASE, msgpath, strlen(msgpath), NULL);
-    SET_ITEM(items[1], ROOM_K_DATABASE, dbpath, strlen(dbpath), NULL);
-    SET_ITEM(items[2], ROOM_K_RETRIES, &retries, sizeof(int), NULL);
-    SET_ITEM(items[3], ROOM_K_TIMEOUT, &timeout, sizeof(int), NULL);
-    SET_ITEM(items[4], ROOM_K_BASE, &base, sizeof(int), NULL);
+    SET_ITEM(items[0], ROOM_K_DATABASE, dbpath, strlen(dbpath), NULL);
+    SET_ITEM(items[1], ROOM_K_RETRIES, &retries, sizeof(int), NULL);
+    SET_ITEM(items[2], ROOM_K_TIMEOUT, &timeout, sizeof(int), NULL);
+    SET_ITEM(items[3], ROOM_K_BASE, &base, sizeof(int), NULL);
     SET_ITEM(items[4], ROOM_K_ROOMS, &rooms, sizeof(int), NULL);
     SET_ITEM(items[5], ROOM_K_TRACE, dump, 0, NULL);
     SET_ITEM(items[6], 0,0,0,0);
@@ -511,7 +510,7 @@ int room_handler(room_t *self, room_base_t *room, void **handle) {
 }
 
 int room_free(room_t *self, room_base_t *room) {
-    
+
     int stat = OK;
 
     when_error_in {
@@ -551,7 +550,6 @@ int _room_ctor(object_t *object, item_list_t *items) {
     int timeout = 1;
     int retries = 30;
     char status[256];
-    char msgbase[256];
     char database[256];
     char roombase[256];
     room_t *self = NULL;
@@ -561,11 +559,9 @@ int _room_ctor(object_t *object, item_list_t *items) {
 
         memset(seq, '\0', 256);
         memset(status, '\0', 256);
-        memset(msgbase, '\0', 256);
         memset(database, '\0', 256);
         memset(roombase, '\0', 256);
 
-        strcpy(msgbase, ".");
         strcpy(database, ".");
 
         /* capture our items */
@@ -579,12 +575,6 @@ int _room_ctor(object_t *object, item_list_t *items) {
                     (items[x].item_code == 0)) break;
 
                 switch(items[x].item_code) {
-                    case ROOM_K_MSGBASE: {
-                        memcpy(&msgbase, 
-                               items[x].buffer_address, 
-                               items[x].buffer_length);
-                        break;
-                    }
                     case ROOM_K_DATABASE: {
                         memcpy(&database, 
                                items[x].buffer_address, 
@@ -675,7 +665,6 @@ int _room_ctor(object_t *object, item_list_t *items) {
             self->locked = FALSE;
             self->retries = retries;
             self->timeout = timeout;
-            self->path = strdup(msgbase);
 
             strncpy(roombase, fnm_build(1, FnmPath, "rooms", ".dat", database, NULL), 255);
             self->roomdb = files_create(roombase, retries, timeout);
@@ -709,7 +698,6 @@ int _room_dtor(object_t *object) {
 
     _detach_handler(self);
 
-    free(self->path);
     files_close(self->roomdb);
     files_close(self->sequence);
 
@@ -885,7 +873,6 @@ int _room_compare(room_t *self, room_t *other) {
         (self->base == other->base) &&
         (self->retries == other->retries) &&
         (self->timeout == other->timeout) &&
-        (self->path == other->path) &&
         (self->handler == other->handler) &&
         (self->rooms = other->rooms) &&
         (self->roomdb = other->roomdb) &&
@@ -1211,6 +1198,8 @@ int _room_add(room_t *self, room_base_t *room) {
     ssize_t position = 0;
     ssize_t recsize = sizeof(room_base_t);
 
+fprintf(stderr, "_room_add()\n");
+
     when_error_in {
 
         stat = self->_first(self, &ondisk, &count);
@@ -1340,6 +1329,8 @@ int _room_get(room_t *self, int index, room_base_t **room) {
     ssize_t count = 0;
     room_base_t ondisk;
     off_t offset = ROOM_OFFSET(index);
+
+fprintf(stderr, "_room_get()\n");
 
     when_error_in {
 
@@ -1582,6 +1573,8 @@ int _room_find(room_t *self, void *data, int len, int (*compare)(void *, int, ro
     ssize_t count = 0;
     room_base_t ondisk;
 
+fprintf(stderr, "_room_find()\n");
+
     when_error_in {
 
         *index = 0;
@@ -1685,8 +1678,6 @@ int _room_extend(room_t *self, int amount) {
 
     when_error_in {
 
-        memset(&room, '\0', sizeof(room_base_t));
-
         room.aide = 0;
         room.flags = 0;
         room.conference = 0;
@@ -1694,14 +1685,13 @@ int _room_extend(room_t *self, int amount) {
         room.revision = revision;
         room.retries = self->retries;
         room.timeout = self->timeout;
-
+        memset(room.path, '\0', ROOM_PATH_LEN+1);
+        
         for (x = 0; x < USERNUM; x++) {
 
             room.status[x] = 0;
 
         }
-
-        strncpy(room.path, fnm_build(1, FnmPath, self->path, NULL), 255);
 
         stat = files_seek(self->roomdb, 0, SEEK_END);
         check_return(stat, self->roomdb);
@@ -1881,7 +1871,7 @@ static int _init_defaults(room_t *self) {
 
         /* create default message rooms */
 
-        msgs = msgs_create(self->roomdb, self->path, self->retries, self->timeout, self->base, self->trace);
+        msgs = msgs_create(self->roomdb, MSGPATH, self->retries, self->timeout, self->base, self->trace);
         check_creation(msgs);
 
         stat = handler_init(msgs);
@@ -1912,18 +1902,18 @@ static int _attach_handler(room_t *self, room_base_t *room) {
 
         if (handler == NULL) {
 
-            if (room->flags & RM_MESSAGES) {
+            if (bit_test(room->flags, RM_MESSAGES)) {
 
                 handler = msgs_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
                 check_creation(handler);
 
-            } else if (room->flags & RM_BULLETIN) {
+            } else if (bit_test(room->flags, RM_BULLETIN)) {
                 
-            } else if (room->flags & RM_DIRECTORY) {
+            } else if (bit_test(room->flags, RM_DIRECTORY)) {
                 
-            } else if (room->flags & RM_SUBSYS) {
+            } else if (bit_test(room->flags, RM_SUBSYS)) {
 
-                handler = door_create(room->path, room->retries, room->timeout, self->trace);
+                handler = doors_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
                 check_creation(handler);
 
             }
@@ -1969,6 +1959,8 @@ static int _remove_handler(room_t *self) {
 
         }
 
+        (*self).handler = NULL;
+
         exit_when;
 
     } use {
@@ -1983,7 +1975,7 @@ static int _remove_handler(room_t *self) {
 }
 
 static int _detach_handler(room_t *self) {
-    
+
     int stat = OK;
     handler_t *handler = (handler_t *)self->handler;
 
@@ -1997,9 +1989,9 @@ static int _detach_handler(room_t *self) {
             stat = handler_destroy(handler);
             check_return(stat, handler);
 
-            (*self).handler = NULL;
-
         }
+
+        (*self).handler = NULL;
 
         exit_when;
 

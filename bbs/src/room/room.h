@@ -127,7 +127,6 @@ struct _room_s {
     int locked;
     int retries;
     int timeout;
-    char *path;
     files_t *roomdb;
     files_t *sequence;
     tracer_t *trace;
@@ -179,7 +178,7 @@ struct _room_s {
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern room_t *room_create(char *, char *, int, int, int, int, tracer_t *);
+extern room_t *room_create(char *, int, int, int, int, tracer_t *);
 extern int room_destroy(room_t *);
 extern int room_compare(room_t *, room_t *);
 extern int room_override(room_t *, item_list_t *);

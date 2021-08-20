@@ -27,6 +27,7 @@
 #include "bbs/src/door/door.h"
 #include "bbs/src/main/bbs_config.h"
 #include "bbs/src/main/bbs_protos.h"
+#include "bbs/src/main/bbs_error_codes.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -68,17 +69,18 @@ declare_klass(DOOR_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-door_t *door_create(char *path, int retries, int timeout, tracer_t *dump) {
+door_t *door_create(char *path, char *name, int retries, int timeout, tracer_t *dump) {
 
     int stat = ERR;
     door_t *self = NULL;
     item_list_t items[5];
 
     SET_ITEM(items[0], DOOR_K_PATH, path, strlen(path), NULL);
-    SET_ITEM(items[1], DOOR_K_RETRIES, &retries, sizeof(int), NULL);
-    SET_ITEM(items[2], DOOR_K_TIMEOUT, &timeout, sizeof(int), NULL);
-    SET_ITEM(items[3], DOOR_K_TRACE, dump, 0, NULL);
-    SET_ITEM(items[4], 0, 0, 0, 0);
+    SET_ITEM(items[1], DOOR_K_NAME, name, strlen(name), NULL);
+    SET_ITEM(items[2], DOOR_K_RETRIES, &retries, sizeof(int), NULL);
+    SET_ITEM(items[3], DOOR_K_TIMEOUT, &timeout, sizeof(int), NULL);
+    SET_ITEM(items[4], DOOR_K_TRACE, dump, 0, NULL);
+    SET_ITEM(items[5], 0, 0, 0, 0);
 
     self = (door_t *)object_create(DOOR_KLASS, items, &stat);
 
@@ -325,6 +327,7 @@ int door_run(door_t *self, node_base_t *node, room_base_t *room, user_base_t *sy
 
 int _door_ctor(object_t *object, item_list_t *items) {
 
+    char name[32];
     char path[256];
     int stat = ERR;
     int timeout = 1;
@@ -334,6 +337,7 @@ int _door_ctor(object_t *object, item_list_t *items) {
 
     if (object != NULL) {
 
+        memset(name, '\0', 32);
         memset(path, '\0', 256);
 
         /* capture our items */
@@ -349,6 +353,12 @@ int _door_ctor(object_t *object, item_list_t *items) {
                 switch(items[x].item_code) {
                     case DOOR_K_PATH: {
                         memcpy(path, 
+                               items[x].buffer_address, 
+                               items[x].buffer_length);
+                        break;
+                    }
+                    case DOOR_K_NAME: {
+                        memcpy(name, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
@@ -402,8 +412,8 @@ int _door_ctor(object_t *object, item_list_t *items) {
             self->trace = dump;
             self->retries = retries;
             self->timeout = timeout;
-            self->path = strdup(path);
 
+            strncpy(path, fnm_build(1, FnmPath, name, ".ctl", path, NULL), 255);
             self->control = files_create(path, retries, timeout);
             check_creation(self->control);
 
@@ -429,7 +439,6 @@ int _door_dtor(object_t *object) {
 
     /* free local resources here */
 
-    free(self->path);
     free(self->command);
 
     files_close(self->control);
@@ -561,6 +570,10 @@ int _door_open(door_t *self) {
 
             }
 
+        } else {
+
+            cause_error(E_UNKFILE);
+
         }
 
         exit_when;
@@ -626,7 +639,9 @@ int _door_remove(door_t *self) {
 
 }
 
-int _door_run(door_t *self, node_base_t *node, room_base_t *room, user_base_t *sysop, user_base_t *user, profile_base_t *profile) {
+int _door_run(door_t *self, node_base_t *node, 
+              room_base_t *room, user_base_t *sysop, 
+              user_base_t *user, profile_base_t *profile) {
 
     int stat = OK;
 
@@ -669,12 +684,13 @@ int _door_run(door_t *self, node_base_t *node, room_base_t *room, user_base_t *s
 
 }
 
-static int _write_doorinfo_def(door_t *self, 
-                               node_base_t *node, 
-                               room_base_t *room, 
-                               user_base_t *sysop, 
-                               user_base_t *user, 
-                               profile_base_t *profile) {
+static int _write_doorinfo_def(
+    door_t *self, 
+    node_base_t *node, 
+    room_base_t *room, 
+    user_base_t *sysop, 
+    user_base_t *user, 
+    profile_base_t *profile) {
 
     int stat = OK;
     char temp2[37];
@@ -873,12 +889,13 @@ static int _write_doorinfo_def(door_t *self,
 
 }
 
-static int _write_door32_sys(door_t *self, 
-                             node_base_t *node, 
-                             room_base_t *room, 
-                             user_base_t *sysop, 
-                             user_base_t *user, 
-                             profile_base_t *profile) {
+static int _write_door32_sys(
+    door_t *self, 
+    node_base_t *node, 
+    room_base_t *room, 
+    user_base_t *sysop, 
+    user_base_t *user, 
+    profile_base_t *profile) {
 
     int stat = OK;
     int exists = 0;
@@ -1034,12 +1051,13 @@ static int _write_door32_sys(door_t *self,
 
 }
 
-static int _write_door_sys(door_t *self, 
-                           node_base_t *node, 
-                           room_base_t *room, 
-                           user_base_t *sysop, 
-                           user_base_t *user, 
-                           profile_base_t *profile) {
+static int _write_door_sys(
+    door_t *self, 
+    node_base_t *node, 
+    room_base_t *room, 
+    user_base_t *sysop, 
+    user_base_t *user, 
+    profile_base_t *profile) {
 
     int stat = OK;
     int exists = 0;
@@ -1459,36 +1477,65 @@ static int _spawn(door_t *self) {
 
     int	rc = 0;
     pid_t pid = 0;
+    int stat = OK;
     char *argv[4];
     int status = 0;
     extern char **environ;
+    int opts = (WUNTRACED | WCONTINUED);
 
-    pid = fork();
-    if (pid == 0) {
+    when_error_in {
 
-        /* child process */
+        errno = 0;
+        pid = fork();
 
-        sleep(1);
-        argv[0] = (char *)"sh";
-        argv[1] = (char *)"-c";
-        argv[2] = self->command;
-        argv[3] = 0;
-        execve("/bin/sh", argv, environ);
-        exit(EXIT_FAILURE);
+        if ((pid = -1)) cause_error(errno);
+        if ((pid == 0)) {
 
-    } else {
+            /* child process */
 
-        /* parent process, waiting for the child */
+            sleep(1);
+            argv[0] = (char *)"sh";
+            argv[1] = (char *)"-c";
+            argv[2] = self->command;
+            argv[3] = 0;
+            execve("/bin/sh", argv, environ);
+            exit(EXIT_FAILURE);
 
-        do {
-            
-            rc = waitpid(pid, &status, 0);
+        } else {
 
-        } while (rc != pid);
+            /* parent process, waiting for the child */
 
-    }
+            do {
 
-	return WEXITSTATUS(status);
+                errno = 0;
+                rc = waitpid(pid, &status, opts);
+                if ((rc = -1)) cause_error(errno);
+
+                if (WIFEXITED(status)) {
+
+                    if (WEXITSTATUS(status) > 0) {
+
+                        cause_error(E_DOOREXIT);
+
+                    }
+
+                }
+
+            } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(self->trace);
+        clear_error();
+
+    } end_when;
+
+	return stat;
 
 }
 

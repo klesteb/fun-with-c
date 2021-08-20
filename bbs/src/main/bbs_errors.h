@@ -27,7 +27,8 @@ error_code_t bbs_codes[] = {
     { E_UNKFILE,  "E_UNKFILE",  "Unknowm bbs file" },
     { E_NOTSYSOP, "E_NOTSYSOP", "User is not a sysop" },
     { E_NOTAIDE,  "E_NOTAIDE",  "User is not an aide" },
-    { E_TIMELMT,  "E_TIMELMT",  "User has exceeded their timelimit" }
+    { E_TIMELMT,  "E_TIMELMT",  "User has exceeded their timelimit" },
+    { E_DOOREXIT, "E_DOOREXIT", "There was a problem with the door" }
 };
 
 #endif

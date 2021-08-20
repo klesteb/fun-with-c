@@ -24,9 +24,9 @@ SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC
 #
 OLBS = $(STATIC) ../../../libs/libtracer.a ../../../libs/liberrors.a ../../../libs/librms.a ../../../libs/libfiles.a ../../../libs/libobjects.a ../../../libs/libcclibs.a ../../../libs/libgpl.a 
 #
-INCS = room.h handler.h msgs.h 
+INCS = room.h handler.h msgs.h doors.h
 #
-OBJS = room.o handler.o msgs.o 
+OBJS = room.o handler.o msgs.o doors.o
 #
 all: $(OBJS)
 #
@@ -58,13 +58,15 @@ doors.o: doors.c $(INCS)
 man:
 	pod2man -c " " -r "room(3)" -s 3 room.pod room.3
 	pod2man -c " " -r "msgs(3)" -s 3 msgs.pod msgs.3
+	pod2man -c " " -r "doors(3)" -s 3 doors.pod doors.3
 	pod2man -c " " -r "handler(3)" -s 3 handler.pod handler.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) room.o room.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) msgs.o msgs.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) doors.o doors.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) handler.o handler.c
-	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) room.o msgs.o handler.o 
+	$(LINK) $(SOPTS) $(LIBS)libroom.so.$(VERSION) $(OBJS)
 #
 # eof
 #

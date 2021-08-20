@@ -19,7 +19,7 @@
 #include "include/when.h"
 #include "gpl/fnm_util.h"
 #include "tracer/tracer.h"
-#include "include/errors.h"
+#include "errors/errors.h"
 #include "cclibs/que_util.h"
 #include "cclibs/misc/misc.h"
 
@@ -33,7 +33,8 @@ files_t *files;
 tracer_t *dump;
 errors_t *errs;
 
-int create_room(char *name, char *description, int area, int networked) {
+int create_room(char *name, char *description, int area, int flags, 
+                int networked, char *path) {
 
     int stat = OK;
     room_base_t temp;
@@ -47,8 +48,8 @@ int create_room(char *name, char *description, int area, int networked) {
         temp.conference = area;
         strncpy(temp.name, name, 31);
         strncpy(temp.description, description, 63);
-        temp.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
-        strncpy(temp.path, fnm_build(1, FnmPath, MSGPATH, NULL), 255);
+        temp.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | flags);
+        strncpy(temp.path, fnm_build(1, FnmPath, path, NULL), 255);
 
         if (networked) {
             
@@ -88,6 +89,7 @@ int process_file(char *path) {
     char name[255];
     char line[256];
     ssize_t count = 0;
+    char resource[256];
     int flags = O_RDONLY;
     char description[256];
     int networked = FALSE;
@@ -143,6 +145,36 @@ int process_file(char *path) {
 
             }
 
+            /* resource path */
+
+            stat = files_gets(files, resource, 255, &count);
+            check_return(stat, files);
+            if (count < 1) break;
+
+            /* room type */
+
+            stat = files_gets(files, line, 255, &count);
+            check_return(stat, files);
+            if (count < 1) break;
+
+            if (stricmp(line, "subsys") == 0) {
+
+                flags = RM_SUBSYS;
+
+            } else if (stricmp(line, "directory") == 0) {
+
+                flags = RM_DIRECTORY;
+
+            } else if (strcmp(line, "bulletin") == 0) {
+
+                flags = RM_BULLETIN;
+
+            } else {
+
+                flags = RM_MESSAGES;
+
+            }
+
             /* check to see if room doesn't already exist */
 
             stat = room_find(room, &area, sizeof(short), find_room_by_conference, &index);
@@ -150,13 +182,22 @@ int process_file(char *path) {
 
             if (index < 1) {
 
-                stat = create_room(name, description, area, networked);
+                stat = create_room(name, description, area, flags, networked, 
+                                   resource);
                 check_status(stat, OK, E_INVOPS);
 
                 printf("creating room: %s\n", name);
                 printf("  description: %s\n", description);
                 printf("   conference: %d\n", area);
                 printf("    networked: %d\n", networked);
+                printf("     resource: %s\n", resource);
+                printf("         type: ");
+
+                if (flags == RM_MESSAGES)  printf("message\n");
+                if (flags == RM_DIRECTORY) printf("directory\n");
+                if (flags == RM_BULLETIN)  printf("bulletin\n");
+                if (flags == RM_SUBSYS)    printf("subsys\n");
+
                 printf("--------------------------------\n");
 
             } else {

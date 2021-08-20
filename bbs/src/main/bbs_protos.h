@@ -67,6 +67,10 @@ extern int bbs_logout(void *, int, error_trace_t *);
 
 extern int bbs_msgs_menu(jam_t *, room_base_t *, error_trace_t *);
 
+/* bbs_doors */
+
+extern int bbs_doors(door_t *, room_base_t *, error_trace_t *);
+
 /* bbs_utils */
 
 extern char *gdate(time_t, int);

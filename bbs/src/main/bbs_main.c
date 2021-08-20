@@ -37,33 +37,7 @@ char *username = NULL;
 user_base_t useron;
 node_base_t qnode;
 
-/* config items -----------------------------------------------------------*/
-
-int base = MSGBASE;                 /* base message number                 */
-int xtimeout = TIMEOUT;             /* timeout for file locking            */
-int retries = RETRIES;              /* retires for file locking            */
-int roomnum = ROOMNUM;              /* max number of rooms                 */
-int nodenum = NODENUM;              /* max number of nodes                 */
-int usernum = USERNUM;              /* max number of users                 */
-int doornum = DOORNUM;              /* max number of doors                 */
-int networked = NETWORKED;          /* this system belongs to a network    */
-int creataide = CREATAIDE;          /* automatic room aide assignments     */
-int lobbypost = LOBBYPOST;          /* AX level to be able to post in lobby */
-int makeroom = MAKEROOM;            /* AX level to be create a new room    */ 
-int initax = INITAX;                /* AX level for new users              */
-int validax = VALIDAX;              /* AX level for validated users        */
-int regiscall = REGISCALL;          /* user must register on first call    */
-int timelim = TIMELIM;              /* default time limit on system        */
-char *bbsdir = BBSDIR;              /* root directory of the bbs           */
-char *datapath = DATAPATH;          /* where the data files are located    */
-char *msgpath = MSGPATH;            /* where the messages are located      */
-char *textpath = TEXTPATH;          /* where the text files are located    */
-char *workpath = WORKPATH;          /* work space                          */
-char *networknode = NODENAME;       /* network node name                   */
-char *humannode = HUMANNODE;        /* human readable node name            */
-char *serialnum = SERIALNUM;        /* system serial number                */
-
-/*-------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
 
 int bbs_init(error_trace_t *errors) {
     
@@ -169,16 +143,8 @@ char *bbs_version(void) {
 int setup(error_trace_t *errors) {
 
     int stat = OK;
-    FileName dpath;
-    FileName mpath;
 
     when_error_in {
-
-        dpath = fnm_create(1, datapath, NULL);
-        if (dpath == NULL) cause_error(E_UNKFILE);
-
-        mpath = fnm_create(1, msgpath, NULL);
-        if (mpath == NULL) cause_error(E_UNKFILE);
 
         /* setup error handling */
 
@@ -202,20 +168,17 @@ int setup(error_trace_t *errors) {
         events = event_create();
         check_creation(events);
 
-        rooms = room_create(fnm_directory(dpath), fnm_path(mpath), roomnum, retries, xtimeout, base, dump);
+        rooms = room_create(DATAPATH, ROOMNUM, RETRIES, TIMEOUT, MSGBASE, dump);
         check_creation(rooms);
 
-        users = user_create(fnm_directory(dpath), usernum, retries, xtimeout, dump);
+        users = user_create(DATAPATH, USERNUM, RETRIES, TIMEOUT, dump);
         check_creation(users);
 
-        profiles = profile_create(fnm_directory(dpath), usernum, retries, xtimeout, dump);
+        profiles = profile_create(DATAPATH, USERNUM, RETRIES, TIMEOUT, dump);
         check_creation(profiles);
 
-        nodes = node_create(fnm_directory(dpath), nodenum, retries, xtimeout, dump);
+        nodes = node_create(DATAPATH, NODENUM, RETRIES, TIMEOUT, dump);
         check_creation(nodes);
-
-        fnm_destroy(dpath);
-        fnm_destroy(mpath);
 
         exit_when;
 

@@ -43,7 +43,6 @@ struct _door_s {
     ulong flags;
     int retries;
     int timeout;
-    char *path;
     char *command;
     files_t *control;
     tracer_t *trace;
@@ -61,6 +60,7 @@ struct _door_s {
 #define DOOR_K_TRACE   2
 #define DOOR_K_RETRIES 3
 #define DOOR_K_TIMEOUT 4
+#define DOOR_K_NAME    5
 
 #define DOOR(x) ((door_t *)(x))
 
@@ -72,7 +72,7 @@ struct _door_s {
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern door_t *door_create(char *, int, int, tracer_t *);
+extern door_t *door_create(char *, char *, int, int, tracer_t *);
 extern int door_destroy(door_t *);
 extern int door_compare(door_t *, door_t *);
 extern int door_override(door_t *, item_list_t *);

@@ -257,6 +257,10 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
             stat = room_handler(rooms, room, (void **)&doors);
             check_return(stat, rooms);
 
+            stat = bbs_doors(doors, room, &error);
+            check_status2(stat, OK, error);
+
+            free(doors);
 
         }
 

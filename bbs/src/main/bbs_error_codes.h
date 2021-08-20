@@ -17,13 +17,14 @@
 /* error code constants                                        */
 /*-------------------------------------------------------------*/
 
-#define E_UNKUSER  9001
-#define E_UNKROOM  9002
-#define E_UNKNODE  9003
-#define E_UNKFILE  9004
-#define E_NOTSYSOP 9005
-#define E_NOTAIDE  9006
-#define E_TIMELMT  9007
+#define E_UNKUSER   9001
+#define E_UNKROOM   9002
+#define E_UNKNODE   9003
+#define E_UNKFILE   9004
+#define E_NOTSYSOP  9005
+#define E_NOTAIDE   9006
+#define E_TIMELMT   9007
+#define E_DOOREXIT  9008
 
 #endif
 

@@ -17,6 +17,7 @@
 #include "bbs/src/user/user.h"
 #include "bbs/src/finds/finds.h"
 #include "bbs/src/main/bbs_config.h"
+#include "bbs/src/main/bbs_errors.h"
 #include "bbs/src/main/bbs_error_codes.h"
 
 rms_t *nodes = NULL;
@@ -43,44 +44,37 @@ int setup(void) {
 
     int stat = OK;
     time_t laston;
-    FileName dpath;
-    FileName mpath;
     int nodenum = 1;
+    char *name = "00004";
     off_t user_index = 0;
     off_t qnode_index = 0;
     char username[LEN_NAME+1];
-    char *path = "../../doors/door1.ctl";
+    char *path = "../../doors";
 
     when_error_in {
-
-        dpath = fnm_create(1, DATAPATH, NULL);
-        if (dpath == NULL) cause_error(E_UNKFILE);
-
-        mpath = fnm_create(1, MSGPATH, NULL);
-        if (mpath == NULL) cause_error(E_UNKFILE);
 
         /* create resources */
 
         errs = errors_create();
         check_creation(errs);
 
+        stat = errors_load(errs, bbs_codes, sizeof(bbs_codes));
+        check_return(stat, errs);
+
         dump = tracer_create(errs);
         check_creation(dump);
 
-        rooms = room_create(fnm_directory(dpath), fnm_path(mpath), ROOMNUM, RETRIES, TIMEOUT, MSGBASE, dump);
+        rooms = room_create(DATAPATH, ROOMNUM, RETRIES, TIMEOUT, MSGBASE, dump);
         check_creation(rooms);
 
-        users = user_create(fnm_directory(dpath), USERNUM, RETRIES, TIMEOUT, dump);
+        users = user_create(DATAPATH, USERNUM, RETRIES, TIMEOUT, dump);
         check_creation(users);
 
-        nodes = node_create(fnm_directory(dpath), NODENUM, RETRIES, TIMEOUT, dump);
+        nodes = node_create(DATAPATH, NODENUM, RETRIES, TIMEOUT, dump);
         check_creation(nodes);
 
-        doors = door_create(path, RETRIES, TIMEOUT, dump);
+        doors = door_create(path, name, RETRIES, TIMEOUT, dump);
         check_creation(doors);
-
-        fnm_destroy(dpath);
-        fnm_destroy(mpath);
 
         /* open resources */
 

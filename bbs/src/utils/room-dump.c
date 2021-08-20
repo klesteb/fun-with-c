@@ -17,7 +17,7 @@
 #include "files/files.h"
 #include "include/when.h"
 #include "tracer/tracer.h"
-#include "include/errors.h"
+#include "errors/errors.h"
 #include "cclibs/que_util.h"
 #include "cclibs/misc/misc.h"
 

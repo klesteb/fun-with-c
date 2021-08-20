@@ -60,7 +60,7 @@ int _msgs_init(handler_t *self) {
         lobby.timeout = self->timeout;
         strcpy(lobby.description, "The general message area");
         lobby.flags = (RM_PERMROOM | RM_PUBLIC | RM_INUSE | RM_MESSAGES);
-        strncpy(lobby.path, fnm_build(1, FnmPath, self->path, NULL), 255);
+        strncpy(lobby.path, fnm_build(1, FnmPath, self->path, NULL), ROOM_PATH_LEN);
 
         for (x = 0; x < USERNUM; x++) {
 
@@ -90,7 +90,7 @@ int _msgs_init(handler_t *self) {
         email.timeout = self->timeout;
         strcpy(email.description, "Personal messages");
         email.flags = (RM_PERMROOM | RM_PRIVATE | RM_INUSE | RM_MESSAGES);
-        strncpy(email.path, fnm_build(1, FnmPath, self->path, NULL), 255);
+        strncpy(email.path, fnm_build(1, FnmPath, self->path, NULL), ROOM_PATH_LEN);
 
         for (x = 0; x < USERNUM; x++) {
 
@@ -120,7 +120,7 @@ int _msgs_init(handler_t *self) {
         aide.timeout = self->timeout;
         strcpy(aide.description, "Private aide messages");
         aide.flags = (RM_PERMROOM | RM_PRIVATE | RM_INUSE | RM_MESSAGES);
-        strncpy(aide.path, fnm_build(1, FnmPath, self->path, NULL), 255);
+        strncpy(aide.path, fnm_build(1, FnmPath, self->path, NULL), ROOM_PATH_LEN);
 
         for (x = 0; x < USERNUM; x++) {
 
@@ -192,11 +192,15 @@ int _msgs_detach(handler_t *self) {
 
     when_error_in {
 
-        stat = jam_close(jam);
-        check_return(stat, jam);
+        if (jam != NULL) {
 
-        stat = jam_destroy(jam);
-        check_return(stat, jam);
+            stat = jam_close(jam);
+            check_return(stat, jam);
+
+            stat = jam_destroy(jam);
+            check_return(stat, jam);
+
+        }
 
         (*self).handle = NULL;
 
@@ -220,11 +224,15 @@ int _msgs_remove(handler_t *self) {
 
     when_error_in {
 
-        stat = jam_remove(jam);
-        check_return(stat, jam);
+        if (jam != NULL) {
 
-        stat = jam_destroy(jam);
-        check_return(stat, jam);
+            stat = jam_remove(jam);
+            check_return(stat, jam);
+
+            stat = jam_destroy(jam);
+            check_return(stat, jam);
+
+        }
 
         exit_when;
 

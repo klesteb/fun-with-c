@@ -28,7 +28,7 @@ LOPTS = -o
 INCS = bbs_common.h bbs_includes.h bbs_config.h bbs_error_codes.h \
        bbs_errors.h  bbs_protos.h
 MODULES = bbs_main.o bbs_run.o bbs_access.o bbs_ipc.o bbs_logout.o \
-          bbs_rooms.o bbs_ui.o bbs_msgs.o bbs_utils.o
+          bbs_rooms.o bbs_ui.o bbs_msgs.o bbs_utils.o bbs_doors.o
 #
 OLBS = $(STATIC)
 #
@@ -72,6 +72,9 @@ bbs_utils.o: bbs_utils.c $(INCS)
 #
 bbs_logout.o: bbs_logout.c $(INCS)
 	$(CC) $(CFLAGS) bbs_logout.c
+#
+bbs_doors.o: bbs_doors.c $(INCS)
+	$(CC) $(CFLAGS) bbs_doors.c
 #
 # eof
 #

@@ -11,8 +11,9 @@ LINK = gcc
 LIBS = ../libs/
 OLIBS = ../../../libs/
 INCLUDE = -I ../../../
-STATIC = $(LIBS)libroom.a $(LIBS)libfinds.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
-         $(LIBS)libnode.a $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
+STATIC = $(LIBS)libroom.a $(LIBS)libdoor.a $(LIBS)libfinds.a \
+         $(LIBS)libjam.a $(LIBS)libqwk.a $(LIBS)libnode.a \
+         $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
          $(OLIBS)librms.a $(OLIBS)libfiles.a $(OLIBS)libobjects.a \
          $(OLIBS)libcclibs.a $(OLIBS)libgpl.a
 CFLAGS = -Wall -c $(INCLUDE) 
@@ -39,7 +40,7 @@ qwk-dump: qwk-dump.o
 #
 qwk-load: qwk-load.o
 	$(CC) $(CFLAGS) qwk-load.c
-	$(LINK) $(LOPTS) qwk-load qwk-load.o $(OLBS)
+	$(LINK) $(LOPTS) qwk-load qwk-load.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS) 
 #
 makekey: makekey.o
 	$(CC) $(CFLAGS) makekey.c
@@ -51,11 +52,11 @@ lcnames: lcnames.o
 #
 room-dump: room-dump.o
 	$(CC) $(CFLAGS) room-dump.c
-	$(LINK) $(LOPTS) room-dump room-dump.o $(OLBS)
+	$(LINK) $(LOPTS) room-dump room-dump.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 room-create: room-create.o
 	$(CC) $(CFLAGS) room-create.c
-	$(LINK) $(LOPTS) room-create room-create.o $(OLBS)
+	$(LINK) $(LOPTS) room-create room-create.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS) 
 #
 man:
 	pod2man -c " " -r "lcnames(3)" -s 3 lcnames.pod lcnames.3

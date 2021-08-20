@@ -25,7 +25,7 @@ TARGETS = jam-test1 jam-test2 jam-test3 jam-test4 jam-test5 jam-test6 \
           jam-test7 jam-test8 qwk-test1 qwk-test2 qwk-test3 qwk-test4 \
           qwk-test5 room-test1 room-test2 room-test3 room-test4 room-test5 \
           room-test6 room-test7 test1 node-test1 node-test2 node-test3 \
-          node-test4 user-test1 user-test2 door-test1
+          node-test4 user-test1 user-test2 door-test1 room-test8
 #
 all: $(TARGETS)
 #
@@ -98,31 +98,35 @@ qwk-test5: qwk-test5.o
 #
 room-test1: room-test1.o
 	$(CC) $(CFLAGS) room-test1.c
-	$(LINK) $(LOPTS) room-test1 room-test1.o $(OLBS)
+	$(LINK) $(LOPTS) room-test1 room-test1.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 room-test2: room-test2.o
 	$(CC) $(CFLAGS) room-test2.c
-	$(LINK) $(LOPTS) room-test2 room-test2.o $(OLBS)
+	$(LINK) $(LOPTS) room-test2 room-test2.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 room-test3: room-test3.o
 	$(CC) $(CFLAGS) room-test3.c
-	$(LINK) $(LOPTS) room-test3 room-test3.o $(OLBS)
+	$(LINK) $(LOPTS) room-test3 room-test3.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 room-test4: room-test4.o
 	$(CC) $(CFLAGS) room-test4.c
-	$(LINK) $(LOPTS) room-test4 room-test4.o $(OLBS)
+	$(LINK) $(LOPTS) room-test4 room-test4.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 room-test5: room-test5.o
 	$(CC) $(CFLAGS) room-test5.c
-	$(LINK) $(LOPTS) room-test5 room-test5.o $(OLBS)
+	$(LINK) $(LOPTS) room-test5 room-test5.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 room-test6: room-test6.o
 	$(CC) $(CFLAGS) room-test6.c
-	$(LINK) $(LOPTS) room-test6 room-test6.o $(OLBS)
+	$(LINK) $(LOPTS) room-test6 room-test6.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 room-test7: room-test7.o
 	$(CC) $(CFLAGS) room-test7.c
-	$(LINK) $(LOPTS) room-test7 room-test7.o $(OLBS)
+	$(LINK) $(LOPTS) room-test7 room-test7.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
+#
+room-test8: room-test8.o
+	$(CC) $(CFLAGS) room-test8.c
+	$(LINK) $(LOPTS) room-test8 room-test8.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 node-test1: node-test1.o
 	$(CC) $(CFLAGS) node-test1.c
@@ -150,7 +154,7 @@ user-test2: user-test2.o
 #
 door-test1: door-test1.o
 	$(CC) $(CFLAGS) door-test1.c
-	$(LINK) $(LOPTS) door-test1 door-test1.o  ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
+	$(LINK) $(LOPTS) door-test1 door-test1.o ../main/bbs_access.o ../main/bbs_utils.o $(OLBS)
 #
 # eof
 #

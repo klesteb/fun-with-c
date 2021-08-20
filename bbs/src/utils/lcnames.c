@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "include/errors.h"
+#include "errors/errors.h"
 #include "tracer/tracer.h"
 #include "gpl/fnm_util.h"
 #include "cclibs/misc/misc.h"

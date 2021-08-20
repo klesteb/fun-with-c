@@ -12,6 +12,7 @@
 #include "bbs/src/room/msgs.h"
 #include "bbs/src/room/room.h"
 #include "bbs/src/finds/finds.h"
+#include "bbs/src/main/bbs_config.h"
 
 room_t *room;
 tracer_t *dump;
@@ -46,13 +47,7 @@ int dump_trace(char *buffer) {
 
 int setup(void) {
 
-    int base = 1;
     int stat = OK;
-    int rooms = 32;
-    int timeout = 1;
-    int retries = 30;
-    char *dbpath = "../../data/";
-    char *msgpath = "../../messages/";
 
     when_error_in {
 
@@ -62,7 +57,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
+        room = room_create(DATAPATH, ROOMNUM, RETRIES, TIMEOUT, MSGBASE, dump);
         check_creation(room);
 
         exit_when;
@@ -92,7 +87,6 @@ int main(int argc, char **argv) {
     int stat = OK;
     int index = 0;
     room_base_t *temp;
-    ssize_t count = 0;
     short conference = 10;
 
     when_error_in {

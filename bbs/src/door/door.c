@@ -1485,15 +1485,12 @@ static int _spawn(door_t *self) {
 
     when_error_in {
 
-        errno = 0;
         pid = fork();
 
-        if ((pid = -1)) cause_error(errno);
         if ((pid == 0)) {
 
             /* child process */
 
-            sleep(1);
             argv[0] = (char *)"sh";
             argv[1] = (char *)"-c";
             argv[2] = self->command;
@@ -1509,7 +1506,7 @@ static int _spawn(door_t *self) {
 
                 errno = 0;
                 rc = waitpid(pid, &status, opts);
-                if ((rc = -1)) cause_error(errno);
+                if ((rc < 1)) cause_error(errno);
 
                 if (WIFEXITED(status)) {
 

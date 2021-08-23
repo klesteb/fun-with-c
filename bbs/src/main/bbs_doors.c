@@ -18,9 +18,8 @@
 int bbs_doors(door_t *doors, room_base_t *room, error_trace_t *errors) {
 
     int stat = OK;
-    int xsysop = SYSOP;
     user_base_t sysop;
-    off_t user_index = 0;
+    error_trace_t error;
     profile_base_t *profile = NULL;
 
 fprintf(stderr, "entering bbs_doors()\n");
@@ -36,6 +35,9 @@ fprintf(stderr, "entering bbs_doors()\n");
             check_return(stat, profile);
 
         }
+
+        stat = bbs_send_status(NODE_XTRN, &error);
+        check_status2(stat, OK, error);
 
         /* exit ncurses */
 

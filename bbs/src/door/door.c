@@ -50,6 +50,9 @@ int _door_run(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t
 /*----------------------------------------------------------------*/
 
 static int _spawn(door_t *);
+static int _remove_door_sys(door_t *);
+static int _remove_door32_sys(door_t *);
+static int _remove_doorinfo_def(door_t *);
 static int _write_door_sys(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t *, profile_base_t *);
 static int _write_door32_sys(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t *, profile_base_t *);
 static int _write_doorinfo_def(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t *, profile_base_t *);
@@ -644,8 +647,36 @@ int _door_run(door_t *self, node_base_t *node,
               user_base_t *user, profile_base_t *profile) {
 
     int stat = OK;
+    char nodenum[8];
+    char curdir[256];
+    char workdir[256];
 
     when_error_in {
+
+        /* save current directory */
+
+        memset(curdir, '\0', 255);
+
+        errno = 0;
+        if ((getcwd(curdir, 255)) == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        /* change to work directory */
+
+        memset(nodenum, '\0', 8);
+        memset(workdir, '\0', 256);
+
+        sprintf(nodenum, "%ld", node->nodenum);
+        strncpy(workdir, fnm_build(1, FnmPath, nodenum, WORKPATH, NULL), 255);
+
+        errno = 0;
+        stat = chdir(workdir);
+        check_status(stat, OK, errno);
+
+        /* write out the drop file */
 
         if (bit_test(self->flags, DF_DOORSYS)) {
 
@@ -668,8 +699,39 @@ int _door_run(door_t *self, node_base_t *node,
 
         }
 
+        /* run the door */
+
         stat = _spawn(self);
         check_return(stat, self);
+
+        /* remove the drop file */
+
+        if (bit_test(self->flags, DF_DOORSYS)) {
+
+            stat = _remove_door_sys(self);
+            check_return(stat, self);
+
+        } 
+
+        if (bit_test(self->flags, DF_DOOR32)) {
+
+            stat = _remove_door32_sys(self);
+            check_return(stat, self);
+
+        } 
+
+        if (bit_test(self->flags, DF_DOORINFO)) {
+
+            stat = _remove_doorinfo_def(self);
+            check_return(stat, self);
+
+        }
+
+        /* change back to original directory */
+
+        errno = 0;
+        stat = chdir(curdir);
+        check_status(stat, OK, errno);
 
         exit_when;
 
@@ -677,6 +739,123 @@ int _door_run(door_t *self, node_base_t *node,
 
         stat = ERR;
         process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _remove_door_sys(door_t *self) {
+
+    int stat = OK;
+    int exists = 0;
+    files_t *file = NULL;
+    char *filename = "door.sys";
+
+    when_error_in {
+
+        file = files_create(filename, self->retries, self->timeout);
+        check_creation(file);
+
+        stat = files_exists(file, &exists);
+        check_return(stat, file);
+
+        if (exists) {
+
+            stat = files_unlink(file);
+            check_return(stat, file);
+
+        }
+
+        stat = files_destroy(file);
+        check_return(stat, file);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(self->trace);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _remove_door32_sys(door_t *self) {
+
+    int stat = OK;
+    int exists = 0;
+    files_t *file = NULL;
+    char *filename = "door32.sys";
+
+    when_error_in {
+
+        file = files_create(filename, self->retries, self->timeout);
+        check_creation(file);
+
+        stat = files_exists(file, &exists);
+        check_return(stat, file);
+
+        if (exists) {
+
+            stat = files_unlink(file);
+            check_return(stat, file);
+
+        }
+
+        stat = files_destroy(file);
+        check_return(stat, file);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(self->trace);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _remove_doorinfo_def(door_t *self) {
+
+    int stat = OK;
+    int exists = 0;
+    files_t *file = NULL;
+    char *filename = "doorinfo1.def";
+
+    when_error_in {
+
+        file = files_create(filename, self->retries, self->timeout);
+        check_creation(file);
+
+        stat = files_exists(file, &exists);
+        check_return(stat, file);
+
+        if (exists) {
+
+            stat = files_unlink(file);
+            check_return(stat, file);
+
+        }
+
+        stat = files_destroy(file);
+        check_return(stat, file);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(self->trace);
+        clear_error();
 
     } end_when;
 

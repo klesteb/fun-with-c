@@ -22,8 +22,6 @@ int bbs_doors(door_t *doors, room_base_t *room, error_trace_t *errors) {
     error_trace_t error;
     profile_base_t *profile = NULL;
 
-fprintf(stderr, "entering bbs_doors()\n");
-
     when_error_in {
 
         stat = user_get(users, SYSOP, &sysop);
@@ -64,7 +62,6 @@ fprintf(stderr, "entering bbs_doors()\n");
 
     } end_when;
 
-fprintf(stderr, "leaving bbs_doors() - stat: %d\n", stat);
     return stat;
 
 }

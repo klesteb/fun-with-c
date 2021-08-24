@@ -1198,8 +1198,6 @@ int _room_add(room_t *self, room_base_t *room) {
     ssize_t position = 0;
     ssize_t recsize = sizeof(room_base_t);
 
-fprintf(stderr, "_room_add()\n");
-
     when_error_in {
 
         stat = self->_first(self, &ondisk, &count);
@@ -1329,8 +1327,6 @@ int _room_get(room_t *self, int index, room_base_t **room) {
     ssize_t count = 0;
     room_base_t ondisk;
     off_t offset = ROOM_OFFSET(index);
-
-fprintf(stderr, "_room_get()\n");
 
     when_error_in {
 
@@ -1572,8 +1568,6 @@ int _room_find(room_t *self, void *data, int len, int (*compare)(void *, int, ro
     int stat = OK;
     ssize_t count = 0;
     room_base_t ondisk;
-
-fprintf(stderr, "_room_find()\n");
 
     when_error_in {
 

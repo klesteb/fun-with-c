@@ -1,0 +1,826 @@
+#
+1000
+Door Test
+Door testing room
+false
+../../doors/door1.ctl
+subsys
+#
+2001
+General
+DOVE-Net General
+true
+../../messages/
+message
+#
+2002
+Advertisements
+DOVE-Net Advertisements
+true
+../../messages/
+message
+#
+2003
+Entertainment
+DOVE-Net Entertainment
+true
+../../messages/
+message
+#
+2004
+Debate
+DOVE-Net Debate
+true
+../../messages/
+message
+#
+2005
+Hardware/Software Help
+DOVE-Net Hardware/Software Help
+true
+../../messages/
+message
+#
+2006
+Programming
+DOVE-Net Programming
+true
+../../messages/
+message
+#
+2009
+Unix Discussion
+DOVE-Net Unix Discussion
+true
+../../messages/
+message
+#
+2015
+HAM Radio Operators
+DOVE-Net HAM Radio Operators
+true
+../../messages/
+message
+#
+2016
+Internet Discussion
+DOVE-Net Internet Discussion
+true
+../../messages/
+message
+#
+2017
+Pro-Audio Discussion
+DOVE-Net Pro-Audio Discussion
+true
+../../messages/
+message
+#
+2018
+Firearms Discussion
+DOVE-Net Firearms Discussion
+true
+../../messages/
+message
+#
+2019
+Sports Discussion
+DOVE-Net Sports Discussion
+true
+../../messages/
+message
+#
+2020
+Religious Discussion/Debate/Evangelism
+DOVE-Net Religious Discussion/Debate/Evangelism
+true
+../../messages/
+message
+#
+2021
+Hobby Corner (RC/modeling/etc)
+DOVE-Net Hobby Corner (RC/modeling/etc)
+true
+../../messages/
+message
+#
+2030
+Synchronet Announcements
+DOVE-Net Synchronet Announcements
+true
+../../messages/
+message
+#
+2007
+Synchronet Discussion
+DOVE-Net Synchronet Discussion
+true
+../../messages/
+message
+#
+2011
+Synchronet Programming (Baja)
+DOVE-Net Synchronet Programming (Baja)
+true
+../../messages/
+message
+#
+2012
+Synchronet Programming (JavaScript)
+DOVE-Net Synchronet Programming (JavaScript)
+true
+../../messages/
+message
+#
+2014
+Synchronet Programming (C/C++ and Git)
+DOVE-Net Synchronet Programming (C/C++ and Git)
+true
+../../messages/
+message
+#
+3001
+Politics Unlimited
+FidoNet Politics Unlimited
+true
+../../messages/
+message
+#
+3002
+AMATEUR RADIO / HAM RADIO
+FidoNet AMATEUR RADIO / HAM RADIO
+true
+../../messages/
+message
+#
+3003
+Apogee Support Conference
+FidoNet Apogee Support Conference
+true
+../../messages/
+message
+#
+3004
+Fishkeeping, fresh and marine tanks
+FidoNet Fishkeeping, fresh and marine tanks
+true
+../../messages/
+message
+#
+3005
+ADVERTISE and Promote YOUR BBS!
+FidoNet ADVERTISE and Promote YOUR BBS!
+true
+../../messages/
+message
+#
+3006
+BBS Software Chatter
+FidoNet BBS Software Chatter
+true
+../../messages/
+message
+#
+3007
+DOS/Win/OS2/Unix Internet BBS Applications
+FidoNet DOS/Win/OS2/Unix Internet BBS Applicatio
+true
+../../messages/
+message
+#
+3008
+The BBS Promotion "Team" Join Us!
+FidoNet The BBS Promotion "Team" Join Us!
+true
+../../messages/
+message
+#
+3009
+The ubiquitous BinkD TCP/IP FTN mailer
+FidoNet The ubiquitous BinkD TCP/IP FTN mailer
+true
+../../messages/
+message
+#
+3010
+BinkleyTerm Mailer Echo
+FidoNet BinkleyTerm Mailer Echo
+true
+../../messages/
+message
+#
+3011
+Fidonet General Chat Echo
+FidoNet Fidonet General Chat Echo
+true
+../../messages/
+message
+#
+3012
+Communications Echo
+FidoNet Communications Echo
+true
+../../messages/
+message
+#
+3013
+Conspiracy Discussions
+FidoNet Conspiracy Discussions
+true
+../../messages/
+message
+#
+3014
+National Cooking Echo
+FidoNet National Cooking Echo
+true
+../../messages/
+message
+#
+3015
+D'Bridge Support Echo
+FidoNet D'Bridge Support Echo
+true
+../../messages/
+message
+#
+3016
+DEBATE Conference
+FidoNet DEBATE Conference
+true
+../../messages/
+message
+#
+3017
+BBS Doorgames and discussions
+FidoNet BBS Doorgames and discussions
+true
+../../messages/
+message
+#
+3018
+EchoList Access Conference
+FidoNet EchoList Access Conference
+true
+../../messages/
+message
+#
+3019
+Advertise FidoNet Echos Here - New - Exi
+FidoNet Advertise FidoNet Echos Here - New - Exi
+true
+../../messages/
+message
+#
+3020
+FrontDoor/TosScan Support Conference
+FidoNet FrontDoor/TosScan Support Conference
+true
+../../messages/
+message
+#
+3021
+File Distribution Networks Files, Info,
+FidoNet File Distribution Networks Files, Info,
+true
+../../messages/
+message
+#
+3022
+The FastEcho Mailprocessor Support Conference
+FidoNet The FastEcho Mailprocessor Support Conference
+true
+../../messages/
+message
+#
+3023
+Announce files in this conference
+FidoNet Announce files in this conference
+true
+../../messages/
+message
+#
+3024
+FidoNews Discussion Echo
+FidoNet FidoNews Discussion Echo
+true
+../../messages/
+message
+#
+3025
+General discussion on Husky Software
+FidoNet General discussion on Husky Software
+true
+../../messages/
+message
+#
+3026
+Related SysOp Utils and Apps Discussions
+FidoNet Fidonet Related SysOp Utils and Apps Discussions
+true
+../../messages/
+message
+#
+3027
+ALLFIX International FILEFIND Echo
+FidoNet ALLFIX International FILEFIND Echo
+true
+../../messages/
+message
+#
+3028
+IFDC FileGate Project(sm) International
+FidoNet IFDC FileGate Project(sm) International
+true
+../../messages/
+message
+#
+3029
+FMAIL SUPPORT
+FidoNet FMAIL SUPPORT
+true
+../../messages/
+message
+#
+3030
+FidoNet Sysops
+FidoNet FidoNet Sysops
+true
+../../messages/
+message
+#
+3031
+Fidonet Technical Standards Committee Pu
+FidoNet Fidonet Technical Standards Committee Pu
+true
+../../messages/
+message
+#
+3032
+GoldED Public Release discussion.
+FidoNet GoldED Public Release discussion.
+true
+../../messages/
+message
+#
+3033
+Guitar/Bass Guitar Topics
+FidoNet Guitar/Bass Guitar Topics
+true
+../../messages/
+message
+#
+3034
+Amateur(HAM) Radio TECHnical Conference
+FidoNet Amateur(HAM) Radio TECHnical Conference
+true
+../../messages/
+message
+#
+3035
+Home Cooking and Related Topics
+FidoNet Home Cooking and Related Topics
+true
+../../messages/
+message
+#
+3036
+InterBBS Games
+FidoNet InterBBS Games
+true
+../../messages/
+message
+#
+3037
+For discussion of how to use the Internet
+FidoNet For discussion of how to use the Internet
+true
+../../messages/
+message
+#
+3038
+Internet Rex (FTN <=> Internet) Public S
+FidoNet Internet Rex (FTN <=> Internet) Public Support
+true
+../../messages/
+message
+#
+3039
+Linux operating system (OS), a Unix vari
+FidoNet Linux operating system (OS), a Unix vari
+true
+../../messages/
+message
+#
+3040
+Linux BBSing
+FidoNet Linux BBSing
+true
+../../messages/
+message
+#
+3041
+L.O.R.D. Door Game Discussion
+FidoNet L.O.R.D. Door Game Discussion
+true
+../../messages/
+message
+#
+3042
+Monty Python Conference
+FidoNet Monty Python Conference
+true
+../../messages/
+message
+#
+3043
+Music Discussion of All Types
+FidoNet Music Discussion of All Types
+true
+../../messages/
+message
+#
+3044
+NetWork Development Echo
+FidoNet FidoNet NetWork Development Echo
+true
+../../messages/
+message
+#
+3045
+International OS/2 Conference
+FidoNet Fidonet International OS/2 Conference
+true
+../../messages/
+message
+#
+3046
+Support For OS/2-Based BBS Software
+FidoNet Support For OS/2-Based BBS Software
+true
+../../messages/
+message
+#
+3047
+OS/2: DOS and Windows applications
+FidoNet OS/2: DOS and Windows applications
+true
+../../messages/
+message
+#
+3048
+Support for DOS-Based BBS Software Under
+FidoNet Support for DOS-Based BBS Software Under OS/2
+true
+../../messages/
+message
+#
+3049
+OS/2 Programming Echo
+FidoNet OS/2 Programming Echo
+true
+../../messages/
+message
+#
+3050
+OtherNets: Information on Networks other
+FidoNet OtherNets: Information on Networks other
+true
+../../messages/
+message
+#
+3051
+Pascal
+FidoNet Pascal
+true
+../../messages/
+message
+#
+3052
+Pascal Programming Lessons
+FidoNet Pascal Programming Lessons
+true
+../../messages/
+message
+#
+3053
+Programmers Distribution Network Echo
+FidoNet Programmers Distribution Network Echo
+true
+../../messages/
+message
+#
+3054
+Political Discussions
+FidoNet Political Discussions
+true
+../../messages/
+message
+#
+3055
+OS/2 User Groups and Promotion
+FidoNet OS/2 User Groups and Promotion
+true
+../../messages/
+message
+#
+3056
+Squish EchoMail Tosser, Help & Support
+FidoNet Squish EchoMail Tosser, Help & Support
+true
+../../messages/
+message
+#
+3057
+Windows95
+FidoNet Windows95
+true
+../../messages/
+message
+#
+3058
+Microsoft Windows International Echo
+FidoNet Microsoft Windows International Echo
+true
+../../messages/
+message
+#
+3059
+Zone One Mail Backbone - Users
+FidoNet Zone One Mail Backbone - Users
+true
+../../messages/
+message
+#
+3060
+MBSE Support
+FidoNet MBSE Support
+true
+../../messages/
+message
+#
+3061
+Maximus BBS Software Support
+FidoNet Maximus BBS Software Support
+true
+../../messages/
+message
+#
+3062
+Mystic Support
+FidoNet Mystic Support
+true
+../../messages/
+message
+#
+3063
+FIDOTEST
+FidoNet FIDOTEST
+true
+../../messages/
+message
+#
+3064
+The International BBBS Support Echo
+FidoNet The International BBBS Support Echo
+true
+../../messages/
+message
+#
+3065
+Renegade Software Discussion Area
+FidoNet Renegade Software Discussion Area
+true
+../../messages/
+message
+#
+3066
+WILDCAT! BBS Software Support
+FidoNet WILDCAT! BBS Software Support
+true
+../../messages/
+message
+#
+3067
+WWIV
+FidoNet WWIV
+true
+../../messages/
+message
+#
+3068
+FidoGazette: An Alternative Newsletter
+FidoNet FidoGazette: An Alternative Newsletter
+true
+../../messages/
+message
+#
+3069
+ZCC-Public
+FidoNet ZCC-Public
+true
+../../messages/
+message
+#
+3070
+CBM
+FidoNet CBM
+true
+../../messages/
+message
+#
+3071
+Future4Fido
+FidoNet Future4Fido
+true
+../../messages/
+message
+#
+3072
+PCBoard
+FidoNet PCBoard
+true
+../../messages/
+message
+#
+3073
+HAM
+FidoNet HAM
+true
+../../messages/
+message
+#
+3074
+UTF-8
+FidoNet UTF-8
+true
+../../messages/
+message
+#
+4001
+Chat, Testing + More..
+fsxNet Chat, Testing + More..
+true
+../../messages/
+message
+#
+4002
+Mystic BBS Support/Dev
+fsxNet Mystic BBS Support/Dev
+true
+../../messages/
+message
+#
+4003
+Cryptographics
+fsxNet Cryptographics
+true
+../../messages/
+message
+#
+4004
+Automated roBOT Posts
+fsxNet Automated roBOT Posts
+true
+../../messages/
+message
+#
+4005
+BBS Support/Dev
+fsxNet BBS Support/Dev
+true
+../../messages/
+message
+#
+4006
+Magicka BBS Support/Dev
+fsxNet Magicka BBS Support/Dev
+true
+../../messages/
+message
+#
+4007
+ENiGMA 1/2 BBS Support/Dev
+fsxNet ENiGMA 1/2 BBS Support/Dev
+true
+../../messages/
+message
+#
+4008
+Amateur Radio
+fsxNet Amateur Radio
+true
+../../messages/
+message
+#
+4009
+fsxNet Network Ops/Planning
+fsxNet fsxNet Network Ops/Planning
+true
+../../messages/
+message
+#
+4010
+Advertisements
+fsxNet Advertisements
+true
+../../messages/
+message
+#
+5001
+nix chat
+SciNet nix chat
+true
+../../messages/
+message
+#
+5002
+Art Scene
+SciNet Art Scene
+true
+../../messages/
+message
+#
+5003
+BBS Ads
+SciNet BBS Ads
+true
+../../messages/
+message
+#
+5004
+BBS Modding 
+SciNet BBS Modding
+true
+../../messages/
+message
+#
+5005
+BBS Software
+SciNet BBS Software
+true
+../../messages/
+message
+#
+5006
+Fantasy Chat
+SciNet Fantasy Chat
+true
+../../messages/
+message
+#
+5007
+Gaming
+SciNet Gaming
+true
+../../messages/
+message
+#
+5008
+General Chatter
+SciNet General Chatter
+true
+../../messages/
+message
+#
+5009
+Mystic BBS Support
+SciNet Mystic BBS Support
+true
+../../messages/
+message
+#
+5010
+OS Discussions
+SciNet OS Discussions
+true
+../../messages/
+message
+#
+5011
+Programming
+SciNet Programming
+true
+../../messages/
+message
+#
+5012
+Retro Gaming
+SciNet Retro Gaming
+true
+../../messages/
+message
+#
+5013
+Sci-Fi Chat
+SciNet Sci-Fi Chat
+true
+../../messages/
+message
+#
+5014
+Stats
+SciNet Stats
+true
+../../messages/
+message

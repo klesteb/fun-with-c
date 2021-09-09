@@ -1,9 +1,9 @@
 #
-1000
+4
 Door Test
 Door testing room
 false
-../../doors/door1.ctl
+../../doors/
 subsys
 #
 2001

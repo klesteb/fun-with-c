@@ -7,7 +7,7 @@
 # This procedure will rebuild cclibs.olb.
 #
 #
- ar -c libcclibs.a
+ ar -c ../libs/libcclibs.a
 #
  cd cfg
  echo "Making the CFG routines..."
@@ -40,5 +40,5 @@
  make -f Makefile.linux
 #
  cd ..
- ranlib libcclibs.a
+ ranlib ../libs/libcclibs.a
 #

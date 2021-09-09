@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "bplus/bplus.h"
 #include "include/when.h"
 #include "gpl/fnm_util.h"
 #include "gpl/str_util.h"
@@ -33,6 +34,7 @@
 qwk_t *qwk;
 jam_t *jam;
 room_t *room;
+IX_DESC dupes;
 tracer_t *dump;
 errors_t *errs;
 
@@ -67,6 +69,7 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
     int len;
     int offset;
+    ENTRY entry;
     queue fields;
     int stat = OK;
     char buffer[256];
@@ -85,6 +88,8 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         que_init(&fields);
         check_status(stat, QUE_OK, E_INVOPS);
+        
+        memset(&entry, '\0', sizeof(ENTRY));
 
         stat = jam_new_message(jam, &message);
         check_return(stat, jam);
@@ -201,11 +206,29 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
             strncpy(buffer, mid(text, offset + 8, len), 255);
             str_remove(len + 9, offset - 1, text);
 
-            stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
-            check_return(stat, jam);
+            /* dup checking is based on msgid          */
+            /* this assumes that msgid dosen't changed */
 
-            stat = que_push_tail(&fields, field6);
-            check_status(stat, QUE_OK, E_NOQUEUE);
+            entry.recptr = 0;
+            strncpy(entry.key, buffer, MAXKEY);
+
+            if (! find_key(&entry, &dupes)) {
+
+                stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
+                check_return(stat, jam);
+
+                stat = que_push_tail(&fields, field6);
+                check_status(stat, QUE_OK, E_NOQUEUE);
+
+                stat = add_key(&entry, &dupes);
+                check_status(stat, IX_OK, E_INVOPS);
+
+            } else {
+
+                fprintf(stderr, "MSGID: %s; is a duplicate, skipping\n", buffer);
+                goto fini;
+
+            }
 
         }
 
@@ -273,6 +296,7 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
         /* free resoures */
 
+        fini:
         free(message);
 
         while ((field = que_pop_head(&fields))) {
@@ -426,11 +450,8 @@ int dump_trace(char *buffer) {
 int setup(void) {
 
     int stat = OK;
-    int base = MSGBASE;
-    char msgs_path[256];
-    char room_path[256];
-    int timeout = TIMEOUT;
-    char retries = RETRIES;
+    char dupfile[256];
+    int mode = (R_OK | W_OK);
 
     when_error_in {
 
@@ -440,15 +461,30 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        qwk = qwk_create(qwk_path, retries, timeout, FALSE, dump);
+        qwk = qwk_create(qwk_path, RETRIES, TIMEOUT, FALSE, dump);
         check_creation(qwk);
 
-        strncpy(msgs_path, fnm_build(1, FnmPath, MSGPATH, NULL), 255);
-        strncpy(room_path, fnm_build(1, FnmPath, DATAPATH, NULL), 255);
-
-        room = room_create(room_path, msgs_path, retries, timeout, base, FALSE, dump);
+        room = room_create(DATAPATH, ROOMNUM, RETRIES, TIMEOUT, MSGBASE, dump);
         check_creation(room);
-        
+
+        strncpy(dupfile, fnm_build(1, FnmPath, "msgdupes", ".idx", DATAPATH, NULL), 255);
+
+        errno = 0;
+        stat = access(dupfile, mode);
+        if ((stat < 0) && (errno != ENOENT)) cause_error(errno);
+        if (stat == 0) {
+
+            stat = open_index(dupfile, &dupes, 0);
+            check_status(stat, IX_OK, E_INVOPS);
+
+        } else {
+
+            stat = make_index(dupfile, &dupes, 0);
+            check_status(stat, IX_OK, E_INVOPS);
+
+        }
+
+        stat = OK;
         exit_when;
 
     } use {
@@ -466,8 +502,8 @@ int setup(void) {
 void cleanup(void) {
 
     qwk_destroy(qwk);
-    jam_destroy(jam);
     room_destroy(room);
+    close_index(&dupes);
     tracer_destroy(dump);
     errors_destroy(errs);
 

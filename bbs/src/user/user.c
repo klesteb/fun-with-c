@@ -18,6 +18,7 @@
 #include "tracer/tracer.h"
 #include "include/item_list.h"
 
+#include "bbs/src/bitops.h"
 #include "bbs/src/user/user.h"
 #include "bbs/src/user/user_common.h"
 
@@ -39,7 +40,7 @@ int _user_add(rms_t *self, user_base_t *user) {
 
         while (count > 0) {
 
-            if (ondisk.flags & US_INACTIVE) {
+            if (bit_test(ondisk.flags, US_INACTIVE)) {
 
                 user->eternal = ondisk.eternal;
 
@@ -124,9 +125,9 @@ int _user_del(rms_t *self, off_t recnum) {
 
         }
 
-        if (! (ondisk.flags & US_PERM)) {
+        if (! (bit_test(ondisk.flags, US_PERM))) {
 
-            ondisk.flags |= US_DELETED;
+            bit_set(ondisk.flags, US_DELETED);
             ondisk.revision++;
 
             stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
@@ -179,8 +180,8 @@ int _user_extend(rms_t *self, int amount) {
         user.rows = 24;
         user.timelimit = 60;
         user.revision = revision;
-        user.flags |= US_INACTIVE;
         strcpy(user.term, "xterm");
+        bit_set(user.flags, US_INACTIVE);
         user.qwk = (QWK_FILES | QWK_ATTACH | QWK_EMAIL | QWK_DELMAIL);
 
         stat = files_seek(self->rmsdb, 0, SEEK_END);
@@ -466,12 +467,12 @@ rms_t *user_create(char *path, int records, int retries, int timeout, tracer_t *
         check_creation(self);
 
         SET_ITEM(items[0], RMS_M_ADD, _user_add, 0, NULL);
-        SET_ITEM(items[1], RMS_M_BUILD, _user_build, 0, NULL);
-        SET_ITEM(items[2], RMS_M_DEL, _user_del, 0, NULL);
-        SET_ITEM(items[3], RMS_M_EXTEND, _user_extend, 0, NULL);
-        SET_ITEM(items[4], RMS_M_INIT, _user_init, 0, NULL);
-        SET_ITEM(items[5], RMS_M_NORMALIZE, _user_normalize, 0, NULL);
-        SET_ITEM(items[6], RMS_M_PUT, _user_put, 0, NULL);
+        SET_ITEM(items[1], RMS_M_DEL, _user_del, 0, NULL);
+        SET_ITEM(items[2], RMS_M_PUT, _user_put, 0, NULL);
+        SET_ITEM(items[3], RMS_M_INIT, _user_init, 0, NULL);
+        SET_ITEM(items[4], RMS_M_BUILD, _user_build, 0, NULL);
+        SET_ITEM(items[5], RMS_M_EXTEND, _user_extend, 0, NULL);
+        SET_ITEM(items[6], RMS_M_NORMALIZE, _user_normalize, 0, NULL);
         SET_ITEM(items[7], 0, 0, 0, 0);
 
         stat = rms_override(self, items);

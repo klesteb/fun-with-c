@@ -26,7 +26,9 @@
 #include "bbs/src/bitops.h"
 #include "bbs/src/room/room.h"
 #include "bbs/src/finds/finds.h"
+#include "bbs/src/main/bbs_errors.h"
 #include "bbs/src/main/bbs_config.h"
+#include "bbs/src/main/bbs_error_codes.h"
 
 room_t *room;
 files_t *files;
@@ -189,7 +191,18 @@ int process_file(char *path) {
                 printf("creating room: %s\n", name);
                 printf("  description: %s\n", description);
                 printf("   conference: %d\n", area);
-                printf("    networked: %d\n", networked);
+                printf("    networked: "); 
+
+                if (networked) {
+
+                    printf("true\n");
+
+                } else {
+
+                    printf("false\n");
+
+                }
+
                 printf("     resource: %s\n", resource);
                 printf("         type: ");
 
@@ -237,8 +250,6 @@ int setup(void) {
 
     int stat = OK;
     int base = MSGBASE;
-    char msgs_path[256];
-    char room_path[256];
     int timeout = TIMEOUT;
     char retries = RETRIES;
 
@@ -247,13 +258,13 @@ int setup(void) {
         errs = errors_create();
         check_creation(errs);
 
+        stat = errors_load(errs, bbs_codes, sizeof(bbs_codes));
+        check_return(stat, errs);
+
         dump = tracer_create(errs);
         check_creation(dump);
 
-        strncpy(msgs_path, fnm_build(1, FnmPath, MSGPATH, NULL), 255);
-        strncpy(room_path, fnm_build(1, FnmPath, DATAPATH, NULL), 255);
-
-        room = room_create(room_path, msgs_path, retries, timeout, base, FALSE, dump);
+        room = room_create(DATAPATH, ROOMNUM, retries, timeout, base, dump);
         check_creation(room);
 
         exit_when;

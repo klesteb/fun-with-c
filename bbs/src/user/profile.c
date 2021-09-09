@@ -18,6 +18,7 @@
 #include "tracer/tracer.h"
 #include "include/item_list.h"
 
+#include "bbs/src/bitops.h"
 #include "bbs/src/user/profile.h"
 #include "bbs/src/user/user_common.h"
 
@@ -39,7 +40,7 @@ int _profile_add(rms_t *self, profile_base_t *profile) {
 
         while (count > 0) {
 
-            if (ondisk.flags & PF_DELETED) {
+            if (bit_test(ondisk.flags, PF_DELETED)) {
 
                 stat = self->_put(self, self->record, profile);
                 check_return(stat, self);
@@ -117,7 +118,7 @@ int _profile_del(rms_t *self, off_t recnum) {
 
         }
 
-        ondisk.flags |= PF_DELETED;
+        bit_set(ondisk.flags, PF_DELETED);
         memset(&ondisk.name, '\0', LEN_NAME+1);
         memset(&ondisk.addr1, '\0', LEN_ADDRESS+1);
         memset(&ondisk.addr2, '\0', LEN_ADDRESS+1);

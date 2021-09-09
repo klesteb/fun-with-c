@@ -23,7 +23,8 @@ OBJS = dates.o fmtasc.o left.o ltrim.o mid.o xinstr.o xindex.o \
        convert_left_overpunch.o convert_right_overpunch.o  \
        create_dibol_overpunch.o create_zone_overpunch.o  \
        create_left_overpunch.o create_right_overpunch.o  \
-       format_zone.o wordwrap.o xgetline.o crc.o hash.o
+       format_zone.o wordwrap.o xgetline.o crc.o hash.o xgetch.o \
+       getche.o
 #
 all: $(OBJS)
 #
@@ -32,6 +33,7 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f $(LIBS)
 #
 dates.o: dates.c dates.h
 	$(CC) $(CFLAGS) dates.c
@@ -192,6 +194,14 @@ hash.o: hash.c
 stripcr.o: stripcr.c
 	$(CC) $(CFLAGS) stripcr.c
 	$(LIBR) $(OLBS) stripcr.o
+#
+xgetch.o: xgetch.c
+	$(CC) $(CFLAGS) xgetch.c
+	$(LIBR) $(OLBS) xgetch.o
+#
+getche.o: getche.c
+	$(CC) $(CFLAGS) getche.c
+	$(LIBR) $(OLBS) getche.o
 #
 # eof
 #

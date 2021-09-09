@@ -15,7 +15,7 @@ STATIC = $(LIBS)libroom.a $(LIBS)libdoor.a $(LIBS)libfinds.a \
          $(LIBS)libjam.a $(LIBS)libqwk.a $(LIBS)libnode.a \
          $(OLIBS)libtracer.a $(OLIBS)liberrors.a \
          $(OLIBS)librms.a $(OLIBS)libfiles.a $(OLIBS)libobjects.a \
-         $(OLIBS)libcclibs.a $(OLIBS)libgpl.a
+         $(OLIBS)libbplus.a $(OLIBS)libcclibs.a $(OLIBS)libgpl.a
 CFLAGS = -Wall -c $(INCLUDE) 
 LFLAGS =
 LOPTS = -o 

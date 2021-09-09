@@ -84,12 +84,6 @@ int dump_trace(char *buffer) {
 int setup(void) {
 
     int stat = OK;
-    int base = MSGBASE;
-    int rooms = ROOMNUM;
-    int timeout = TIMEOUT;
-    int retries = RETRIES;
-    char *dbpath = DATAPATH;
-    char *msgpath = MSGPATH;
 
     when_error_in {
 
@@ -99,7 +93,7 @@ int setup(void) {
         dump = tracer_create(errs);
         check_creation(dump);
 
-        room = room_create(dbpath, msgpath, rooms, retries, timeout, base, dump);
+        room = room_create(DATAPATH, ROOMNUM, RETRIES, TIMEOUT, MSGBASE, dump);
         check_creation(room);
 
         exit_when;

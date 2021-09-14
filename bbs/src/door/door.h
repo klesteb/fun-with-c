@@ -13,7 +13,7 @@
 #ifndef _DOOR_H
 #define _DOOR_H
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "tracer/tracer.h"
 #include "objects/object.h"
 #include "include/item_list.h"

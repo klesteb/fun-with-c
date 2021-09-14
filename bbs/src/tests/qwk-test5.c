@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "rms/files.h"
 #include "include/when.h"
-#include "files/files.h"
 #include "errors/errors.h"
 #include "tracer/tracer.h"
 #include "cclibs/misc/misc.h"

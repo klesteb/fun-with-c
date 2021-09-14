@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "include/when.h"
 #include "objects/object.h"
 #include "include/error_codes.h"

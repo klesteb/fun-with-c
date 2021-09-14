@@ -13,8 +13,8 @@ OLIBS = ../../../libs/
 INCLUDE = -I ../../../
 STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(LIBS)libfinds.a $(LIBS)libdoor.a $(OLIBS)librms.a \
-         $(OLIBS)libtracer.a $(OLIBS)liberrors.a $(OLIBS)libfiles.a \
-         $(OLIBS)libobjects.a $(OLIBS)libcclibs.a $(OLIBS)libgpl.a
+         $(OLIBS)libtracer.a $(OLIBS)liberrors.a $(OLIBS)libobjects.a \
+         $(OLIBS)libcclibs.a $(OLIBS)libgpl.a
 CFLAGS = -Wall -c $(INCLUDE) 
 LFLAGS =
 LOPTS = -o 

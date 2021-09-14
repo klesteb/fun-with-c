@@ -13,12 +13,12 @@
 #ifndef _JAM_H
 #define _JAM_H
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "tracer/tracer.h"
 #include "objects/object.h"
 #include "include/item_list.h"
 #include "include/error_code.h"
-#include "bbs/src/datatypes.h"
+#include "include/data_types.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

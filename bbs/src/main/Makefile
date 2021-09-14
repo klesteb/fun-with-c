@@ -19,8 +19,8 @@ INCLUDE = -I../../../
 STATIC = $(LIBS)libuser.a $(LIBS)libroom.a $(LIBS)libjam.a $(LIBS)libqwk.a  \
          $(LIBS)libnode.a $(LIBS)libfinds.a $(LIBS)libdoor.a \
          $(OLIBS)libevent.a $(OLIBS)librms.a $(OLIBS)libtracer.a \
-         $(OLIBS)liberrors.a $(OLIBS)libfiles.a $(OLIBS)libwidgets.a \
-         $(OLIBS)libobjects.a $(OLIBS)libcclibs.a $(OLIBS)libgpl.a \
+         $(OLIBS)liberrors.a $(OLIBS)libwidgets.a $(OLIBS)libobjects.a \
+         $(OLIBS)libcclibs.a $(OLIBS)libgpl.a \
          -lpanel -lmenu -lncurses
 CFLAGS = -Wall -DVERSION=\"$(VERSION)\" -c $(INCLUDE) 
 LFLAGS =

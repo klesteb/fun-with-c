@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "include/when.h"
 #include "tracer/tracer.h"
 #include "errors/errors.h"

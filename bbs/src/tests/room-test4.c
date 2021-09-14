@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "gpl/fnm_util.h"
 #include "include/when.h"
 #include "tracer/tracer.h"

@@ -20,7 +20,7 @@
 
 #include "include/when.h"
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "gpl/fnm_util.h"
 #include "events/event.h"
 #include "errors/errors.h"

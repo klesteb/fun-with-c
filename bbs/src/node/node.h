@@ -15,8 +15,7 @@
 
 #include "rms/rms.h"
 #include "tracer/tracer.h"
-
-#include "bbs/src/datatypes.h"
+#include "include/data_types.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

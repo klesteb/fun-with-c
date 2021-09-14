@@ -13,7 +13,7 @@
 #ifndef _HANDLER_H
 #define _HANDLER_H
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "tracer/tracer.h"
 #include "objects/object.h"
 #include "include/item_list.h"

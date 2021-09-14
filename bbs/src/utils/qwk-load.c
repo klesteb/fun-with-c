@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "bplus/bplus.h"
+#include "rms/btree.h"
 #include "include/when.h"
 #include "gpl/fnm_util.h"
 #include "gpl/str_util.h"
@@ -31,10 +31,10 @@
 #include "bbs/src/finds/finds.h"
 #include "bbs/src/main/bbs_config.h"
 
+BtDb *bt;
 qwk_t *qwk;
 jam_t *jam;
 room_t *room;
-IX_DESC dupes;
 tracer_t *dump;
 errors_t *errs;
 
@@ -69,9 +69,10 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
     int len;
     int offset;
-    ENTRY entry;
+    /* ENTRY entry; */
     queue fields;
     int stat = OK;
+    time_t tod[1];
     char buffer[256];
     jam_field_t *field = NULL;
     jam_field_t *field1 = NULL;
@@ -89,7 +90,7 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
         que_init(&fields);
         check_status(stat, QUE_OK, E_INVOPS);
         
-        memset(&entry, '\0', sizeof(ENTRY));
+        /* memset(&entry, '\0', sizeof(ENTRY)); */
 
         stat = jam_new_message(jam, &message);
         check_return(stat, jam);
@@ -208,11 +209,8 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
             /* dup checking is based on msgid          */
             /* this assumes that msgid dosen't changed */
-
-            entry.recptr = 0;
-            strncpy(entry.key, buffer, MAXKEY);
-
-            if (! find_key(&entry, &dupes)) {
+                
+            if (! bt_findkey(bt, (unsigned char *)buffer, strlen(buffer))) {
 
                 stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
                 check_return(stat, jam);
@@ -220,8 +218,13 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
                 stat = que_push_tail(&fields, field6);
                 check_status(stat, QUE_OK, E_NOQUEUE);
 
-                stat = add_key(&entry, &dupes);
-                check_status(stat, IX_OK, E_INVOPS);
+                time(tod);
+                if (bt_insertkey(bt, (unsigned char *)buffer, strlen(buffer), 0, 0, *tod)) {
+
+                    fprintf(stderr, "Error %d\n", bt->err);
+                    goto fini;
+
+                }
 
             } else {
 
@@ -449,9 +452,11 @@ int dump_trace(char *buffer) {
 
 int setup(void) {
 
+    uint map = 0;
     int stat = OK;
+    int bits = 12;
     char dupfile[256];
-    int mode = (R_OK | W_OK);
+    /* int mode = (R_OK | W_OK); */
 
     when_error_in {
 
@@ -470,19 +475,23 @@ int setup(void) {
         strncpy(dupfile, fnm_build(1, FnmPath, "msgdupes", ".idx", DATAPATH, NULL), 255);
 
         errno = 0;
-        stat = access(dupfile, mode);
-        if ((stat < 0) && (errno != ENOENT)) cause_error(errno);
-        if (stat == 0) {
+        bt = bt_open(dupfile, BT_rw, bits, map);
+        if (bt == NULL) cause_error(errno);
 
-            stat = open_index(dupfile, &dupes, 0);
-            check_status(stat, IX_OK, E_INVOPS);
+        /* errno = 0; */
+        /* stat = access(dupfile, mode); */
+        /* if ((stat < 0) && (errno != ENOENT)) cause_error(errno); */
+        /* if (stat == 0) { */
 
-        } else {
+        /*     stat = open_index(dupfile, &dupes, 0); */
+        /*     check_status(stat, IX_OK, E_INVOPS); */
 
-            stat = make_index(dupfile, &dupes, 0);
-            check_status(stat, IX_OK, E_INVOPS);
+        /* } else { */
 
-        }
+        /*     stat = make_index(dupfile, &dupes, 0); */
+        /*     check_status(stat, IX_OK, E_INVOPS); */
+
+        /* } */
 
         stat = OK;
         exit_when;
@@ -501,9 +510,9 @@ int setup(void) {
 
 void cleanup(void) {
 
+    bt_close(bt);
     qwk_destroy(qwk);
     room_destroy(room);
-    close_index(&dupes);
     tracer_destroy(dump);
     errors_destroy(errs);
 

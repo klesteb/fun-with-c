@@ -13,15 +13,15 @@
 #ifndef _ROOM_H
 #define _ROOM_H
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "tracer/tracer.h"
 #include "objects/object.h"
 #include "cclibs/que_util.h"
 #include "include/item_list.h"
 #include "include/error_code.h"
+#include "include/data_types.h"
 
 #include "bbs/src/jam/jam.h"
-#include "bbs/src/datatypes.h"
 #include "bbs/src/main/bbs_config.h"
 #include "bbs/src/room/room_common.h"
 

@@ -14,7 +14,7 @@
 #include <errno.h>
 
 #include "rms/rms.h"
-#include "files/files.h"
+#include "rms/files.h"
 #include "include/when.h"
 #include "gpl/fnm_util.h"
 #include "objects/object.h"

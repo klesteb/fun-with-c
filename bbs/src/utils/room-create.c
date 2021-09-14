@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "include/when.h"
 #include "gpl/fnm_util.h"
 #include "tracer/tracer.h"

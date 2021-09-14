@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "include/when.h"
 #include "objects/object.h"
 #include "cclibs/misc/misc.h"

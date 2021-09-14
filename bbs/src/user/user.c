@@ -13,7 +13,7 @@
 #include <errno.h>
 
 #include "rms/rms.h"
-#include "files/files.h"
+#include "rms/files.h"
 #include "include/when.h"
 #include "tracer/tracer.h"
 #include "include/item_list.h"

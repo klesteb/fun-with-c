@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "include/when.h"
 #include "errors/errors.h"
 #include "tracer/tracer.h"

@@ -16,7 +16,7 @@
 #include "include/when.h"
 #include "include/error_codes.h"
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "gpl/fnm_util.h"
 #include "objects/object.h"
 

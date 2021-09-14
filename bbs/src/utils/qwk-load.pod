@@ -15,7 +15,7 @@ This program is used load a qwk message packet into the xa-bbs message
 store. The qwk conference is checked against the rooms of the bbs. If
 a room dosen't match, the conference is skipped. 
 
-The file B<msgdupes.idx> located in the data directory, is used for duplicate 
+The file B<msgdupes.idx>, located in the data directory, is used for duplicate 
 message detection. Duplicate detection is based on the msgid of the message. 
 The msgid is a Synchronet BBS QWK networking extension. Additional extensions 
 are discussed here: L<QWK Extensions|http://wiki.synchro.net/ref:qwknet>.

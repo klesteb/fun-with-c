@@ -16,14 +16,13 @@
 #include <time.h>
 #include <errno.h>
 
-#include "files/files.h"
+#include "rms/files.h"
 #include "gpl/fnm_util.h"
 #include "tracer/tracer.h"
 #include "objects/object.h"
 #include "cclibs/que_util.h"
 #include "include/item_list.h"
-
-#include "bbs/src/datatypes.h"
+#include "include/data_types.h"
 
 /*-------------------------------------------------------------*/
 /* constants                                                   */

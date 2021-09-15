@@ -69,10 +69,8 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
     int len;
     int offset;
-    /* ENTRY entry; */
     queue fields;
     int stat = OK;
-    time_t tod[1];
     char buffer[256];
     jam_field_t *field = NULL;
     jam_field_t *field1 = NULL;
@@ -209,26 +207,23 @@ int process_message(room_base_t *temp, qwk_header_t *header, char *text) {
 
             /* dup checking is based on msgid          */
             /* this assumes that msgid dosen't changed */
-                
-            if (! bt_findkey(bt, (unsigned char *)buffer, strlen(buffer))) {
 
-                stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
-                check_return(stat, jam);
-
-                stat = que_push_tail(&fields, field6);
-                check_status(stat, QUE_OK, E_NOQUEUE);
-
-                time(tod);
-                if (bt_insertkey(bt, (unsigned char *)buffer, strlen(buffer), 0, 0, *tod)) {
-
-                    fprintf(stderr, "Error %d\n", bt->err);
-                    goto fini;
-
-                }
-
-            } else {
+            if (bt_findkey(bt, (unsigned char *)buffer, strlen(buffer))) {
 
                 fprintf(stderr, "MSGID: %s; is a duplicate, skipping\n", buffer);
+                goto fini;
+
+            }
+
+            stat = jam_new_field(jam, JAMSFLD_MSGID, buffer, &field6);
+            check_return(stat, jam);
+
+            stat = que_push_tail(&fields, field6);
+            check_status(stat, QUE_OK, E_NOQUEUE);
+
+            if (bt_insertkey(bt, (unsigned char *)buffer, strlen(buffer), 0, 1, time(NULL))) {
+
+                fprintf(stderr, "Error %d\n", bt->err);
                 goto fini;
 
             }
@@ -452,11 +447,10 @@ int dump_trace(char *buffer) {
 
 int setup(void) {
 
-    uint map = 0;
     int stat = OK;
     int bits = 12;
+    uint map = 2048;
     char dupfile[256];
-    /* int mode = (R_OK | W_OK); */
 
     when_error_in {
 
@@ -477,21 +471,6 @@ int setup(void) {
         errno = 0;
         bt = bt_open(dupfile, BT_rw, bits, map);
         if (bt == NULL) cause_error(errno);
-
-        /* errno = 0; */
-        /* stat = access(dupfile, mode); */
-        /* if ((stat < 0) && (errno != ENOENT)) cause_error(errno); */
-        /* if (stat == 0) { */
-
-        /*     stat = open_index(dupfile, &dupes, 0); */
-        /*     check_status(stat, IX_OK, E_INVOPS); */
-
-        /* } else { */
-
-        /*     stat = make_index(dupfile, &dupes, 0); */
-        /*     check_status(stat, IX_OK, E_INVOPS); */
-
-        /* } */
 
         stat = OK;
         exit_when;

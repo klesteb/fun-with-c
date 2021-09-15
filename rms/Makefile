@@ -28,7 +28,7 @@ INCS = rms.h btree.h files.h
 #
 OBJS = rms.o btree.o files.o 
 #
-all: $(OBJS) test1 test2 test3 test4 test5 test6 test7
+all: $(OBJS) test1 test2 test3 test4 test5 test6 test7 test8
 #
 debug:
 #
@@ -45,6 +45,7 @@ clean:
 	rm -f test5
 	rm -f test6
 	rm -f test7
+	rm -f test8
 #
 rms.o: rms.c $(INCS)
 	$(CC) $(CFLAGS) rms.c
@@ -86,6 +87,10 @@ test6: test6.o
 test7: test7.o
 	$(CC) $(CFLAGS) test7.c
 	$(LINK) $(LOPTS) test7 test7.o $(OLBS)
+#
+test8: test8.o
+	$(CC) $(CFLAGS) test8.c
+	$(LINK) $(LOPTS) test8 test8.o $(OLBS)
 #
 man:
 	pod2man -c " " -r "rms(3)" -s 3 rms.pod rms.3

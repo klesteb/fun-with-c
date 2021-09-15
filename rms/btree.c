@@ -628,6 +628,10 @@ uint amt[1];
 BtKey key;
 BtDb* bt;
 int flag;
+int stat;
+int flags = O_RDWR;
+int xmode = (S_IRWXU | S_IRWXG);
+int create = (O_RDWR | O_CREAT);
 
 #ifndef unix
 OVERLAPPED ovl[1];
@@ -649,8 +653,25 @@ struct flock lock[1];
 #ifdef unix
 	bt = calloc (1, sizeof(BtDb));
 
-	bt->idx = open ((char*)name, O_RDWR | O_CREAT, 0666);
-	posix_fadvise( bt->idx, 0, 0, POSIX_FADV_RANDOM);
+    errno = 0;
+    stat = access(name, (R_OK | W_OK));
+    if ((stat < 0) && (errno != ENOENT)) {
+
+		fprintf(stderr, "unable to open %s, errno: %s\n", name, strerror(errno));
+		return free(bt), NULL;
+
+    }
+    if (stat == 0) {
+
+        bt->idx = open((char*)name, flags, xmode);
+
+    } else {
+
+        bt->idx = open((char*)name, create, xmode);
+
+    }
+
+    posix_fadvise( bt->idx, 0, 0, POSIX_FADV_RANDOM);
  
 	if( bt->idx == -1 ) {
 		fprintf(stderr, "unable to open %s\n", name);

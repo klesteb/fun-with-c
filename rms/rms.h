@@ -42,6 +42,7 @@ struct _rms_s {
     int (*_init)(rms_t *);
     int (*_open)(rms_t *);
     int (*_close)(rms_t *);
+    int (*_remove)(rms_t *);
     int (*_unlock)(rms_t *);
     int (*_del)(rms_t *, off_t);
     int (*_add)(rms_t *, void *);
@@ -124,6 +125,7 @@ extern char *rms_version(rms_t *);
 
 extern int rms_open(rms_t *);
 extern int rms_close(rms_t *);
+extern int rms_remove(rms_t *);
 extern int rms_del(rms_t *, off_t);
 extern int rms_add(rms_t *, void *);
 extern int rms_extend(rms_t *, int);

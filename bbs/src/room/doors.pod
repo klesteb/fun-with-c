@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-msgs - A ANSI C class to manage room resources
+doors - A ANSI C class to manage room resources
 
 =head1 SYNOPSIS
 
@@ -16,9 +16,9 @@ msgs - A ANSI C class to manage room resources
 
          if (handler == NULL) {
 
-             if (room->flags & RM_MESSAGES) {
+             if (room->flags & RM_SUBSYS) {
 
-                 handler = msgs_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
+                 handler = doors_create(self->roomdb, room->path, room->retries, room->timeout, room->base, self->trace);
                  check_creation(handler);
 
              }
@@ -49,37 +49,26 @@ msgs - A ANSI C class to manage room resources
 
 =head1 DESCRIPTION
 
-This class implements a message resource for rooms. The messages
-uses the de-facto standard JAM format. When a new room is created,
-the JAM message files are created. When the room is deleted, the JAM 
-message files are removed. When the room database is created, it 
-attaches the default message databases to rooms. These rooms are the
-following:
-
- Mail  - where personal email is stored
- Lobby - a general purpose message area
- Aide  - where aide's can exchange messages
-
-Which corresponds to rooms 1 to 3. They are permanent rooms and should
-not be removed.
+This class implements a door (sub system) resource for rooms. A door
+can be used to extend the functionality of the bbs. 
 
 This class overrides methods within the handler class and the object 
-returned from msgs_create() can be used with any of the other handler
+returned from doors_create() can be used with any of the other handler
 methods.
 
 This library is a class. It is extensible and overridable. It also makes 
 use of the L<errors(3)> and L<tracer(3)> classes for error handling and 
 reporting. 
 
-The files msgs.c and msgs.h define the class. 
+The files doors.c and doors.h define the class. 
 
 =over 4
 
-=item B<msgs.h>
+=item B<doors.h>
 
 This defines the interface to the class. 
 
-=item B<msgs.c> 
+=item B<doors.c> 
 
 This implements the interface.
 
@@ -87,7 +76,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<handler_t *msgs_create(files_t *db, char *path, int retries, int timeout, int base, tracer_t *dump)>
+=head2 I<handler_t *doors_create(files_t *db, char *path, int retries, int timeout, int base, tracer_t *dump)>
 
 This method initializes the class. 
 
@@ -95,11 +84,11 @@ This method initializes the class.
 
 =item B<db>
 
-The pointer to the room database..
+The pointer to the room database.
 
 =item B<path>
 
-The path to where the messages are stored. 
+The path to where the doors are stored. 
 
 =item B<retires>
 
@@ -117,7 +106,7 @@ A pointer to a tracer_t object to manage a trace dump.
 
 =head1 RETURNS
 
-The method msgs_create() returns a pointer to a room_t object. 
+The method doors_create() returns a pointer to a handler_t object. 
 All other methods return either OK on success or ERR on failure. The 
 extended error description can be returned with object_get_error().
 
@@ -153,7 +142,7 @@ Builds the module and provides a shared library.
 
 =item L<handler(3)>
 
-=item L<doors(3)>
+=item L<msgs(3)>
 
 =item L<object(3)>
 

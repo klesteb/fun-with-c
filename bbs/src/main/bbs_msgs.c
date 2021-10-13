@@ -42,6 +42,37 @@ static int set_reverse(void *data, int size, error_trace_t *errors) {
 
 }
 
+static window_t *msg_stats_create(jam_t *jam, user_base_t *user) {
+    
+    int stat = OK;
+    ulong user_crc = 0;
+    jam_lastread_t lastread;
+
+    when_error_in {
+
+        stat = jam_crc32(jam, (uchar *)user->username, strlen(user->username), &user_crc);
+        check_return(stat, jam);
+fprintf(stderr, "msg_stats() - past jam_crc32()\n");
+
+        stat = jam_get_lastread(jam, user_crc, &lastread);
+        check_return(stat, jam);
+fprintf(stderr, "msg_stats() - past jam_get_lastrun()\n");
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+fprintf(stderr, "leaving msg_stats() - stat: %d\n", stat);
+    return stat;
+
+}
+
 static int load_new_msgs(jam_t *jam, user_base_t *user, queue *results) {
 
     queue index;

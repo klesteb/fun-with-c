@@ -231,6 +231,7 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
     door_t *doors = NULL;
     room_base_t *room = NULL;
 
+fprintf(stderr, "entering bbs_load_room()\n");
     when_error_in {
 
         memcpy(&room_index, data, len);
@@ -278,6 +279,7 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
 
     } end_when;
 
+fprintf(stderr, "leaving bbs_load_room(), stat = %d\n", stat);
     return stat;
 
 }
@@ -299,6 +301,7 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
     menus_list_t *list = NULL;
     room_search_t *result = NULL;
 
+fprintf(stderr, "entering bbs_list_rooms()\n");
     when_error_in {
 
         /* stat = bbs_send_status(, &error); */
@@ -376,6 +379,7 @@ int bbs_list_rooms(void *data, int len, error_trace_t *errors) {
 
     } end_when;
 
+fprintf(stderr, "leaving bbs_list_rooms(), stat = %d\n", stat);
     return stat;
 
 }

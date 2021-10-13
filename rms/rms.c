@@ -36,6 +36,7 @@ int _rms_override(rms_t *, item_list_t *);
 int _rms_init(rms_t *);
 int _rms_open(rms_t *);
 int _rms_close(rms_t *);
+int _rms_remove(rms_t *);
 int _rms_unlock(rms_t *);
 int _rms_del(rms_t *, off_t);
 int _rms_extend(rms_t *, int);
@@ -248,6 +249,34 @@ int rms_close(rms_t *self) {
         }
 
         stat = self->_close(self);
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int rms_remove(rms_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self == NULL) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        stat = self->_remove(self);
         check_return(stat, self);
 
         exit_when;
@@ -576,6 +605,7 @@ int _rms_ctor(object_t *object, item_list_t *items) {
         self->_write  = _rms_write;
         self->_extend = _rms_extend;
         self->_record = _rms_record;
+        self->_remove = _rms_remove;
         self->_search = _rms_search;
         self->_unlock = _rms_unlock;
         self->_normalize = _rms_normalize;
@@ -791,6 +821,7 @@ int _rms_compare(rms_t *self, rms_t *other) {
         (self->_close  == other->_close) &&
         (self->_find   == other->_find) &&
         (self->_record == other->_record) &&
+        (self->_remove == other->_remove) &&
         (self->_unlock == other->_unlock) &&
         (self->_extend == other->_extend) &&
         (self->_search == other->_search) &&
@@ -904,6 +935,37 @@ int _rms_close(rms_t *self) {
         check_return(stat, self->rmsdb);
 
         stat = files_close(self->sequence);
+        check_return(stat, self->sequence);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _rms_remove(rms_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_close(self->rmsdb);
+        check_return(stat, self->rmsdb);
+
+        stat = files_unlink(self->rmsdb);
+        check_return(stat, self->rmsdb);
+
+        stat = files_close(self->sequence);
+        check_return(stat, self->sequence);
+
+        stat = files_unlink(self->sequence);
         check_return(stat, self->sequence);
 
         exit_when;

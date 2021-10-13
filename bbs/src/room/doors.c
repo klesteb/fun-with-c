@@ -33,7 +33,7 @@ int _doors_attach(handler_t *self, room_base_t *room) {
 
     char name[7];
     int stat = OK;
-    door_t *doors = NULL;
+    rms_t *doors = NULL;
 
     when_error_in {
 
@@ -64,7 +64,7 @@ int _doors_attach(handler_t *self, room_base_t *room) {
 int _doors_detach(handler_t *self) {
 
     int stat = OK;
-    door_t *doors = (door_t *)self->handle;
+    rms_t *doors = (rms_t *)self->handle;
 
     when_error_in {
 
@@ -96,7 +96,7 @@ int _doors_detach(handler_t *self) {
 int _doors_remove(handler_t *self) {
 
     int stat = OK;
-    door_t *doors = (door_t *)self->handle;
+    rms_t *doors = (rms_t *)self->handle;
 
     when_error_in {
 
@@ -126,19 +126,19 @@ int _doors_remove(handler_t *self) {
 int _doors_handle(handler_t *self, void **handle) {
 
     int stat = OK;
-    door_t *doors = (door_t *)self->handle;
+    rms_t *doors = (rms_t *)self->handle;
 
     when_error_in {
 
         errno = 0;
-        *handle = calloc(1, sizeof(door_t));
+        *handle = calloc(1, sizeof(rms_t));
         if (*handle == NULL) {
 
             cause_error(errno);
 
         }
 
-        memcpy(*handle, doors, sizeof(door_t));
+        memcpy(*handle, doors, sizeof(rms_t));
 
         exit_when;
 

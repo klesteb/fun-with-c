@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2019 by Kevin L. Esteb                       */
+/*                Copyright (c) 2021 by Kevin L. Esteb                       */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -13,75 +13,63 @@
 #ifndef _DOOR_H
 #define _DOOR_H
 
-#include "rms/files.h"
+#include "rms/rms.h"
 #include "tracer/tracer.h"
-#include "objects/object.h"
-#include "include/item_list.h"
-
-#include "bbs/src/room/room.h"
-#include "bbs/src/node/node.h"
-#include "bbs/src/user/user.h"
-#include "bbs/src/user/profile.h"
+#include "bbs/src/main/bbs_config.h"
 
 /*-------------------------------------------------------------*/
-/* klass defination                                            */
+/* constants                                                   */
 /*-------------------------------------------------------------*/
 
-typedef struct _door_s door_t;
+#define DF_DOOR32    (1L<<1)        /* uses a door32.sys drop file      */
+#define DF_DOORSYS   (1L<<2)        /* uses a door.sys drop file        */
+#define DF_DOORINFO  (1L<<3)        /* uses a doorinfo1.def drop file   */
 
-struct _door_s {
-    object_t parent_klass;
-    int (*ctor)(object_t *, item_list_t *);
-    int (*dtor)(object_t *);
-    int (*_compare)(door_t *, door_t *);
-    int (*_override)(door_t *, item_list_t *);
-    int (*_open)(door_t *);
-    int (*_close)(door_t *);
-    int (*_remove)(door_t *);
-    int (*_run)(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t *, profile_base_t *);
+#define DT_MULTIUSER (1L<<1)        /* allow multi-user access          */
+#define DT_PATHDIR   (1L<<2)        /* create drop file in door path    */
+#define DT_FREETIME  (1L<<3)        /* free time while in this door     */
 
-    ulong flags;
-    int retries;
-    int timeout;
-    char *command;
-    files_t *control;
-    tracer_t *trace;
-};
+#define DOOR_CMD_LEN  256
+#define DOOR_PATH_LEN 256
 
 /*-------------------------------------------------------------*/
-/* klass constants                                             */
+/* data structures                                             */
 /*-------------------------------------------------------------*/
 
-#define DF_DOOR32   (1L<<1)
-#define DF_DOORSYS  (1L<<2)
-#define DF_DOORINFO (1L<<3)
+typedef struct _door_usage_s {
+    ulong runs;                     /* number of times ran by user      */
+    ulong wasted;                   /* time wasted (in minutes) by user */
+} door_usage_t;
 
-#define DOOR_K_PATH    1
-#define DOOR_K_TRACE   2
-#define DOOR_K_RETRIES 3
-#define DOOR_K_TIMEOUT 4
-#define DOOR_K_NAME    5
-
-#define DOOR(x) ((door_t *)(x))
-
-#define DOOR_M_DESTRUCTOR 1
-#define DOOR_M_REMOVE     2
-#define DOOR_M_RUN        3
+typedef struct _door_base_s {
+    char command[DOOR_CMD_LEN+1];   /* command to run door              */
+    char clean[DOOR_CMD_LEN+1];     /* command to clear cruff           */
+    char path[DOOR_PATH_LEN+1];     /* path to start door in            */
+    door_usage_t usage[USERNUM];    /* door usage stats                 */
+    ulong type;                     /* see DT_ types above              */
+    ulong flags;                    /* see DF_ flags above              */
+    ulong cost;                     /* cost of using door               */
+    int active;                     /* wither the door is active        */
+    int revision;                   /* record revision                  */
+} door_base_t;
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
 /*-------------------------------------------------------------*/
 
-extern door_t *door_create(char *, char *, int, int, tracer_t *);
-extern int door_destroy(door_t *);
-extern int door_compare(door_t *, door_t *);
-extern int door_override(door_t *, item_list_t *);
-extern char *door_version(door_t *);
+extern rms_t *door_create(char *, char *, int, int, tracer_t *);
+extern int door_capture(rms_t *, void *, queue *);
+extern char *door_version(rms_t *);
 
-extern int door_open(door_t *);
-extern int door_close(door_t *);
-extern int door_remove(door_t *);
-extern int door_run(door_t *, node_base_t *, room_base_t *, user_base_t *, user_base_t *, profile_base_t *);
+#define door_destroy(self) rms_destroy(self)
+#define door_compare(self, other) rms_compare(self, other)
+#define door_override(self, items) rms_override(self, items)
+
+#define door_open(self) rms_open(self)
+#define door_close(self) rms_close(self);
+#define door_remove(self) rms_remove(self);
+#define door_get(self, data) rms_get(self, 1, (void *)data)
+#define door_put(self, data) rms_put(self, 1, (void *)data)
 
 #endif
 

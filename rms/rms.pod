@@ -234,6 +234,18 @@ A pointer to a rms_t object.
 
 =back
 
+=head2 I<int rms_remove(rms_t *self)>
+
+This method removes the datastore.
+
+=over 4
+
+=item B<self>
+
+A pointer to a rms_t object.
+
+=back
+
 =head2 I<int rms_record(rms_t *self, off_t *recnum)>
 
 This method retrieves the current record number.

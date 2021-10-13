@@ -159,10 +159,12 @@ int _msgs_attach(handler_t *self, room_base_t *room) {
     int stat = OK;
     jam_t *jam = NULL;
 
+fprintf(stderr, "entering _msgs_attach()\n");
     when_error_in {
 
         memset(name, '\0', 7);
         snprintf(name, 6, "%05d", (int)room->conference);
+fprintf(stderr, "_msgs_attach() - name %s\n", name);
 
         jam = jam_create(room->path, name, room->retries, room->timeout, room->base, self->trace);
         check_creation(jam);
@@ -181,6 +183,7 @@ int _msgs_attach(handler_t *self, room_base_t *room) {
 
     } end_when;
 
+fprintf(stderr, "leaving _msgs_attach(), stat = %d\n", stat);
     return stat;
 
 }

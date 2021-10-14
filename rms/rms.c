@@ -42,7 +42,9 @@ int _rms_del(rms_t *, off_t);
 int _rms_extend(rms_t *, int);
 int _rms_lock(rms_t *, off_t);
 int _rms_add(rms_t *, void *);
+int _rms_tell(rms_t *, off_t *);
 int _rms_record(rms_t *, off_t *);
+int _rms_seek(rms_t *, off_t, int);
 int _rms_get(rms_t *, off_t, void *);
 int _rms_put(rms_t *, off_t, void *);
 int _rms_get_sequence(rms_t *, long *);
@@ -490,6 +492,66 @@ int rms_search(rms_t *self, void *data, int len,  int (*compare)(void *, void *)
 
 }
 
+int rms_seek(rms_t *self, off_t offset, int whence) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_seek(self, offset, whence);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int rms_tell(rms_t *self, off_t *offset) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (offset != NULL)) {
+
+            stat = self->_tell(self, offset);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -599,6 +661,8 @@ int _rms_ctor(object_t *object, item_list_t *items) {
         self->_open   = _rms_open;
         self->_prev   = _rms_prev;
         self->_read   = _rms_read;
+        self->_seek   = _rms_seek;
+        self->_tell   = _rms_tell;
         self->_build  = _rms_build;
         self->_close  = _rms_close;
         self->_first  = _rms_first;
@@ -786,6 +850,16 @@ int _rms_override(rms_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case RMS_M_SEEK: {
+                    self->_seek = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case RMS_M_TELL: {
+                    self->_tell = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -815,6 +889,8 @@ int _rms_compare(rms_t *self, rms_t *other) {
         (self->_prev   == other->_prev) &&
         (self->_last   == other->_last) &&
         (self->_read   == other->_read) &&
+        (self->_seek   == other->_seek) &&
+        (self->_tell   == other->_tell) &&
         (self->_write  == other->_write) &&
         (self->_first  == other->_first) &&
         (self->_build  == other->_build) &&
@@ -989,6 +1065,50 @@ int _rms_record(rms_t *self, off_t *recnum) {
 
 }
 
+int _rms_seek(rms_t *self, off_t position, int opt) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_seek(self->rmsdb, position, opt);
+        check_return(stat, self->rmsdb);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _rms_tell(rms_t *self, ssize_t *position) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        stat = files_tell(self->rmsdb, position);
+        check_return(stat, self->rmsdb);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int _rms_first(rms_t *self, void *data, ssize_t *count) {
 
     int stat = OK;
@@ -1001,11 +1121,11 @@ int _rms_first(rms_t *self, void *data, ssize_t *count) {
         ondisk = calloc(1, self->recsize);
         if (ondisk == NULL) cause_error(errno);
 
-        stat = files_seek(self->rmsdb, 0, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, 0, SEEK_SET);
+        check_return(stat, self);
 
-        stat = files_tell(self->rmsdb, &position);
-        check_return(stat, self->rmsdb);
+        stat = self->_tell(self, &position);
+        check_return(stat, self);
 
         self->record = RMS_RECORD(position, self->recsize);
 
@@ -1055,7 +1175,7 @@ int _rms_next(rms_t *self, void *data, ssize_t *count) {
         ondisk = calloc(1, self->recsize);
         if (ondisk == NULL) cause_error(errno);
 
-        stat = files_tell(self->rmsdb, &position);
+        stat = self->_tell(self, &position);
         check_return(stat, self);
 
         self->record = RMS_RECORD(position, self->recsize);
@@ -1107,13 +1227,13 @@ int _rms_prev(rms_t *self, void *data, ssize_t *count) {
         ondisk = calloc(1, self->recsize);
         if (ondisk == NULL) cause_error(errno);
 
-        stat = files_tell(self->rmsdb, &position);
-        check_return(stat, self->rmsdb);
+        stat = self->_tell(self, &position);
+        check_return(stat, self);
 
         if (position > 0) {
 
-            stat = files_seek(self->rmsdb, -offset, SEEK_CUR);
-            check_return(stat, self->rmsdb);
+            stat = self->_seek(self, -offset, SEEK_CUR);
+            check_return(stat, self);
 
             stat = self->_lock(self, position - offset);
             check_return(stat, self);
@@ -1126,8 +1246,8 @@ int _rms_prev(rms_t *self, void *data, ssize_t *count) {
             stat = self->_unlock(self);
             check_return(stat, self);
 
-            stat = files_seek(self->rmsdb, -offset, SEEK_CUR);
-            check_return(stat, self->rmsdb);
+            stat = self->_seek(self, -offset, SEEK_CUR);
+            check_return(stat, self);
 
             if (*count == self->recsize) {
 
@@ -1173,14 +1293,14 @@ int _rms_last(rms_t *self, void *data, ssize_t *count) {
         ondisk = calloc(1, self->recsize);
         if (ondisk == NULL) cause_error(errno);
 
-        stat = files_seek(self->rmsdb, 0, SEEK_END);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, 0, SEEK_END);
+        check_return(stat, self);
 
-        stat = files_seek(self->rmsdb, -offset, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -offset, SEEK_CUR);
+        check_return(stat, self);
 
-        stat = files_tell(self->rmsdb, &position);
-        check_return(stat, self->rmsdb);
+        stat = self->_tell(self, &position);
+        check_return(stat, self);
 
         self->record = RMS_RECORD(position, self->recsize);
 
@@ -1193,8 +1313,8 @@ int _rms_last(rms_t *self, void *data, ssize_t *count) {
         stat = self->_unlock(self);
         check_return(stat, self);
 
-        stat = files_seek(self->rmsdb, -offset, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -offset, SEEK_CUR);
+        check_return(stat, self);
 
         if (*count == self->recsize) {
 
@@ -1234,8 +1354,8 @@ int _rms_get(rms_t *self, off_t recnum, void *record) {
         ondisk = calloc(1, self->recsize);
         if (ondisk == NULL) cause_error(errno);
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         self->_lock(self, offset);
         check_return(stat, self);
@@ -1287,8 +1407,8 @@ int _rms_put(rms_t *self, off_t recnum, void *record) {
         ondisk = calloc(1, self->recsize);
         if (ondisk == NULL) cause_error(errno);
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
@@ -1305,8 +1425,8 @@ int _rms_put(rms_t *self, off_t recnum, void *record) {
         stat = self->_normalize(self, ondisk, record);
         check_return(stat, self);
 
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -recsize, SEEK_CUR);
+        check_return(stat, self);
 
         stat = self->_write(self, record, &count);
         check_return(stat, self);

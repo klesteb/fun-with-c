@@ -58,7 +58,6 @@ typedef struct _door_base_s {
 /*-------------------------------------------------------------*/
 
 extern rms_t *door_create(char *, char *, int, int, tracer_t *);
-extern int door_capture(rms_t *, void *, queue *);
 extern char *door_version(rms_t *);
 
 #define door_destroy(self) rms_destroy(self)

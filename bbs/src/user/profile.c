@@ -13,7 +13,6 @@
 #include <errno.h>
 
 #include "rms/rms.h"
-#include "files/files.h"
 #include "include/when.h"
 #include "tracer/tracer.h"
 #include "include/item_list.h"
@@ -103,8 +102,8 @@ int _profile_del(rms_t *self, off_t recnum) {
 
     when_error_in {
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
@@ -131,8 +130,8 @@ int _profile_del(rms_t *self, off_t recnum) {
         memset(&ondisk.description, '\0', LEN_DESC+1);
         ondisk.revision++;
 
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -recsize, SEEK_CUR);
+        check_return(stat, self);
 
         stat = self->_write(self, &ondisk, &count);
         check_return(stat, self);
@@ -174,14 +173,14 @@ int _profile_extend(rms_t *self, int amount) {
         profile.flags |= PF_DELETED;
         profile.revision = 1;
 
-        stat = files_seek(self->rmsdb, 0, SEEK_END);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, 0, SEEK_END);
+        check_return(stat, self);
 
         int x = 0;
         for (; x < amount; x++) {
 
-            stat = files_tell(self->rmsdb, &position);
-            check_return(stat, self->rmsdb);
+            stat = self->_tell(self, &position);
+            check_return(stat, self);
 
             stat = self->_lock(self, position);
             check_return(stat, self);
@@ -244,8 +243,8 @@ int _profile_put(rms_t *self, off_t recnum, profile_base_t *profile) {
 
     when_error_in {
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
@@ -264,8 +263,8 @@ int _profile_put(rms_t *self, off_t recnum, profile_base_t *profile) {
 
         }
 
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -recsize, SEEK_CUR);
+        check_return(stat, self);
 
         stat = self->_write(self, profile, &count);
         check_return(stat, self);

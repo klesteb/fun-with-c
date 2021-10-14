@@ -48,7 +48,9 @@ struct _rms_s {
     int (*_add)(rms_t *, void *);
     int (*_extend)(rms_t *, int);
     int (*_lock)(rms_t *, off_t);
+    int (*_tell)(rms_t *, off_t *);
     int (*_record)(rms_t *, off_t *);
+    int (*_seek)(rms_t *, off_t, int);
     int (*_get)(rms_t *, off_t, void *);
     int (*_put)(rms_t *, off_t, void *);
     int (*_get_sequence)(rms_t *, long *);
@@ -112,6 +114,8 @@ struct _rms_s {
 #define RMS_M_SEARCH     19
 #define RMS_M_RECORD     20
 #define RMS_M_INIT       21
+#define RMS_M_SEEK       22
+#define RMS_M_TELL       23
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
@@ -129,7 +133,9 @@ extern int rms_remove(rms_t *);
 extern int rms_del(rms_t *, off_t);
 extern int rms_add(rms_t *, void *);
 extern int rms_extend(rms_t *, int);
+extern int rms_tell(rms_t *, off_t *);
 extern int rms_record(rms_t *, off_t *);
+extern int rms_seek(rms_t *, off_t, int);
 extern int rms_get(rms_t *, off_t, void *);
 extern int rms_put(rms_t *, off_t, void *);
 extern int rms_find(rms_t *, void *, int,  int (*compare)(void *, void *), off_t *);

@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "rms/files.h"
+#include "rms/rms.h"
 #include "include/when.h"
 #include "objects/object.h"
 #include "include/error_codes.h"
@@ -50,8 +50,8 @@ int _node_extend(rms_t *self, int amount) {
 
         memset(&node, '\0', sizeof(node_base_t));
 
-        stat = files_seek(self->rmsdb, 0, SEEK_END);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, 0, SEEK_END);
+        check_return(stat, self);
 
         int x;
         for (x = 0; x < amount; x++) {
@@ -64,8 +64,8 @@ int _node_extend(rms_t *self, int amount) {
             node.nodenum = sequence;
             node.revision = revision;
 
-            stat = files_tell(self->rmsdb, &position);
-            check_return(stat, self->rmsdb);
+            stat = self->_tell(self, &position);
+            check_return(stat, self);
 
             stat = self->_lock(self, position);
             check_return(stat, self);
@@ -118,8 +118,8 @@ int _node_put(rms_t *self, off_t record, node_base_t *node) {
 
     when_error_in {
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
@@ -138,8 +138,8 @@ int _node_put(rms_t *self, off_t record, node_base_t *node) {
 
         }
 
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -recsize, SEEK_CUR);
+        check_return(stat, self);
 
         stat = self->_write(self, node, &count);
         check_return(stat, self);

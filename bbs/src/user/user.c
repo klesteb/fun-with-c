@@ -13,7 +13,6 @@
 #include <errno.h>
 
 #include "rms/rms.h"
-#include "rms/files.h"
 #include "include/when.h"
 #include "tracer/tracer.h"
 #include "include/item_list.h"
@@ -110,8 +109,8 @@ int _user_del(rms_t *self, off_t recnum) {
 
     when_error_in {
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
@@ -130,8 +129,8 @@ int _user_del(rms_t *self, off_t recnum) {
             bit_set(ondisk.flags, US_DELETED);
             ondisk.revision++;
 
-            stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-            check_return(stat, self->rmsdb);
+            stat = self->_seek(self, -recsize, SEEK_CUR);
+            check_return(stat, self);
 
             stat = self->_write(self, &ondisk, &count);
             check_return(stat, self);
@@ -184,14 +183,14 @@ int _user_extend(rms_t *self, int amount) {
         bit_set(user.flags, US_INACTIVE);
         user.qwk = (QWK_FILES | QWK_ATTACH | QWK_EMAIL | QWK_DELMAIL);
 
-        stat = files_seek(self->rmsdb, 0, SEEK_END);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, 0, SEEK_END);
+        check_return(stat, self);
 
         int x;
         for (x = 0; x < amount; x++) {
 
-            stat = files_tell(self->rmsdb, &position);
-            check_return(stat, self->rmsdb);
+            stat = self->_tell(self, &position);
+            check_return(stat, self);
 
             stat = self->_lock(self, position);
             check_return(stat, self);
@@ -244,8 +243,8 @@ int _user_init(rms_t *self) {
 
         /* start at the beginning */
 
-        stat = files_seek(self->rmsdb, 0, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, 0, SEEK_SET);
+        check_return(stat, self);
 
         /* create sysop account */
 
@@ -255,8 +254,8 @@ int _user_init(rms_t *self) {
         memset(&ondisk.username, '\0', LEN_NAME+1);
         strncpy(ondisk.username, "sysop", LEN_NAME);
 
-        stat = files_tell(self->rmsdb, &position);
-        check_return(stat, self->rmsdb);
+        stat = self->_tell(self, &position);
+        check_return(stat, self);
 
         stat = self->_lock(self, position);
         check_return(stat, self);
@@ -275,8 +274,8 @@ int _user_init(rms_t *self) {
         memset(&ondisk.username, '\0', LEN_NAME+1);
         strncpy(ondisk.username, "qwknet", LEN_NAME);
 
-        stat = files_tell(self->rmsdb, &position);
-        check_return(stat, self->rmsdb);
+        stat = self->_tell(self, &position);
+        check_return(stat, self);
 
         stat = self->_lock(self, position);
         check_return(stat, self);
@@ -296,8 +295,8 @@ int _user_init(rms_t *self) {
         memset(&ondisk.username, '\0', LEN_NAME+1);
         strncpy(ondisk.username, "guest", LEN_NAME);
 
-        stat = files_tell(self->rmsdb, &position);
-        check_return(stat, self->rmsdb);
+        stat = self->_tell(self, &position);
+        check_return(stat, self);
 
         stat = self->_lock(self, position);
         check_return(stat, self);
@@ -357,8 +356,8 @@ int _user_put(rms_t *self, off_t recnum, user_base_t *user) {
 
     when_error_in {
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
@@ -377,8 +376,8 @@ int _user_put(rms_t *self, off_t recnum, user_base_t *user) {
 
         }
 
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -recsize, SEEK_CUR);
+        check_return(stat, self);
 
         stat = self->_write(self, user, &count);
         check_return(stat, self);

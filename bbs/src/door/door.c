@@ -13,7 +13,6 @@
 #include <errno.h>
 
 #include "rms/rms.h"
-#include "rms/files.h"
 #include "include/when.h"
 #include "tracer/tracer.h"
 #include "include/item_list.h"
@@ -27,11 +26,115 @@
 
 int _door_build(rms_t *self, door_base_t *ondisk, door_base_t *record) {
 
+    memset(record, '\0', self->recsize);
+
+    strcpy(record->command, ondisk->command);
+    strcpy(record->clean, ondisk->clean);
+    strcpy(record->path, ondisk->path);
+    record->type = ondisk->type;
+    record->flags = ondisk->flags;
+    record->cost = ondisk->cost;
+    record->active = ondisk->active;
+    record->revision = ondisk->revision;
+
+    int x = 0;
+    for (; x < USERNUM; x++) {
+
+        record->usage[x].runs = ondisk->usage[x].runs;
+        record->usage[x].wasted = ondisk->usage[x].wasted;
+
+    }
+
     return OK;
 
 }
 
+int _door_init(rms_t *self) {
+    
+    int stat = OK;
+    ssize_t count = 0;
+    door_base_t ondisk;
+    ssize_t position = 0;
+    off_t recsize = self->recsize;
+
+    when_error_in {
+
+        /* defaults */
+
+        memset(&ondisk, '\0', recsize);
+
+        ondisk.type = 0;
+        ondisk.cost = 0;
+        ondisk.flags = 0;
+        ondisk.revision = 1;
+        ondisk.active = FALSE;
+
+        int x = 0;
+        for (; x < USERNUM; x++) {
+
+            ondisk.usage[x].runs = 0;
+            ondisk.usage[x].wasted = 0;
+
+        }
+
+        /* start at the beginning */
+
+        stat = self->_seek(self, 0, SEEK_SET);
+        check_return(stat, self);
+
+        stat = self->_tell(self, &position);
+        check_return(stat, self);
+
+        stat = self->_lock(self, position);
+        check_return(stat, self);
+
+        stat = self->_write(self, &ondisk, &count);
+        check_return(stat, self);
+
+        stat = self->_unlock(self);
+        check_return(stat, self);
+
+        if (count != recsize) {
+
+            cause_error(EIO);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        if (self->locked) self->_unlock(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int _door_normalize(rms_t *self, door_base_t *ondisk, door_base_t *record) {
+
+    memset(record, '\0', self->recsize);
+
+    strcpy(record->command, ondisk->command);
+    strcpy(record->clean, ondisk->clean);
+    strcpy(record->path, ondisk->path);
+    record->type = ondisk->type;
+    record->flags = ondisk->flags;
+    record->cost = ondisk->cost;
+    record->active = ondisk->active;
+    record->revision = ondisk->revision + 1;
+
+    int x = 0;
+    for (; x < USERNUM; x++) {
+
+        record->usage[x].runs = ondisk->usage[x].runs;
+        record->usage[x].wasted = ondisk->usage[x].wasted;
+
+    }
 
     return OK;
 
@@ -47,8 +150,8 @@ int _door_put(rms_t *self, off_t recnum, door_base_t *record) {
 
     when_error_in {
 
-        stat = files_seek(self->rmsdb, offset, SEEK_SET);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, offset, SEEK_SET);
+        check_return(stat, self);
 
         stat = self->_lock(self, offset);
         check_return(stat, self);
@@ -73,8 +176,8 @@ int _door_put(rms_t *self, off_t recnum, door_base_t *record) {
 
         }
 
-        stat = files_seek(self->rmsdb, -recsize, SEEK_CUR);
-        check_return(stat, self->rmsdb);
+        stat = self->_seek(self, -recsize, SEEK_CUR);
+        check_return(stat, self);
 
         stat = self->_write(self, record, &count);
         check_return(stat, self);
@@ -120,7 +223,7 @@ rms_t *door_create(char *path, char *name, int retries, int timeout, tracer_t *d
     int stat = OK;
     int records = 1;
     rms_t *self = NULL;
-    item_list_t items[4];
+    item_list_t items[5];
     int recsize = sizeof(door_base_t);
 
     when_error_in {
@@ -129,9 +232,10 @@ rms_t *door_create(char *path, char *name, int retries, int timeout, tracer_t *d
         check_creation(self);
 
         SET_ITEM(items[0], RMS_M_PUT, _door_put, 0, NULL);
-        SET_ITEM(items[1], RMS_M_BUILD, _door_build, 0, NULL);
-        SET_ITEM(items[2], RMS_M_NORMALIZE, _door_normalize, 0, NULL);
-        SET_ITEM(items[3], 0, 0, 0, 0);
+        SET_ITEM(items[1], RMS_M_INIT, _door_init, 0, NULL);
+        SET_ITEM(items[2], RMS_M_BUILD, _door_build, 0, NULL);
+        SET_ITEM(items[3], RMS_M_NORMALIZE, _door_normalize, 0, NULL);
+        SET_ITEM(items[4], 0, 0, 0, 0);
 
         stat = rms_override(self, items);
         check_return(stat, self);

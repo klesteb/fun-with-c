@@ -228,7 +228,7 @@ int bbs_load_room(void *data, int len, error_trace_t *errors) {
     int room_index;
     jam_t *jam = NULL;
     error_trace_t error;
-    door_t *doors = NULL;
+    rms_t *doors = NULL;
     room_base_t *room = NULL;
 
 fprintf(stderr, "entering bbs_load_room()\n");

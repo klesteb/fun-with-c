@@ -13,10 +13,13 @@
 #ifndef _INCLUDES_H
 #define _INCLUDES_H
 
+#include <time.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 
 #include "include/when.h"
 
@@ -46,11 +49,12 @@
 #include "widgets/components/menus/menus.h"
 
 #include "bbs/src/bitops.h"
+#include "bbs/src/door/door.h"
 #include "bbs/src/room/msgs.h"
 #include "bbs/src/node/node.h"
 #include "bbs/src/room/room.h"
 #include "bbs/src/user/user.h"
-#include "bbs/src/user/user.h"
+#include "bbs/src/room/doors.h"
 #include "bbs/src/finds/finds.h"
 #include "bbs/src/user/profile.h"
 #include "bbs/src/main/bbs_protos.h"

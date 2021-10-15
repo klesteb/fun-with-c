@@ -69,7 +69,7 @@ extern int bbs_msgs_menu(jam_t *, room_base_t *, error_trace_t *);
 
 /* bbs_doors */
 
-extern int bbs_doors(door_t *, room_base_t *, error_trace_t *);
+extern int bbs_doors(rms_t *, room_base_t *, error_trace_t *);
 
 /* bbs_utils */
 

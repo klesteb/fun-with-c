@@ -10,152 +10,66 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <errno.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-
 #include "bbs/src/main/bbs_common.h"
 #include "bbs/src/main/bbs_protos.h"
 
 /* ------------------------------------------------------------------------ */
 
-int _run_door(door_base_t *door, node_base_t *node, 
-              room_base_t *room, user_base_t *sysop, 
-              user_base_t *user, profile_base_t *profile) {
+static void _create_filename(door_base_t *door, node_base_t *node, char *name, char *ext, char *filename) {
 
-    int stat = OK;
     char nodenum[8];
-    char curdir[256];
-    char workdir[256];
 
-    when_error_in {
+    memset(nodenum, '\0', 8);
+    memset(filename, '\0', 256);
+    sprintf(nodenum, "%ld", node->nodenum);
 
-        /* save current directory */
+    if (bit_test(door->type, DT_PATHDIR)) {
 
-        memset(curdir, '\0', 255);
+        strncpy(filename, fnm_build(1, FnmPath, name, ext, door->path, NULL), 255);
 
-        errno = 0;
-        if ((getcwd(curdir, 255)) == NULL) {
+    } else {
 
-            cause_error(errno);
+        strncpy(filename, fnm_build(1, FnmPath, name, ext, nodenum, WORKPATH, NULL), 255);
 
-        }
-
-        /* change to work directory */
-
-        memset(nodenum, '\0', 8);
-        memset(workdir, '\0', 256);
-
-        sprintf(nodenum, "%ld", node->nodenum);
-        strncpy(workdir, fnm_build(1, FnmPath, nodenum, WORKPATH, NULL), 255);
-
-        errno = 0;
-        stat = chdir(workdir);
-        check_status(stat, OK, errno);
-
-        /* write out the drop file */
-
-        if (bit_test(door->flags, DF_DOORSYS)) {
-
-            stat = _write_door_sys(door, node, room, sysop, user, profile);
-            check_return(stat, self);
-
-        } 
-
-        if (bit_test(door->flags, DF_DOOR32)) {
-
-            stat = _write_door32_sys(door, node, room, sysop, user, profile);
-            check_return(stat, self);
-
-        } 
-
-        if (bit_test(door->flags, DF_DOORINFO)) {
-
-            stat = _write_doorinfo_def(door, node, room, sysop, user, profile);
-            check_return(stat, self);
-
-        }
-
-        /* run the door */
-
-        stat = _spawn(door->command);
-        check_return(stat, self);
-
-        /* remove the drop file */
-
-        if (bit_test(door->flags, DF_DOORSYS)) {
-
-            stat = _remove_door_sys(door);
-            check_return(stat, door);
-
-        } 
-
-        if (bit_test(door->flags, DF_DOOR32)) {
-
-            stat = _remove_door32_sys(door);
-            check_return(stat, door);
-
-        } 
-
-        if (bit_test(door->flags, DF_DOORINFO)) {
-
-            stat = _remove_doorinfo_def(door);
-            check_return(stat, self);
-
-        }
-
-        /* change back to original directory */
-
-        errno = 0;
-        stat = chdir(curdir);
-        check_status(stat, OK, errno);
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-        process_error(self);
-
-    } end_when;
-
-    return stat;
+    }
 
 }
 
-static int _remove_door_sys(door_base_t *door) {
+static int _open_file(char *filename, files_t **file, error_trace_t *errors) {
 
     int stat = OK;
     int exists = 0;
-    files_t *file = NULL;
-    char *filename = "door.sys";
-
+    int mode = (S_IRWXU | S_IRWXG);
+    int create = (O_RDWR | O_CREAT);
+    
     when_error_in {
 
-        file = files_create(filename, self->retries, self->timeout);
+        *file = files_create(filename, RETRIES, TIMEOUT);
         check_creation(file);
 
-        stat = files_exists(file, &exists);
-        check_return(stat, file);
+        stat = files_exists(*file, &exists);
+        check_return(stat, *file);
 
         if (exists) {
 
-            stat = files_unlink(file);
-            check_return(stat, file);
+            stat = files_unlink(*file);
+            check_return(stat, *file);
 
         }
 
-        stat = files_destroy(file);
-        check_return(stat, file);
+        stat = files_open(*file, create, mode);
+        check_return(stat, *file);
+
+        stat = files_set_eol(*file, "\r\n");
+        check_return(stat, *file);
 
         exit_when;
 
     } use {
 
         stat = ERR;
-        capture_trace(self->trace);
+        copy_error(errors);
+        capture_trace(dump);
         clear_error();
 
     } end_when;
@@ -164,16 +78,15 @@ static int _remove_door_sys(door_base_t *door) {
 
 }
 
-static int _remove_door32_sys(door_t *self) {
-
+static int _remove_file(char *filename, error_trace_t *errors) {
+    
     int stat = OK;
     int exists = 0;
     files_t *file = NULL;
-    char *filename = "door32.sys";
 
     when_error_in {
 
-        file = files_create(filename, self->retries, self->timeout);
+        file = files_create(filename, RETRIES, TIMEOUT);
         check_creation(file);
 
         stat = files_exists(file, &exists);
@@ -194,7 +107,8 @@ static int _remove_door32_sys(door_t *self) {
     } use {
 
         stat = ERR;
-        capture_trace(self->trace);
+        copy_error(errors);
+        capture_trace(dump);
         clear_error();
 
     } end_when;
@@ -203,37 +117,91 @@ static int _remove_door32_sys(door_t *self) {
 
 }
 
-static int _remove_doorinfo_def(door_t *self) {
+static int _remove_door_sys(
+    door_base_t *door, 
+    node_base_t *node, 
+    error_trace_t *errors) {
 
     int stat = OK;
-    int exists = 0;
-    files_t *file = NULL;
-    char *filename = "doorinfo1.def";
+    char filename[256];
+    error_trace_t error;
 
     when_error_in {
 
-        file = files_create(filename, self->retries, self->timeout);
-        check_creation(file);
+        _create_filename(door, node, "door", ".sys", filename);
 
-        stat = files_exists(file, &exists);
-        check_return(stat, file);
-
-        if (exists) {
-
-            stat = files_unlink(file);
-            check_return(stat, file);
-
-        }
-
-        stat = files_destroy(file);
-        check_return(stat, file);
+        stat = _remove_file(filename, &error);
+        check_status2(stat, OK, error);
 
         exit_when;
 
     } use {
 
         stat = ERR;
-        capture_trace(self->trace);
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _remove_door32_sys(
+    door_base_t *door, 
+    node_base_t *node, 
+    error_trace_t *errors) {
+
+    int stat = OK;
+    char filename[256];
+    error_trace_t error;
+
+    when_error_in {
+
+        _create_filename(door, node, "door32", ".sys", filename);
+
+        stat = _remove_file(filename, &error);
+        check_status2(stat, OK, error);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _remove_doorinfo_def(
+    door_base_t *door, 
+    node_base_t *node, 
+    error_trace_t *errors) {
+
+    int stat = OK;
+    char filename[256];
+    error_trace_t error;
+
+    when_error_in {
+
+        _create_filename(door, node, "doorinfo1", ".def", filename);
+
+        stat = _remove_file(filename, &error);
+        check_status2(stat, OK, error);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
         clear_error();
 
     } end_when;
@@ -243,44 +211,29 @@ static int _remove_doorinfo_def(door_t *self) {
 }
 
 static int _write_doorinfo_def(
-    door_t *self, 
+    door_base_t *door, 
     node_base_t *node, 
     room_base_t *room, 
     user_base_t *sysop, 
     user_base_t *user, 
-    profile_base_t *profile) {
+    profile_base_t *profile,
+    error_trace_t *errors) {
 
     int stat = OK;
     char temp2[37];
-    int exists = 0;
     char buffer[256];
-    char *temp3 = NULL;
     ssize_t count = 0;
+    char filename[256];
+    char *temp3 = NULL;
     files_t *file = NULL;
-    int mode = (S_IRWXU | S_IRWXG);
-    int create = (O_RDWR | O_CREAT);
-    char *filename = "doorinfo1.def";
+    error_trace_t error;
 
     when_error_in {
 
-        file = files_create(filename, self->retries, self->timeout);
-        check_creation(file);
+        _create_filename(door, node, "doorinfo1", ".def", filename);
 
-        stat = files_exists(file, &exists);
-        check_return(stat, file);
-
-        if (exists) {
-
-            stat = files_unlink(file);
-            check_return(stat, file);
-
-        }
-
-        stat = files_open(file, create, mode);
-        check_return(stat, file);
-
-        stat = files_set_eol(file, "\r\n");
-        check_return(stat, file);
+        stat = _open_file(filename, &file, &error);
+        check_status2(stat, OK, error);
 
         /* line 1 - system name */
 
@@ -438,7 +391,8 @@ static int _write_doorinfo_def(
     } use {
 
         stat = ERR;
-        capture_trace(self->trace);
+        copy_error(errors);
+        capture_trace(dump);
         clear_error();
 
     } end_when;
@@ -448,42 +402,27 @@ static int _write_doorinfo_def(
 }
 
 static int _write_door32_sys(
-    door_t *self, 
+    door_base_t *door, 
     node_base_t *node, 
     room_base_t *room, 
     user_base_t *sysop, 
     user_base_t *user, 
-    profile_base_t *profile) {
+    profile_base_t *profile,
+    error_trace_t *errors) {
 
     int stat = OK;
-    int exists = 0;
     char buffer[256];
     ssize_t count = 0;
+    char filename[256];
+    error_trace_t error;
     files_t *file = NULL;
-    char *filename = "door32.sys";
-    int mode = (S_IRWXU | S_IRWXG);
-    int create = (O_RDWR | O_CREAT);
 
     when_error_in {
 
-        file = files_create(filename, self->retries, self->timeout);
-        check_creation(file);
+        _create_filename(door, node, "door32", ".sys", filename);
 
-        stat = files_exists(file, &exists);
-        check_return(stat, file);
-
-        if (exists) {
-
-            stat = files_unlink(file);
-            check_return(stat, file);
-
-        }
-
-        stat = files_open(file, create, mode);
-        check_return(stat, file);
-
-        stat = files_set_eol(file, "\r\n");
-        check_return(stat, file);
+        stat = _open_file(filename, &file, &error);
+        check_status2(stat, OK, error);
 
         /* line 1 - com port, 0=local, 1=serial, 2=telnet */
 
@@ -531,7 +470,6 @@ static int _write_door32_sys(
             check_return(stat, file);
 
         }
-
 
         /* line 7 - user handle */
 
@@ -600,7 +538,8 @@ static int _write_door32_sys(
     } use {
 
         stat = ERR;
-        capture_trace(self->trace);
+        copy_error(errors);
+        capture_trace(dump);
         clear_error();
 
     } end_when;
@@ -610,42 +549,27 @@ static int _write_door32_sys(
 }
 
 static int _write_door_sys(
-    door_t *self, 
+    door_base_t *door, 
     node_base_t *node, 
     room_base_t *room, 
     user_base_t *sysop, 
     user_base_t *user, 
-    profile_base_t *profile) {
+    profile_base_t *profile,
+    error_trace_t *errors) {
 
     int stat = OK;
-    int exists = 0;
     char buffer[256];
     ssize_t count = 0;
+    char filename[256];
+    error_trace_t error;
     files_t *file = NULL;
-    char *filename = "door.sys";
-    int mode = (S_IRWXU | S_IRWXG);
-    int create = (O_RDWR | O_CREAT);
 
     when_error_in {
 
-        file = files_create(filename, self->retries, self->timeout);
-        check_creation(file);
+        _create_filename(door, node, "door", ".sys", filename);
 
-        stat = files_exists(file, &exists);
-        check_return(stat, file);
-
-        if (exists) {
-
-            stat = files_unlink(file);
-            check_return(stat, file);
-
-        }
-
-        stat = files_open(file, create, mode);
-        check_return(stat, file);
-
-        stat = files_set_eol(file, "\r\n");
-        check_return(stat, file);
+        stat = _open_file(filename, &file, &error);
+        check_status2(stat, OK, error);
 
         /* line 1 - com port */
 
@@ -1022,7 +946,8 @@ static int _write_door_sys(
     } use {
 
         stat = ERR;
-        capture_trace(self->trace);
+        copy_error(errors);
+        capture_trace(dump);
         clear_error();
 
     } end_when;
@@ -1031,7 +956,7 @@ static int _write_door_sys(
 
 }
 
-static int _spawn(char *command) {
+static int _spawn(char *command, error_trace_t *errors) {
 
     int	rc = 0;
     pid_t pid = 0;
@@ -1085,12 +1010,121 @@ static int _spawn(char *command) {
     } use {
 
         stat = ERR;
-        capture_trace(self->trace);
+        copy_error(errors);
+        capture_trace(dump);
         clear_error();
 
     } end_when;
 
 	return stat;
+
+}
+
+int _run_door(door_base_t *door, node_base_t *node, 
+              room_base_t *room, user_base_t *sysop, 
+              user_base_t *user, profile_base_t *profile,
+              error_trace_t *errors) {
+
+    int stat = OK;
+    char nodenum[8];
+    char curdir[256];
+    char workdir[256];
+    error_trace_t error;
+
+    when_error_in {
+
+        /* save current directory */
+
+        memset(curdir, '\0', 255);
+
+        errno = 0;
+        if ((getcwd(curdir, 255)) == NULL) {
+
+            cause_error(errno);
+
+        }
+
+        /* change to work directory */
+
+        memset(nodenum, '\0', 8);
+        memset(workdir, '\0', 256);
+
+        sprintf(nodenum, "%ld", node->nodenum);
+        strncpy(workdir, fnm_build(1, FnmPath, nodenum, WORKPATH, NULL), 255);
+
+        errno = 0;
+        stat = chdir(workdir);
+        check_status(stat, OK, errno);
+
+        /* write out the drop file */
+
+        if (bit_test(door->flags, DF_DOORSYS)) {
+
+            stat = _write_door_sys(door, node, room, sysop, user, profile, &error);
+            check_status2(stat, OK, error);
+
+        } 
+
+        if (bit_test(door->flags, DF_DOOR32)) {
+
+            stat = _write_door32_sys(door, node, room, sysop, user, profile, &error);
+            check_status2(stat, OK, error);
+
+        } 
+
+        if (bit_test(door->flags, DF_DOORINFO)) {
+
+            stat = _write_doorinfo_def(door, node, room, sysop, user, profile, &error);
+            check_status2(stat, OK, error);
+
+        }
+
+        /* run the door */
+
+        stat = _spawn(door->command, &error);
+        check_status2(stat, OK, error);
+
+        /* remove the drop file */
+
+        if (bit_test(door->flags, DF_DOORSYS)) {
+
+            stat = _remove_door_sys(door, node, &error);
+            check_status2(stat, OK, error);
+
+        } 
+
+        if (bit_test(door->flags, DF_DOOR32)) {
+
+            stat = _remove_door32_sys(door, node, &error);
+            check_status2(stat, OK, error);
+
+        } 
+
+        if (bit_test(door->flags, DF_DOORINFO)) {
+
+            stat = _remove_doorinfo_def(door, node, &error);
+            check_status2(stat, OK, error);
+
+        }
+
+        /* change back to original directory */
+
+        errno = 0;
+        stat = chdir(curdir);
+        check_status(stat, OK, errno);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        copy_error(errors);
+        capture_trace(dump);
+        clear_error();
+
+    } end_when;
+
+    return stat;
 
 }
 
@@ -1109,16 +1143,6 @@ int bbs_doors(rms_t *doors, room_base_t *room, error_trace_t *errors) {
     profile_base_t *profile = NULL;
 
     when_error_in {
-
-        stat = user_get(users, SYSOP, &sysop);
-        check_return(stat, users);
-
-        if (has_profile(&useron)) {
-
-            stat = profile_get(profiles, useron.profile, profile);
-            check_return(stat, profile);
-
-        }
 
         stat = door_get(doors, &door);
         check_return(stat, doors);
@@ -1142,10 +1166,20 @@ int bbs_doors(rms_t *doors, room_base_t *room, error_trace_t *errors) {
             exit_when;
 
         }
-        
+
         door.active = TRUE;
         stat = door_put(doors, &door);
         check_return(stat, doors);
+
+        stat = user_get(users, SYSOP, &sysop);
+        check_return(stat, users);
+
+        if (has_profile(&useron)) {
+
+            stat = profile_get(profiles, useron.profile, profile);
+            check_return(stat, profile);
+
+        }
 
         stat = bbs_send_status(NODE_XTRN, &error);
         check_status2(stat, OK, error);
@@ -1159,8 +1193,8 @@ int bbs_doors(rms_t *doors, room_base_t *room, error_trace_t *errors) {
 
         /* run the subsystem */
 
-        stat = _run_door(door, &qnode, room, &sysop, &useron, profile);
-        check_return(stat, doors);
+        stat = _run_door(&door, &qnode, room, &sysop, &useron, profile, &error);
+        check_status2(stat, OK, error);
 
         /* reenter ncurses */
 
@@ -1172,7 +1206,7 @@ int bbs_doors(rms_t *doors, room_base_t *room, error_trace_t *errors) {
         door.active = FALSE;
         door.usage[useron.eternal - 1].runs++;
         door.usage[useron.eternal - 1].wasted += wasted;
-        
+
         stat = door_put(doors, &door);
         check_return(stat, doors);
             

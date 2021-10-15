@@ -28,9 +28,10 @@ int _door_build(rms_t *self, door_base_t *ondisk, door_base_t *record) {
 
     memset(record, '\0', self->recsize);
 
-    strcpy(record->command, ondisk->command);
-    strcpy(record->clean, ondisk->clean);
-    strcpy(record->path, ondisk->path);
+    strncpy(record->command, ondisk->command, DOOR_CMD_LEN);
+    strncpy(record->clean, ondisk->clean, DOOR_CMD_LEN);
+    strncpy(record->path, ondisk->path, DOOR_PATH_LEN);
+
     record->type = ondisk->type;
     record->flags = ondisk->flags;
     record->cost = ondisk->cost;
@@ -117,24 +118,24 @@ int _door_init(rms_t *self) {
 
 int _door_normalize(rms_t *self, door_base_t *ondisk, door_base_t *record) {
 
-    memset(record, '\0', self->recsize);
-
-    strcpy(record->command, ondisk->command);
-    strcpy(record->clean, ondisk->clean);
-    strcpy(record->path, ondisk->path);
-    record->type = ondisk->type;
-    record->flags = ondisk->flags;
-    record->cost = ondisk->cost;
-    record->active = ondisk->active;
-    record->revision = ondisk->revision + 1;
-
     int x = 0;
     for (; x < USERNUM; x++) {
 
-        record->usage[x].runs = ondisk->usage[x].runs;
-        record->usage[x].wasted = ondisk->usage[x].wasted;
+        if (ondisk->usage[x].runs > record->usage[x].runs) {
+
+            record->usage[x].runs = ondisk->usage[x].runs;
+
+        }
+
+        if (ondisk->usage[x].wasted > record->usage[x].wasted) {
+
+            record->usage[x].wasted = ondisk->usage[x].wasted;
+
+        }
 
     }
+
+    record->revision = ondisk->revision + 1;
 
     return OK;
 

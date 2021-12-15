@@ -1,9 +1,9 @@
 
 #include <stdio.h>
-#include "when.h"
-#include "logger.h"
-#include "errors.h"
-#include "message.h"
+#include "include/when.h"
+#include "logger/logger.h"
+#include "errors/errors.h"
+#include "messages/message.h"
 
 errors_t *errs = NULL;
 logger_t *logs = NULL;

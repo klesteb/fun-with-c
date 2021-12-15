@@ -1,7 +1,7 @@
 
 #include <stdio.h>
-#include "when.h"
-#include "logger.h"
+#include "include/when.h"
+#include "logger/logger.h"
 
 int test() {
 

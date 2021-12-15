@@ -33,7 +33,8 @@
  * blocks for error handling. 
  * 
  * There are some caveats; you can't nest blocks, you can't easily 
- * propagate an error up the call chain, there is no retry logic. 
+ * propagate an error up the call chain. The tracer package helps with
+ * this problem.
  * 
  * But it does handle the chore of checking return codes and then
  * branching to an error handler when an error occurs. Errors are 
@@ -41,11 +42,19 @@
  * 
  **/
 
-#define when_error { static error_trace_t _er_trace;
-#define when_error_in { static error_trace_t _er_trace;
+#define when_error \
+    do { \
+        static error_trace_t _er_trace;
+    
+#define when_error_in \
+    do { \
+        static error_trace_t _er_trace;
+
+#define end_when \
+    } while(0);
+
 #define use handler:
-#define end_when } exit_handler: 
-#define exit_when goto exit_handler
+#define exit_when break;
 
 #define trace_errnum   _er_trace.errnum
 #define trace_lineno   _er_trace.lineno
@@ -54,7 +63,7 @@
 
 #define retry(label) {                  \
     clear_error();                      \
-    goto label;                         \
+    goto (label);                       \
 }
 
 #define cause_error(error) {            \

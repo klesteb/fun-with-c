@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#include "when.h"
+#include "include/when.h"
 
 int main(int argc, char **argv) {
 

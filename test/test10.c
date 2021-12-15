@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <log4c.h>
 
-#include "when.h"
-#include "tracer.h"
-#include "logger.h"
-#include "errors.h"
-#include "message.h"
+#include "include/when.h"
+#include "tracer/tracer.h"
+#include "logger/logger.h"
+#include "errors/errors.h"
+#include "messages/message.h"
 
 tracer_t *dump = NULL;
 errors_t *errs = NULL;

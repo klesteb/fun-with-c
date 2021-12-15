@@ -29,7 +29,7 @@ INCS = keys.h widget.h colors.h window.h component.h components/label.h \
        components/prompt.h components/textarea.h components/input.h \
        components/bell.h components/menus/menus.h components/menus/bar.h \
        components/menus/box.h components/menus/list.h components/more.h \
-       components/yesno.h \
+       components/yesno.h components/forms/forms.h \
        workbench.h windows/alert.h windows/status.h windows/bar_menu.h \
        windows/box_menu.h windows/list_menu.h windows/base_window.h \
        windows/query_window.h
@@ -39,7 +39,9 @@ OBJS = widget.o colors.o window.o component.o components/label.o \
        components/prompt.o components/textarea.o components/input.o \
        components/bell.o components/menus/menus.o components/menus/bar.o \
        components/menus/box.o components/menus/list.o components/more.o \
-       components/yesno.o \
+       components/yesno.o components/forms/form_field.o \
+       components/forms/form_header.o components/forms/form_label.o \
+       components/forms/form_seperator.o components/forms/form_textares.o \
        workbench.o windows/alert.o windows/status.o windows/bar_menu.o \
        windows/box_menu.o windows/list_menu.o windows/base_window.o \
        windows/query_window.o
@@ -57,6 +59,8 @@ clean:
 	rm -f components/*~
 	rm -f components/menus/*.o
 	rm -f components/menus/*~
+	rm -f components/forms/*.o
+	rm -f components/forms/*~
 	rm -f windows/*.o
 	rm -f windows/*~
 	rm -f $(STATIC)
@@ -222,6 +226,26 @@ components/more.o: components/more.c $(INCS)
 components/yesno.o: components/yesno.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) components/yesno.o components/yesno.c 
 	$(LIBR) $(STATIC) components/yesno.o
+#
+components/forms/form_field.o: components/forms/form_field.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) components/forms/form_field.o components/forms/form_field.c
+	$(LIBR) $(STATIC) components/forms/form_field.o
+#
+components/forms/form_label.o: components/forms/form_label.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) components/forms/form_label.o components/forms/form_label.c
+	$(LIBR) $(STATIC) components/forms/form_label.o
+#
+components/forms/form_header.o: components/forms/form_header.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) components/forms/form_header.o components/forms/form_header.c
+	$(LIBR) $(STATIC) components/forms/form_header.o
+#
+components/forms/form_textarea.o: components/forms/form_textarea.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) components/forms/form_textarea.o components/forms/form_textarea.c
+	$(LIBR) $(STATIC) components/forms/form_textarea.o
+#
+components/forms/form_seperator.o: components/forms/form_seperator.c $(INCS)
+	$(CC) $(CFLAGS) $(LFLAGS) components/forms/form_seperator.o components/forms/form_seperator.c
+	$(LIBR) $(STATIC) components/forms/form_seperator.o
 #
 components/menus/menus.o: components/menus/menus.c $(INCS) 
 	$(CC) $(CFLAGS) $(LOPTS) components/menus/menus.o components/menus/menus.c 

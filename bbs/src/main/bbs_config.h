@@ -24,6 +24,7 @@
 
 #define BBSDIR   "../../"           /* root directory of the bbs           */
 #define DATAPATH "../../data/"      /* where the data files are located    */
+#define DOORPATH "../../doors/"     /* where the doors are located         */
 #define MSGPATH  "../../messages/"  /* where the messages are located      */
 #define TEXTPATH "../../text/"      /* where the text files are located    */
 #define WORKPATH "../../work/"      /* work space                          */
@@ -44,7 +45,7 @@
 /* datastores. the bbs will create files on initial startup using these    */
 /* numbers. changing the datastore sizes must be done external to the      */
 /* bbs. once that is done. then these can be changed to reflect the new    */
-/* reality. this reality will cause a recompile.                           */ 
+/* reality. this new reality will necessitate a recompile.                 */ 
 
 #define ROOMNUM 256                 /* max number of rooms                 */
 #define NODENUM 32                  /* max number of nodes                 */

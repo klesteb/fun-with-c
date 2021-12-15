@@ -48,14 +48,14 @@ window_t *bar_menu(int startx, int starty, int height, int width, menus_list_t *
         menu = bar_menu_create(window, startx, starty, height, width, tab, list, list_size);
         check_creation(menu);
 
-        hline = hline_create(window, startx, starty, width);
-        check_creation(hline);
+        /* hline = hline_create(window, startx, starty, width); */
+        /* check_creation(hline); */
 
         stat = window_add(window, menu);
         check_return(stat, window);
 
-        stat = window_add(window, hline);
-        check_return(stat, window);
+        /* stat = window_add(window, hline); */
+        /* check_return(stat, window); */
 
         stat = window_set_tab(window, tab);
         check_return(stat, window);

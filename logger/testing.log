@@ -4,3 +4,27 @@
 {"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":18,"filename":"test3.c","function":"main"}
 {"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":19,"filename":"test3.c","function":"main"}
 {"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":20,"filename":"test3.c","function":"main"}
+[2021-12-16 11:14:37.512] INFO  - info works
+[2021-12-16 11:14:37.512] WARN  - warn works
+[2021-12-16 11:14:37.512] ERROR - error works
+[2021-12-16 11:14:37.512] FATAL - fatal works
+[2021-12-16 11:14:37.512] DEBUG - debug works
+[2021-12-16 11:14:37.512] TRACE - trace works
+[2021-12-16 11:14:54.562] INFO  - info works
+[2021-12-16 11:14:54.563] WARN  - warn works
+[2021-12-16 11:14:54.563] ERROR - error works
+[2021-12-16 11:14:54.563] FATAL - fatal works
+[2021-12-16 11:14:54.563] DEBUG - debug works
+[2021-12-16 11:14:54.563] TRACE - trace works
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.007-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":15,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":16,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":17,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":18,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":19,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":20,"filename":"test3.c","function":"main"}
+[2021-12-16 11:15:08.553] INFO  - info works
+[2021-12-16 11:15:08.553] WARN  - warn works
+[2021-12-16 11:15:08.553] ERROR - error works
+[2021-12-16 11:15:08.553] FATAL - fatal works
+[2021-12-16 11:15:08.553] DEBUG - debug works
+[2021-12-16 11:15:08.553] TRACE - trace works

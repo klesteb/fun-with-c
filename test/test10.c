@@ -3,21 +3,24 @@
 #include <log4c.h>
 
 #include "include/when.h"
-#include "tracer/tracer.h"
 #include "logger/logger.h"
 #include "errors/errors.h"
 #include "messages/message.h"
 
-tracer_t *dump = NULL;
+#define process_error(error) { \
+    copy_error(error);         \
+    clear_error();             \
+}
+
 errors_t *errs = NULL;
 logger_t *logs = NULL;
 message_t *msgs = NULL;
 
-int setup(void) {
+int setup(error_trace_t *error) {
 
     int stat = OK;
-    char *process = "test10";
-    char *category = "test10";
+    char *process = "test9";
+    char *category = "test9";
     char *facility = "system";
 
     when_error_in {
@@ -31,15 +34,11 @@ int setup(void) {
         msgs = message_create(NULL, 0);
         check_creation(msgs);
 
-        dump = tracer_create(errs);
-        check_creation(dump);
-
         exit_when;
 
     } use {
 
-        capture_trace(dump);
-        clear_error();
+        process_error(error);
         stat = ERR;
 
     } end_when;
@@ -48,62 +47,64 @@ int setup(void) {
 
 }
 
-int dump_trace(char *buffer) {
-
-    log_error(logs, "%s", buffer);
-
-    return OK;
-
-}
-
 void cleanup(void) {
 
     log_destroy(logs);
     errors_destroy(errs);
     message_destroy(msgs);
-    tracer_destroy(dump);
 
 }
 
-int test(void) {
+int test(error_trace_t *error) {
 
     int stat = OK;
+    int retries = 0;
 
     when_error {
 
+        AGAIN:
         cause_error(E_INVOPS);
         exit_when;
 
     } use {
 
-        capture_trace(dump);
-        clear_error();
+        retries++;
+        if (retries < 2) retry(AGAIN);
+
+        process_error(error);
         stat = ERR;
 
     } end_when;
 
-    return ERR;
+    return stat;
 
 }
 
 int main(int argc, char **argv) {
 
     int stat = OK;
+    error_trace_t error;
 
     when_error {
 
-        stat = setup();
-        check_status(stat, OK, E_INVOPS);
+        stat = setup(&error);
+        check_status2(stat, OK, error);
 
-        stat = test();
-        check_status(stat, OK, E_INVOPS);
+        stat = test(&error);
+        check_status2(stat, OK, error);
 
         exit_when;
 
     } use {
 
-        capture_trace(dump);
-        tracer_dump(dump, dump_trace);
+        char text[32]; 
+        char reason[256];
+        char *fmt = "%s, reason: %s; line: %d, file: %s, function: %s";
+
+        errors_get_text(errs, trace_errnum, text, 31);
+        errors_get_message(errs, trace_errnum, reason, 255);
+        log_error(logs, fmt, text, reason, trace_lineno, trace_filename, trace_function);
+
         clear_error();
 
     } end_when;

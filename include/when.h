@@ -63,7 +63,7 @@
 
 #define retry(label) {                  \
     clear_error();                      \
-    goto (label);                       \
+    goto label;                         \
 }
 
 #define cause_error(error) {            \

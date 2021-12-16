@@ -10,7 +10,7 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include "object.h"
+#include "objects/object.h"
 #include "worker.h"
 
 require_klass(OBJECT_KLASS);

@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 
-#include "object.h"
+#include "objects/object.h"
 #include "worker1.h"
 #include "worker2.h"
 #include "factory.h"

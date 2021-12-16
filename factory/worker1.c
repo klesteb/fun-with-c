@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "misc/misc.h"
+#include "cclibs/misc/misc.h"
 #include "worker.h"
 
 /*----------------------------------------------------------------*/

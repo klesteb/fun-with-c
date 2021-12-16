@@ -6,7 +6,7 @@
 # Makefile to build factory.
 #
 CC = gcc
-CFLAGS = -Wall -c -I../include -I../cclibs -I../objects -I../gpl
+CFLAGS = -Wall -c -I../
 OLBS = factory.o worker.o worker1.o worker2.o ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
 LINK = gcc
 LFLAGS = -o test

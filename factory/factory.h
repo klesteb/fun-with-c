@@ -13,7 +13,7 @@
 #ifndef _FACTORY_H
 #define _FACTORY_H
 
-#include "que_util.h"
+#include "cclibs/que_util.h"
 #include "worker.h"
 
 /*----------------------------------------------------------------*/

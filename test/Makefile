@@ -16,7 +16,8 @@ LIBR = ar -r
 #
 #OBJS = 
 #
-all: $(OBJS) test test2 test3 test4 test5 test6 test7 test8 test9 test10
+all: $(OBJS) test test2 test3 test4 test5 test6 test7 test8 test9 \
+     test10 test11
 #
 debug:
 #
@@ -33,6 +34,7 @@ clean:
 	rm -f test8
 	rm -f test9
 	rm -f test10
+	rm -f test11
 #
 test: test.o
 	$(CC) $(CFLAGS) test.c
@@ -73,6 +75,10 @@ test9: test9.o
 test10: test10.o
 	$(CC) $(CFLAGS) test10.c
 	$(LINK) $(LFLAGS) test10 test10.o  $(OLBS)
+#
+test11: test11.o
+	$(CC) $(CFLAGS) test11.c
+	$(LINK) $(LFLAGS) test11 test11.o  $(OLBS)
 #
 # eof
 #

@@ -1161,23 +1161,25 @@ int _qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **tex
         (*header).records = atol(buff) - 1L; /* exclude the header record */
 
         (*header).alive = QWK_ISALIVE(rec.Alive);
-   
-#if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+       
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        swap.cnum[0] = (rec.Conference[0] == ' ' ? 0 : rec.Conference[0]);
+        swap.cnum[1] = (rec.Conference[1] == ' ' ? 0 : rec.Conference[1]);
+        (*header).conference = swap.snum;
 
+        swap.cnum[0] = (rec.SeqNumber[0] == ' ' ? 0 : rec.SeqNumber[0]);
+        swap.cnum[1] = (rec.SeqNumber[1] == ' ' ? 0 : rec.SeqNumber[1]);
+        (*header).seq_number = swap.snum;
+#else 
         /* Swap the bytes from intel to motorola format.                */
 
         swap.cnum[0] = (rec.Conference[1] == ' ' ? 0 : rec.Conference[1]);
-        swap.cnum[1] =  rec.Conference[0];
+        swap.cnum[1] = (rec.Conference[0] == ' ' ? 0 : rec.Conference[0]);
         (*header).conference = swap.snum;
-
-        /* Swap the bytes from intel to motorola format.                */
 
         swap.cnum[0] = (rec.SeqNumber[1] == ' ' ? 0 : rec.SeqNumber[1]);
         swap.cnum[1] = (rec.SeqNumber[0] == ' ' ? 0 : rec.SeqNumber[0]);
         (*header).seq_number = swap.snum;
-#else 
-        (*header).conference = rec.Conference;
-        (*header).seq_number = rec.SeqNumber;
 #endif
 
         if (self->rep) {

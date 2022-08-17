@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERRORS_PRIV_H_
-#define _ERRORS_PRIV_H_
+#ifndef _ERRORS_XAS_H_
+#define _ERRORS_XAS_H_
 
 #include "include/error_code.h"
 #include "include/error_codes.h"

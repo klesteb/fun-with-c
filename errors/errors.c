@@ -17,7 +17,7 @@
 #include "include/when.h"
 #include "objects/object.h"
 #include "errors/errors.h"
-#include "errors/errors_priv.h"
+#include "include/errors_xas.h"
 
 require_klass(OBJECT_KLASS);
 

@@ -1301,22 +1301,24 @@ int _qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *recor
 
         }
 
-#if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        swap.snum = header->conference;
+        rec.Conference[0] = swap.cnum[0];
+        rec.Conference[1] = (swap.cnum[1] == 0 ? ' ' : swap.cnum[1]);
 
+        swap.snum = header->seq_number;
+        rec.SeqNumber[0] = (swap.cnum[0] == 0 ? ' ' : swap.cnum[0]);
+        rec.SeqNumber[1] = (swap.cnum[1] == 0 ? ' ' : swap.cnum[1]);
+#else
         /* Swap the bytes from motorola to intel format.                     */
    
         swap.snum = header->conference;
-        rec.Conference[0] =  swap.cnum[1];
+        rec.Conference[0] = swap.cnum[1];
         rec.Conference[1] = (swap.cnum[0] == 0 ? ' ' : swap.cnum[0]);
-   
-        /* Swap the bytes from motorola to intel format.                     */
    
         swap.snum = header->seq_number;
         rec.SeqNumber[0] = (swap.cnum[1] == 0 ? ' ' : swap.cnum[1]);
         rec.SeqNumber[1] = (swap.cnum[0] == 0 ? ' ' : swap.cnum[0]);
-#else
-        rec.Conference = header->conference;
-        rec.SeqNumber = header->seq_number;
 #endif
 
         strncpy(rec.NetTag, header->net_tag, 1);

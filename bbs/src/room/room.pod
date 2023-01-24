@@ -172,7 +172,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<room_t *room_create(char *dbpath, char *msgpath, int retries, int timeout, int base, tracer_t *dump)>
+=head2 room_t *room_create(char *dbpath, char *msgpath, int retries, int timeout, int base, tracer_t *dump)
 
 This method initializes the class. 
 
@@ -200,7 +200,7 @@ A pointer to a tracer_t object to manage a trace dump.
 
 =back
 
-=head2 I<int room_destroy(room_t *self)>
+=head2 int room_destroy(room_t *self)
 
 This destroys the object. 
 
@@ -212,7 +212,7 @@ A pointer to the room_t object.
 
 =back
 
-=head2 I<int room_override(room_t *self, item_list_t *items)>
+=head2 int room_override(room_t *self, item_list_t *items)
 
 This method allows you to override methods. 
 
@@ -228,7 +228,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int room_compare(room_t *this, room_t *that)>
+=head2 int room_compare(room_t *this, room_t *that)
 
 This method allows you to compare one room_t object to another. 
 
@@ -244,7 +244,7 @@ A pointer to a room_t object.
 
 =back
 
-=head2 I<char *room_version(room_t *self)>
+=head2 char *room_version(room_t *self)
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -257,7 +257,7 @@ A pointer to the room_t object.
 
 =back
 
-=head2 I<int room_open(room_t *self)>
+=head2 int room_open(room_t *self)
 
 This method allows access to the rooms. 
 
@@ -269,7 +269,7 @@ A pointer to a room_t object.
 
 =back
 
-=head2 I<int room_close(room_t *self)>
+=head2 int room_close(room_t *self)
 
 This method closes access to the rooms.
 
@@ -281,7 +281,7 @@ A pointer to a room_t object.
 
 =back
 
-=head2 I<int room_add(room_t *self, room_base_t *room)>
+=head2 int room_add(room_t *self, room_base_t *room)
 
 This method adds a new room.
 
@@ -297,7 +297,7 @@ A pointer to a room_base_t type.
 
 =back
 
-=head2 I<int room_del(room_t *self, int index)>
+=head2 int room_del(room_t *self, int index)
 
 This method deletes a room.
 
@@ -313,7 +313,7 @@ The room to delete.
 
 =back
 
-=head2 I<int room_get(room_t *self, int index, room_base_t **room)>
+=head2 int room_get(room_t *self, int index, room_base_t **room)
 
 This method gets the indicated room.
 
@@ -334,7 +334,7 @@ structure is internally allocated and needs to be freed with room_free().
 
 =back
 
-=head2 I<int room_put(room_t *self, int index, room_base_t *room)>
+=head2 int room_put(room_t *self, int index, room_base_t *room)
 
 This method updates a room.
 
@@ -354,7 +354,7 @@ A pointer to a room_base_t type.
 
 =back
 
-=head2 I<int room_free(room_t *self, room_base_t *room)>
+=head2 int room_free(room_t *self, room_base_t *room)
 
 This method deallocates memory used by the room data structure.
 
@@ -370,7 +370,7 @@ A pointer to a room_base_t type.
 
 =back
 
-=head2 I<int room_find(room_t *self, void *data, int len, int (*compare)(void *, int, room_base_t *), int *index)>
+=head2 int room_find(room_t *self, void *data, int len, int (*compare)(void *, int, room_base_t *), int *index)
 
 This method will return the first room that matches the comparison.
 
@@ -400,7 +400,7 @@ if nothing matches.
 
 =back
 
-=head2 I<int room_search(room_t *self, void *data, int len, int (*compare)(void *, int, room_base_t *), queue *results)>
+=head2 int room_search(room_t *self, void *data, int len, int (*compare)(void *, int, room_base_t *), queue *results)
 
 This method will return all the rooms that matches the comparison.
 
@@ -430,7 +430,7 @@ nothing matches.
 
 =back
 
-=head2 I<int room_extend(room_t *self, int size)>
+=head2 int room_extend(room_t *self, int size)
 
 =over 4
 
@@ -444,7 +444,7 @@ A number of records to extend the database by.
 
 =back
 
-=head2 I<room_handler(room_t *self, room_base_t *room, void **handle)>
+=head2 room_handler(room_t *self, room_base_t *room, void **handle)
 
 This method returns the handler for the room resource.
 

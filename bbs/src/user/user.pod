@@ -204,11 +204,11 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<rms_t *user_create(char *path, int records, int retries, int timeout, tracer_t *dump)>
+=head2 rms_t *user_create(char *path, int records, int retries, int timeout, tracer_t *dump)
 
 This method initializes the class. 
 
-=head2 I<int user_destroy(rms_t *self)>
+=head2 int user_destroy(rms_t *self)
 
 This destroys the object. 
 
@@ -220,7 +220,7 @@ A pointer to the rms_t object.
 
 =back
 
-=head2 I<int user_override(rms_t *self, item_list_t *items)>
+=head2 int user_override(rms_t *self, item_list_t *items)
 
 This method allows you to override methods. 
 
@@ -236,7 +236,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int user_compare(rms_t *this, rms_t *that)>
+=head2 int user_compare(rms_t *this, rms_t *that)
 
 This method allows you to compare one rms_t object to another. 
 
@@ -252,7 +252,7 @@ A pointer to a rms_t object.
 
 =back
 
-=head2 I<char *user_version(rms_t *self)>
+=head2 char *user_version(rms_t *self)
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -265,7 +265,7 @@ A pointer to the rms_t object.
 
 =back
 
-=head2 I<int user_open(rms_t *self)>
+=head2 int user_open(rms_t *self)
 
 This method allows access to the users database. 
 
@@ -277,7 +277,7 @@ A pointer to a rms_t object.
 
 =back
 
-=head2 I<int user_close(rms_t *self)>
+=head2 int user_close(rms_t *self)
 
 This method closes access to the users database.
 
@@ -289,7 +289,7 @@ A pointer to a rms_t object.
 
 =back
 
-=head2 I<int user_add(rms_t *self, user_base_t *user)>
+=head2 int user_add(rms_t *self, user_base_t *user)
 
 This method adds a user to the users database. 
 
@@ -305,7 +305,7 @@ A pointer to a user_base_t type to write to the database.
 
 =back
 
-=head2 I<int user_del(rms_t *self, int index)>
+=head2 int user_del(rms_t *self, int index)
 
 This method deletes a user from the users database. The record is not
 removed from the database. It is marked as "deleted". The record is
@@ -323,7 +323,7 @@ The index to the users record within the database.
 
 =back
 
-=head2 I<int user_get(rms_t *self, int index, user_base_t *user)>
+=head2 int user_get(rms_t *self, int index, user_base_t *user)
 
 This method gets the indicated user.
 
@@ -343,7 +343,7 @@ A pointer to a user_base_t type to write the data too.
 
 =back
 
-=head2 I<int user_put(rms_t *self, int index, user_base_t *user)>
+=head2 int user_put(rms_t *self, int index, user_base_t *user)
 
 This method updates a user.
 
@@ -363,7 +363,7 @@ A pointer to a user_base_t type.
 
 =back
 
-=head2 I<int user_find(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), off_t *recnum)>
+=head2 int user_find(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), off_t *recnum)
 
 This method will return the first user that matches the comparison.
 
@@ -393,7 +393,7 @@ if nothing matches.
 
 =back
 
-=head2 I<int user_search(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), int (*capture)(rms_t *, void *, queue *), queue *)>
+=head2 int user_search(rms_t *self, void *data, int len, int (*compare)(void *, int, user_base_t *), int (*capture)(rms_t *, void *, queue *), queue *)
 
 This method will return all the users that matches the comparison.
 
@@ -428,7 +428,7 @@ nothing matches.
 
 =back
 
-=head2 I<int user_capture(rms_t *self, void *data, queue *results)>
+=head2 int user_capture(rms_t *self, void *data, queue *results)
 
 A default capture function. 
 

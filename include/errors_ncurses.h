@@ -13,7 +13,7 @@
 #ifndef _ERRORS_NCURSES_H_
 #define _ERRORS_NCURSES_H_
 
-#include <ncurses/eti.h>
+#include <eti.h>
 
 #include "include/error_code.h"
 

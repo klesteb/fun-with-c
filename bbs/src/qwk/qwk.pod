@@ -286,7 +286,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<qwk_t *qwk_create(char *path, int retries, int timeout, int rep, tracer_t *dump)>
+=head2 qwk_t *qwk_create(char *path, int retries, int timeout, int rep, tracer_t *dump)
 
 This method initializes the class. 
 
@@ -315,7 +315,7 @@ A pointer to a tracer_t object to manage a trace dump.
 
 =back
 
-=head2 I<int qwk_destroy(qwk_t *self)>
+=head2 int qwk_destroy(qwk_t *self)
 
 This destroys the object. 
 
@@ -327,7 +327,7 @@ A pointer to the qwk_t object.
 
 =back
 
-=head2 I<int qwk_override(qwk_t *self, item_list_t *items)>
+=head2 int qwk_override(qwk_t *self, item_list_t *items)
 
 This method allows you to override methods. 
 
@@ -343,7 +343,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int qwk_compare(qwk_t *this, qwk_t *that)>
+=head2 int qwk_compare(qwk_t *this, qwk_t *that)
 
 This method allows you to compare one qwk_t object to another. 
 
@@ -359,7 +359,7 @@ A pointer to a qwk_t object.
 
 =back
 
-=head2 I<char *qwk_version(qwk_t *self)>
+=head2 char *qwk_version(qwk_t *self)
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -372,7 +372,7 @@ A pointer to the qwk_t object.
 
 =back
 
-=head2 I<int qwk_open(qwk_t *self)>
+=head2 int qwk_open(qwk_t *self)
 
 This method allows access to the files used in a QWK packet. 
 
@@ -384,7 +384,7 @@ A pointer to a qwk_t object.
 
 =back
 
-=head2 I<int qwk_close(qwk_t *self)>
+=head2 int qwk_close(qwk_t *self)
 
 This method closes access to the packet files.
 
@@ -396,7 +396,7 @@ A pointer to a qwk_t object.
 
 =back
 
-=head2 I<int qwk_open_ndx(qwk_t *self, char *name)>
+=head2 int qwk_open_ndx(qwk_t *self, char *name)
 
 This method opens the named ndx file.
 
@@ -412,7 +412,7 @@ The name of the ndx file. This assumes an extension of ".ndx".
 
 =back
 
-=head2 I<int qwk_get_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count)>
+=head2 int qwk_get_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count)
 
 This method gets the next ndx record. 
 
@@ -428,7 +428,7 @@ A pointer to the number of bytes read. A 0 value indicates end of file.
 
 =back
 
-=head2 I<int qwk_put_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count)>
+=head2 int qwk_put_ndx(qwk_t *self, qwk_ndx_t *ndx, ssize_t *count)
 
 This method appends a ndx record. 
 
@@ -449,7 +449,7 @@ of the qwk_ndx_t type, an error has occurred.
 
 =back
 
-=head2 I<int qwk_close_ndx(qwk_t *self)>
+=head2 int qwk_close_ndx(qwk_t *self)
 
 This method closes the currently open ndx file.
 
@@ -461,7 +461,7 @@ A pointer to a qwk_t object.
 
 =back
 
-=head2 I<int qwk_get_control(qwk_t *self, qwk_control_t *control)>
+=head2 int qwk_get_control(qwk_t *self, qwk_control_t *control)
 
 This method will read the control file.
 
@@ -477,7 +477,7 @@ A pointer to the control record.
 
 =back
 
-=head2 I<int qwk_put_control(qwk_t *self, qwk_control_t *control)>
+=head2 int qwk_put_control(qwk_t *self, qwk_control_t *control)
 
 This method writes out the control files.
 
@@ -493,7 +493,7 @@ A pointer to the record to write out.
 
 =back
 
-=head2 I<int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text)>
+=head2 int qwk_get_message(qwk_t *self, ulong record, qwk_header_t *header, char **text)
 
 This method will read in a message record.
 
@@ -517,7 +517,7 @@ A pointer to the message text. This will need to be freed after usage.
 
 =back
 
-=head2 I<int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *record)>
+=head2 int qwk_put_message(qwk_t *self, qwk_header_t *header, char *text, ulong *record)
 
 This method appends a message to the message file.
 
@@ -541,7 +541,7 @@ A pointer to write the record number of the message too.
 
 =back
 
-=head2 I<int qwk_new_header(qwk_t *self, qwk_header_t **header)>
+=head2 int qwk_new_header(qwk_t *self, qwk_header_t **header)
 
 This method creates a new message header. The header will need to be
 freed after usage.
@@ -558,7 +558,7 @@ A pointer to write the created header too.
 
 =back
 
-=head2 I<int qwk_new_ndx(qwk_t *self, ulong record, uchar conference, qwk_ndx_t **ndx)>
+=head2 int qwk_new_ndx(qwk_t *self, ulong record, uchar conference, qwk_ndx_t **ndx)
 
 This method creates a new ndx record. This will need to be freed after
 usage.
@@ -583,7 +583,7 @@ A pointer to write the ndx too.
 
 =back
 
-=head2 I<int qwk_free_text(qwk_t *self, char *text)>
+=head2 int qwk_free_text(qwk_t *self, char *text)
 
 This method will free the text buffer.
 

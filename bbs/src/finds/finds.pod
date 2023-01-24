@@ -36,7 +36,7 @@ the room database.
 
 =head1 METHODS
 
-=head2 I<int find_rooms_all(void *data, int len, room_base_t *room)>
+=head2 int find_rooms_all(void *data, int len, room_base_t *room)
 
 Find all rooms. Suitable for room_search().
 
@@ -56,7 +56,7 @@ The room to compare against.
 
 =back
 
-=head2 I<int find_rooms_messages(void *data, int len, room_base_t *room)>
+=head2 int find_rooms_messages(void *data, int len, room_base_t *room)
 
 Find rooms that manage message resources. Suitable for room_search().
 
@@ -76,7 +76,7 @@ The room to compare against.
 
 =back
 
-=head2 I<int find_rooms_networked(void *data, int len, room_base_t *room)>
+=head2 int find_rooms_networked(void *data, int len, room_base_t *room)
 
 Find all rooms that are networked. Suitable for room_search().
 
@@ -96,7 +96,7 @@ The room to compare against.
 
 =back
 
-=head2 I<int find_room_by_conference(void *data, int len, room_base_t *room)>
+=head2 int find_room_by_conference(void *data, int len, room_base_t *room)
 
 Find the room with this conference number. Suitable for room_find().
 
@@ -116,7 +116,7 @@ The room to compare against.
 
 =back
 
-=head2 I<int find_index_all(ulong selector, jam_index_t *index)>
+=head2 int find_index_all(ulong selector, jam_index_t *index)
 
 Find the indexes that match the selector. In this case it returns all of
 the indexes.
@@ -133,7 +133,7 @@ A pointer to a a jam_index_t index type.
 
 =back
 
-=head2 I<int find_index_by_user(ulong selector, jam_index_t *index)>
+=head2 int find_index_by_user(ulong selector, jam_index_t *index)
 
 Find the indexes that match the selector. In this case it matches the
 JAM crc32 value of the users name.
@@ -150,7 +150,7 @@ A pointer to a a jam_index_t index type.
 
 =back
 
-=head2 I<int find_nodes_all(void *data1, void *data2)>
+=head2 int find_nodes_all(void *data1, void *data2)
 
 Find the nodes the match the criteria. In this case it matches all of
 the nodes.
@@ -167,7 +167,7 @@ A NULL value.
 
 =back
 
-=head2 I<int find_nodes_by_number(void *data1, void *data2)>
+=head2 int find_nodes_by_number(void *data1, void *data2)
 
 Find the nodes the match the criteria. In this case it matches the
 node number.
@@ -184,7 +184,7 @@ A pointer to a node_base_t type.
 
 =back
 
-=head2 I<int find_nodes_active(void *data1, void *data2)>
+=head2 int find_nodes_active(void *data1, void *data2)
 
 Find the nodes the match the criteria. In this case it matches nodes
 that are active.
@@ -201,7 +201,7 @@ A pointer to a node_base_t type.
 
 =back
 
-=head2 I<int find_users_all(void *data1, void *data2)>
+=head2 int find_users_all(void *data1, void *data2)
 
 Find the users the match the criteria. In this case it matches all of the
 users.
@@ -218,7 +218,7 @@ A NULL pointer
 
 =back
 
-=head2 I<int find_user_by_name(void *data1, void *data2)>
+=head2 int find_user_by_name(void *data1, void *data2)
 
 Find the users the match the criteria. In this case it matches a single
 user.

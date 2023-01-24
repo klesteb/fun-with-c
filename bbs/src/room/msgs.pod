@@ -87,7 +87,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<handler_t *msgs_create(files_t *db, char *path, int retries, int timeout, int base, tracer_t *dump)>
+=head2 handler_t *msgs_create(files_t *db, char *path, int retries, int timeout, int base, tracer_t *dump)
 
 This method initializes the class. 
 

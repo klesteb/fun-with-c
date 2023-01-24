@@ -178,7 +178,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<jam_t *jam_create(char *path, char *name, int retries, int timeout, int base, tracer_t *dump)>
+=head2 jam_t *jam_create(char *path, char *name, int retries, int timeout, int base, tracer_t *dump)
 
 This method initializes the class. 
 
@@ -210,7 +210,7 @@ A pointer to a tracer_t object to manage a trace dump.
 
 =back
 
-=head2 I<int jam_destroy(jam_t *self)>
+=head2 int jam_destroy(jam_t *self)
 
 This destroys the object. 
 
@@ -222,7 +222,7 @@ A pointer to the jam_t object.
 
 =back
 
-=head2 I<int jam_override(jam_t *self, item_list_t *items)>
+=head2 int jam_override(jam_t *self, item_list_t *items)
 
 This method allows you to override methods. 
 
@@ -238,7 +238,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int jam_compare(jam_t *this, jam_t *that)>
+=head2 int jam_compare(jam_t *this, jam_t *that)
 
 This method allows you to compare one jam_t object to another. 
 
@@ -254,7 +254,7 @@ A pointer to a jam_t object.
 
 =back
 
-=head2 I<char *jam_version(jam_t *self)>
+=head2 char *jam_version(jam_t *self)
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -267,7 +267,7 @@ A pointer to the jam_t object.
 
 =back
 
-=head2 I<int jam_open(jam_t *self)>
+=head2 int jam_open(jam_t *self)
 
 This method opens the message base. If the message base is new, it
 creates the necessary message base files. 
@@ -280,7 +280,7 @@ A pointer to the jam_t object.
 
 =back
 
-=head2 I<int jam_close(jam_t *self)>
+=head2 int jam_close(jam_t *self)
 
 This method closes access to the message base.
 
@@ -292,7 +292,7 @@ A pointer to the jam_t object.
 
 =back
 
-=head2 I<int jam_remove(jam_t *self)>
+=head2 int jam_remove(jam_t *self)
 
 This method removes all of the files associated with a message base.
 
@@ -304,7 +304,7 @@ A pointer to the JAM object.
 
 =back
 
-=head2 I<int jam_size(jam_t *self, ssize_t *size)>
+=head2 int jam_size(jam_t *self, ssize_t *size)
 
 This method returns the number of messages in a message base. This
 includes deleted messages.
@@ -321,7 +321,7 @@ A pointer used to return the size.
 
 =back
 
-=head2 I<int jam_crc32(jam_t *self, uchar *buffer, ulong length, ulong *result)>
+=head2 int jam_crc32(jam_t *self, uchar *buffer, ulong length, ulong *result)
 
 This method creates the crc32 value used within the library. It is
 compatible with the crc32 value used by L<jamlib|https://sourceforge.net/projects/jamlib/>.
@@ -346,7 +346,7 @@ A pointer to place the results in.
 
 =back
 
-=head2 I<int jam_del_lastread(jam_t *self, ulong user_crc)>
+=head2 int jam_del_lastread(jam_t *self, ulong user_crc)
 
 This method deletes the lastread record for a given user.
 
@@ -362,7 +362,7 @@ The crc32 value of the users name.
 
 =back
 
-=head2 I<int jam_add_lastread(jam_t *self, ulong user_id, ulong user_crc)>
+=head2 int jam_add_lastread(jam_t *self, ulong user_id, ulong user_crc)
 
 This method creates a new lastread record for the given user.
 
@@ -382,7 +382,7 @@ The crc32 value of the users name.
 
 =back
 
-=head2 I<int jam_get_lastread(jam_t *self, ulong user_crc, jam_lastread_t *lastread)>
+=head2 int jam_get_lastread(jam_t *self, ulong user_crc, jam_lastread_t *lastread)
 
 This method will return the lastread record for the given user.
 
@@ -403,7 +403,7 @@ not found. The fields are defaulted to 0 and JAM_NO_CRC;
 
 =back
 
-=head2 I<int jam_put_lastread(jam_t *self, ulong user_crc, jam_lastread_t *lastread)>
+=head2 int jam_put_lastread(jam_t *self, ulong user_crc, jam_lastread_t *lastread)
 
 This method is used to update a lastread record for a given user. If a
 lastread record is not found. It will create a new one.
@@ -424,7 +424,7 @@ A pointer to the data structure to use for the update operation.
 
 =back
 
-=head2 I<int jam_del_lastread(jam_t *self, ulong user_crc)>
+=head2 int jam_del_lastread(jam_t *self, ulong user_crc)
 
 This method deletes the lastread record for a given user.
 
@@ -440,7 +440,7 @@ The crc32 value for the user name.
 
 =back
 
-=head2 I<int jam_search_index(jam_t *self, ulong select, int (*compare)(ulong, jam_index_t *), queue *results)>
+=head2 int jam_search_index(jam_t *self, ulong select, int (*compare)(ulong, jam_index_t *), queue *results)
 
 This method searches the message base index, selecting indexes based on a
 search criteria. These are returned in the results list. 
@@ -466,7 +466,7 @@ A list of jam_search_t types that match the search criteria.
 
 =back
 
-=head2 I<int jam_get_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fields, char **text)>
+=head2 int jam_get_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fields, char **text)
 
 This method returns a message from the message base.
 
@@ -494,7 +494,7 @@ A pointer to return the message text for the message.
 
 =back
 
-=head2 I<int jam_add_message(jam_t *self, jam_message_t *message, queue *fields, char *text)>
+=head2 int jam_add_message(jam_t *self, jam_message_t *message, queue *fields, char *text)
 
 This method adds a new message to the message base.
 
@@ -518,7 +518,7 @@ A pointer to the text of the message.
 
 =back
 
-=head2 I<int jam_del_message(jam_t *self, ulong msgnum)>
+=head2 int jam_del_message(jam_t *self, ulong msgnum)
 
 This method deletes a message.
 
@@ -534,7 +534,7 @@ The message number to delete.
 
 =back
 
-=head2 I<int jam_put_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fields)>
+=head2 int jam_put_message(jam_t *self, ulong msgnum, jam_message_t *message, queue *fields)
 
 This method will update a message.
 
@@ -558,7 +558,7 @@ A pointer to the sub fields associated with this message.
 
 =back
 
-=head2 I<int jam_search_messages(jam_t *self, ulong select, int (*compare)(ulong, jam_message_t *), queue *results)>
+=head2 int jam_search_messages(jam_t *self, ulong select, int (*compare)(ulong, jam_message_t *), queue *results)
 
 This method searches the message base, selecting messages based on a
 search criteria. These are returned in the results list. 
@@ -584,7 +584,7 @@ A list of jam_search_t types that match the search criteria.
 
 =back
 
-=head2 I<int jam_new_field(jam_t *self, ushort item, char *buffer, jam_field_t **field)>
+=head2 int jam_new_field(jam_t *self, ushort item, char *buffer, jam_field_t **field)
 
 This method creates a new field.
 
@@ -608,7 +608,7 @@ A pointer to the new field.
 
 =back
 
-=head2 I<int jam_free_field(jam_t *self, jam_field_t *field)>
+=head2 int jam_free_field(jam_t *self, jam_field_t *field)
 
 This method frees the memory used by the field.
 
@@ -624,7 +624,7 @@ A pointer to the field.
 
 =back
 
-=head2 I<int jam_new_message(jam_t *self, jam_message_t **message)>
+=head2 int jam_new_message(jam_t *self, jam_message_t **message)
 
 This method creates a new message header.
 

@@ -45,11 +45,11 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<door_t *door_create(NULL)>
+=head2 door_t *door_create(NULL)
 
 This method initializes the class. 
 
-=head2 I<int door_destroy(door_t *self)>
+=head2 int door_destroy(door_t *self)
 
 This destroys the object. 
 
@@ -61,7 +61,7 @@ A pointer to the door_t object.
 
 =back
 
-=head2 I<int door_override(door_t *self, item_list_t *items)>
+=head2 int door_override(door_t *self, item_list_t *items)
 
 This method allows you to override methods. 
 
@@ -77,7 +77,7 @@ An array of item_list_t data types. The array is 0 terminated.
 
 =back
 
-=head2 I<int door_compare(door_t *this, door_t *that)>
+=head2 int door_compare(door_t *this, door_t *that)
 
 This method allows you to compare one door_t object to another. 
 
@@ -93,7 +93,7 @@ A pointer to a door_t object.
 
 =back
 
-=head2 I<char *door_version(door_t *self)>
+=head2 char *door_version(door_t *self)
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
